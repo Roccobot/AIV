@@ -17,63 +17,39 @@ import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 /*
- * ⚠️⚠️ **A CHE COSA SERVE QUESTO FILE: È IL CONTO DELL'EDITOR COMPLETO, E NE ESISTE UNA COPIA
- * SOLA.** L'editor semplice sa mettere un'immagine in posa e ritagliarla, cioè non tocca un pixel;
- * quello che l'utente ha chiesto (*luminosità/contrasto e tonalità/saturazione fatte BENE, curve,
- * raddrizzamento*) cambia invece ogni pixel, e per farlo mentre lui muove un cursore serve che il
- * conto giri sulla **scheda grafica**.
+ * ⚠️ **Il conto dell'editor completo, in una copia sola.** L'editor semplice mette in posa e
+ * ritaglia senza toccare un pixel; questo cambia ogni pixel mentre si muove un cursore, quindi il
+ * conto gira sulla scheda grafica.
  *
- * ⚠️⚠️ **IL CONTO VIVE IN AGSL E NON ANCHE IN KOTLIN, ED È UNA DECISIONE DICHIARATA.** La via
- * comoda sarebbe scriverlo due volte: uno shader per l'anteprima, che dev'essere immediata, e un
- * giro sui pixel in Kotlin per il salvataggio, che deve lavorare sul file pieno. Sono **due
- * implementazioni della stessa matematica**, e il giorno che una cambia l'altra mente: l'utente
- * vedrebbe un'anteprima e salverebbe un'altra immagine, senza che niente dia errore. Quindi il
- * programma è uno, e il salvataggio lo fa girare fuori schermo (vedi `AdjustRender.kt`).
- * - ⚠️ **Il prezzo è dichiarato**: `RuntimeShader` nasce con Android 13, quindi sotto quella
- *   versione l'editor completo non c'è. È l'istruzione dell'utente dell'11 settembre, e là resta
- *   l'editor semplice, che non perde niente perché lavora sulla posa.
- * - ⚠️ **E il banco non può misurare i pixel che ne escono**: una prova gira senza scheda
- *   grafica. Quello che il banco misura è il modello e la struttura, ed è scritto nelle prove.
+ * ⚠️ **Il conto vive in AGSL e non anche in Kotlin**: due implementazioni, una per l'anteprima e
+ * una per il salvataggio, potrebbero divergere, e si salverebbe un'immagine diversa da quella vista
+ * senza nessun errore. Il programma è uno, e il salvataggio lo fa girare fuori schermo (vedi
+ * `AdjustRender.kt` e `Rules.md` § '🎚️ L'editor completo'). Il prezzo: `RuntimeShader` nasce con
+ * Android 13, e sotto c'è solo l'editor semplice (istruzione dell'utente). Il banco non misura i
+ * pixel che ne escono, perché gira senza scheda grafica: misura modello e struttura.
  *
- * ⚠️⚠️ **I CONTI SI FANNO IN LUCE LINEARE, NON SUI NUMERI DEL FILE.** Un valore sRGB non è la
- * quantità di luce: è quella quantità passata per una curva che imita l'occhio. Sommare o
- * moltiplicare là dentro dà i risultati sporchi che si vedono negli editor fatti male (un
- * contrasto che vira, un'esposizione che spegne i colori). Qui si va in lineare, si fa il conto,
- * e si torna: l'andata e il ritorno costano quattro `pow` per pixel, che sulla scheda grafica non
- * si sentono.
+ * ⚠️ **I conti si fanno in luce lineare, non sui numeri del file**: un valore sRGB è la luce
+ * passata per una curva che imita l'occhio, e sommare o moltiplicare là dentro dà un contrasto che
+ * vira e un'esposizione che spegne i colori. Andata e ritorno costano quattro `pow` per pixel.
  *
- * ⚠️⚠️ **E I COLORI CHE ARRIVANO SONO PREMOLTIPLICATI**: `shader.eval` in Skia dà il colore già
- * moltiplicato per la propria opacità, quindi su un PNG con trasparenza un conto fatto così
- * com'è tratterebbe un pixel semitrasparente come un pixel scuro. Si divide per l'opacità prima e
- * si rimoltiplica dopo. Su una fotografia opaca la divisione è per uno e non cambia niente, ed è
- * la ragione per cui questo difetto non si vedrebbe provando.
+ * ⚠️ **I colori arrivano premoltiplicati**: `shader.eval` in Skia dà il colore già moltiplicato per
+ * la sua opacità, quindi su un PNG con trasparenza un pixel semitrasparente sembrerebbe scuro. Si
+ * divide per l'opacità prima e si rimoltiplica dopo; su un'immagine opaca non cambia niente, ed è
+ * per questo che il difetto non si vedrebbe provando.
  */
 
 /**
- * Il modulo **Luce**: i sei valori che dicono quanta luce ha un'immagine e come è distribuita.
+ * Il modulo **Luce**: i sei valori di quanta luce ha un'immagine e come è distribuita, quelli del
+ * pannello base di Lightroom, nello stesso ordine (voce `luce-taratura`).
  *
- * ⚠️⚠️ **SONO I SEI DEL PANNELLO BASE DI LIGHTROOM, NELLO STESSO ORDINE, DALLA `2.16`, ED È IL SUO
- * RISCONTRO** (giro della `2.15`, voce `luce-taratura` accettabile: *'Luminosità', oltre a
- * confondermi (Lightroom ha solo 'Esposizione'), è anche ben poco 'smart' dato che l'output va da
- * 100% nero a 100% bianco*). Fino alla `2.15` erano cinque, e uno era **Luminosità**: un passo
- * additivo verso il bianco o verso il nero, che al fondo della corsa dava esattamente il
- * rettangolo bianco o nero che lui ha descritto. Al suo posto entrano i due che mancavano,
- * [whites] e [blacks], che spostano i **punti** dell'intervallo tonale invece di spingerci dentro
- * tutta l'immagine.
- * - ⚠️ **Non è una sostituzione alla pari, ed è la ragione per cui sono due**: la luminosità
- *   toccava tutto allo stesso modo, i punti toccano gli estremi e lasciano stare il resto. Quello
- *   che 'Luminosità' faceva bene lo fa [exposure], che è il cursore che Lightroom ha al suo posto.
- *
- * ⚠️⚠️ **OGNUNO FA UNA COSA CHE GLI ALTRI NON SANNO FARE**: [exposure] moltiplica la luce (è il
- * diaframma), [contrast] allarga o stringe la distanza fra scuri e chiari intorno al grigio medio,
- * [highlights] e [shadows] **recuperano** una fascia larga a un'estremità, [whites] e [blacks]
- * spostano il punto in cui l'immagine diventa bianca o nera. Le prime due toccano tutto, le altre
- * quattro lavorano su un'estremità, e le due coppie si distinguono per **quanto sono larghe**: una
+ * Ognuno fa una cosa che gli altri non sanno fare: [exposure] moltiplica la luce (il diaframma),
+ * [contrast] allarga o stringe la distanza fra scuri e chiari intorno al grigio medio, [highlights]
+ * e [shadows] recuperano una fascia larga a un'estremità, [whites] e [blacks] spostano il punto in
+ * cui l'immagine diventa bianca o nera. Le due coppie si distinguono per quanto sono larghe: una
  * fascia contro un punto.
  *
- * ⚠️ **L'unità di [exposure] è lo STOP**, cioè quella della fotografia: +1 vuol dire il doppio
- * della luce, -1 la metà. Gli altri cinque sono frazioni da -1 a +1, e l'interfaccia li mostra da
- * -100 a +100 perché è il linguaggio che lui conosce da Lightroom.
+ * L'unità di [exposure] è lo stop: +1 è il doppio della luce. Gli altri cinque sono frazioni da -1
+ * a +1, e l'interfaccia li mostra da -100 a +100, come Lightroom.
  */
 data class Light(
     val exposure: Float = 0f,
@@ -85,23 +61,18 @@ data class Light(
 ) {
 
     /**
-     * Se questo modulo non cambia un pixel.
-     *
-     * ⚠️ **Si confronta con una tolleranza e non con lo zero esatto**: un cursore lasciato
-     * andare può fermarsi a un millesimo dallo zero, e quel millesimo non si vede ma
-     * costringerebbe a riscrivere il file. La soglia è quella sotto cui il conto non muove
-     * nemmeno un livello su 255.
+     * Se questo modulo non cambia un pixel. Si confronta con una tolleranza: un cursore lasciato
+     * andare può fermarsi a un millesimo dallo zero, che non si vede ma costringerebbe a riscrivere
+     * il file. La soglia è quella sotto cui il conto non muove un livello su 255.
      */
     val idle: Boolean
         get() = abs(exposure) < DEAD && abs(contrast) < DEAD && abs(highlights) < DEAD &&
             abs(shadows) < DEAD && abs(whites) < DEAD && abs(blacks) < DEAD
 
     /**
-     * Il fattore per cui si moltiplica la luce, cioè due elevato agli stop.
-     *
-     * ⚠️ **Il conto vive qui e non nello shader**, perché uno stop è una convenzione della
-     * fotografia e non un'operazione grafica: dentro il programma arriva un numero puro, e il
-     * programma non ha bisogno di sapere che cosa sia uno stop.
+     * Il fattore per cui si moltiplica la luce, cioè due elevato agli stop. Il conto è qui e non
+     * nello shader: lo stop è una convenzione della fotografia, e al programma arriva un numero
+     * puro.
      */
     val gain: Float get() = 2f.pow(exposure)
 
@@ -117,28 +88,18 @@ data class Light(
 }
 
 /**
- * Il modulo **Colore**: che tinta ha la luce, e quanto sono accesi i colori.
+ * Il modulo **Colore**: che tinta ha la luce, e quanto sono accesi i colori. [temp] e [tint]
+ * rifanno il bilanciamento del bianco, [saturation] e [vibrance] decidono quanto i colori sono
+ * accesi, [mono] li toglie.
  *
- * ⚠️⚠️ **È IL SECONDO MODULO, DALLA `2.19`, ED È IL SUO CAMPO LIBERO** (giro della `2.18`: *vai
- * avanti con gli altri step dell'editor completo*). Dove la Luce dice **quanta** luce c'è e come è
- * distribuita, questo dice **di che colore** è: [temp] e [tint] rifanno il bilanciamento del
- * bianco, [saturation] e [vibrance] decidono quanto i colori sono accesi, [mono] li toglie.
+ * ⚠️ **Saturazione e vividezza sono due cursori diversi**: la saturazione muove tutti i colori allo
+ * stesso modo, e i colori già accesi arrivano al limite e si impastano; la vividezza pesa il suo
+ * effetto sull'inverso di quanto un colore è già saturo, quindi lavora sui colori spenti (è il
+ * cursore dei ritratti: l'incarnato è poco saturo, il cielo dietro no).
  *
- * ⚠️⚠️ **SATURAZIONE E VIVIDEZZA NON SONO LO STESSO CURSORE PIÙ PIANO, e questa è la ragione per
- * cui sono due**: la saturazione muove tutti i colori allo stesso modo, quindi alzandola i colori
- * già accesi arrivano al limite e si impastano (una maglietta rossa diventa una macchia). La
- * vividezza pesa il suo effetto sull'**inverso** di quanto un colore è già saturo, quindi lavora
- * sui colori spenti e lascia stare quelli accesi: è il cursore che si usa sui ritratti, perché
- * l'incarnato è poco saturo e il cielo dietro no.
- *
- * ⚠️⚠️ **I PESI PER FASCIA DEL BIANCO E NERO NON SONO QUI, E DALLA `2.21` SI SA DOVE SONO**: il
- * piano d'azione li metteva in questo modulo, ma sono la **stessa macchina** delle otto fasce
- * dell'HSL, e adesso vivono là (vedi [Mix]), che è la sua risposta `hsl` a `d-bn-pesi`. Qui [mono]
- * usa i pesi percettivi di Rec. 709, cioè quelli con cui l'occhio vede il grigio, e chi vuole
- * scurire i cieli di una fotografia in bianco e nero muove la luminanza della fascia del blu.
- *
- * ⚠️ **Sono tutti frazioni da -1 a +1**, e l'interfaccia li mostra da -100 a +100 come quelli
- * della Luce: è il linguaggio di Lightroom, che è quello che lui conosce.
+ * I pesi per fascia del bianco e nero sono nell'HSL ([Mix]), risposta `hsl` dell'utente a
+ * `d-bn-pesi`: [mono] usa i pesi di Rec. 709, e chi vuole scurire i cieli muove la luminanza della
+ * fascia del blu. Tutti frazioni da -1 a +1, mostrati da -100 a +100.
  */
 data class Chroma(
     val temp: Float = 0f,
@@ -147,31 +108,20 @@ data class Chroma(
     val vibrance: Float = 0f,
     val mono: Boolean = false,
     /**
-     * Il **filtro** davanti all'obiettivo, dalla `2.35`: come i colori diventano grigi.
-     *
-     * ⚠️⚠️ **È SUA RICHIESTA** (2026-09-13: *in 'Colore', se attivo 'bianco e nero', voglio che
-     * appaia uno slider 'Filtro' che definisca la resa del bianco e nero in base a come sono
-     * mappati i colori nell'output*). In fotografia un filtro colorato davanti all'obiettivo
-     * schiarisce i soggetti del proprio colore e scurisce i complementari: il giallo, l'arancione
-     * e il rosso scuriscono il cielo, il blu lo schiarisce.
-     * ⚠️⚠️ **ZERO È IL BIANCO E NERO DI SEMPRE**: a riposo i pesi sono quelli di Rec. 709, quindi
-     * chi aggiorna non si ritrova le sue immagini diverse. Il conto vive in [greyMix].
-     * ⚠️ **Conta solo col [mono] acceso**, e per questo non entra in [idle]: senza bianco e nero
-     * non c'è nessun grigio da comporre, e l'interfaccia lo spegne.
-     * ⚠️⚠️ **E DALLA `2.37` LA SUA RIGA VIVE SOTTO L'INTERRUTTORE E NON SI NASCONDE PIÙ**, che è il
-     * punto A del suo campo libero del giro della `2.36`: la `2.36` la toglieva dalla scena a
-     * colori, e adesso c'è sempre, spenta, subito dopo il comando da cui dipende. Il perché vive su
-     * `FILTER_ROW`, in `AdvancedEditorScreen.kt`.
+     * Il **filtro** davanti all'obiettivo: come i colori diventano grigi (richiesta dell'utente).
+     * In fotografia un filtro colorato schiarisce i soggetti del suo colore e scurisce i
+     * complementari: giallo, arancione e rosso scuriscono il cielo, il blu lo schiarisce. Zero è il
+     * bianco e nero coi pesi di Rec. 709, quindi chi aggiorna ritrova le sue immagini uguali; il
+     * conto è in [greyMix]. Conta solo col [mono] acceso, e per questo non entra in [idle]. La sua
+     * riga è sotto l'interruttore, spenta col bianco e nero spento (vedi `FILTER_ROW` in
+     * `AdvancedEditorScreen.kt`).
      */
     val filter: Float = 0f
 ) {
 
     /**
-     * Se questo modulo non cambia un pixel: vedi la nota sulla tolleranza in [Light.idle].
-     *
-     * ⚠️ **Il filtro non ci entra**, ed è la conseguenza di che cosa fa: senza [mono] non tocca
-     * niente, e con [mono] questa risposta è già `false`. Contarlo vorrebbe dire dichiarare da
-     * riscrivere un'immagine a colori su cui è stato mosso un cursore che là non governa niente.
+     * Se questo modulo non cambia un pixel: vedi la tolleranza in [Light.idle]. Il filtro non ci
+     * entra: senza [mono] non tocca niente, e con [mono] questa risposta è già `false`.
      */
     val idle: Boolean
         get() = !mono && abs(temp) < DEAD && abs(tint) < DEAD &&
@@ -180,22 +130,14 @@ data class Chroma(
     /**
      * I tre pesi con cui questo filtro fa il grigio, nell'ordine rosso, verde, blu.
      *
-     * ⚠️⚠️ **SOMMANO SEMPRE UNO, E QUELLA È LA PROPRIETÀ CHE TIENE FERMA L'ESPOSIZIONE**: le tre
-     * terne fra cui si interpola sommano a uno ciascuna, quindi ci somma anche qualunque loro
-     * miscela, e un grigio esce **con lo stesso valore** qualunque filtro si scelga. Senza, il
-     * cursore sarebbe anche un'esposizione, e a fondo corsa l'immagine si scurirebbe.
-     * ⚠️⚠️ **I DUE ESTREMI SONO I DUE FILTRI CLASSICI, E LA CORSA CI PASSA IN MEZZO**: verso il
-     * caldo si attraversano il giallo e l'arancione prima di arrivare al rosso, verso il freddo il
-     * ciano prima del blu, perché un'interpolazione fra Rec. 709 e una terna sbilanciata su un
-     * capo produce esattamente quella famiglia. Sono i quattro filtri che si mettevano davanti a
-     * un obiettivo, e stanno tutti su un asse solo.
-     * ⚠️ **È un asse e non una ruota**, ed è una scelta dichiarata: su una ruota lo zero (nessun
-     * filtro) non avrebbe un posto, perché ogni angolo è un colore; su un asse lo zero è il centro
-     * e i due versi sono le due cose che si vogliono davvero fare, cioè scurire o schiarire il
-     * cielo.
-     * ⚠️ **Il verde resta dov'è ai due estremi**: un filtro verde serve al fogliame ed è il terzo
-     * della famiglia, ma su un asse solo non ci sta; chi lo vuole muove la luminanza della fascia
-     * verde dell'HSL, che dalla `2.21` è la miscela per fascia del bianco e nero.
+     * ⚠️ **Sommano sempre uno, e questo tiene ferma l'esposizione**: le terne fra cui si interpola
+     * sommano a uno, quindi anche ogni loro miscela, e un grigio esce con lo stesso valore
+     * qualunque filtro si scelga. Senza, a fondo corsa l'immagine si scurirebbe. I due estremi sono
+     * i due filtri classici, e la corsa attraversa il giallo e l'arancione verso il rosso, il ciano
+     * verso il blu. È un asse e non una ruota: su una ruota lo zero (nessun filtro) non avrebbe un
+     * posto, su un asse è il centro, e i due versi scuriscono o schiariscono il cielo. Il filtro
+     * verde, per il fogliame, su un asse solo non entra: c'è la luminanza della fascia verde
+     * dell'HSL.
      */
     val grey: FloatArray get() = greyMix(filter)
 
@@ -203,31 +145,24 @@ data class Chroma(
         val NONE = Chroma()
 
         /**
-         * I pesi del grigio a filtro fermo: quelli con cui l'occhio vede la luminanza.
-         *
-         * ⚠️ **Sono gli stessi che lo shader usa in `luma`**, e là restano scritti: quella
-         * funzione serve alle maschere della Luce e alla saturazione, che col filtro non
-         * c'entrano. Qui l'elenco esiste perché il conto del filtro parte da lui.
+         * I pesi del grigio a filtro fermo: quelli con cui l'occhio vede la luminanza. Sono gli
+         * stessi che lo shader usa in `luma`, e là restano scritti: quella funzione serve alle
+         * maschere della Luce e alla saturazione, che col filtro non c'entrano.
          */
         val REC709 = floatArrayOf(0.2126f, 0.7152f, 0.0722f)
 
         /**
          * Il filtro rosso: il cielo viene cupo e l'incarnato chiaro.
          *
-         * ⚠️⚠️ **PIÙ FORTE DALLA `2.37`, ED È LA SUA NOTA SULLA VOCE `bn-filtro`** (giro della
-         * `2.36`, esito accettabile: *me l'aspettavo più ampio, ma può anche andare*). Il conto
-         * misura quanto: con i pesi della `2.35` un cielo azzurro scendeva di **11 punti su 100** e
-         * l'incarnato saliva di 8, quindi lo stacco fra i due passava da 10 a 29; adesso il cielo
-         * scende di 19 e l'incarnato sale di 13, e quello stacco vale **42**. Cioè il fondo corsa
-         * fa poco più del doppio di prima.
-         * ⚠️⚠️ **IL VERDE NON ARRIVA A ZERO, E QUELLO CHE LO TIENE SU È UN CASO MISURATO**: coi
-         * pesi di un canale solo (1, 0, 0) un cielo blu **puro** diventerebbe nero, cioè le nuvole
-         * scure perderebbero ogni disegno; un filtro vero davanti a un obiettivo lascia passare un
-         * po' di tutto, e questi due numeri sono quel poco.
+         * ⚠️ **La forza è misurata** (nota sulla voce `bn-filtro`, che lo voleva più ampio): a
+         * fondo corsa un cielo azzurro scende di 19 punti su 100 e l'incarnato sale di 13, e lo
+         * stacco fra i due vale 42. Il verde non arriva a zero: con un canale solo (1, 0, 0) un
+         * cielo blu puro diventerebbe nero e le nuvole scure perderebbero il disegno; un filtro
+         * vero lascia passare un po' di tutto.
          */
         private val WARM = floatArrayOf(0.85f, 0.15f, 0.00f)
 
-        /** Il filtro blu: il cielo viene lattiginoso e le labbra scure. Vedi la misura su [WARM]. */
+        /** Il filtro blu: il cielo viene lattiginoso e le labbra scure. Vedi [WARM]. */
         private val COOL = floatArrayOf(0.00f, 0.15f, 0.85f)
 
         /** I pesi del grigio per il filtro [f], da -1 (blu) a +1 (rosso): vedi [Chroma.grey]. */
@@ -244,15 +179,12 @@ data class Chroma(
 }
 
 /**
- * Che cosa si chiede a **una** delle otto fasce di colore: spostane la tonalità, accendila o
- * spegnila, schiariscila o scuriscila.
- *
- * ⚠️ **Sono tre frazioni da -1 a +1**, come i cursori degli altri due moduli, e l'interfaccia le
- * mostra da -100 a +100: è il linguaggio di Lightroom, che è quello che lui conosce.
+ * Che cosa si chiede a una delle otto fasce di colore: spostane la tonalità, accendila o spegnila,
+ * schiariscila o scuriscila. Tre frazioni da -1 a +1, mostrate da -100 a +100.
  */
 data class Band(val hue: Float = 0f, val sat: Float = 0f, val lum: Float = 0f) {
 
-    /** Se questa fascia non cambia un pixel: vedi la nota sulla tolleranza in [Light.idle]. */
+    /** Se questa fascia non cambia un pixel: vedi la tolleranza in [Light.idle]. */
     val idle: Boolean get() = abs(hue) < DEAD && abs(sat) < DEAD && abs(lum) < DEAD
 
     companion object {
@@ -263,31 +195,18 @@ data class Band(val hue: Float = 0f, val sat: Float = 0f, val lum: Float = 0f) {
 }
 
 /**
- * Il modulo **HSL**: gli stessi tre comandi ripetuti su otto fasce di colore.
+ * Il modulo **HSL**: gli stessi tre comandi ripetuti su otto fasce di colore. Dove il modulo Colore
+ * parla a tutta l'immagine, questo parla a un colore solo: si accende il cielo lasciando stare
+ * l'incarnato. Una fascia non toccata non costa niente.
  *
- * ⚠️⚠️ **È IL TERZO MODULO, DALLA `2.21`, ED È IL SUO CAMPO LIBERO** (giro della `2.20`: *mi
- * sembra più logico implementare HSL dopo il colore, va' avanti con quello*). Prende il posto del
- * Dettaglio, che scala di un giro: fino a quel messaggio l'ordine era quello della sua risposta
- * `subito` a `d-dettaglio`, e questa istruzione lo rovescia.
+ * ⚠️ **Qui vivono anche i pesi per fascia del bianco e nero** (risposta `hsl` a `d-bn-pesi`): col
+ * bianco e nero acceso resta [lum], che diventa quanto quel colore pesa nel grigio. È lo stesso
+ * conto, e il bianco e nero viene dopo di lui per raccoglierne il risultato.
  *
- * ⚠️⚠️ **DOVE IL MODULO COLORE PARLA A TUTTA L'IMMAGINE, QUESTO PARLA A UN COLORE SOLO, ed è
- * questo che lo rende un modulo a sé**: la saturazione del Colore accende tutto insieme, qui si
- * accende il cielo lasciando stare l'incarnato. La macchina è la stessa per tutte e otto le fasce,
- * e una fascia non toccata non costa niente.
- *
- * ⚠️⚠️ **E QUI DENTRO VIVONO ANCHE I PESI PER FASCIA DEL BIANCO E NERO, CHE È LA SUA RISPOSTA
- * `hsl` A `d-bn-pesi`** (giro della `2.19`): col bianco e nero acceso le prime due righe non hanno
- * più niente da fare e resta [lum], che diventa **quanto quel colore pesa nel grigio**. Non è un
- * secondo meccanismo che gli somiglia: è lo stesso conto, e il bianco e nero viene dopo di lui
- * proprio perché possa raccoglierne il risultato.
- *
- * ⚠️⚠️ **I CENTRI DELLE FASCE VIVONO QUI E NON NELLO SHADER, e non è una comodità**: li leggono in
- * due, il conto (per sapere a quale fascia appartiene un pixel) e l'interfaccia (per dare a ogni
- * pastiglia il colore della sua fascia). Scritti due volte, il giorno che uno si sposta la
- * pastiglia direbbe un colore che il conto non tocca.
- * - ⚠️ **Non sono equispaziati, ed è di proposito**: sono gli otto di Lightroom, dove fra il rosso
- *   e il giallo ci sono tre fasce in 60 gradi e fra il giallo e l'acqua due in 120. La ruota dei
- *   colori non è uniforme per l'occhio, e quei centri stanno dove l'occhio distingue.
+ * ⚠️ **I centri delle fasce sono qui e non nello shader**: li leggono il conto e l'interfaccia (il
+ * colore di ogni pastiglia), e scritti due volte potrebbero divergere. Non sono equispaziati: sono
+ * gli otto di Lightroom, dove fra il rosso e il giallo ci sono tre fasce in 60 gradi e fra il
+ * giallo e l'acqua due in 120, perché l'occhio non distingue i colori in modo uniforme sulla ruota.
  */
 data class Mix(val bands: List<Band> = List(COUNT) { Band.NONE }) {
 
@@ -305,10 +224,9 @@ data class Mix(val bands: List<Band> = List(COUNT) { Band.NONE }) {
         const val COUNT = 8
 
         /**
-         * Dov'è il centro di ogni fascia, in frazione di giro (0 = rosso).
-         *
-         * ⚠️ **È un `FloatArray` perché finisce tale e quale in un uniform**: `setFloatUniform`
-         * vuole quello, e una conversione a ogni fotogramma sarebbe una copia per niente.
+         * Dov'è il centro di ogni fascia, in frazione di giro (0 = rosso). Un `FloatArray` perché
+         * finisce tale e quale in un uniform (`setFloatUniform`), senza una conversione a ogni
+         * fotogramma.
          */
         val CENTRES = floatArrayOf(
             0f, 30f / 360f, 60f / 360f, 120f / 360f,
@@ -316,13 +234,11 @@ data class Mix(val bands: List<Band> = List(COUNT) { Band.NONE }) {
         )
 
         /**
-         * Fin dove arriva una fascia dalla parte delle tonalità più alte, e da quella delle più
-         * basse: esattamente fino al centro vicino.
-         *
-         * ⚠️⚠️ **SI RICAVANO DAI CENTRI E NON SI SCRIVONO, ed è quello che fa tornare il conto**:
-         * con un raggio uguale alla distanza dal vicino, fra due centri adiacenti i due pesi
-         * sommano a uno e tutti gli altri valgono zero, quindi il conto non ha bisogno di
-         * normalizzare niente. Il perché un raggio unico non basti vive su `pick`, nello shader.
+         * Fin dove arriva una fascia verso le tonalità più alte, e verso le più basse: esattamente
+         * fino al centro vicino. Si ricavano dai centri: con un raggio uguale alla distanza dal
+         * vicino, fra due centri adiacenti i due pesi sommano a uno e gli altri valgono zero,
+         * quindi il conto non deve normalizzare. Il perché un raggio unico non basti è su `pick`,
+         * nello shader.
          */
         val SPAN_HI = FloatArray(COUNT) { round(CENTRES[(it + 1) % COUNT] - CENTRES[it]) }
         val SPAN_LO = FloatArray(COUNT) { round(CENTRES[it] - CENTRES[(it + COUNT - 1) % COUNT]) }
@@ -331,16 +247,13 @@ data class Mix(val bands: List<Band> = List(COUNT) { Band.NONE }) {
         private fun round(x: Float): Float = x - floor(x)
 
         /**
-         * A quale fascia appartiene il colore [pixel], cioè quale centro è il più vicino alla sua
-         * tonalità, oppure `-1` se quel colore è un grigio.
+         * A quale fascia appartiene il colore [pixel], cioè il centro più vicino alla sua tonalità,
+         * o `-1` se il colore è un grigio.
          *
-         * ⚠️⚠️ **SERVE AL COLORE MIRATO, E IL GRIGIO NON È UN CASO LIMITE DA CHIUDERE CON UNO
-         * ZERO**: un pixel senza colore non appartiene a nessuna fascia (è esattamente la ragione
-         * per cui il conto dello shader lo lascia stare), quindi rispondere 'rosso' vorrebbe dire
-         * mandare il dito su una fascia che con quel pixel non c'entra. Chi chiama non fa niente.
-         *
-         * ⚠️ **La tonalità si ricava qui e non si chiede allo shader**: quello gira sulla scheda
-         * grafica e non risponde a domande, e il conto è di sei righe.
+         * ⚠️ **Serve al colore mirato, e il grigio non appartiene a nessuna fascia** (il conto
+         * dello shader lo lascia stare): rispondere 'rosso' manderebbe il dito su una fascia che
+         * con quel pixel non c'entra, e chi chiama non fa niente. La tonalità si ricava qui, perché
+         * lo shader non risponde a domande.
          */
         fun bandOf(pixel: Int): Int {
             val r = ((pixel shr 16) and 0xFF) / 255f
@@ -372,33 +285,20 @@ data class Mix(val bands: List<Band> = List(COUNT) { Band.NONE }) {
 }
 
 /**
- * Il modulo **Dettaglio**: quanto il disegno fine si accentua, e quanto rumore si toglie.
+ * Il modulo **Dettaglio**: quanto il disegno fine si accentua, e quanto rumore si toglie (le due
+ * funzioni chieste dall'utente, 'Maschera di contrasto' e 'Riduzione rumore'). È il primo modulo
+ * che guarda i pixel vicini, e da lì viene quello che costa.
  *
- * ⚠️⚠️ **È IL QUARTO MODULO, DALLA `2.22`, E SONO LE DUE FUNZIONI CHE HA CHIESTO LUI** (campo
- * libero del giro della `2.15`: *'Maschera di contrasto' e 'Riduzione rumore'*). Dove gli altri tre
- * moduli parlano del **colore** di un pixel, questo parla del suo **intorno**: sono le prime due
- * operazioni dell'editor che guardano i pixel vicini, e da qui viene tutto quello che costano.
+ * ⚠️ **Le misure sono frazioni del lato e non pixel**: il conto gira sull'anteprima ridotta e sul
+ * file pieno a tessere, e un raggio in pixel darebbe due risultati diversi. In frazione del lato
+ * ognuno lo converte con la sua misura, e i due coincidono in proporzione. Il limite dichiarato:
+ * l'anteprima è già una riduzione, quindi la grana del sensore là è già mediata, e la riduzione del
+ * rumore si giudica sul file salvato.
  *
- * ⚠️⚠️ **LE MISURE SONO FRAZIONI DEL LATO E NON PIXEL, ED È QUESTO CHE TIENE INSIEME L'ANTEPRIMA E
- * IL FILE SALVATO.** Il conto gira su due immagini di misura diversa: l'anteprima, che l'editor
- * riduce per lavorare in fretta, e il file pieno, che il salvataggio lavora a tessere. Un raggio
- * scritto in pixel darebbe due risultati diversi (sull'anteprima, ridotta due volte e mezzo,
- * peserebbe più del doppio); scritto come frazione del lato, ognuno dei due lo converte con la
- * **propria** misura e i due risultati coincidono in proporzione, senza nessun secondo dato da
- * tenere allineato.
- * - ⚠️ **Quello che resta fuori si dichiara**: l'anteprima è già una riduzione, quindi la grana
- *   fine del sensore là è **già stata mediata**, e la riduzione del rumore si giudica davvero sul
- *   file salvato. È lo stesso limite per cui in un editor da tavolo la nitidezza si guarda al 100%.
- *
- * ⚠️⚠️ **DUE CURSORI SU CINQUE NON CAMBIANO UN PIXEL DA SOLI, ed è la ragione per cui [idle] ne
- * guarda tre**: [radius] e [masking] non sono quantità, sono **come** la maschera di contrasto
- * lavora. Con [sharpen] a zero non c'è nessuna maschera da governare, e infatti l'interfaccia li
- * spegne.
- *
- * ⚠️ **[radius] è l'unico bipolare dei cinque**: lo zero è il raggio di serie, e la corsa lo
- * raddoppia o lo dimezza. Gli altri quattro partono da zero perché 'nessuna nitidezza' e 'nessuna
- * riduzione' sono il loro fondo naturale: una nitidezza negativa sarebbe una sfocatura, e una
- * riduzione del rumore negativa non vuol dire niente.
+ * [radius] e [masking] non cambiano un pixel da soli: dicono come lavora la maschera di contrasto,
+ * quindi [idle] non li guarda e l'interfaccia li spegne con [sharpen] a zero. [radius] è il solo
+ * bipolare: lo zero è il raggio di serie, e la corsa lo raddoppia o lo dimezza; gli altri partono
+ * da zero, perché una nitidezza negativa sarebbe una sfocatura.
  */
 data class Detail(
     val sharpen: Float = 0f,
@@ -416,28 +316,20 @@ data class Detail(
     val flat: Boolean get() = abs(sharpen) < DEAD
 
     /**
-     * Il raggio della maschera di contrasto, in unità dello spazio in cui il conto gira, dato il
-     * lato lungo dell'immagine [long] nello stesso spazio.
-     *
-     * ⚠️ **Il cursore raddoppia e dimezza invece di sommare**, perché un raggio si percepisce in
-     * rapporti: a zero vale [SHARP_SPAN] del lato, che su un file da quattromila pixel sono quattro
-     * pixel, cioè il micro-contrasto; al fondo della corsa si va da due a otto, che è il tratto
-     * che separa la nitidezza di cattura dal disegno a media scala.
+     * Il raggio della maschera di contrasto nello spazio in cui il conto gira, dato il lato lungo
+     * [long] nello stesso spazio. Il cursore raddoppia e dimezza, perché un raggio si percepisce in
+     * rapporti: a zero vale [SHARP_SPAN] del lato (quattro pixel su un file da quattromila, il
+     * micro-contrasto), e la corsa va da due a otto.
      */
     fun sharpReach(long: Float): Float = SHARP_SPAN * long * 2f.pow(radius)
 
     /**
      * Quanti pixel di sovrapposizione vuole una tessera del salvataggio, dato il lato lungo
-     * dell'immagine **intera**.
+     * dell'immagine intera.
      *
-     * ⚠️⚠️ **SI RICAVA DAL CONTO E NON È UN NUMERO SCRITTO A MANO**: il bordo serve perché il
-     * filtro legge i vicini, quindi è esattamente quanto il filtro arriva lontano. Un numero fisso
-     * sarebbe troppo piccolo sulle immagini grandi (una riga sulle giunzioni) o sprecato su quelle
-     * piccole.
-     * - ⚠️ **Il pixel in più copre il campionamento bilineare**, che a coordinate frazionarie legge
-     *   un pixel oltre quello che il raggio dichiara.
-     * - ⚠️ **A modulo spento vale zero**, quindi chi non usa questa funzione non paga niente: le
-     *   tessere tornano quelle di prima.
+     * Si ricava dal conto: il bordo serve perché il filtro legge i vicini, quindi è quanto il
+     * filtro arriva lontano. Il pixel in più copre il campionamento bilineare, che a coordinate
+     * frazionarie legge un pixel oltre il raggio. A modulo spento vale zero.
      */
     fun bleed(long: Float): Int {
         var reach = 0f
@@ -453,21 +345,17 @@ data class Detail(
         private const val DEAD = 0.0005f
 
         /**
-         * Il raggio di serie della maschera di contrasto, in frazione del lato lungo.
-         *
-         * ⚠️ **Su un file da quattromila pixel sono quattro pixel**, cioè un micro-contrasto che si
-         * vede anche guardando l'immagine intera. Un raggio da nitidezza di cattura (un pixel) si
-         * vede solo ingrandendo, e un cursore che a occhio non fa niente si legge come rotto: qui
-         * quel raggio c'è, ed è il fondo corsa di [radius].
+         * Il raggio di serie della maschera di contrasto, in frazione del lato lungo: quattro pixel
+         * su un file da quattromila, un micro-contrasto che si vede anche sull'immagine intera. Un
+         * raggio di un pixel si vede solo ingrandendo, e un cursore che a occhio non fa niente
+         * sembra rotto: quel raggio è il fondo corsa di [radius].
          */
         const val SHARP_SPAN = 1f / 1000f
 
         /**
-         * Il vicinato della riduzione del rumore, in frazione del lato lungo.
-         *
-         * ⚠️ **Non dipende da [radius], ed è una scelta**: il raggio governa **come** si accentua
-         * il disegno, mentre il rumore vuole sempre lo stesso intorno stretto. Legarli vorrebbe
-         * dire che chi allarga la nitidezza si ritrova un'immagine spianata.
+         * Il vicinato della riduzione del rumore, in frazione del lato lungo. Non dipende da
+         * [radius]: il rumore vuole sempre lo stesso intorno stretto, e legarli spianerebbe
+         * l'immagine a chi allarga la nitidezza.
          */
         const val GRAIN_SPAN = 1f / 1200f
 
@@ -477,199 +365,134 @@ data class Detail(
 }
 
 /**
- * Il modulo **Effetti**: il velo atmosferico, e i due segni che lascia l'apparecchio.
+ * Il modulo **Effetti**: il velo atmosferico, e i due segni dell'apparecchio. I cursori sono tre,
+ * [haze], [vignette] e [grain] (risposte `effetti` a `d-dopo-editor` e `via` a `d-eff-restano`).
  *
- * ⚠️⚠️ **È IL NONO MODULO, DALLA `2.53`, ED È LA SUA RISPOSTA `effetti` A `d-dopo-editor`** (giro
- * della `2.50`, con la sua nota: *'Effetti', con 'Chiarezza', 'Texture', 'Foschia', `Grana` e
- * `Vignettatura`*). I cursori erano cinque, nell'ordine in cui li ha scritti, e dalla `2.64` sono
- * **tre**: [haze], [vignette] e [grain].
+ * ⚠️ **Chiarezza e Texture sono state tolte per un reticolo misurato**: quel filtro leggeva nove
+ * campioni radi a distanza del suo raggio, cioè campionava invece di mediare, e a fondo corsa il
+ * dettaglio più fine del passo si ripiegava in una trama. Il rimedio, per chi le rimettesse: la
+ * media letta da una riduzione dell'immagine porta l'energia alla frequenza di campionamento da 5,6
+ * a 2,8, il livello dell'immagine a riposo. Il contrasto locale lo copre la nitidezza del
+ * Dettaglio.
  *
- * ⚠️⚠️ **CHIAREZZA E TEXTURE SONO USCITE CON LA `2.64`, ED È LA SUA RISPOSTA `via` A
- * `d-eff-restano`** (giro della `2.63`: *Toglili tutti e due*). Le due che restano fanno un altro
- * mestiere, e la distinzione dice perché quella scelta non lascia un buco: il contrasto locale
- * accentua **il disegno che c'è**, e a quel mestiere risponde già la nitidezza del Dettaglio; la
- * foschia toglie una cosa che il disegno la **copre**, e le altre due dicono dove il fotogramma si
- * scurisce e di che grana è fatto.
- * - ⚠️⚠️ **IL DIFETTO CHE LE HA TOLTE È UN RETICOLO, E LA CAUSA È MISURATA**: quel filtro legge
- *   **nove campioni radi** a distanza del proprio raggio, cioè campiona invece di mediare, quindi
- *   quello che è più fine del passo si ripiega e a fondo corsa si vede come una trama. È lo
- *   stesso meccanismo che a raggio stretto non si vede affatto, ed è la ragione per cui la
- *   nitidezza del Dettaglio, che lavora a un millesimo del lato, non ha mai avuto quel problema.
- * - ⚠️ **Il rimedio esisteva e il conto lo dice**: leggere la media da una **riduzione**
- *   dell'immagine invece che da nove punti riporta l'energia alla frequenza di campionamento da
- *   **5,6** a **2,8**, cioè al livello dell'immagine a riposo, e non a zero: la trama che resta è
- *   quella della foto. Non è stato scritto perché la risposta è arrivata prima, ed è scritto qui
- *   perché chi rimettesse quei due cursori riparta di lì invece di rifare la misura.
+ * ⚠️ **I tre sono di due specie, e questo decide il costo**: [haze] legge i pixel vicini, quindi
+ * paga campioni e un bordo sulle tessere del salvataggio; [vignette] e [grain] leggono dove è il
+ * pixel, quindi non costano campioni ma ogni tessera deve sapere dov'è nell'immagine intera
+ * ([Framed]). Sull'anteprima, una tessera sola, il difetto non si vedrebbe.
  *
- * ⚠️ **Sono frazioni da -1 a +1 e l'interfaccia li mostra da -100 a +100**, come i cursori degli
- * altri moduli: è il linguaggio di Lightroom, che è quello che lui conosce.
- *
- * ⚠️⚠️ **I TRE SONO DI DUE SPECIE, E LA DIFFERENZA GOVERNA QUELLO CHE COSTANO**: [haze] **legge i
- * pixel vicini**, quindi paga campioni e un bordo sulle tessere del salvataggio; [vignette] e
- * [grain] leggono **dove si trova** il pixel, quindi non costano nessun campione e in cambio
- * pretendono che ogni tessera sappia dov'è nell'immagine intera. Quel dato è [Framed], e senza di
- * lui i due difetti non si vedrebbero sull'anteprima, dove la tessera è una sola.
- *
- * ⚠️⚠️ **VENGONO PER ULTIMI NELLA CATENA, E I DUE POSTI HANNO DUE RAGIONI DIVERSE**: la
- * vignettatura viene dopo tutto quello che parla di colore perché è quello che fa un **obiettivo**,
- * cioè meno luce ai bordi del fotogramma, e messa prima ogni cursore della Luce la rimetterebbe in
- * discussione (un 'Auto' calcolato su un'immagine già vignettata leggerebbe un istogramma che non è
- * il suo); la grana viene dopo ancora, perché è la **pellicola**, cioè il supporto su cui l'immagine
- * è stampata, e messa prima il contrasto e la saturazione la tratterebbero come disegno.
+ * ⚠️ **Vengono per ultimi nella catena**: la vignettatura è quello che fa un obiettivo, e messa
+ * prima ogni cursore della Luce la rimetterebbe in discussione (un 'Auto' leggerebbe l'istogramma
+ * di un'immagine già vignettata); la grana viene dopo ancora, perché è la pellicola, e messa prima
+ * il contrasto e la saturazione la tratterebbero come disegno. Frazioni da -1 a +1, mostrate da
+ * -100 a +100.
  */
 data class Effects(
     /**
-     * Quanto **velo atmosferico** si toglie, o si aggiunge verso il basso.
+     * Quanto velo atmosferico si toglie, o si aggiunge verso il basso.
      *
-     * ⚠️⚠️ **LA STIMA DEL VELO È LOCALE E NON GLOBALE, ED È IL CANALE SCURO**: dove c'è foschia
-     * l'aria aggiunge luce bianca a tutti e tre i canali insieme, quindi il **minimo** dei tre non
-     * scende più; dove non ce n'è, quasi ogni pixel ha almeno un canale quasi spento. Mediato
-     * sull'intorno, quel minimo dice quanto velo c'è **in quel punto**, e il cursore dice quanto
-     * toglierne.
-     * - ⚠️⚠️ **LA LUCE ATMOSFERICA SI PRENDE BIANCA, E LA SCELTA È DICHIARATA**: il modello
-     *   completo la stima sull'immagine intera, cioè con un dato che l'anteprima e il file pieno
-     *   dovrebbero condividere; quel dato non può vivere in [Look], perché uno stile se lo
-     *   porterebbe da un'immagine all'altra, e ricalcolato sulla tessera del salvataggio darebbe
-     *   un numero diverso per ogni tessera. Con la luce bianca il conto sta tutto nello shader e
-     *   non c'è niente da tenere allineato. **Quello che si perde** è la foschia molto colorata,
-     *   dove resta una dominante: là c'è il bilanciamento del bianco, che è il cursore per quello.
-     * - ⚠️ **I due versi sono l'uno l'inverso dell'altro, tranne dove entra il tetto delle
-     *   ombre**: toglierlo è `(c - k) / (1 - k)`, aggiungerlo è `c + k (1 - c)`, con lo stesso
-     *   `k`. Ma dalla `2.60` togliere non supera il velo presente nel pixel stesso, o le ombre di
-     *   una zona velata si chiuderebbero sul nero: su un dettaglio scuro fine il cursore portato a
-     *   +50 e poi a -50 non riporta esattamente dov'era, e non è un difetto (`docs/Editor.md`
-     *   § '✨ Il modulo Effetti, e i suoi cursori').
+     * ⚠️ **La stima è locale, col canale scuro**: dove c'è foschia l'aria aggiunge luce bianca ai
+     * tre canali insieme, quindi il loro minimo non scende più; dove non c'è, quasi ogni pixel ha
+     * un canale quasi spento. Mediato sull'intorno, quel minimo dice quanto velo c'è in quel punto.
+     * - ⚠️ **La luce atmosferica si prende bianca**: il modello completo la stima sull'immagine
+     *   intera, un dato che anteprima e file dovrebbero condividere, ma in [Look] uno stile lo
+     *   porterebbe da un'immagine all'altra, e ricalcolato per tessera darebbe un numero per
+     *   tessera. Così il conto è tutto nello shader. Si perde la foschia molto colorata, dove resta
+     *   una dominante: c'è il bilanciamento del bianco.
+     * - Togliere è `(c - k) / (1 - k)`, aggiungere `c + k (1 - c)`, l'uno l'inverso dell'altro
+     * tranne
+     *   dove entra il tetto delle ombre: togliere non supera il velo del pixel stesso, o le ombre
+     *   di una zona velata si chiuderebbero sul nero (`docs/Editor.md` § '✨ Il modulo Effetti, e i
+     *   suoi cursori').
      */
     val haze: Float = 0f,
     /**
      * Quanto si scuriscono gli angoli, o si schiariscono verso il basso.
      *
-     * ⚠️⚠️ **NON GUARDA I PIXEL VICINI MA GUARDA DOVE SI TROVA, E QUESTO È IL SUO PREZZO**: la
-     * foschia, qui sopra, costa campioni e un bordo sulle tessere del salvataggio; questo costa
-     * zero campioni e in cambio pretende che ogni tessera sappia **dov'è nell'immagine
-     * intera**. Senza quel dato ogni tessera si vignetterebbe per conto suo, cioè il file salvato
-     * avrebbe un angolo scuro per ogni giunzione.
-     * - ⚠️ **La distanza si misura sulla mezza diagonale**, quindi vale zero al centro e uno agli
-     *   angoli qualunque sia il formato dell'immagine: su un panorama e su un quadrato lo stesso
-     *   valore del cursore scurisce lo stesso angolo.
-     * - ⚠️⚠️ **LA RAMPA PARTE DAL CENTRO E CRESCE FINO AL PUNTO IN CUI È PIENA, DALLA `2.67`**: è
-     *   il profilo di un obiettivo vero, che cala da subito, e `smoothstep` gli toglie il gradino
-     *   al centro. ⚠️ **Dove cade il pieno lo dice [vignetteFeather]**: a riposo è l'angolo. Fino
-     *   alla `2.66` la rampa cominciava invece a metà raggio e finiva sempre all'angolo.
+     * Non guarda i pixel vicini ma dove si trova: costa zero campioni, e in cambio ogni tessera
+     * deve sapere dov'è nell'immagine intera, o il file salvato avrebbe un angolo scuro per ogni
+     * giunzione.
+     * - La distanza si misura sulla mezza diagonale: zero al centro e uno agli angoli, qualunque
+     * sia il
+     *   formato, così lo stesso valore scurisce lo stesso angolo su un panorama e su un quadrato.
+     * - La rampa parte dal centro e cresce fino al punto in cui è piena, come il profilo di un
+     *   obiettivo vero, e `smoothstep` le toglie il gradino al centro. Dove cade il pieno lo dice
+     *   [vignetteFeather]; a riposo è l'angolo.
      */
     val vignette: Float = 0f,
     /**
-     * Dove la vignettatura arriva al **pieno**: fuori dal fotogramma, o appena dentro il bordo.
+     * Dove la vignettatura arriva al pieno: fuori dal fotogramma, o appena dentro il bordo (voce
+     * `eff-vign-sfuma`: la sfumatura sempre massima, e a muoversi è il punto del pieno).
      *
-     * ⚠️⚠️ **È UN CURSORE SECONDARIO, DALLA `2.66`, ED È SUA RICHIESTA** (campo libero del giro
-     * chiuso il 2026-09-19: *per `Vignettatura`: 'Sfumatura'. Indica quanto l'alone scuro intorno
-     * si avvicina al centro, e/o l'opacità iniziale ai bordi esterni (credo)*).
-     * - ⚠️⚠️ **MA DALLA `2.67` GOVERNA UN'ALTRA COSA, ED È IL SUO RISCONTRO** (voce
-     *   `eff-vign-sfuma` accettabile: *voglio che la sfumatura sia sempre massima. Deve cambiare
-     *   il punto di inizio, che in negativo dev'essere lontano (fuori dal fotogramma), mentre in
-     *   positivo arriva poco all'interno del bordo*). Fino alla `2.66` spostava il punto in cui
-     *   l'alone **comincia**, tenendo il pieno sull'angolo; adesso la rampa parte sempre dal
-     *   centro, che è la sfumatura più lunga possibile, e a muoversi è il punto del **pieno**.
-     * - ⚠️⚠️ **QUINDI A RIPOSO L'IMMAGINE CAMBIA, E VA DETTO**: a parità di cursore principale
-     *   l'alone è più esteso e arriva più dentro (misurato con la vignettatura a -50: a metà
-     *   raggio si perdono 35 livelli su 255 invece di zero, e a metà di un lato 56 invece di 26).
-     *   L'angolo resta identico. Chi aveva una vignettatura tarata la rivede più diffusa.
-     * - ⚠️ **Che cosa fanno i due estremi**, sui raggi notevoli di [Adjust.LOOK_AGSL]: a `+100` il
-     *   pieno cade a `0,70`, cioè appena dentro il punto di mezzo di ogni lato (`0,707`); a riposo
-     *   sull'angolo; a `-100` a `1,30`, cioè fuori dal fotogramma, e là l'angolo si ferma all'86%.
-     * - ⚠️ **Da solo non cambia un pixel**, quindi non entra in [idle] e l'interfaccia lo spegne
-     *   finché [vignette] è a zero: è il criterio della maschera di contrasto senza nitidezza.
+     * - Sui raggi di [Adjust.LOOK_AGSL]: a `+100` il pieno cade a `0,70`, appena dentro il punto di
+     *   mezzo di ogni lato (`0,707`); a riposo sull'angolo; a `-100` a `1,30`, fuori dal
+     *   fotogramma, e l'angolo si ferma all'86%.
+     * - ⚠️ A parità di cursore principale l'alone è più esteso del profilo che cominciava a metà
+     *   raggio (misurato a -50: a metà raggio si perdono 35 livelli su 255, a metà di un lato 56):
+     *   una vignettatura tarata prima si rivede più diffusa.
+     * - Da solo non cambia un pixel, quindi non entra in [idle], e l'interfaccia lo spegne con
+     *   [vignette] a zero.
      */
     val vignetteFeather: Float = 0f,
     /**
-     * Quanta **grana** si aggiunge, come quella di una pellicola.
+     * Quanta grana si aggiunge, come quella di una pellicola.
      *
-     * ⚠️⚠️ **È MONOPOLARE, E NON PER SIMMETRIA CON GLI ALTRI**: 'meno grana' non vuol dire niente
-     * su un'immagine che la grana non ce l'ha, e toglierla è il mestiere della riduzione del
-     * rumore, che vive nel Dettaglio. Qui lo zero è l'immagine come il file la porta.
-     * - ⚠️⚠️ **HA UNA CELLA, E SENZA DI LEI SPARIREBBE GUARDANDO L'IMMAGINE INTERA**: un rumore
-     *   alto un pixel su un file da quattromila si vede solo ingrandendo, e rimpicciolito si
-     *   media via. La cella è una frazione del lato, come ogni altra misura di questo editor,
-     *   quindi l'anteprima mostra la stessa grana del file salvato in proporzione.
-     * - ⚠️⚠️ **E ANCHE LEI VUOLE SAPERE DOVE SI TROVA**: un rumore generato dalla coordinata
-     *   **locale** di una tessera si ripeterebbe identico in ogni tessera, cioè darebbe un
-     *   motivo a scacchi grande quanto una tessera. Nasce dalla coordinata assoluta, come la
-     *   vignettatura.
-     * - ⚠️ **Pesa sui mezzi toni**: una pellicola mostra la grana dove c'è emulsione esposta a
-     *   metà, e quasi niente nel nero chiuso e nel bianco bruciato. Senza quel peso il cursore
-     *   sporcherebbe prima di tutto le ombre, che è l'effetto del rumore digitale e non della
-     *   grana. ⚠️ **Dalla `2.66` quel peso scende anche sulle luci**, e quanto lo dice
-     *   [grainLift].
+     * Monopolare: 'meno grana' non vuol dire niente su un'immagine senza grana, e toglierla è la
+     * riduzione del rumore del Dettaglio.
+     * - ⚠️ **Ha una cella**, frazione del lato: un rumore alto un pixel su un file da quattromila
+     *   sparirebbe guardando l'immagine intera, e in proporzione l'anteprima mostra la grana del
+     *   file.
+     * - ⚠️ **Nasce dalla coordinata assoluta**, come la vignettatura: dalla coordinata locale di
+     * una
+     *   tessera si ripeterebbe in ogni tessera, a scacchi.
+     * - Pesa sui mezzi toni, come una pellicola, e quasi niente nel nero chiuso e nel bianco
+     * bruciato:
+     *   senza quel peso sporcherebbe prima le ombre, che è il rumore digitale. Quanto scende sulle
+     *   luci lo dice [grainLift].
      */
     val grain: Float = 0f,
     /**
-     * Quanto è grossa la cella della grana, rispetto a quella di serie.
-     *
-     * ⚠️⚠️ **È UN CURSORE SECONDARIO, DALLA `2.66`, ED È SUA RICHIESTA** (campo libero del giro
-     * chiuso il 2026-09-19: *per 'Grana': a) 'Dimensione'. L'attuale va benissimo ed è il
-     * default, ma a volte mi piace generare grana un po' più grossa*).
-     * - ⚠️⚠️ **RADDOPPIA E DIMEZZA INVECE DI SOMMARE, COME IL RAGGIO DEL DETTAGLIO**: una misura
-     *   di questo genere si percepisce in rapporti, e il precedente in casa è già scritto su
-     *   [Detail.sharpReach]. Lo zero è [GRAIN_CELL], cioè quella che lui ha approvato.
-     * - ⚠️ **Su un file da quattromila pixel la corsa va da 1,7 a 6,7 pixel**, con 3,3 a riposo:
-     *   sotto si arriva al rumore che si vede solo ingrandendo, sopra all'impasto che resta
-     *   visibile anche rimpicciolendo.
-     * - ⚠️⚠️ **VERSO IL FINE IL PAVIMENTO DI [grainCell] ENTRA ANCHE SULL'ANTEPRIMA, e va detto**:
-     *   a 1600 pixel di lato la cella scende sotto il pixel intorno a `-0,4`, quindi là la grana
-     *   si vede un po' più grossa di quella che il file salvato porterà. Fino alla `2.65` quel
-     *   pavimento non si incontrava mai sopra i 1200 pixel, e questo cursore è la ragione per cui
-     *   adesso si incontra.
-     * - ⚠️ **Da solo non cambia un pixel**, quindi non entra in [idle] e l'interfaccia lo spegne
-     *   finché [grain] è a zero.
+     * Quanto è grossa la cella della grana, rispetto a quella di serie (richiesta dell'utente, a
+     * volte più grossa).
+     * - Raddoppia e dimezza, come il raggio del Dettaglio ([Detail.sharpReach]); lo zero è
+     *   [GRAIN_CELL], quella approvata. Su un file da quattromila pixel la corsa va da 1,7 a 6,7
+     *   pixel, con 3,3 a riposo.
+     * - ⚠️ **Verso il fine il pavimento di [grainCell] entra anche sull'anteprima**: a 1600 pixel
+     * di
+     *   lato la cella scende sotto il pixel intorno a `-0,4`, e là la grana si vede un po' più
+     *   grossa di quella del file salvato.
+     * - Da solo non cambia un pixel, quindi non entra in [idle], e l'interfaccia lo spegne con
+     * [grain]
+     *   a zero.
      */
     val grainSize: Float = 0f,
     /**
-     * Quanta grana arriva alle **luci**: a riposo quasi niente, a fondo corsa tutta.
+     * Quanta grana arriva alle luci: a riposo quasi niente, a fondo corsa tutta (richiesta
+     * dell'utente: grana sulle ombre, e quasi niente sulle aree uniformi come il cielo).
      *
-     * ⚠️⚠️ **IL VALORE DI RIPOSO È QUELLO CHE LUI HA CHIESTO DI FABBRICA, E LA CORSA RIMETTE IL
-     * CONTO DI PRIMA** (campo libero del giro chiuso il 2026-09-19: *b) 'Luci', che è
-     * l'abbreviazione di 'Applica alle luci'. Voglio che di default la grana sia aggiunta solo
-     * alle ombre, e alle luci in misura non proprio zero ma quasi. Questo per evitare che ad aree
-     * uniformi come il cielo sia aggiunta grana inutilmente*). Scritto al rovescio, cioè con lo
-     * zero sul comportamento della `2.65`, il valore di fabbrica avrebbe dovuto essere un numero
-     * diverso da zero, e allora un preset che non nomina questo campo lo rileggerebbe sbagliato.
-     * - ⚠️⚠️ **A FONDO CORSA IL CONTO È ESATTAMENTE QUELLO DELLA `2.65`** (misurato: scarto nullo
-     *   su 1001 toni), quindi chi vuole la grana di prima ha un posto dove chiederla.
-     * - ⚠️⚠️ **E DALLA `2.67` LA RAMPA È PIÙ BASSA, PERCHÉ I TRE NUMERI SONO SUOI** (voce
-     *   `eff-grana-luci` accettabile: *il 'quasi zero' passa da 0,8 a 0,1 ... metà scala a 0,35*).
-     *   Quindi sul cielo resta un decimo di livello invece di otto, e a metà tono la grana tiene
-     *   il 35% invece dell'81%: il conto e la lettura di quel `0,35` vivono sulle tre costanti,
-     *   in [Adjust.LOOK_AGSL].
-     * - ⚠️⚠️ **E DALLA `2.68` QUESTO CURSORE A RIPOSO ALZA ANCHE LE OMBRE, PERCHÉ HA CHIESTO UNA
-     *   RIDISTRIBUZIONE E NON UNA RAMPA PIÙ BASSA** (voce `grana-luci-2` accettabile: *anche al
-     *   minimo (0,1) i cieli hanno troppa grana, mentre forse le ombre troppo poca. Cerchiamo di
-     *   raggiungere un cielo quasi immacolato e delle ombre con un 30% in più di grana, il tutto
-     *   senza bordi netti e con toni medi sfumati*). Le ombre non potevano salire senza un termine
-     *   nuovo: là la rampa vale già uno, cioè il massimo che la `2.67` sapeva dare.
-     * - ⚠️ **Il fondo corsa resta il conto della `2.65`**, perché il guadagno delle ombre si ritira
-     *   insieme alla rampa: a cursore pieno i due termini valgono uno e il peso torna `4t(1-t)`.
-     *   Il conto dei due capi vive su `GRAIN_LIFT_SHADE`, in [Adjust.LOOK_AGSL].
-     * - ⚠️⚠️ **MA CHI HA GIÀ UNO STILE CON LA GRANA MOSSA LA RITROVA DIVERSA, E SI DICHIARA**:
-     *   il peso di fabbrica è cambiato, e un preset salvato con la `2.65` non porta questo campo,
-     *   quindi lo rilegge a riposo. Sulle sue immagini la grana resta dov'era nelle ombre e
-     *   quasi sparisce nei chiari.
-     * - ⚠️ **Quello che la sua richiesta non copre**: un cielo è chiaro **e** uniforme, e questo
-     *   cursore guarda solo quanto è chiaro. Guardare anche l'uniformità vorrebbe dire leggere i
-     *   pixel vicini, cioè un raggio e un bordo sulle tessere del salvataggio, che è il prezzo
-     *   che la foschia paga da sola; qui costa zero campioni ed è la strada che lui ha indicato.
-     * - ⚠️ **Da solo non cambia un pixel**, quindi non entra in [idle] e l'interfaccia lo spegne
-     *   finché [grain] è a zero.
+     * - Lo zero è il valore di fabbrica: scritto al rovescio, il valore di fabbrica sarebbe diverso
+     * da
+     *   zero, e un preset che non nomina il campo lo rileggerebbe sbagliato.
+     * - ⚠️ **A riposo ridistribuisce** (voci `eff-grana-luci` e `grana-luci-2`): spegne le luci sul
+     *   pavimento e alza le ombre del 30%. A fondo corsa il conto è il peso `4t(1-t)` senza rampa
+     *   (misurato: scarto nullo su 1001 toni), per chi vuole la grana uniforme. I numeri e il loro
+     *   conto sono sulle costanti `GRAIN_LIFT_*` in [Adjust.LOOK_AGSL].
+     * - ⚠️ **Uno stile salvato prima di questo campo lo rilegge a riposo**, quindi la sua grana
+     * resta
+     *   nelle ombre e quasi sparisce nei chiari.
+     * - Un cielo è chiaro e uniforme, e il cursore guarda solo quanto è chiaro: guardare
+     * l'uniformità
+     *   vorrebbe leggere i pixel vicini, cioè un raggio e un bordo sulle tessere.
+     * - Da solo non cambia un pixel, quindi non entra in [idle], e l'interfaccia lo spegne con
+     * [grain]
+     *   a zero.
      */
     val grainLift: Float = 0f
 ) {
 
     /**
-     * Se questo modulo non cambia un pixel: vedi la nota sulla tolleranza in [Light.idle].
-     *
-     * ⚠️⚠️ **I TRE CURSORI SECONDARI NON SI CONTANO, ED È IL CRITERIO DEL DETTAGLIO**: [grainSize],
-     * [grainLift] e [vignetteFeather] dicono **come** lavorano i due che li governano, non
-     * *quanto*. Contandoli, un'immagine con la sola 'Sfumatura' mossa si dichiarerebbe da
-     * riscrivere, cioè verrebbe ricompressa per niente.
+     * Se questo modulo non cambia un pixel: vedi la tolleranza in [Light.idle]. I tre cursori
+     * secondari ([grainSize], [grainLift], [vignetteFeather]) non contano, come nel Dettaglio:
+     * dicono come lavorano gli altri, e contandoli un'immagine sarebbe ricompressa per niente.
      */
     val idle: Boolean
         get() = abs(haze) < DEAD && abs(vignette) < DEAD && abs(grain) < DEAD
@@ -682,28 +505,17 @@ data class Effects(
 
     /**
      * Quanti pixel di sovrapposizione vuole una tessera del salvataggio, dato il lato lungo
-     * dell'immagine **intera**.
-     *
-     * ⚠️⚠️ **È LO STESSO CONTO DI [Detail.bleed] E PER LA STESSA RAGIONE**: anche qui il filtro
-     * legge i vicini, quindi senza un bordo da buttare via l'ultima colonna di una tessera
-     * leggerebbe il bordo ripetuto invece del pixel che sta di là. ⚠️ **Ma il numero è molto più
-     * grande**, perché il raggio della foschia è decine di volte quello della nitidezza: su un
-     * file da quattromila pixel sono decine di pixel per lato invece di cinque.
-     * - ⚠️ **A modulo spento vale zero**, quindi chi non usa questi cursori non paga niente.
-     * - ⚠️⚠️ **VIGNETTATURA E GRANA NON ENTRANO IN QUESTO CONTO, ED È QUELLO CHE LE DISTINGUE**:
-     *   nessuna delle due legge un pixel vicino, quindi non c'è nessun bordo da buttare via. Chi
-     *   usa solo quelle paga le tessere di sempre. Quello che pretendono invece è un altro dato,
-     *   cioè dove la tessera si trova, e quello vive in `AdjustRender`.
-     * - ⚠️ **Il conto resta scritto come un massimo su una guardia sola**, e con la `2.64` i
-     *   cursori che leggono i vicini sono uno: chi ne aggiungesse un secondo trova la forma già
-     *   pronta invece di una riga da riscrivere.
+     * dell'immagine intera: lo stesso conto di [Detail.bleed], ma molto più grande, perché il
+     * raggio della foschia è decine di volte quello della nitidezza.
+     * - Vignettatura e grana non entrano: non leggono vicini, e il dato che chiedono (dove è la
+     *   tessera) è in `AdjustRender`. A modulo spento, o con le sole due, vale zero.
+     * - La forma è un massimo su una guardia, pronta per un secondo cursore che legga i vicini.
      */
     fun bleed(long: Float): Int {
         var reach = 0f
         if (abs(haze) >= DEAD) reach = max(reach, hazeReach(long))
-        // ⚠️ **Zero vuol dire zero, e la guardia non è su [idle]**: un modulo mosso con la sola
-        // vignettatura o la sola grana non è a riposo, e nessuna delle due legge un vicino. Scritta
-        // su [idle], quel caso pagherebbe un pixel di bordo per niente.
+        // La guardia non è su [idle]: un modulo mosso con la sola vignettatura o la sola grana non
+        // è a riposo, e pagherebbe un bordo per niente.
         if (reach <= 0f) return 0
         return ceil(reach).toInt() + 1
     }
@@ -714,15 +526,12 @@ data class Effects(
         private const val DEAD = 0.0005f
 
         /**
-         * Quanto lontano si guarda per stimare il velo, in frazione del lato lungo.
-         *
-         * ⚠️⚠️ **È LARGO PERCHÉ IL VELO NON È UN DETTAGLIO**: la foschia è una proprietà di una
-         * **regione** dell'immagine, quindi la sua stima deve cambiare piano, o il conto la
-         * scambierebbe per il disegno e ne accentuerebbe i bordi. A quaranta pixel su un file da
-         * quattromila la mappa del velo è liscia e segue comunque il confine fra un primo piano
-         * nitido e uno sfondo velato.
-         * ⚠️ **E il tetto è il numero di campioni**: sono nove, quindi oltre una certa distanza
-         * non descrivono più il loro intorno.
+         * Quanto lontano si guarda per stimare il velo, in frazione del lato lungo. È largo perché
+         * la foschia è una proprietà di una regione: una stima stretta la scambierebbe per il
+         * disegno e ne accentuerebbe i bordi. A quaranta pixel su un file da quattromila la mappa
+         * del velo è liscia e segue comunque il confine fra un primo piano nitido e uno sfondo
+         * velato. Il tetto sono i nove campioni, che oltre una certa distanza non descrivono più il
+         * loro intorno.
          */
         const val HAZE_SPAN = 1f / 100f
 
@@ -730,33 +539,21 @@ data class Effects(
         fun hazeReach(long: Float): Float = HAZE_SPAN * long
 
         /**
-         * Il lato della cella della grana, in frazione del lato lungo.
-         *
-         * ⚠️⚠️ **È UNA FRAZIONE E NON UN NUMERO DI PIXEL, PER LA STESSA RAGIONE DEI RAGGI**: il
-         * conto gira sull'anteprima ridotta a 1600 pixel e sul file pieno, e una cella scritta in
-         * pixel darebbe due grane diverse. Così l'anteprima mostra la stessa grana in proporzione,
-         * che è la sola cosa che si può promettere senza guardare il file.
-         * ⚠️ **Il conto che porta al numero**: su un file da quattromila pixel la cella è di poco
-         * più di tre pixel, cioè il grano di una pellicola scansionata a quella misura. Sotto,
-         * quello che si ottiene è rumore digitale; sopra, un impasto che si vede anche
-         * rimpicciolendo, mentre una grana deve sparire guardando l'immagine intera.
+         * Il lato della cella della grana, in frazione del lato lungo, come i raggi: così
+         * l'anteprima mostra la grana del file in proporzione. Su un file da quattromila pixel sono
+         * poco più di tre pixel, il grano di una pellicola scansionata a quella misura: sotto è
+         * rumore digitale, sopra un impasto che resta visibile anche rimpicciolendo.
          */
         const val GRAIN_CELL = 1f / 1200f
 
         /**
-         * Il lato della cella della grana nello spazio in cui il conto gira, dato il lato lungo
-         * [long] e quanto il cursore 'Dimensione' la ingrossa: vedi [GRAIN_CELL].
+         * Il lato della cella della grana nello spazio del conto, dato il lato lungo [long] e
+         * quanto il cursore 'Dimensione' la ingrossa: vedi [GRAIN_CELL] e [Effects.grainSize].
          *
-         * ⚠️ **Il cursore raddoppia e dimezza invece di sommare**, come il raggio del Dettaglio:
-         * il perché vive su [Effects.grainSize], insieme alla corsa misurata.
-         *
-         * ⚠️⚠️ **SOTTO IL PIXEL NON SI SCENDE, E QUEL PAVIMENTO ROMPE LA PROPORZIONE**: una cella
-         * più stretta di un pixel non è una grana più fine, è un rumore che cambia più in fretta di
-         * quanto lo schermo sappia mostrare, cioè uno sfarfallio. Là dove entra, la grana si vede
-         * un po' più grossa di quella del file salvato, e va detto invece di prometterla identica.
-         * ⚠️ **Dalla `2.66` si incontra anche sull'anteprima**: a cursore a riposo il pavimento
-         * entra sotto i 1200 pixel di lato, cioè mai in questo editor (1600) né su un file da
-         * fotocamera, ma verso il fine della corsa quella soglia sale.
+         * ⚠️ **Sotto il pixel non si scende**: una cella più stretta è uno sfarfallio, non una
+         * grana più fine. Dove il pavimento entra, la grana si vede un po' più grossa di quella del
+         * file salvato. A riposo entra sotto i 1200 pixel di lato, cioè mai in questo editor
+         * (1600); verso il fine della corsa la soglia sale.
          */
         fun grainCell(long: Float, size: Float = 0f): Float =
             max(1f, GRAIN_CELL * long * 2f.pow(size))
@@ -764,74 +561,42 @@ data class Effects(
 }
 
 /**
- * Un punto di una curva tonale: il tono che **entra** e il tono che **esce**, tutti e due in
- * `[0, 1]`.
- *
- * ⚠️ **I due estremi hanno [at] fisso a 0 e a 1**, e si muovono solo in [to]: una curva tonale
- * deve dire che cosa fare di **ogni** tono, e un primo punto a mezza scala lascerebbe la prima
- * metà senza risposta.
+ * Un punto di una curva tonale: il tono che entra e il tono che esce, tutti e due in `[0, 1]`. I
+ * due estremi hanno [at] fisso a 0 e a 1 e si muovono solo in [to]: una curva deve dire che cosa
+ * fare di ogni tono.
  */
 data class Knot(val at: Float, val to: Float)
 
 /**
  * Una curva tonale: i suoi punti, e la tabella di 256 valori che se ne ricava.
  *
- * ⚠️⚠️ **IL CONTO CHE PASSA ALLA SCHEDA GRAFICA È UNA TABELLA E NON UN PROGRAMMA, ED È LA
- * DECISIONE CHE REGGE TUTTO IL RESTO.** Gli altri quattro moduli mandano allo shader dei **numeri**
- * (un guadagno, un raggio) e il conto vive tutto in AGSL, che è la regola scritta in testa a questo
- * file; una spline invece vuole un ciclo sui punti per ogni pixel, e i punti sono in numero
- * variabile. Scritta in AGSL costerebbe quel ciclo venti milioni di volte per un risultato che
- * dipende **solo** dal livello in ingresso, cioè da 256 valori possibili: la si calcola una volta e
- * si consegna come una riga di 256 pixel.
- * - ⚠️⚠️ **NON È LA SECONDA COPIA CHE QUESTO FILE ESISTE PER NON AVERE**, e la distinzione è
- *   precisa: una seconda copia sarebbe lo **stesso conto** scritto due volte, una per l'anteprima e
- *   una per il salvataggio, cioè due cose che possono divergere. Qui il conto è **uno** e vive qui;
- *   quello che va in AGSL è una lettura della sua tabella, e la stessa tabella la leggono
- *   l'anteprima, il salvataggio e il grafico che la disegna. Una fonte, tre lettori.
+ * ⚠️ **Alla scheda grafica arriva una tabella e non un programma**: una spline vuole un ciclo sui
+ * punti, in numero variabile, per ogni pixel, per un risultato che dipende solo dal livello in
+ * ingresso, cioè da 256 valori. La si calcola una volta e si consegna come una riga di 256 pixel.
+ * Non è una seconda copia del conto: il conto è uno e vive qui, e la sua tabella la leggono
+ * anteprima, salvataggio e grafico.
  *
- * ⚠️⚠️ **LA SPLINE È MONOTONA (Fritsch-Carlson) E NON UNA CUBICA NATURALE, E NON È UN DETTAGLIO
- * DI QUALITÀ**: una cubica naturale **oltrepassa** fra due punti vicini, quindi con un punto alzato
- * di poco la curva scende sotto il suo vicino, cioè un tono più chiaro esce più scuro di quello
- * accanto. Sull'immagine si vede come un anello di tono invertito, ed è il difetto classico delle
- * curve fatte male. La correzione monotona limita le tangenti e quel caso non esiste per
- * costruzione.
- * - ⚠️ **Su punti allineati la spline è ESATTAMENTE la retta**: le secanti valgono tutte la stessa
- *   pendenza, le tangenti diventano quella, e l'Hermite fra due punti con quei valori dà il
- *   segmento. È la ragione per cui [idle] può guardare i soli punti invece di confrontare 256
- *   valori.
+ * ⚠️ **La spline è monotona (Fritsch-Carlson)**: una cubica naturale oltrepassa fra due punti
+ * vicini, e un tono più chiaro uscirebbe più scuro del vicino, con un anello di tono invertito
+ * sull'immagine. Su punti allineati la spline è esattamente la retta, e per questo [idle] guarda i
+ * soli punti.
  */
 data class Curve(val knots: List<Knot> = ENDS) {
 
-    /**
-     * Se questa curva non cambia un tono, cioè se ogni punto è sulla diagonale.
-     *
-     * ⚠️ **Si guardano i PUNTI e non la tabella**, e regge sulla proprietà scritta qui sopra: una
-     * spline monotona per punti allineati **è** la retta, quindi punti sulla diagonale vogliono
-     * dire tabella identità, senza doverla calcolare per scoprirlo.
-     */
+    /** Se questa curva non cambia un tono: ogni punto è sulla diagonale (vedi la nota sul tipo). */
     val idle: Boolean get() = knots.all { abs(it.to - it.at) < DEAD }
 
     /**
      * Questa curva col punto [i] portato in ([at], [to]), tenuto dentro l'intervallo e fra i suoi
      * vicini, e col punto di bordo [edge] portato allo stesso livello.
      *
-     * ⚠️⚠️ **I DUE ESTREMI NON SI MUOVONO IN ORIZZONTALE, ed è la specifica del tipo e non una
-     * prudenza**: una curva tonale deve dire che cosa fare di ogni tono, quindi il primo punto sta
-     * a zero e l'ultimo a uno per costruzione. Di loro si muove la sola uscita, che è il modo di
-     * alzare i neri o chiudere i bianchi.
-     *
-     * ⚠️ **Gli altri non scavalcano i vicini**: due punti alla stessa ascissa darebbero un tratto
-     * di larghezza zero, cioè una divisione per zero nella spline, e due punti in ordine invertito
-     * una curva che torna indietro. Il margine è [GAP], che è anche la distanza sotto la quale due
-     * punti non si distinguerebbero col dito.
-     *
-     * ⚠️⚠️ **[edge] NASCE CON LA `2.40`, ED È LA SUA RICHIESTA SUGLI ESTREMI** (2026-09-14: *se
-     * trascino il punto iniziale a destra o il finale a sinistra, dovrebbero muoversi lasciando la
-     * loro vecchia posizione ad un nuovo punto allo stesso livello*): il punto rimasto al bordo
-     * segue in **verticale** quello che si sta trascinando, così fra i due il tratto è piatto
-     * mentre si tira. Con un bordo fermo al valore di partenza si vedrebbe una rampa, cioè proprio
-     * quello che nessuno ha chiesto. ⚠️ **Vale `-1` quando non c'è nessun bordo da tenere**, che è
-     * il caso di ogni altro punto.
+     * - I due estremi non si muovono in orizzontale: di loro si muove l'uscita, che alza i neri o
+     *   chiude i bianchi.
+     * - Gli altri non scavalcano i vicini, entro [GAP]: due punti alla stessa ascissa darebbero una
+     *   divisione per zero nella spline, due in ordine invertito una curva che torna indietro.
+     * - [edge] è il punto rimasto al bordo quando si trascina dentro un estremo (richiesta
+     *   dell'utente): segue in verticale quello trascinato, così fra i due il tratto è piatto. Vale
+     *   `-1` quando non c'è un bordo da tenere.
      */
     fun move(i: Int, at: Float, to: Float, edge: Int = -1): Curve = copy(
         knots = knots.toMutableList().also {
@@ -847,17 +612,10 @@ data class Curve(val knots: List<Knot> = ENDS) {
     )
 
     /**
-     * Questa curva con l'estremo raddoppiato, per il dito che lo sta portando dentro.
-     *
-     * ⚠️⚠️ **È IL PEZZO CHE FA NASCERE IL PUNTO CHE LUI HA CHIESTO**: il gemello resta al bordo e
-     * quello che il dito muove è la copia, che da quel momento è un punto come gli altri, cioè si
-     * sposta anche in orizzontale. Nasce **sovrapposto** e non a metà strada: il gesto è appena
-     * cominciato, e un punto che saltasse via al primo pixel sarebbe un movimento che nessuno ha
-     * chiesto.
-     * ⚠️ **Al tetto dei punti non si fa niente**, e il chiamante lo sa: senza il gemello l'estremo
-     * resta un estremo, cioè si muove solo in verticale come prima della `2.40`.
-     * ⚠️ **Quello che resta a filo lo toglie [tidy]**, a gesto finito: chi porta l'estremo dentro e
-     * poi lo riporta indietro non si ritrova due punti l'uno sull'altro.
+     * Questa curva con l'estremo raddoppiato, per il dito che lo porta dentro: il gemello resta al
+     * bordo, e la copia è un punto come gli altri. Nasce sovrapposta, perché il gesto è appena
+     * cominciato. Al tetto dei punti non fa niente, e l'estremo si muove solo in verticale; quello
+     * che resta a filo lo toglie [tidy] a gesto finito.
      */
     fun pin(start: Boolean): Curve = when {
         knots.size >= MAX_KNOTS -> this
@@ -866,13 +624,9 @@ data class Curve(val knots: List<Knot> = ENDS) {
     }
 
     /**
-     * Questa curva senza il gemello che [pin] ha lasciato a filo del proprio bordo.
-     *
-     * ⚠️ **Guarda i soli due bordi e non gli altri punti**: due punti vicini in mezzo alla curva
-     * li ha messi l'utente, e toglierne uno sarebbe una decisione che nessuno ha preso. Qui si
-     * chiude il solo caso che il gesto degli estremi può lasciare aperto.
-     * ⚠️ **Serve che anche il livello coincida**: un punto tirato a filo del bordo ma a un'altra
-     * altezza è un tratto ripidissimo, cioè una cosa che si può volere.
+     * Questa curva senza il gemello che [pin] ha lasciato a filo del bordo. Guarda i soli due
+     * bordi: due punti vicini in mezzo li ha messi l'utente. E serve che coincida anche il livello:
+     * un punto a filo del bordo ma a un'altra altezza è un tratto ripido che si può volere.
      */
     fun tidy(): Curve {
         var out = knots
@@ -891,25 +645,18 @@ data class Curve(val knots: List<Knot> = ENDS) {
     }
 
     /**
-     * L'indice del punto che sta a un dito da [at], oppure `-1` se là non c'è niente.
-     *
-     * ⚠️ **La soglia è la stessa di [grow]**, ed è quello che tiene insieme i due gesti del
-     * grafico: quello che il tocco lungo toglie è esattamente il punto che il trascinamento
-     * avrebbe preso.
+     * L'indice del punto a un dito da [at], o `-1`. La soglia è quella di [grow], così il tocco
+     * lungo toglie lo stesso punto che il trascinamento prenderebbe.
      */
     fun nearest(at: Float): Int = knots.indexOfFirst { abs(it.at - at) < NEAR }
 
     /**
-     * Questa curva con un punto in più a [at], oppure com'è se là ce n'è già uno o se il tetto è
-     * raggiunto. Il secondo valore dice dove è finito il punto da prendere col dito.
+     * Questa curva con un punto in più a [at], o com'è se là ce n'è già uno o se il tetto è
+     * raggiunto; il secondo valore dice quale punto prende il dito.
      *
-     * ⚠️ **Il punto nuovo nasce SULLA curva e non dove il dito ha toccato**: chi tocca il grafico
-     * vuole prendere quella curva in quel punto, e farla saltare al dito nell'istante in cui la si
-     * prende vorrebbe dire un movimento che nessuno ha chiesto.
-     *
-     * ⚠️ **Il tetto è [MAX_KNOTS] e si dichiara**: oltre una dozzina di punti una curva tonale non
-     * si governa più col dito, e ogni punto in più costa un tratto di spline in cui la monotonia
-     * limita le tangenti, cioè una curva che si irrigidisce da sé.
+     * Il punto nuovo nasce sulla curva e non dove il dito ha toccato, così la curva non salta. Il
+     * tetto è [MAX_KNOTS]: oltre una dozzina di punti la curva non si governa col dito, e la
+     * monotonia la irrigidisce.
      */
     fun grow(at: Float): Pair<Curve, Int> {
         val x = at.coerceIn(0f, 1f)
@@ -925,10 +672,8 @@ data class Curve(val knots: List<Knot> = ENDS) {
     }
 
     /**
-     * Questa curva senza il punto [i], oppure com'è se [i] è uno dei due estremi.
-     *
-     * ⚠️ **Gli estremi non si tolgono**: senza di loro la curva non direbbe più che cosa fare dei
-     * toni fuori dal primo e dall'ultimo punto.
+     * Questa curva senza il punto [i], o com'è se [i] è un estremo: senza estremi la curva non
+     * direbbe che cosa fare dei toni fuori dai punti.
      */
     fun drop(i: Int): Curve =
         if (i <= 0 || i >= knots.size - 1) this
@@ -939,13 +684,10 @@ data class Curve(val knots: List<Knot> = ENDS) {
         table()[(x.coerceIn(0f, 1f) * (SIZE - 1)).roundToInt()]
 
     /**
-     * I 256 valori di questa curva, uno per livello in ingresso.
-     *
-     * ⚠️ **Il conto è quello di Fritsch-Carlson**, in tre passi: le pendenze secanti fra punti
-     * vicini, le tangenti come loro media, e la **correzione** che tiene la curva monotona
-     * (tangenti azzerate dove la secante è piatta, e limitate al cerchio di raggio 3 dove
-     * altrimenti la cubica oltrepasserebbe). Senza il terzo passo questa sarebbe una cubica
-     * naturale, cioè la curva che il KDoc del tipo esiste per escludere.
+     * I 256 valori della curva, uno per livello in ingresso, col conto di Fritsch-Carlson: pendenze
+     * secanti, tangenti come loro media, e la correzione che tiene la curva monotona (tangenti a
+     * zero dove la secante è piatta, limitate al cerchio di raggio 3 dove la cubica
+     * oltrepasserebbe).
      */
     fun table(): FloatArray {
         val n = knots.size
@@ -1015,8 +757,8 @@ data class Curve(val knots: List<Knot> = ENDS) {
         private const val DEAD = 0.002f
 
         /**
-         * Quanto vicino a un punto esistente un tocco vale 'prendi quello' invece di 'fanne uno
-         * nuovo': un ventesimo di scala, cioè un dito su un grafico largo un palmo.
+         * Quanto vicino a un punto un tocco vale 'prendi quello' e non 'fanne uno nuovo': un
+         * ventesimo di scala, un dito su un grafico largo un palmo.
          */
         private const val NEAR = 0.05f
 
@@ -1028,16 +770,11 @@ data class Curve(val knots: List<Knot> = ENDS) {
 /**
  * Il modulo **Curve**: la curva di tutti i toni e le tre dei canali.
  *
- * ⚠️⚠️ **LE QUATTRO CURVE SI COMPONGONO IN TRE TABELLE, E L'ORDINE È `all(canale(v))`**: è la
- * convenzione di ogni editor che ha questo pannello (prima la curva del canale, poi quella del
- * composito), e con l'ordine rovesciato una curva sul rosso cambierebbe di posto ogni volta che si
- * tocca quella di tutti i toni.
- * - ⚠️⚠️ **LA COMPOSIZIONE SI FA IN KOTLIN E NON SULLA SCHEDA GRAFICA**, ed è quello che rende il
- *   conto per pixel **una lettura sola per canale**: comporre là vorrebbe dire due letture per
- *   canale e la stessa risposta.
- *
- * ⚠️ **Il canale che si sta guardando non vive qui**: è dove si ha lo sguardo, come il modulo e la
- * fascia dell'HSL, quindi vive nella scheda e non entra nella storia dei passi.
+ * Le quattro curve si compongono in tre tabelle, nell'ordine `all(canale(v))`, la convenzione di
+ * ogni editor con questo pannello: rovesciato, una curva sul rosso cambierebbe di posto toccando
+ * quella di tutti i toni. La composizione si fa in Kotlin, così il conto per pixel è una lettura
+ * per canale. Il canale che si sta guardando non vive qui: è nella scheda, come il modulo, e non
+ * entra nella storia dei passi.
  */
 data class Tone(
     val all: Curve = Curve.NONE,
@@ -1066,14 +803,12 @@ data class Tone(
     }
 
     /**
-     * La tabella da consegnare alla scheda grafica: 256 colori opachi, in cui ogni canale porta la
-     * propria curva **già composta** con quella di tutti i toni.
+     * La tabella da consegnare alla scheda grafica: 256 colori opachi, in cui ogni canale contiene
+     * la sua curva già composta con quella di tutti i toni.
      *
-     * ⚠️⚠️ **I COLORI SONO OPACHI DI PROPOSITO, e non è una svista sull'opacità**: Skia consegna a
-     * uno shader i colori **premoltiplicati**, quindi una tabella con un'opacità qualunque
-     * arriverebbe moltiplicata per lei, cioè con dei valori che non sono quelli che ci si è messi.
-     * Con l'opacità piena la moltiplicazione è per uno. È la stessa trappola scritta in testa a
-     * questo file per l'immagine.
+     * ⚠️ **I colori sono opachi apposta**: Skia consegna a uno shader i colori premoltiplicati, e
+     * una tabella con un'opacità qualunque arriverebbe moltiplicata per lei (la trappola in testa
+     * al file).
      */
     fun lut(): IntArray {
         val base = all.table()
@@ -1102,15 +837,10 @@ data class Tone(
         const val COUNT = 4
 
         /**
-         * A quale livello della curva del canale [channel] sta il colore [pixel].
-         *
-         * ⚠️⚠️ **SERVE AL COLORE MIRATO, E PER IL COMPOSITO È LA LUMINANZA PERCETTIVA**: chi tocca
-         * un punto dell'immagine indica un **tono**, e il tono di un pixel colorato è quanto quel
-         * pixel sembra chiaro, non la media dei suoi canali. Coi pesi di Rec. 709 un giallo pieno
-         * cade in alto e un blu pieno in basso, che è dove l'occhio li vede.
-         *
-         * ⚠️ **Per i tre canali invece è il canale**, senza pesi: là la curva governa quel canale, e
-         * il punto da prendere è il suo.
+         * A quale livello della curva del canale [channel] è il colore [pixel], per il colore
+         * mirato. Per il composito è la luminanza percettiva di Rec. 709, il tono che l'occhio
+         * vede: un giallo pieno cade in alto, un blu pieno in basso. Per i tre canali è il canale,
+         * che la sua curva governa.
          */
         fun levelOf(pixel: Int, channel: Int): Float {
             val r = ((pixel shr 16) and 0xFF) / 255f
@@ -1129,31 +859,21 @@ data class Tone(
 /**
  * Tutto quello che l'editor completo sa fare a un'immagine, in un oggetto solo.
  *
- * ⚠️⚠️ **È UN VALORE E NON UNA CATENA DI GESTI, ed è la stessa scelta dell'editor semplice**: là
- * dieci rotazioni si compongono in una posa sola perché le pose sono otto; qui dieci
- * spostamenti di un cursore sono **un** valore di quel cursore. Un elenco di gesti costringerebbe
- * a riapplicarli uno per uno sul file pieno, cioè a rifare dieci volte lo stesso lavoro.
+ * È un valore e non una catena di gesti, come nell'editor semplice: dieci movimenti di un cursore
+ * sono un valore di quel cursore, e un elenco di gesti andrebbe rifatto uno per uno sul file pieno.
+ * Chi aggiunge un modulo tocca [idle], [lossless] e [place], le domande che tutto il resto fa qui.
  *
- * ⚠️⚠️ **CRESCE COI MODULI E LA SUA FORMA NON CAMBIA**: [chroma] è entrato accanto a [light] con
- * la `2.19`, [mix] con la `2.21`, [detail] con la `2.22`, [tone] con la `2.23` e [geo] con la
- * `2.29`, senza toccare niente di quello che legge questo oggetto. Chi ne aggiunge uno tocca
- * [idle] e [lossless], che sono le due domande che tutto il resto fa qui, e nient'altro.
- *
- * ⚠️⚠️ **MA [geo] NON È UN MODULO COME GLI ALTRI CINQUE, ED È LA RAGIONE PER CUI ESISTE [plain]**:
- * quelli dicono di che **colore** è un pixel e passano dallo shader, questo dice **dove** va e
- * passa da una maglia di triangoli (vedi `Geometry.kt`). Le due strade sono due passate distinte,
- * quindi chi disegna deve poter chiedere se **quella** passata serve, e non solo se l'immagine è
- * intonsa.
+ * ⚠️ **[geo] non è un modulo come quelli del colore**, e per questo c'è [plain]: quelli dicono di
+ * che colore è un pixel e passano dallo shader, [geo] dice dove va e passa da una maglia di
+ * triangoli (vedi `Geometry.kt`). Sono due passate distinte, e chi disegna chiede se quella passata
+ * serve.
  */
 data class Look(
     /**
-     * La posa e il rettangolo tenuto, cioè il modulo **Ritaglio**, dalla `2.31`.
-     *
-     * ⚠️⚠️ **SONO I DUE CHE NON RISCRIVONO I PIXEL, E PER QUESTO VENGONO PRIMA DI TUTTO**: girare
-     * un'immagine di un quarto di giro o rifletterla è una permutazione, e tagliare è una
-     * sottrazione. Messi in testa, il Dettaglio legge ancora i pixel del file (una permutazione
-     * non interpola) e i due keystone lavorano sugli assi **che si vedono** invece che su quelli
-     * dell'originale, che dopo un quarto di giro sono scambiati.
+     * La posa e il rettangolo tenuto: il modulo **Ritaglio**. Non riscrivono i pixel, e per questo
+     * vengono prima di tutto: girare di un quarto o riflettere è una permutazione, tagliare una
+     * sottrazione. In testa, il Dettaglio legge i pixel del file (una permutazione non interpola) e
+     * i trapezi lavorano sugli assi che si vedono.
      */
     val spin: Spin = Spin.STILL,
     val crop: ImageEdit.Crop = ImageEdit.Crop.WHOLE,
@@ -1162,47 +882,33 @@ data class Look(
     val mix: Mix = Mix.NONE,
     val detail: Detail = Detail.NONE,
     /**
-     * Il modulo **Effetti**, dalla `2.53`.
-     *
-     * ⚠️ **Vive accanto al Dettaglio e non in fondo all'elenco**, ed è il posto giusto per una
-     * ragione sola: sono i due che guardano i pixel **vicini**, quindi sono i due che il
-     * salvataggio deve interrogare per sapere quanto bordo dare a una tessera.
+     * Il modulo **Effetti**. È accanto al Dettaglio perché sono i due che guardano i pixel vicini,
+     * e il salvataggio li interroga per il bordo delle tessere.
      */
     val effects: Effects = Effects.NONE,
     val tone: Tone = Tone.NONE,
     val geo: Geometry = Geometry.NONE,
     /**
-     * I tagli **applicati**, cioè quello che il palco inquadra al posto dell'immagine intera.
+     * I tagli applicati, cioè quello che il palco inquadra al posto dell'immagine intera.
      *
-     * ⚠️⚠️ **È L'UNICO CAMPO CHE NON CAMBIA UN PIXEL DEL FILE: DICE CHE COSA SI VEDE MENTRE SI
-     * LAVORA**, e il taglio si applica al salvataggio comunque, come è sempre stato. Vive qui e
-     * non nello sguardo per una ragione sola, ed è sua (2026-09-13): così 'Applica' è un passo
-     * come gli altri, e 'Annulla' lo disfa senza bisogno di una strada tutta sua.
-     * ⚠️ **Perciò non entra né in [idle] né in [lossless]**: un'immagine con la sola vista
-     * confermata esce identica a com'è entrata, e un 'Salva' acceso per niente sarebbe una
-     * promessa falsa.
-     * ⚠️⚠️ **ERA UN BOOLEANO FINO ALLA `2.39`, E CON LUI L'IMMAGINE TORNAVA INTERA DENTRO IL
-     * RITAGLIO**: adesso vale anche là, che è la sua richiesta, e il perché di ogni pezzo vive
-     * su [Framing].
+     * ⚠️ **Non cambia un pixel del file: dice che cosa si vede mentre si lavora**, e il taglio si
+     * applica al salvataggio comunque. È qui e non nello sguardo per scelta dell'utente, così
+     * 'Applica' è un passo come gli altri e 'Annulla' lo disfa. Perciò non entra né in [idle] né in
+     * [lossless]. Il perché di ogni pezzo è su [Framing].
      */
     val framing: Framing = Framing.NONE,
     val healing: Healing.Plan = Healing.Plan.NONE,
     /**
-     * The **Disegno** module, from 4.40: shapes laid after the development and before the
-     * geometry (the why lives at the top of `Drawing.kt`).
-     *
-     * ⚠️ **It sits on the 'where' side of [place]**: it is not a colour, so the comparison of a
-     * colour module keeps it; the Disegno module compares without it on its own.
+     * Il modulo **Disegno**: forme posate dopo lo sviluppo e prima della geometria (il perché è in
+     * testa a `Drawing.kt`). È dalla parte del dove, in [place].
      */
     val drawing: Drawing = Drawing.NONE
 ) {
 
     /**
-     * Se il conto del **colore** non cambia un pixel, cioè se lo shader non ha niente da fare.
-     *
-     * ⚠️ **Non è [idle] e la differenza non è una sfumatura**: un'immagine con la sola geometria
-     * mossa non è intonsa (i pixel si spostano), ma il programma dello shader là non serve, e
-     * farlo girare per niente costerebbe una passata intera su ogni fotogramma dell'anteprima.
+     * Se il conto del colore non cambia un pixel, cioè se lo shader non ha niente da fare. Non è
+     * [idle]: con la sola geometria mossa i pixel si spostano, ma lo shader non serve, e farlo
+     * girare costerebbe una passata intera a ogni fotogramma.
      */
     val plain: Boolean
         get() = light.idle && chroma.idle && mix.idle && detail.idle && effects.idle && tone.idle
@@ -1212,29 +918,15 @@ data class Look(
         get() = spin == Spin.STILL && crop.whole
 
     /**
-     * Il solo **dove**: posa, taglio, geometria, vista e disegno, senza niente di quello che tocca
-     * i colori.
+     * Il solo **dove**: posa, taglio, geometria, vista e disegno, senza niente dei colori.
      *
-     * ⚠️⚠️ **SERVE AL CONFRONTO COL PRIMA, DALLA `2.58`, ED È SUA RICHIESTA** (campo libero del
-     * giro della `2.55`: *pressione lunga sulla foto nell'editor: se mi trovo nei moduli Ritaglio o
-     * Geometria il 'Prima' deve mostrare tutto; se è attivo un altro modulo il 'Prima' deve
-     * mostrare tutto tranne Geometria e Ritaglio*). Chi sta tarando un colore e preme per vedere
-     * com'era, vuole vedere **quel** colore com'era: con un confronto che toglie tutto, l'immagine
-     * salta anche di inquadratura, e fra le due c'è un movimento che non riguarda quello che si sta
-     * guardando.
-     *
-     * ⚠️ **La divisione è quella che questo file dichiara in testa a [Look]**: i sei campi che
-     * passano dallo shader dicono di che **colore** è un pixel, questi cinque dicono **dove** va
-     * (il disegno è di qua dalla `4.40`: non è un colore, quindi il confronto di un modulo di
-     * colore lo tiene, e il modulo Disegno fa il suo confronto senza di lui).
-     * Il confronto ne toglie uno dei due gruppi, e quale dei due lo decide il modulo che si sta
-     * guardando.
-     *
-     * ⚠️⚠️ **[framing] È DI QUA, E SENZA DI LUI IL CONFRONTO RIAPRIREBBE UN TAGLIO GIÀ
-     * APPLICATO**: quel campo non cambia un pixel del file, ma dice che cosa il palco inquadra,
-     * quindi azzerandolo l'immagine tornerebbe intera sotto il dito. Chi aggiunge un campo a
-     * [Look] guardi questa riga: un campo di colore dimenticato qui resta applicato nel confronto,
-     * cioè non si vede più che cosa fa.
+     * Serve al confronto col prima (richiesta dell'utente): nei moduli Ritaglio e Geometria il
+     * 'Prima' mostra tutto; negli altri mostra tutto tranne Ritaglio e Geometria, così chi tara un
+     * colore vede quel colore com'era senza che l'immagine salti di inquadratura. Il disegno è di
+     * qua: non è un colore, e il modulo Disegno fa il suo confronto senza di lui.
+     * ⚠️ **[framing] è di qua**, o il confronto riaprirebbe un taglio già applicato. Chi aggiunge
+     * un campo a [Look] guardi questa riga: un campo di colore dimenticato qui resta applicato nel
+     * confronto, e non si vede più che cosa fa.
      */
     val place: Look
         get() = Look(spin = spin, crop = crop, geo = geo, framing = framing, drawing = drawing)
@@ -1244,23 +936,13 @@ data class Look(
         get() = plain && geo.idle && square && healing.idle && drawing.idle
 
     /**
-     * Se quello che c'è da fare **non** riscrive i pixel.
+     * Se quello che c'è da fare non riscrive i pixel.
      *
-     * ⚠️⚠️ **È LA CLAUSOLA DELL'UTENTE, e per questo è una proprietà del modello e non una
-     * riga nel salvataggio** (*quelle che non prevedono la riscrittura del file pixel per pixel
-     * devono essere lossless*): finché la pila contiene solo posa e ritaglio senza taglio, il
-     * file si può girare cambiando un tag EXIF, che è quello che l'editor semplice fa dalla
-     * `1.03`. Appena entra un valore di Luce, i pixel vanno riscritti e non c'è modo di
-     * evitarlo.
-     * ⚠️ **E con la geometria, dalla `2.29`, la risposta è la stessa**: raddrizzare ricampiona,
-     * cioè decide per ogni pixel di arrivo un colore che prima non stava là.
-     * ⚠️⚠️ **MA DALLA `2.31` LA POSA VIVE ANCHE QUI, E CON LEI TORNA IL SENZA PERDITA**: girare un
-     * JPEG è un tag EXIF, e la nota di prima diceva che quella strada vive 'nell'altro editor'
-     * perché fino alla `2.30` questo non sapeva mettere in posa. Adesso lo sa, e col solo modulo
-     * Ritaglio mosso il salvataggio **passa da quella strada**, cioè da `ImageEdit.save`: una
-     * seconda copia di quel conto sarebbe un modo per divergere.
-     * ⚠️ **Un taglio invece riscrive**, e non è una scelta: un ritaglio a blocchi lascerebbe il
-     * bordo al multiplo di otto più vicino, cioè non taglierebbe dove l'utente ha chiesto.
+     * ⚠️ **È la clausola dell'utente** (le modifiche che non riscrivono il file pixel per pixel
+     * devono essere senza perdita): con la sola posa, il salvataggio passa da `ImageEdit.save`, che
+     * gira il file cambiando un tag EXIF, e non da una seconda copia di quel conto. La geometria
+     * ricampiona, e un taglio riscrive: un ritaglio a blocchi lascerebbe il bordo al multiplo di
+     * otto più vicino, non dove l'utente ha chiesto.
      */
     val lossless: Boolean get() = plain && geo.idle && crop.whole && healing.idle && drawing.idle
 
@@ -1270,40 +952,26 @@ data class Look(
 }
 
 /**
- * I tagli **applicati** col comando 'Applica' del modulo Ritaglio, e dove si è nella loro storia.
+ * I tagli applicati col comando 'Applica' del modulo Ritaglio, e dove si è nella loro storia.
  *
- * ⚠️⚠️ **DALLA `2.40` 'APPLICA' TAGLIA DAVVERO ANCHE DENTRO IL RITAGLIO, ED È SUA RICHIESTA**
- * (2026-09-14: *ho come l'impressione che il tasto sia in realtà inutile, perché il taglio è sempre
- * applicato in tempo reale e non distruttivo. Potrebbe avere senso se fosse applicato effettivamente
- * anche nel modulo Ritaglio (resta solo la parte ritagliata), ma apparissero dei tasti
- * 'Indietro'/'Avanti'/'Azzera' SOLO PER IL RITAGLIO*). Fino alla `2.39` questo era un booleano e
- * nel Ritaglio l'immagine tornava intera, quindi là dentro quel tasto non faceva niente che si
- * vedesse: la sua osservazione è esatta.
+ * 'Applica' taglia davvero anche dentro il Ritaglio, con 'Indietro', 'Avanti' e 'Azzera' per i soli
+ * tagli (richiesta dell'utente). È una storia, come quella dei passi: una lista e un indice e non
+ * due pile, che obbligherebbero ogni applicazione nuova a svuotare la seconda.
  *
- * ⚠️⚠️ **È UNA STORIA E NON UN VALORE, PERCHÉ I SUOI TRE COMANDI LO CHIEDONO**: 'Indietro' disfa
- * l'ultima applicazione e 'Avanti' la rifà, quindi serve sapere anche quelle che si sono disfatte.
- * La forma è quella della storia dei passi, cioè **una lista e un indice** e non due pile: con due
- * pile ogni applicazione nuova deve ricordarsi di svuotare la seconda, e chi se ne dimentica lascia
- * un 'Avanti' che riporta a una strada abbandonata.
- *
- * ⚠️⚠️ **I TAGLI SONO IN FRAZIONI DELL'IMMAGINE INTERA E NON UNO DENTRO L'ALTRO**: così
- * [Look.crop] resta quello che il salvataggio applica, cioè il rettangolo totale, e nessuno deve
- * comporre una catena per sapere che cosa tagliare. Quello che si compone è il gesto, sul palco,
- * dove il dito tira le squadrette dentro la porzione che si vede.
+ * ⚠️ **I tagli sono in frazioni dell'immagine intera e non uno dentro l'altro**: così [Look.crop]
+ * resta il rettangolo totale che il salvataggio applica. Quello che si compone è il gesto, sul
+ * palco.
  */
 data class Framing(
-    /** I tagli applicati, dal primo all'ultimo, ognuno in frazioni dell'immagine **intera**. */
+    /** I tagli applicati, dal primo all'ultimo, ognuno in frazioni dell'immagine intera. */
     val steps: List<ImageEdit.Crop> = emptyList(),
     /** Quanti ne valgono adesso: quelli oltre questo numero sono i disfatti che 'Avanti' rifà. */
     val at: Int = 0
 ) {
 
     /**
-     * Il taglio che il palco inquadra, o `null` se si vede l'immagine intera.
-     *
-     * ⚠️ **Un taglio intero vale `null`**, così chi lo legge ha un ramo solo: applicare il
-     * rettangolo pieno non cambia niente di quello che si vede, e un `Crop` che copre tutto
-     * farebbe fare al palco un conto che dà sé stesso.
+     * Il taglio che il palco inquadra, o `null` se si vede l'immagine intera. Un taglio intero vale
+     * `null`, così chi lo legge ha un ramo solo.
      */
     val shown: ImageEdit.Crop? get() = steps.getOrNull(at - 1)?.takeIf { !it.whole }
 
@@ -1314,11 +982,8 @@ data class Framing(
     val redoable: Boolean get() = at < steps.size
 
     /**
-     * Questa storia con [cut] applicato.
-     *
-     * ⚠️ **Le applicazioni disfatte se ne vanno**, come i passi della storia dell'immagine: da qui
-     * in avanti la strada è un'altra, e tenerle vorrebbe dire un 'Avanti' che porta dove nessuno
-     * è più passato.
+     * Questa storia con [cut] applicato. Le applicazioni disfatte se ne vanno, come i passi della
+     * storia dell'immagine: da qui la strada è un'altra.
      */
     fun applied(cut: ImageEdit.Crop): Framing = Framing(steps.take(at) + cut, at + 1)
 
@@ -1329,11 +994,9 @@ data class Framing(
     fun on(): Framing = if (redoable) copy(at = at + 1) else this
 
     /**
-     * Gli stessi tagli, riscritti dopo la posa [gesto].
-     *
-     * ⚠️ **Vanno girati come [Look.crop]**, e per la stessa ragione: sono in frazioni
-     * dell'immagine **già posata**, quindi un quarto di giro che non li riscrivesse lascerebbe il
-     * palco a inquadrare un'altra porzione di fotografia.
+     * Gli stessi tagli, riscritti dopo la posa [gesto], come [Look.crop]: sono in frazioni
+     * dell'immagine già posata, e un quarto di giro senza riscriverli inquadrerebbe un'altra
+     * porzione.
      */
     fun spun(gesto: Spin): Framing = copy(steps = steps.map { spunRect(it, gesto) })
 
@@ -1343,17 +1006,12 @@ data class Framing(
 }
 
 /**
- * Con quanta cura si riscrive il file, ed è una sua scelta a tre.
+ * Con quanta cura si riscrive il file, scelta dell'utente fra tre.
  *
- * ⚠️⚠️ **NON SONO TRE GRADI DELLA STESSA COSA: LE PRIME DUE SONO UN JPEG, LA TERZA UN ALTRO
- * FORMATO.** 'Alta' e 'Massima' sono lo stesso codificatore spinto di più, e fra loro la
- * differenza a occhio quasi non c'è mentre il file quasi raddoppia; 'Senza perdita' cambia
- * mestiere, scrive un PNG e non butta via un bit, al prezzo di un file parecchie volte più
- * grosso. La terza si sceglie quando l'immagine si dovrà rilavorare ancora.
- *
- * ⚠️ **Il valore vive nelle impostazioni e non si chiede a ogni salvataggio**: salvare è un
- * gesto che si fa di fretta, e una domanda in mezzo lo rallenterebbe ogni volta per una
- * decisione che si prende una volta sola. È la stessa lettura che ha avuto 'Scarica'.
+ * 'Alta' e 'Massima' sono lo stesso JPEG spinto di più (a occhio quasi uguali, il file quasi
+ * doppio); 'Senza perdita' scrive un PNG che non butta via un bit, parecchie volte più grosso, per
+ * un'immagine da rilavorare. Il valore è nelle impostazioni e non si chiede a ogni salvataggio,
+ * come per 'Scarica'.
  */
 enum class Quality(override val token: String) : Choice {
     HIGH("alta"),
@@ -1367,53 +1025,29 @@ enum class Quality(override val token: String) : Choice {
 }
 
 /**
- * Il programma che gira **su ogni pixel** dell'immagine.
+ * Il programma che gira su ogni pixel dell'immagine.
  *
- * ⚠️⚠️ **L'ORDINE DELLE OPERAZIONI È LA SPECIFICA, e cambiarlo cambia il risultato**: il Dettaglio,
- * poi il bilanciamento del bianco, poi l'esposizione, poi ombre e luci, poi i punti di bianco e di
- * nero, poi il contrasto, poi la curva tonale, poi l'HSL per fascia, e per ultimo quanto sono
- * accesi i colori. È l'ordine di un banco di sviluppo fotografico, e la ragione di ognuno dei
- * passaggi:
- * - **Il Dettaglio viene per primo, dalla `2.22`**, perché è il solo modulo che parla del **file**
- *   e non dell'immagine: quanto rumore ha il sensore, e quanto il disegno fine va accentuato.
- *   Messo dopo, il contrasto avrebbe già moltiplicato la grana che quel modulo esiste per togliere.
- * - **Il bilanciamento viene per primo, dalla `2.19`**, perché non corregge niente: dice di che
- *   colore era la luce dello scatto, cioè **da quale immagine si parte**. Messo dopo, la piega
- *   delle alte luci lavorerebbe su un canale che il bilanciamento sta ancora per spingere fuori.
- * - **Saturazione e vividezza vengono per ultime** perché sono un giudizio sull'immagine finita:
- *   messe prima, ogni cursore della Luce le rimetterebbe in discussione, e alzare il contrasto
- *   alzerebbe di suo anche la saturazione.
- * - **L'esposizione viene prima** perché è l'unica moltiplicativa pura: è come aver aperto di più
- *   il diaframma, quindi tutto quello che segue lavora sull'immagine 'come sarebbe stata'.
- *   ⚠️⚠️ **E dalla `2.18` si porta dietro la PIEGA delle alte luci**, perché è lei a portare la
- *   luce fuori dalla scala: quello che sforava veniva schiacciato sul bianco, e adesso si
- *   comprime. Il perché, le misure e il costo dichiarato vivono su `shoulder`, qui sotto. ⚠️ Con
- *   lei tutto quello che segue riceve un segnale già dentro l'intervallo, maschere comprese.
- * - **Ombre e luci vengono prima del contrasto** perché servono a **recuperare** quello che
- *   l'esposizione ha schiacciato, e il contrasto deve poi lavorare su un'immagine già recuperata.
- *   Al contrario, si recupererebbe quello che il contrasto ha appena bruciato.
- * - **I punti vengono prima del contrasto** perché dichiarano **dove finisce** l'immagine, e la
- *   curva a S lavora dentro l'intervallo che quei due estremi definiscono. Al contrario, i punti
- *   taglierebbero i toni che la curva ha appena creato.
+ * ⚠️ **L'ordine delle operazioni è la specifica**: il Dettaglio, il bilanciamento del bianco,
+ * l'esposizione, ombre e luci, i punti di bianco e di nero, il contrasto, la curva tonale, l'HSL
+ * per fascia, e per ultimi saturazione e vividezza. È l'ordine di un banco di sviluppo:
+ * - il Dettaglio per primo, perché parla del file (rumore del sensore, disegno fine): dopo, il
+ *   contrasto avrebbe moltiplicato la grana da togliere;
+ * - il bilanciamento subito dopo, perché dice di che colore era la luce dello scatto, cioè da quale
+ *   immagine si parte;
+ * - l'esposizione è la sola moltiplicativa pura, e si porta dietro la piega delle alte luci (vedi
+ *   `shoulder`): tutto quello che segue riceve un segnale già dentro l'intervallo;
+ * - ombre e luci prima del contrasto, perché recuperano quello che l'esposizione ha schiacciato;
+ * - i punti prima del contrasto, perché dichiarano dove finisce l'immagine, e la curva a S lavora
+ *   dentro quell'intervallo;
+ * - saturazione e vividezza per ultime, perché sono un giudizio sull'immagine finita.
  *
- * ⚠️⚠️ **IL CONTRASTO HA UN PERNO E NON È UNA MOLTIPLICAZIONE**: `(c - 0.5) * k + 0.5` fatto in
- * lineare sposterebbe il grigio medio, perché il grigio medio in luce lineare **non** è 0,5 ma
- * circa 0,18. Il perno è quello, ed è la ragione per cui alzando il contrasto l'immagine non si
- * scurisce tutta.
- * ⚠️ **E si usa una curva a S invece di una retta**: una retta ripida taglia i due estremi, cioè
- * brucia i bianchi e chiude i neri. La forma di `sCurve` tiene i due estremi **fermi**, quindi
- * alzando il contrasto al massimo il nero resta nero e il bianco resta bianco.
- *
- * ⚠️⚠️ **OMBRE E LUCI PESANO SU UNA MASCHERA, ed è quello che le distingue dai punti**: la
- * maschera vale uno dove il pixel è scuro (per le ombre) o chiaro (per le luci) e si spegne
- * dall'altra parte. Elevata al quadrato, la transizione è morbida: con una maschera lineare il
- * confine fra la zona toccata e quella no si vede come un alone.
- *
- * ⚠️⚠️ **I PUNTI DI BIANCO E DI NERO SONO UNA RIMAPPATURA LINEARE, cioè i livelli in ingresso, e
- * per questo non possono appiattire l'immagine**: si spostano i due estremi dell'intervallo e si
- * ridistribuisce quello che c'è in mezzo. Al fondo della corsa si perde **un quarto** della scala
- * da una parte, e il resto dei toni resta distribuito: è la differenza col cursore che questo
- * conto aveva fino alla `2.15`, dove l'estremo era il bianco pieno o il nero pieno.
+ * ⚠️ **Il contrasto ha un perno**: in luce lineare il grigio medio non è 0,5 ma circa 0,18, ed è lì
+ * il perno, così alzando il contrasto l'immagine non si scurisce. La curva a S (`sCurve`) tiene
+ * fermi gli estremi: al massimo il nero resta nero e il bianco bianco.
+ * ⚠️ **Ombre e luci pesano su una maschera** al quadrato, morbida: una maschera lineare lascerebbe
+ * un alone al confine.
+ * ⚠️ **I punti di bianco e di nero sono una rimappatura lineare**, i livelli in ingresso: al fondo
+ * della corsa si perde un quarto della scala da una parte, e il resto dei toni resta distribuito.
  */
 internal const val LOOK_AGSL = """
 uniform shader image;
@@ -2315,27 +1949,20 @@ half4 main(float2 p) {
 """
 
 /**
- * La tabella di una curva a riposo, cioè la diagonale, costruita una volta sola per tutto il
- * processo.
- *
- * ⚠️ **Serve perché lo shader vuole quella tabella SEMPRE**: un `uniform shader` non dichiarato
- * fa rifiutare il programma, quindi anche un'immagine che non ha curve deve consegnarne una. Senza
- * questa, ogni fotogramma di ogni immagine pagherebbe 1024 valori di spline e una bitmap, per
- * ottenere sempre lo stesso risultato.
- * - ⚠️ **È immutabile e la leggono in due**, l'anteprima e il salvataggio, che girano su thread
- *   diversi: una bitmap che nessuno scrive si può condividere, e quello che si costruisce a ogni
- *   chiamata è il solo `BitmapShader`, che costa niente.
+ * La tabella di una curva a riposo, la diagonale, costruita una volta per tutto il processo. Lo
+ * shader la vuole sempre (un `uniform shader` non dichiarato fa rifiutare il programma), e senza
+ * questa ogni fotogramma pagherebbe una spline e una bitmap per lo stesso risultato. È immutabile,
+ * quindi anteprima e salvataggio la condividono da thread diversi.
  */
 private val FLAT_TONE: Bitmap by lazy { toneBitmap(Tone.NONE) }
 
 /**
  * La tabella di [tone] come riga di 256 pixel, da consegnare allo shader.
  *
- * ⚠️⚠️ **LA BITMAP È `ARGB_8888` OPACA E IN sRGB, E LE DUE COSE SONO DUE TRAPPOLE EVITATE**: Skia
- * consegna a uno shader i colori **premoltiplicati**, quindi un'opacità diversa da uno
- * moltiplicherebbe i valori della tabella; e se lo spazio colore della bitmap non fosse quello
- * della destinazione, Skia convertirebbe i numeri mentre li legge. Qui la tabella non è
- * un'immagine: è un elenco di valori, e deve arrivare **identica** a come è stata scritta.
+ * ⚠️ **`ARGB_8888` opaca e in sRGB, per due trappole**: Skia consegna i colori premoltiplicati, e
+ * un'opacità diversa da uno moltiplicherebbe i valori; e con uno spazio colore diverso da quello
+ * della destinazione Skia convertirebbe i numeri leggendoli. La tabella è un elenco di valori, e
+ * deve arrivare identica.
  */
 private fun toneBitmap(tone: Tone): Bitmap =
     Bitmap.createBitmap(Curve.SIZE, 1, Bitmap.Config.ARGB_8888).apply {
@@ -2343,23 +1970,16 @@ private fun toneBitmap(tone: Tone): Bitmap =
     }
 
 /**
- * Dov'è il pezzo che si sta disegnando, dentro l'immagine **intera**, e quanto misura lei.
+ * Dov'è il pezzo che si sta disegnando dentro l'immagine intera, e quanto misura lei.
  *
- * ⚠️⚠️ **NASCE CON LA `2.57`, E PRIMA ERA UN NUMERO SOLO**: fino alla `2.56` allo shader si
- * consegnava il lato lungo ([span]), che basta a chi ragiona in frazioni del lato, cioè al
- * Dettaglio e ai primi tre cursori degli Effetti. La vignettatura e la grana invece chiedono
- * un'altra cosa: **dove** si trova questo pezzo, perché una vignettatura si misura dal centro
- * dell'immagine e una grana deve essere continua da una tessera all'altra.
- *
- * ⚠️⚠️ **E I DUE DATI STANNO INSIEME PERCHÉ SONO LA STESSA COSA DETTA PER INTERO**: il lato lungo
- * si **ricava** da qui ([span]), quindi non esiste più un secondo posto in cui scriverlo e non
- * può divergere dall'origine. Chi disegna un pezzo lo dichiara con [piece], chi disegna tutto con
- * [whole]: non c'è un valore di serie da dimenticare, che è lo stesso presidio del parametro di
- * `Modifier.lowered`.
+ * Il lato lungo ([span]) basta a chi ragiona in frazioni del lato (Dettaglio, foschia), ma
+ * vignettatura e grana chiedono dove è il pezzo: la vignettatura si misura dal centro
+ * dell'immagine, e la grana deve essere continua da una tessera all'altra. Il lato si ricava da
+ * qui, quindi non può divergere dall'origine. Chi disegna un pezzo lo dichiara con [tile], [shown]
+ * o [whole]: niente valore di serie da dimenticare, come per il parametro di `Modifier.lowered`.
  */
-// ⚠️ **Anche `copy()` è privato, come il costruttore**: senza quell'annotazione una data class dal
-// costruttore privato lo genera pubblico, e `copy(left = ...)` sarebbe la quarta strada, cioè
-// esattamente quella che le tre funzioni qui sotto esistono per non lasciare aperta.
+// ⚠️ Anche `copy()` è privato, come il costruttore: senza l'annotazione una data class dal
+// costruttore privato lo genera pubblico, e `copy(left = ...)` sarebbe una quarta strada.
 @ConsistentCopyVisibility
 internal data class Framed private constructor(
     /** La larghezza dell'immagine intera, nello spazio in cui il conto gira. */
@@ -2371,7 +1991,7 @@ internal data class Framed private constructor(
     /** Dove comincia l'immagine intera, in quello spazio: per una tessera è negativo. */
     val top: Float
 ) {
-    /** Il lato lungo dell'immagine intera: è quello che i raggi in frazione del lato leggono. */
+    /** Il lato lungo dell'immagine intera: quello che i raggi in frazione del lato leggono. */
     val span: Float get() = max(wide, tall)
 
     companion object {
@@ -2388,14 +2008,12 @@ internal data class Framed private constructor(
             Framed(wide, tall, left, top)
 
         /**
-         * Una tessera del salvataggio, dichiarata col **proprio** angolo dentro l'immagine
-         * ([atX], [atY]) e con la misura dell'immagine intera.
+         * Una tessera del salvataggio, col suo angolo dentro l'immagine ([atX], [atY]) e la misura
+         * dell'immagine intera.
          *
-         * ⚠️⚠️ **IL SEGNO LO METTE QUESTA FUNZIONE E NON IL CHIAMANTE**: dentro una tessera `p`
-         * parte da zero sul suo angolo, quindi l'immagine intera comincia **più indietro**, cioè a
-         * un'origine negativa. Scritta dal chiamante, quella negazione sarebbe una riga da
-         * ricordare e un difetto che non dà nessun errore: la vignettatura cadrebbe fuori centro
-         * di tanto quanto la tessera è lontana dall'angolo.
+         * ⚠️ **Il segno lo mette questa funzione e non il chiamante**: dentro una tessera `p` parte
+         * da zero sul suo angolo, quindi l'immagine comincia più indietro, a un'origine negativa.
+         * Una negazione dimenticata dal chiamante sposterebbe la vignettatura senza nessun errore.
          */
         fun tile(atX: Float, atY: Float, wide: Float, tall: Float) =
             Framed(wide, tall, -atX, -atY)
@@ -2403,50 +2021,37 @@ internal data class Framed private constructor(
 }
 
 /**
- * Il programma compilato con [look] dentro, agganciato all'immagine [image], oppure `null` dove
- * questa strada non esiste. [where] dice quanto misura l'immagine **nello spazio in cui il conto
- * gira** e dov'è il pezzo che si disegna: i pixel del file per il salvataggio, il rettangolo
- * disegnato per l'anteprima.
+ * Il programma compilato con [look] dentro, agganciato all'immagine [image], o `null` dove questa
+ * strada non esiste. [where] dice quanto misura l'immagine nello spazio del conto e dov'è il pezzo
+ * che si disegna: i pixel del file per il salvataggio, il rettangolo disegnato per l'anteprima.
  *
- * ⚠️⚠️ **[where] NON HA UN VALORE DI SERIE, E NON È UNA DIMENTICANZA**: il modulo Dettaglio ragiona
- * in frazioni del lato e la vignettatura in frazioni della diagonale, quindi chi chiama deve
- * **dichiarare** quanto misura l'immagine da cui legge e dov'è il proprio pezzo. Un valore di
- * serie sarebbe giusto per uno dei due chiamanti e sbagliato per l'altro, senza che niente lo
- * dica: è la stessa forma di presidio del parametro di `Modifier.lowered`.
- *
- * ⚠️⚠️ **`null` VUOL DIRE ANDROID 12 O PRIMA**, e chi chiama non ha una seconda strada: l'editor
- * completo non si offre nemmeno, ed è l'istruzione dell'utente. È lo stesso controllo di
- * `grainShader`, in `Dither.kt`, e per la stessa ragione vive in due funzioni (il controllo di versione e l'uso
- * della classe che nasce con la 13 devono stare separati, o l'analizzatore statico non riconosce
- * la guardia).
- *
- * ⚠️ **Il programma si ricompila a ogni chiamata**, e non è uno spreco da correggere: `RuntimeShader`
- * compila una volta e tiene il risultato, e quello che cambia a ogni fotogramma sono i soli
- * `setFloatUniform`, che costano niente. Chi volesse tenerlo in una cache guardi prima se il
- * profilo dice che serve.
+ * ⚠️ **[where] non ha un valore di serie**: il Dettaglio ragiona in frazioni del lato e la
+ * vignettatura della diagonale, e un valore di serie sarebbe giusto per un chiamante e sbagliato
+ * per l'altro senza dirlo.
+ * ⚠️ **`null` vuol dire Android 12 o prima**, e l'editor completo non si offre (istruzione
+ * dell'utente). Come `grainShader` in `Dither.kt`, il controllo di versione e l'uso della classe di
+ * Android 13 sono in due funzioni, o l'analizzatore statico non riconosce la guardia.
+ * ⚠️ **Il `RuntimeShader` si costruisce a ogni chiamata**; secondo questa nota la compilazione
+ * resta in memoria e a ogni fotogramma cambiano solo gli uniform. Prima di metterlo in una cache si
+ * guarda il profilo.
  */
 internal fun lookShader(image: Shader, look: Look, where: Framed): Shader? {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return null
     /*
-     * ⚠️⚠️ **UN PROGRAMMA CHE NON COMPILA NON PUÒ FAR CADERE L'APP, e la rete vive qui e non nei
-     * chiamanti**: `RuntimeShader` lancia se la scheda grafica rifiuta il testo del programma, e
-     * chi chiama sta disegnando un fotogramma. Rispondendo `null` si vede l'immagine senza il
-     * conto applicato, che è brutto ma è un'app viva; il salvataggio invece se ne accorge e
-     * rifiuta, invece di scrivere un file sbagliato.
-     * ⚠️ **Copre anche il banco di prova**, dove non c'è nessuna scheda grafica: una prova che
-     * monta la schermata misura la pila dei passi e non i pixel, e senza questa riga cadrebbe
-     * sul primo cursore mosso.
+     * ⚠️ **Un programma che non compila non deve chiudere l'app**: `RuntimeShader` va in errore se
+     * la scheda grafica rifiuta il testo, e chi chiama sta disegnando un fotogramma. Con `null` si
+     * vede l'immagine senza il conto; il salvataggio se ne accorge e rifiuta, e non scrive un file
+     * sbagliato. Copre anche il banco, dove non c'è una scheda grafica.
      */
     return runCatching { lightOver(image, look, where) }.getOrNull()
 }
 
 /**
- * Vedi la nota su [lookShader]: esiste perché la guardia di versione sia riconoscibile.
+ * Vedi [lookShader]: esiste perché la guardia di versione sia riconoscibile.
  *
- * ⚠️ **I valori si consegnano tutti, anche quelli a zero**: un uniform non scritto vale quello che
- * c'era prima, e con un programma ricompilato a ogni chiamata varrebbe zero per caso invece che
- * per scelta. Chi aggiunge un campo a [Look] aggiunge una riga qui, e il banco se ne accorge
- * perché il programma non compila senza il suo uniform.
+ * ⚠️ **I valori si consegnano tutti, anche quelli a zero**: un uniform non scritto varrebbe zero
+ * per caso e non per scelta. Chi aggiunge un campo a [Look] aggiunge una riga qui, e il banco se ne
+ * accorge perché il programma non compila senza il suo uniform.
  */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 private fun lightOver(image: Shader, look: Look, where: Framed): Shader {
@@ -2462,13 +2067,10 @@ private fun lightOver(image: Shader, look: Look, where: Framed): Shader {
     return RuntimeShader(LOOK_AGSL).apply {
         setInputShader("image", image)
         /*
-         * ⚠️⚠️ **IL FILTRO LINEARE SULLA TABELLA È LA RIGA CHE LA RENDE UNA CURVA E NON UNA
-         * SCALINATA**: senza, il campionamento arrotonda al pixel più vicino, quindi due livelli
-         * vicini che cadono nella stessa voce escono identici e la curva si vede a gradini. È la
-         * riga gemella di quella del Dettaglio, e per la stessa ragione: `isFilterBitmap` del
-         * pennello governa il disegno e non i campioni che uno shader chiede a un altro.
-         * ⚠️ **A riposo la tabella è quella tenuta da parte**, quindi un'immagine non toccata non
-         * paga nemmeno la sua costruzione: vedi [FLAT_TONE].
+         * ⚠️ **Il filtro lineare sulla tabella la rende una curva e non una scalinata**: senza, il
+         * campionamento arrotonda alla voce più vicina e due livelli vicini escono identici. È la
+         * riga gemella di quella del Dettaglio: `isFilterBitmap` del pennello governa il disegno,
+         * non i campioni che uno shader chiede a un altro. A riposo la tabella è [FLAT_TONE].
          */
         val lut = if (look.tone.idle) FLAT_TONE else toneBitmap(look.tone)
         setInputShader(
@@ -2519,11 +2121,8 @@ private fun lightOver(image: Shader, look: Look, where: Framed): Shader {
 }
 
 /**
- * Se questo telefono sa far girare l'editor completo.
- *
- * ⚠️⚠️ **SI CHIEDE QUI E NON IN TRE POSTI**: lo chiedono il selettore degli editor (per offrire o
- * no la voce), il modello (per sapere dove mandare chi tocca 'Modifica') e le impostazioni. Scritto
- * tre volte, il giorno che il requisito cambia due dei tre mentirebbero.
+ * Se questo telefono sa far girare l'editor completo. Si chiede qui, una volta: lo chiedono il
+ * selettore degli editor, il modello e le impostazioni.
  */
 internal fun advancedEditorAvailable(): Boolean =
     Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
