@@ -19,6 +19,7 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.down
 import androidx.compose.ui.test.longClick
@@ -217,6 +218,39 @@ class DisegnoTest {
         assertTrue("il secondo vertice doveva seguire il dito", segno.points[1].y > segno.points[0].y)
         assertEquals("il colore scelto, all'opacità di fabbrica", Draw.withAlpha(Draw.INKS[3], Draw.INK_ALPHA), segno.ink)
         assertFalse("il tratteggio spento", segno.dashed)
+    }
+
+    /**
+     * **Dopo un cambio di strumento, il dito sui tondi scrive nel colore dello strumento nuovo**
+     * (`6.27`, rilievo A12 della revisione della 6.25).
+     *
+     * ⚠️⚠️ **IL RILIEVO NON SI È CONFERMATO, E QUESTA PROVA È LA MISURA**: il rilievo, ragionato sul
+     * codice, diceva che il gesto del dito partito con la Pillola tenesse le funzioni di quella
+     * composizione, e col Pannello scrivesse ancora nel colore della Pillola. Con Compose 1.13 il
+     * gesto usa le funzioni nuove (la prova passa sul codice com'è), quindi la correzione non è
+     * stata scritta. La prova resta come guardia della gerarchia dei tocchi.
+     * ⚠️ **Si tocca col dito, non con l'azione del lettore di schermo**: l'azione si ricostruisce a
+     * ogni composizione, e una prova che la usasse sarebbe verde in ogni caso.
+     * ⚠️ **La spia è il tondo scelto**: col Pannello il tondo acceso è quello del suo colore. Il
+     * colore di fabbrica della Pillola è il primo, quindi il primo tocco va sul secondo.
+     * ⚠️ **Controprovata** congelando `scegli` alla prima composizione nel gesto: la prova cade.
+     */
+    @Test
+    fun `dopo un cambio di strumento il dito sui tondi va allo strumento nuovo`() {
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        val sfondo = testo(R.string.draw_ground)
+        banco.onNodeWithContentDescription(testo(R.string.draw_pill)).performClick()
+        // ⚠️ The first touch with the finger starts the swatch's gesture under the pill.
+        banco.onNodeWithContentDescription("$sfondo 2").performTouchInput { click() }
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription("$sfondo 2").assertIsSelected()
+        banco.onNodeWithContentDescription(testo(R.string.draw_panel)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription("$sfondo 3").performTouchInput { click() }
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription("$sfondo 3").assertIsSelected()
     }
 
     /**
