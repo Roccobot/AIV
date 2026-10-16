@@ -440,18 +440,26 @@ Il JSON usa `schema: 1`, `project: AIV`. La bozza contiene:
 | `updated`, `completed` | Data del salvataggio e della preparazione del giro |
 
 `images` è il nome storico anche per gli ZIP: non cambiarlo senza migrazione.
-**Al cambio di giro la bozza si alleggerisce** (dal 2026-10-03, scelta dell'utente): restano
-telefono, tablet, le risposte alle prove ancora in pagina, le etichette ancora aperte e le
-decisioni; escono `Altro` coi suoi allegati, la conferma della versione installata, e le risposte
-alle prove chiuse coi loro allegati. Prima si accumulavano: un JSON del 3.42 conteneva 76 risposte
-dal giro 3.13 in poi, e importato sembrava vuoto. L'importazione dice quante risposte riguardano
-prove non più in pagina.
+**Al cambio di giro la bozza riparte da capo** (dal 2026-10-16, scelta B1 di Rocco): restano
+telefono, tablet e decisioni; escono `Altro` coi suoi allegati, la conferma della versione
+installata, e **tutte** le risposte e le revisioni delle etichette, comprese quelle delle prove
+riproposte. Il giro inviato le ha già consegnate, quindi una prova che torna dopo una correzione
+riparte da `Non provato`. Dal 2026-10-03 al 2026-10-16 restavano le risposte alle prove ancora in
+pagina: la pagina 2.10 di Aomidori ha riproposto due prove col loro identificativo, e Rocco le ha
+ritrovate già su `Non approvato`, coi commenti del giro 2.01. Prima del 2026-10-03 si accumulavano
+tutte: un JSON del 3.42 conteneva 76 risposte dal giro 3.13 in poi, e importato sembrava vuoto.
+L'importazione dice quante risposte riguardano prove non più in pagina. Lo presidia
+`tools/feedback-interactive-check.py`, con una bozza di un giro inviato che ha una risposta su una
+prova ancora in pagina: col codice di prima fallisce.
 ⚠️⚠️ **Un DF cumulativo conserva `Altro` del giro che prosegue** (regola di Rocco del 2026-10-12,
 `Roccobot.md` § '🚪 Il lavoro nuovo comincia dopo l'invio del giro precedente': con la deroga la
 versione nuova si rilascia, e il DF cumulativo va in scena subito dopo la release, mentre lui sta
 ancora compilando il giro vecchio). La fonte lo dichiara con una riga sua sotto il titolo,
 `Prosegue il giro **5.71**.`, che il generatore passa alla pagina come `continues`: una bozza di quel
-giro tiene `Altro` e i suoi allegati, e perde solo la conferma della versione installata. Il
+giro tiene `Altro` coi suoi allegati e le risposte alle prove ancora in pagina, e perde solo la
+conferma della versione installata. ⚠️⚠️ **La riga vale solo finché il giro non è inviato**: il DF
+che esce dopo l'invio la toglie, o la pagina terrà `Altro` e le risposte di un giro già consegnato
+(è successo con la 2.10 di Aomidori, che l'aveva copiata dal DF precedente). Il
 generatore si ferma se il giro nominato è quello in corso o non ha più prove in pagina. Fino a quel
 giorno il DF cumulativo svuotava `Altro` come ogni cambio di giro. Lo presidia
 `tools/feedback-interactive-check.py`, con una bozza del giro che prosegue.

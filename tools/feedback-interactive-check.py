@@ -2048,72 +2048,89 @@ def check(path):
             expect(migration.locator('#save')).to_be_enabled()
             expect(migration.locator(f'[data-id="{first_id}"] .item-state')).to_have_count(0)
             expect(migration.locator('[data-id="3.14-03"]')).to_have_count(0)
-            # The page asks no decisions, but an old draft's answers survive a save through the page.
+            # The page asks no decisions, but an old draft's decisions survive a save through the page.
             migration.keyboard.press('Control+s')
             expect(migration.locator('#saved')).to_contain_text('Salvato in questo browser')
-            kept_decisions = migration.evaluate("""async () => {
-                const db = await new Promise((resolve, reject) => {
-                    const request = indexedDB.open('aiv-feedback', 1);
-                    request.onsuccess = () => resolve(request.result);
-                    request.onerror = () => reject(request.error);
-                });
-                const draft = await new Promise((resolve, reject) => {
-                    const request = db.transaction('drafts').objectStore('drafts').get('current');
-                    request.onsuccess = () => resolve(request.result);
-                    request.onerror = () => reject(request.error);
-                });
-                db.close();
-                // The base64 of the old draft is now stored as real files, with their bytes.
-                const files = Object.values(draft.entries).flatMap((value) => value.images);
-                const sizes = await Promise.all(files.map((file) =>
-                    file.blob instanceof Blob && !('data' in file) ? file.blob.size : -1));
-                return {decisions: draft.decisions, sizes, expected: files.map((file) => file.size),
-                        entries: Object.keys(draft.entries), labels: Object.keys(draft.labels)};
-            }""")
+            def read_draft():
+                return migration.evaluate("""async () => {
+                    const db = await new Promise((resolve, reject) => {
+                        const request = indexedDB.open('aiv-feedback', 1);
+                        request.onsuccess = () => resolve(request.result);
+                        request.onerror = () => reject(request.error);
+                    });
+                    const draft = await new Promise((resolve, reject) => {
+                        const request = db.transaction('drafts').objectStore('drafts').get('current');
+                        request.onsuccess = () => resolve(request.result);
+                        request.onerror = () => reject(request.error);
+                    });
+                    db.close();
+                    // The base64 of an old draft is stored as real files, with their bytes.
+                    const files = Object.values(draft.entries).flatMap((value) => value.images);
+                    const sizes = await Promise.all(files.map((file) =>
+                        file.blob instanceof Blob && !('data' in file) ? file.blob.size : -1));
+                    return {decisions: draft.decisions, sizes, expected: files.map((file) => file.size),
+                            // Saving writes an empty entry for every test: only answers count.
+                            entries: Object.keys(draft.entries).filter((id) => {
+                                const value = draft.entries[id];
+                                return value.status || value.comment || value.images.length;
+                            }),
+                            labels: Object.keys(draft.labels).filter((id) => draft.labels[id].revision)};
+                }""")
+            def reopen_with(draft):
+                migration.evaluate("""async draft => {
+                    const db = await new Promise((resolve, reject) => {
+                        const request = indexedDB.open('aiv-feedback', 1);
+                        request.onsuccess = () => resolve(request.result);
+                        request.onerror = () => reject(request.error);
+                    });
+                    await new Promise((resolve, reject) => {
+                        const transaction = db.transaction('drafts', 'readwrite');
+                        transaction.objectStore('drafts').put(draft, 'current');
+                        transaction.oncomplete = resolve;
+                        transaction.onerror = () => reject(transaction.error);
+                    });
+                    db.close();
+                }""", draft)
+                migration.reload()
+                expect(migration.locator('#save')).to_be_enabled()
+            kept_decisions = read_draft()
             assert kept_decisions['decisions'] == legacy['decisions'], 'Decisioni della bozza precedente perse.'
-            # A new round drops the answers and label revisions of tests no longer on the page.
-            listed_ids = {item['id'] for item in data['items']}
-            assert kept_decisions['entries'] and set(kept_decisions['entries']) <= listed_ids, 'Risposte di prove chiuse rimaste: ' + str(kept_decisions['entries'])
-            assert 'e-chiusa' not in kept_decisions['labels'], 'Etichetta di un giro chiuso rimasta.'
-            assert kept_decisions['sizes'] and kept_decisions['sizes'] == kept_decisions['expected'], 'Allegati salvati come testo: ' + str(kept_decisions)
+            # A new round that does not go on with the previous one starts from scratch (the user's
+            # choice B1 of 2026-10-16): the round he sent delivered every answer and label revision,
+            # so a test proposed again after a fix starts from Non provato. Until then the answers to
+            # tests still listed stayed, and Aomidori's 2.10 page showed the 2.01 verdicts again.
+            assert not kept_decisions['entries'], 'Risposte di un giro inviato rimaste: ' + str(kept_decisions['entries'])
+            assert not kept_decisions['labels'], 'Etichette di un giro inviato rimaste: ' + str(kept_decisions['labels'])
             expect(migration.locator('#installed-confirm')).not_to_be_checked()
             expect(migration.locator('.intro-actions a')).to_contain_text(data['version'])
-            expect(migration.locator('.test').first.locator('.image-list img')).to_have_count(3)
+            expect(migration.locator('.test').first.locator('.image-list img')).to_have_count(0)
             for item in data['items']:
-                if item['id'] == first_id:
-                    continue
-                if item['version'] == data['version']:
-                    expect(migration.locator(f'[data-id="{item["id"]}"] .item-state')).to_have_count(0)
+                expect(migration.locator(f'[data-id="{item["id"]}"] .item-state')).to_have_count(0)
             # A closed round's free field goes with it.
             expect(migration.locator('#notes')).to_have_value('')
-            # A cumulative document (the user's rule of 2026-10-12) keeps the free field of the
-            # round it continues, which he has not sent yet; only 'installed' resets.
+            # A draft of this same round keeps its answers, and its base64 becomes real files.
+            listed_ids = {item['id'] for item in data['items']}
+            reopen_with(dict(legacy, version=data['version'], installed=data['version']))
+            expect(migration.locator('.test').first.locator('.image-list img')).to_have_count(3)
+            migration.keyboard.press('Control+s')
+            expect(migration.locator('#saved')).to_contain_text('Salvato in questo browser')
+            same_round = read_draft()
+            assert first_id in same_round['entries'], 'Risposte del giro in corso perse: ' + str(same_round['entries'])
+            assert same_round['sizes'] and same_round['sizes'] == same_round['expected'], 'Allegati salvati come testo: ' + str(same_round)
+            # A cumulative document (the user's rule of 2026-10-12) goes on with a round he has not
+            # sent yet: a draft of that round, or of any page of the series up to this one, keeps
+            # Altro and the answers to tests still listed; only 'installed' resets.
             if data.get('continues'):
-                def reopen_with(draft):
-                    migration.evaluate("""async draft => {
-                        const db = await new Promise((resolve, reject) => {
-                            const request = indexedDB.open('aiv-feedback', 1);
-                            request.onsuccess = () => resolve(request.result);
-                            request.onerror = () => reject(request.error);
-                        });
-                        await new Promise((resolve, reject) => {
-                            const transaction = db.transaction('drafts', 'readwrite');
-                            transaction.objectStore('drafts').put(draft, 'current');
-                            transaction.oncomplete = resolve;
-                            transaction.onerror = () => reject(transaction.error);
-                        });
-                        db.close();
-                    }""", draft)
-                    migration.reload()
-                    expect(migration.locator('#save')).to_be_enabled()
                 reopen_with(dict(legacy, version=data['continues'], installed=data['continues'],
                                  notes='Altro del giro che prosegue'))
                 expect(migration.locator('#notes')).to_have_value('Altro del giro che prosegue')
                 expect(migration.locator('#installed-confirm')).not_to_be_checked()
-                # The round can go on for more releases in a row (6.20, 6.21 and 6.22, the user's
-                # go-ahead of 2026-10-15): a draft saved on a page in the middle of the series is
-                # the same round, and keeps Altro too. Until 6.22 the page kept it only for a
-                # draft of the round named, and emptied Altro of a draft saved on the 6.21 page.
+                expect(migration.locator('.test').first.locator('.image-list img')).to_have_count(3)
+                migration.keyboard.press('Control+s')
+                expect(migration.locator('#saved')).to_contain_text('Salvato in questo browser')
+                going_on = read_draft()
+                assert going_on['entries'] and set(going_on['entries']) <= listed_ids, 'Risposte del giro che prosegue: ' + str(going_on['entries'])
+                assert 'e-chiusa' not in going_on['labels'], 'Etichetta di un giro chiuso rimasta.'
                 middle = sorted({item['version'] for item in data['items']
                                  if float(data['continues']) < float(item['version']) < float(data['version'])})
                 if middle:
