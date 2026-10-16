@@ -99,7 +99,6 @@
     <string name="front_tint">Farbe der Kopfzeile</string>
     <string name="front_tint_none">Standardfarbe</string>
     <string name="folder_cover">Titelbild wählen</string>
-    <string name="folder_cover_auto">Standard-Titelbild</string>
     <string name="folder_cover_pick">Titelbild für \'%1$s\' wählen</string>
     <string name="folder_cover_done">Titelbild aktualisiert</string>
     <string name="folder_cover_fail">Dieses Bild lässt sich nicht als Titelbild verwenden</string>

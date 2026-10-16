@@ -99,7 +99,6 @@
     <string name="front_tint">Couleur de l\'en-tête</string>
     <string name="front_tint_none">Couleur par défaut</string>
     <string name="folder_cover">Choisir la couverture</string>
-    <string name="folder_cover_auto">Couverture par défaut</string>
     <string name="folder_cover_pick">Choisissez la couverture de \'%1$s\'</string>
     <string name="folder_cover_done">Couverture mise à jour</string>
     <string name="folder_cover_fail">Cette image ne peut pas servir de couverture</string>

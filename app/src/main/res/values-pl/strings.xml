@@ -99,7 +99,6 @@
     <string name="front_tint">Kolor nagłówka</string>
     <string name="front_tint_none">Kolor domyślny</string>
     <string name="folder_cover">Wybierz okładkę</string>
-    <string name="folder_cover_auto">Okładka domyślna</string>
     <string name="folder_cover_pick">Wybierz okładkę folderu \'%1$s\'</string>
     <string name="folder_cover_done">Okładka zaktualizowana</string>
     <string name="folder_cover_fail">Tego obrazu nie można użyć jako okładki</string>

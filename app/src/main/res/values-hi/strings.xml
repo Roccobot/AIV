@@ -99,7 +99,6 @@
     <string name="front_tint">शीर्षक का रंग</string>
     <string name="front_tint_none">डिफ़ॉल्ट रंग</string>
     <string name="folder_cover">कवर चुनें</string>
-    <string name="folder_cover_auto">डिफ़ॉल्ट कवर</string>
     <string name="folder_cover_pick">\'%1$s\' का कवर चुनें</string>
     <string name="folder_cover_done">कवर अपडेट हो गया</string>
     <string name="folder_cover_fail">इस छवि को कवर के रूप में इस्तेमाल नहीं किया जा सकता</string>

@@ -99,7 +99,6 @@
     <string name="front_tint">헤더 색상</string>
     <string name="front_tint_none">기본 색상</string>
     <string name="folder_cover">커버 선택</string>
-    <string name="folder_cover_auto">기본 커버</string>
     <string name="folder_cover_pick">\'%1$s\' 커버 선택</string>
     <string name="folder_cover_done">커버를 업데이트했습니다</string>
     <string name="folder_cover_fail">이 이미지는 커버로 사용할 수 없습니다</string>

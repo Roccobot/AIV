@@ -307,11 +307,11 @@ fun UiTheme.isDark(): Boolean = when (this) {
 val LocalAivLight = staticCompositionLocalOf { true }
 
 /**
- * L'accento del tema in vigore, per chi lo deve leggere **da un nodo**.
+ * L'accento del tema chiesto, per chi non lo può leggere dalla tavolozza in vigore.
  *
- * Esiste per la stessa ragione di [LocalAivLight]: il bordo d'accento (`Modifier.edged`) si
- * disegna da un nodo di modificatore. Sono le due costanti che la tavolozza usa per `primary`,
- * quindi il bordo e il FAB non possono divergere.
+ * La pillola, per esempio, vuole quello del tema opposto, che la tavolozza non contiene. Sono le
+ * due costanti che la tavolozza usa per `primary`, quindi quei colori e il FAB non possono
+ * divergere.
  */
 fun aivAccent(light: Boolean): Color = if (light) ACCENT_LIGHT else ACCENT_DARK
 

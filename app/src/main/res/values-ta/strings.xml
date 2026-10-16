@@ -99,7 +99,6 @@
     <string name="front_tint">தலைப்பின் நிறம்</string>
     <string name="front_tint_none">இயல்புநிலை நிறம்</string>
     <string name="folder_cover">அட்டைப் படத்தைத் தேர்வுசெய்</string>
-    <string name="folder_cover_auto">இயல்புநிலை அட்டைப் படம்</string>
     <string name="folder_cover_pick">\'%1$s\' இன் அட்டைப் படத்தைத் தேர்வுசெய்</string>
     <string name="folder_cover_done">அட்டைப் படம் புதுப்பிக்கப்பட்டது</string>
     <string name="folder_cover_fail">இந்தப் படத்தை அட்டைப் படமாகப் பயன்படுத்த முடியாது</string>

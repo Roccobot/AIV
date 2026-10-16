@@ -405,7 +405,6 @@
     <string name="front_tint">Header color</string>
     <string name="front_tint_none">Default color</string>
     <string name="folder_cover">Choose the cover</string>
-    <string name="folder_cover_auto">Default cover</string>
     <string name="folder_cover_pick">Choose the cover for \'%1$s\'</string>
     <string name="folder_cover_done">Cover updated</string>
     <string name="folder_cover_fail">This picture cannot be used as a cover</string>

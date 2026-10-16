@@ -99,7 +99,6 @@
     <string name="front_tint">سرخی کا رنگ</string>
     <string name="front_tint_none">طے شدہ رنگ</string>
     <string name="folder_cover">سرورق منتخب کریں</string>
-    <string name="folder_cover_auto">طے شدہ سرورق</string>
     <string name="folder_cover_pick">\'%1$s\' کا سرورق منتخب کریں</string>
     <string name="folder_cover_done">سرورق اپ ڈیٹ ہو گیا</string>
     <string name="folder_cover_fail">یہ تصویر سرورق کے طور پر استعمال نہیں ہو سکتی</string>

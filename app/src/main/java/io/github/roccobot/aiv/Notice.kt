@@ -149,9 +149,8 @@ const val NOTICE_LONG_MS = 3000L
  * riga.
  *
  * Il fondo non è rovesciato, per scelta dell'utente (`d-avviso`, disegno `tempo`): una notifica di
- * Material chiara sul tema scuro sarebbe l'unica superficie dell'app che inverte i colori. Prende
- * il bordo d'accento delle altre ([Modifier.edged]) e, solo dove c'è un tasto, una riga che si
- * consuma in fondo per dire quanto tempo resta per toccarlo. Il tasto è in [accentInk], l'accento
+ * Material chiara sul tema scuro sarebbe l'unica superficie dell'app che inverte i colori. Solo
+ * dove c'è un tasto ha una riga che si consuma in fondo per dire quanto tempo resta per toccarlo. Il tasto è in [accentInk], l'accento
  * che si può leggere come parola.
  *
  * Arriva e se ne va come le schede ([arrivaDalBasso], [vaGiu] in `Sheet.kt`). È in una funzione a
@@ -219,8 +218,7 @@ fun AppNotice(line: Notices.Line?, modifier: Modifier = Modifier) {
                  * quello che il lettore di schermo sta leggendo.
                  */
                 modifier = Modifier
-                    .semantics { liveRegion = LiveRegionMode.Polite }
-                    .edged(NOTICE_ROUND),
+                    .semantics { liveRegion = LiveRegionMode.Polite },
                 shape = RoundedCornerShape(NOTICE_ROUND),
                 /*
                  * Fondo e inchiostro della stessa famiglia, `surfaceVariant` e `onSurfaceVariant`:
@@ -246,10 +244,8 @@ fun AppNotice(line: Notices.Line?, modifier: Modifier = Modifier) {
                 Text(quale?.text ?: "")
             }
             /*
-             * Il ritaglio è sulla scatola della riga e non su quella di fuori: il bordo d'accento
-             * sconfina di mezzo pixel oltre la superficie (vedi `Edge.kt`), e un ritaglio sul
-             * genitore lo taglierebbe sugli archi. L'origine della scala è il fianco iniziale,
-             * verso cui la riga si ritira.
+             * Il ritaglio ha la forma della notifica, così la riga segue gli angoli stondati.
+             * L'origine della scala è il fianco iniziale, verso cui la riga si ritira.
              */
             if (quale?.action != null) {
                 Box(
@@ -286,9 +282,8 @@ private val NOTICE_EDGE = 12.dp
  * Il raggio della notifica e lo spessore della riga che si consuma.
  *
  * Il raggio è suo: i raggi di casa sono 20 dp per i menu e 28 per schede e finestre, ma su una
- * striscia alta una riga un raggio da 28 farebbe un fianco tutto curva. Il bordo d'accento riceve
- * lo stesso numero. Tre punti per la riga, la misura del disegno scelto: più sottile non si vede
- * accanto a un bordo da due, più spessa diventa una seconda cornice.
+ * striscia alta una riga un raggio da 28 farebbe un fianco tutto curva. Tre punti per la riga, la
+ * misura del disegno scelto: più spessa diventa una seconda cornice.
  */
 private val NOTICE_ROUND = 14.dp
 private val CLESSIDRA = 3.dp

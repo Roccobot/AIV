@@ -99,7 +99,6 @@
     <string name="front_tint">Başlık rengi</string>
     <string name="front_tint_none">Varsayılan renk</string>
     <string name="folder_cover">Kapağı seç</string>
-    <string name="folder_cover_auto">Varsayılan kapak</string>
     <string name="folder_cover_pick">\'%1$s\' klasörünün kapağını seç</string>
     <string name="folder_cover_done">Kapak güncellendi</string>
     <string name="folder_cover_fail">Bu görsel kapak olarak kullanılamaz</string>

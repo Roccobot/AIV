@@ -99,7 +99,6 @@
     <string name="front_tint">Warna header</string>
     <string name="front_tint_none">Warna bawaan</string>
     <string name="folder_cover">Pilih sampul</string>
-    <string name="folder_cover_auto">Sampul bawaan</string>
     <string name="folder_cover_pick">Pilih sampul untuk \'%1$s\'</string>
     <string name="folder_cover_done">Sampul diperbarui</string>
     <string name="folder_cover_fail">Gambar ini tidak bisa dipakai sebagai sampul</string>

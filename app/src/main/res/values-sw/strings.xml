@@ -99,7 +99,6 @@
     <string name="front_tint">Rangi ya kichwa</string>
     <string name="front_tint_none">Rangi chaguo-msingi</string>
     <string name="folder_cover">Chagua jalada</string>
-    <string name="folder_cover_auto">Jalada chaguo-msingi</string>
     <string name="folder_cover_pick">Chagua jalada la \'%1$s\'</string>
     <string name="folder_cover_done">Jalada limesasishwa</string>
     <string name="folder_cover_fail">Picha hii haiwezi kutumika kama jalada</string>

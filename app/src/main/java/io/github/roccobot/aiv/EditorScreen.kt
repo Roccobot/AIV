@@ -676,8 +676,7 @@ internal fun editorSheetChrome(
         return EditorSheetChrome(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(stageBack())
-                .edgedTop(PANEL_ROUND),
+                .background(stageBack()),
             shape = RoundedCornerShape(topStart = PANEL_ROUND, topEnd = PANEL_ROUND)
         )
     }
@@ -690,8 +689,7 @@ internal fun editorSheetChrome(
         modifier = Modifier
             .width(toolsWidth)
             .fillMaxHeight()
-            .background(stageBack())
-            .edged(PANEL_ROUND),
+            .background(stageBack()),
         shape = shape
     )
 }
@@ -754,10 +752,6 @@ private fun EditorSheet(
          * Il fondo è nel modificatore di [editorSheetChrome] e non in `color`: `Surface` accoda il
          * proprio `background` e il proprio `clip`, quindi quel fondo resta un rettangolo non
          * ritagliato e la scheda gli si stampa sopra con i suoi angoli.
-         * ⚠️ **Il bordo d'accento va dopo il fondo del palco** (decisione dell'utente, giro della
-         * 1.54): il nodo che lo disegna riceve la misura della superficie, e invertendo l'ordine la
-         * riga finirebbe sotto il fondo. La riga corre fuori dalla scheda: si vedono la cima e i
-         * due archi.
          */
         modifier = chrome.modifier,
         shape = chrome.shape,

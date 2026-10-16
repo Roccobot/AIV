@@ -99,7 +99,6 @@
     <string name="front_tint">శీర్షిక రంగు</string>
     <string name="front_tint_none">డిఫాల్ట్ రంగు</string>
     <string name="folder_cover">కవర్‌ను ఎంచుకోండి</string>
-    <string name="folder_cover_auto">డిఫాల్ట్ కవర్</string>
     <string name="folder_cover_pick">\'%1$s\' కవర్‌ను ఎంచుకోండి</string>
     <string name="folder_cover_done">కవర్ నవీకరించబడింది</string>
     <string name="folder_cover_fail">ఈ చిత్రాన్ని కవర్‌గా ఉపయోగించలేరు</string>

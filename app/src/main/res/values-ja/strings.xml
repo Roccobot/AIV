@@ -99,7 +99,6 @@
     <string name="front_tint">ヘッダーの色</string>
     <string name="front_tint_none">既定の色</string>
     <string name="folder_cover">カバーを選ぶ</string>
-    <string name="folder_cover_auto">既定のカバー</string>
     <string name="folder_cover_pick">\'%1$s\' のカバーを選んでください</string>
     <string name="folder_cover_done">カバーを更新しました</string>
     <string name="folder_cover_fail">この画像はカバーに使えません</string>

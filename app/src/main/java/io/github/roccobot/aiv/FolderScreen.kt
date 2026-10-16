@@ -2402,10 +2402,9 @@ private fun folderNameWeight(colour: FolderColour): FontWeight? =
 private val TINT_EDGE = 4.dp
 
 /**
- * Quanto è spessa la cornice: **due punti**, come il bordo d'accento dell'app.
+ * Quanto è spessa la cornice: **due punti**.
  *
- * Lo stesso numero di `Edge.kt`, il bordo delle superfici dell'app: una cornice più grossa
- * intorno a una copertina sembrerebbe un elemento di un'altra famiglia.
+ * Una cornice più grossa intorno a una copertina sembrerebbe un elemento di un'altra famiglia.
  */
 private val TINT_FRAME = 2.dp
 

@@ -99,7 +99,6 @@
     <string name="front_tint">لون الترويسة</string>
     <string name="front_tint_none">اللون الافتراضي</string>
     <string name="folder_cover">اختر الغلاف</string>
-    <string name="folder_cover_auto">غلاف افتراضي</string>
     <string name="folder_cover_pick">اختر غلاف \'%1$s\'</string>
     <string name="folder_cover_done">تم تحديث الغلاف</string>
     <string name="folder_cover_fail">لا يمكن استخدام هذه الصورة كغلاف</string>
