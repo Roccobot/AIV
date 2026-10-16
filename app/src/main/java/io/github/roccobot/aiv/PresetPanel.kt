@@ -37,63 +37,47 @@ import androidx.compose.ui.unit.dp
 /**
  * Il corpo del modulo **Stili**: quelli di casa e quelli propri, in un elenco solo che scorre.
  *
- * ⚠️⚠️ **DALLA `2.50` È UN MODULO E NON PIÙ UN PANNELLO, ED È SUA ISTRUZIONE** (campo libero del
- * giro della `2.40`, punto 2: *il modulo Preset, che può restare senza titolo come gli altri, deve
- * vivere nello stesso spazio della bottomsheet, quindi niente bottomsheet nuova a tutta pagina. Si
- * scorre nella solita area in basso*). Fino alla `2.40` era una scheda che si apriva sopra la
- * scheda dell'editor, cioè una superficie in più davanti all'immagine su cui si sta lavorando.
- * - ⚠️⚠️ **LA RAGIONE CHE LO TENEVA FUORI ERA L'ALTEZZA, E ADESSO NON SI PAGA**: dalla `2.33` la
- *   scheda è alta quanto il **modulo più alto**, quindi un elenco che cresce con quello che si
- *   salva l'avrebbe alzata per tutti e sette gli altri. Qui l'elenco **scorre dentro l'altezza
- *   comune** invece di dettarla, e per questo il suo corpo resta fuori dalla misura (vedi
- *   `SteadyBody`, che non lo conta).
- * - ⚠️ **Senza titolo, come gli altri sei**: il gettone acceso dice già dove si è, e un titolo
- *   dentro la scheda costerebbe una riga a chi guarda l'immagine.
+ * È un modulo nella scheda dell'editor, come gli altri, e non una scheda in più sopra l'immagine
+ * (istruzione dell'utente, 2.50): il palco resta in scena e l'immagine cambia mentre si provano
+ * gli stili.
+ * ⚠️ **L'elenco scorre dentro l'altezza comune, senza dettarla**: la scheda è alta quanto il
+ * modulo più alto, e un elenco che cresce con quello che si salva la alzerebbe per tutti. Per
+ * questo il suo corpo è fuori dalla misura (vedi `SteadyBody`). Senza titolo, come gli altri:
+ * il gettone acceso dice già dove si è.
  *
- * ⚠️⚠️ **I DUE GESTI SONO SUOI, E SONO DUE COSE DIVERSE** (stesso campo libero, punto 3: *tocco
- * normale = modifica assoluta; tocco prolungato = modifica additiva*): il tocco porta l'immagine
- * **dove il preset dice**, il tocco lungo **somma** il preset a quello che c'è, dalla `4.97` (sua
- * risposta `B1`), così più stili si combinano. Il conto delle due strade vive su [Preset.applyTo]
- * e [Preset.addTo].
- * - ⚠️ **Il tocco lungo si annuncia**, con la vibrazione di casa e con l'etichetta che un lettore
- *   di schermo legge: un gesto che non si vede e non si sente non lo scopre nessuno.
+ * I due gesti sono dell'utente: il tocco porta l'immagine dove lo stile dice, il tocco lungo
+ * somma lo stile a quello che c'è (risposta `B1`, 4.97), così più stili si combinano. Il conto è
+ * su [Preset.applyTo] e [Preset.addTo]. Il tocco lungo si annuncia con la vibrazione e con
+ * l'etichetta per il lettore di schermo, o non lo scopre nessuno.
  *
- * ⚠️ **L'immagine cambia mentre si scorre l'elenco**, ed è l'altra metà della sua richiesta (*man
- * mano che si tocca un predefinito o un altro, l'immagine deve aggiornarsi in tempo reale*): il
- * modulo vive nella scheda, quindi il palco resta in scena e il confronto si fa senza chiudere
- * niente.
- *
- * ⚠️⚠️ **E DALLA `2.52` IL COMANDO CHE SALVA NON È PIÙ QUI: VIVE SULLA BARRA DELLE ICONE** (sua
- * richiesta del 2026-09-14, con schermata: *'Salva stile' deve stare in basso a sinistra,
- * allineato all'inizio delle righe degli stili, ma fisso sulla barra delle icone*). Quindi il
- * corpo è l'elenco e basta, e quello che si salva glielo dice il suo chiamante passando [mine].
+ * Il comando che salva è sulla barra delle icone ([PresetSaveButton]): il corpo è solo l'elenco,
+ * e gli stili salvati li passa il chiamante in [mine].
  */
 @Composable
 fun PresetBody(
     /**
      * Quanto è alta la scheda, cioè l'altezza comune misurata sugli altri moduli.
      *
-     * ⚠️ **Arriva da fuori e non si misura qui**: è il modulo più alto a dettarla, e questo corpo
-     * è l'unico che si adatta invece di contribuire.
+     * Arriva da fuori: la detta il modulo più alto, e questo corpo è l'unico che vi si adatta.
      */
     height: Dp,
     /**
      * Gli stili salvati, che vivono nella schermata perché il comando che li crea vive sulla barra.
      *
-     * ⚠️ **Non si rileggono qui dal file**, o dopo un salvataggio l'elenco direbbe il vero solo
-     * riaprendo l'editor: chi scrive e chi mostra sono due pezzi diversi dalla `2.52`, quindi lo
-     * stato vive sopra tutti e due.
+     * Non si rileggono qui dal file: chi scrive e chi mostra sono due pezzi diversi, quindi lo
+     * stato vive sopra tutti e due, o dopo un salvataggio l'elenco sarebbe vecchio fino alla
+     * riapertura dell'editor.
      */
     mine: List<Preset>,
-    /** Applica un preset: `add` vero è il tocco lungo, cioè l'additiva. */
+    /** Applica uno stile: `add` vero è il tocco lungo, cioè la somma. */
     onPick: (Preset, Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     /*
-     * ⚠️ **Quelli di casa si leggono una volta**: li cambia la sola pagina delle impostazioni, che
-     * è un'altra schermata, quindi al ritorno questo corpo nasce da capo. Rileggerli a ogni
-     * ricomposizione vorrebbe dire aprire un file per ogni fotogramma di un'animazione.
+     * Quelli di casa si leggono una volta: li cambia solo la pagina delle impostazioni, e al
+     * ritorno questo corpo si compone da capo. Rileggerli a ogni ricomposizione aprirebbe un
+     * file a ogni fotogramma di un'animazione.
      */
     val house = remember { Presets.house(context) }
 
@@ -103,13 +87,9 @@ fun PresetBody(
             verticalArrangement = Arrangement.spacedBy(PRESET_GAP)
         ) {
             /*
-             * ⚠️⚠️ **IL TITOLO DI CASA NON SI SCRIVE, DALLA `2.52`, ED È SUO RITOCCO** (2026-09-14:
-             * *il nome della categoria ('Stili AIV') a ben vedere non serve: in questo contesto i
-             * pixel verticali sono preziosi e si capisce perfettamente che i primi sono di
-             * fabbrica*). Resta un separatore solo, quello dei propri, e l'ordine dei due gruppi
-             * non cambia: gli stili dell'app sopra, i salvati sotto.
-             * ⚠️ **'Stili AIV' non è terminologia morta**: è come si chiamano quelli di casa quando se
-             * ne parla, e la pagina delle impostazioni li nomina ancora.
+             * Il titolo 'Stili AIV' qui non si scrive (scelta dell'utente, 2.52: i pixel verticali
+             * sono preziosi), ma il nome resta, e la pagina delle impostazioni lo usa. C'è un
+             * separatore solo, quello degli stili salvati, che vanno sotto quelli dell'app.
              */
             items(house, key = { "h-" + it.key }) { p ->
                 PresetRow(preset = p, onPick = onPick)
@@ -127,25 +107,15 @@ fun PresetBody(
 /**
  * Il comando che salva quello che si ha davanti come stile nuovo, con la sua finestra del nome.
  *
- * ⚠️⚠️ **VIVE SULLA BARRA DELLE ICONE E NON NEL CORPO DEL MODULO, DALLA `2.52`** (sua richiesta:
- * *in basso a sinistra, allineato all'inizio delle righe degli stili, ma fisso sulla barra delle
- * icone*): fino alla `2.51` era un tasto scritto in fondo al corpo e allineato a destra.
- * ⚠️⚠️ **QUINDI DIVENTA UN'ICONA, ED È UNA SCELTA DICHIARATA**: quella barra è tutta di icone
- * dalla `2.32`, e una scritta in mezzo la farebbe leggere in due modi, che è la ragione per cui
- * anche il terzo comando della storia è un'icona pur non essendo stato nominato. Il nome resta
- * come descrizione parlata, cioè quello che un lettore di schermo annuncia e quello che il banco
- * cerca, come per i gettoni dei moduli e per 'Mirato'.
- * ⚠️⚠️ **IL GLIFO È QUELLO DI MATERIAL AMMORBIDITO, DALLA `2.55`, ED È SUA ISTRUZIONE**
- * (riscontro del giro della `2.54`, voce `salva-glifo`: *Va bene quello di Material, ma con
- * l'arrotondamento (pensaci tu)*). Nella `2.52` e nella `2.53` era `Icons.Filled.BookmarkAdd`
- * crudo, dichiarato provvisorio come quello di 'Auto' nella `2.32`: adesso il disegno è lo
- * stesso e il trattamento è quello dei nove glifi della `2.32`, quindi vive in `res/`
- * (`ic_preset_save.xml`, con lo scarto misurato in testa al file).
+ * È sulla barra delle icone, in basso a sinistra (richiesta dell'utente, 2.52), e quindi è
+ * un'icona: quella barra è tutta di icone, e una scritta in mezzo la farebbe leggere in due modi.
+ * Il nome resta come descrizione parlata, per il lettore di schermo e per il banco. Il glifo è
+ * quello di Material arrotondato (voce `salva-glifo`), in `res/drawable/ic_preset_save.xml`.
  *
- * ⚠️ **È spento quando non c'è niente da salvare**, e la domanda se la fa [Preset.of]: quella
- * funzione tiene i soli cinque moduli di colore, quindi il [Look] che ne esce è a riposo
- * esattamente quando un preset preso adesso non direbbe niente. Un secondo conto scritto qui
- * direbbe la stessa cosa con altre parole, e divergerebbe il giorno che i moduli sono sei.
+ * È spento quando non c'è niente da salvare, e lo decide [Preset.of]: tiene i soli sei moduli
+ * dello stile (Luce, Colore, HSL, Dettaglio, Curve, Effetti), quindi il [Look] che ne risulta è a
+ * riposo esattamente quando uno stile preso adesso non direbbe niente. Un secondo conto scritto
+ * qui potrebbe divergere dal primo.
  */
 @Composable
 fun PresetSaveButton(
@@ -180,9 +150,8 @@ fun PresetSaveButton(
 /**
  * Il titolino che divide gli stili dell'app da quelli propri.
  *
- * ⚠️⚠️ **C'È SOLO SE C'È ALMENO UNO STILE SUO, DALLA `2.52`**: da quando il titolo di casa non si
- * scrive più, un separatore senza niente sotto annuncerebbe una parte che non esiste. Al primo
- * avvio l'elenco è quello di casa e basta, e non ha bisogno di nessuna riga che lo dica.
+ * C'è solo se c'è almeno uno stile salvato: un separatore senza niente sotto annuncerebbe una
+ * parte che non esiste.
  */
 @Composable
 private fun PresetGroup(text: String) {
@@ -197,12 +166,11 @@ private fun PresetGroup(text: String) {
 /**
  * Una riga dell'elenco: il nome, il tocco che applica e il tocco lungo che aggiunge.
  *
- * ⚠️ **Il bersaglio del tocco è la riga intera e non il nome**, come ogni altra riga di quest'app:
- * un testo alto una riga è un bersaglio che si manca.
- * ⚠️⚠️ **QUI NON SI CANCELLA NIENTE, DALLA `2.50`**: riordinare, rinominare e cancellare vivono
- * nella pagina 'Stili di modifica' delle impostazioni, che è quello che ha chiesto lui, e un
- * comando che elimina a un tocco da un elenco che si tocca per provare sarebbe la via più corta
- * per perdere uno stile mentre lo si sta confrontando.
+ * Il bersaglio del tocco è la riga intera, come in ogni altra riga dell'app: un testo alto una
+ * riga è un bersaglio che si manca.
+ * Qui non si cancella niente: riordinare, rinominare e cancellare sono nella pagina 'Stili di
+ * modifica' delle impostazioni (richiesta dell'utente), perché in un elenco che si tocca per
+ * provare un comando che elimina farebbe perdere uno stile mentre lo si confronta.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -233,13 +201,13 @@ private fun PresetRow(preset: Preset, onPick: (Preset, Boolean) -> Unit) {
 /**
  * La finestra che chiede il nome di uno stile: quello nuovo, o quello da rinominare.
  *
- * ⚠️ **È una modale vera**, quindi porta tutte e due le righe ([Modifier.lowered] con `null` e
- * `properties = loweredWindow(null)`): esiste per raccogliere un input scritto, che è il criterio
- * di '👆 Che cosa fa il tocco FUORI da una finestra'. Una a metà si chiude toccando sotto il
- * pannello, e il nome scritto si perde.
- * ⚠️ **Una sola finestra per i due gesti, dalla `2.50`**: salvare e rinominare chiedono la stessa
- * cosa, e due finestre vorrebbero dire due campi da tenere allineati (il taglio del nome, lo
- * scorrimento, il tasto spento a campo vuoto).
+ * ⚠️ **È una modale vera**, quindi ha tutte e due le righe ([Modifier.lowered] con `null` e
+ * `properties = loweredWindow(null)`): raccoglie un input scritto (`Rules.md` § '👆 Che cosa fa
+ * il tocco FUORI da una finestra'). Con una sola delle due si chiude toccando sotto il pannello,
+ * e il nome scritto si perde.
+ * Una sola finestra per salvare e rinominare, che chiedono la stessa cosa: due finestre
+ * vorrebbero dire due campi da tenere allineati (il taglio del nome, lo scorrimento, il tasto
+ * spento a campo vuoto).
  */
 @Composable
 fun PresetNameDialog(
@@ -257,14 +225,12 @@ fun PresetNameDialog(
         properties = loweredWindow(null),
         title = { Text(title) },
         text = {
-            // ⚠️ Lo scorrimento serve al tetto della `1.62`, come in ogni altra finestra con un
-            // campo: il perché per esteso vive nel pannellino dell'estensione, in `RenameDialog.kt`.
+            // Lo scorrimento c'è in ogni finestra con un campo: il perché è in `RenameDialog.kt`.
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 OutlinedTextField(
                     value = text,
-                    // ⚠️ Il taglio si fa QUI e non al salvataggio: un nome che si accorcia dopo
-                    // aver toccato 'Salva' comparirebbe nell'elenco diverso da come è stato
-                    // scritto, e nessuno saprebbe perché.
+                    // Il taglio si fa mentre si scrive: un nome accorciato dopo 'Salva'
+                    // comparirebbe nell'elenco diverso da come è stato scritto.
                     onValueChange = { text = it.take(Preset.NAME_MAX) },
                     label = { Text(stringResource(R.string.look_preset_name)) },
                     singleLine = true,
@@ -289,10 +255,8 @@ fun PresetNameDialog(
 /**
  * Quanto è alto il corpo degli stili finché l'altezza comune non è misurata.
  *
- * ⚠️ **Serve a non chiedere a una lista che scorre di essere alta quanto vuole**: `LazyColumn` va
- * in errore se la misura in altezza è infinita, e questo corpo la sua altezza la riceve. Al primo
- * fotogramma di una schermata il numero non c'è ancora, e questo è il valore che la tiene in piedi
- * fino al secondo.
+ * ⚠️ `LazyColumn` va in errore se la misura in altezza è infinita, e al primo fotogramma di una
+ * schermata l'altezza comune non c'è ancora: questo valore la sostituisce fino al secondo.
  */
 private val PRESET_FALL = 220.dp
 
