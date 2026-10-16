@@ -69,29 +69,22 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 /**
- * L'elenco delle cartelle a colonna, per il layout tablet.
- *
- * ⚠️⚠️ **NASCE CON LA `3.32`**: il mockup (`publish/tablet.html`, rotte `folders` / `grid`)
- * tiene l'elenco a lato e il contenuto della cartella nello spazio principale. Sul
- * telefono restano [FolderScreen] a pieno schermo e poi [GridScreen]; da 600 dp in su
- * ([Adaptive.sideAvailable]) le due cose restano insieme.
- * ⚠️ **Non sostituisce la casa sul telefono**: niente intestazione che si chiude, niente
- * griglia di copertine. Qui servono i nomi, la cartella scelta e un passaggio alle
- * impostazioni, come nel mockup.
- * ⚠️ **La vista ad albero resta fuori** (si decide nel chiamante): la sua navigazione è
- * un percorso a sé, e il mockup le dà una rotta propria (`system`).
- * ⚠️⚠️ **RIDISEGNATA NELLA `3.39`** (collaudo `3.38-03`, mockup
- * `aiv-338-mockup-tablet.png`): niente intestazione Cartelle; in cima solo Cerca con
- * placeholder dinamico; Cestino e Impostazioni in basso con etichetta; elenco di
- * default in basso, con maniglia per alzarlo/abbassarlo quando c'è spazio.
- * ⚠️⚠️ **DALLA `3.42` CERCA STA SOPRA CESTINO E IMPOSTAZIONI** (`3.41-01`), non in cima.
+ * L'elenco delle cartelle a colonna, per il tablet: l'elenco a lato e il contenuto della
+ * cartella nello spazio principale (mockup `publish/tablet.html`). Sul telefono ci sono
+ * [FolderScreen] a pieno schermo e poi [GridScreen]; da 600 dp in su
+ * ([Adaptive.sideAvailable]) le due cose sono insieme.
+ * Non è la casa del telefono: niente intestazione, niente griglia di copertine, solo i nomi, la
+ * cartella scelta e i comandi. La vista ad albero resta fuori (lo decide il chiamante): ha una
+ * navigazione sua.
+ * La forma (collaudo `3.38-03` e voce `3.41-01`): elenco in basso, con la maniglia per alzarlo
+ * quando c'è spazio; in fondo Cerca, e sotto Cestino e Impostazioni con l'etichetta.
  */
 
 @Composable
 fun FolderRail(
     buckets: List<Folder.Bucket>?,
     selected: Long?,
-    /** Nome della cartella scelta, per il placeholder "Cerca in *X*". Null = globale. */
+    /** Nome della cartella scelta, per l'invito 'Cerca in *X*'; `null` per la ricerca globale. */
     selectedName: String? = null,
     selection: FolderSelection,
     peeking: Boolean,
@@ -99,8 +92,8 @@ fun FolderRail(
     tints: Map<Long, Int>,
     onPick: (Folder.Bucket) -> Unit,
     /**
-     * Nasconde, come il conferma del tocco lungo sul telefono.
-     * Il gesto apre [FolderHoldDialog]: non chiama questo da solo.
+     * Nasconde, come la conferma del tocco lungo sul telefono. Il gesto apre
+     * [FolderHoldDialog], che chiama questa funzione.
      */
     onHide: (Folder.Bucket) -> Unit,
     /** Rimostra le voci che coprono la cartella. Vedi [FolderScreen]. */
@@ -115,10 +108,9 @@ fun FolderRail(
     /**
      * Quanto si alza il blocco elenco dal fondo, in pixel.
      *
-     * ⚠️⚠️ **VIVE FUORI, DALLA `3.40`** (`3.39-03`): le tre case tablet (cartelle / griglia /
-     * ricerca) ricreano ciascuna un [FolderRail], e un `remember` locale azzerava il lift al
-     * tap su una cartella. Il modello lo tiene, così la posizione sopravvive al cambio di
-     * schermata.
+     * ⚠️ **Lo tiene il modello** (voce `3.39-03`): le tre case del tablet (cartelle, griglia,
+     * ricerca) ricreano ciascuna un [FolderRail], e un `remember` locale azzererebbe l'altezza
+     * al tocco su una cartella.
      */
     liftPx: Float,
     onLift: (Float) -> Unit,
@@ -130,9 +122,8 @@ fun FolderRail(
     /**
      * Se in fondo alla colonna ci sono Cerca, Cestino e Impostazioni.
      *
-     * ⚠️ **Spento sul tablet in verticale, dalla `3.70`** (scelta B7): là quei tre comandi vivono
-     * nella pillola in basso, e due copie degli stessi comandi a pochi centimetri si leggerebbero
-     * come due cose diverse.
+     * Spento sul tablet in verticale (scelta B7): là i tre comandi sono nella pillola in basso,
+     * e due copie a pochi centimetri si leggerebbero come due cose diverse.
      */
     chrome: Boolean = true,
     modifier: Modifier = Modifier
@@ -151,10 +142,9 @@ fun FolderRail(
                 .fillMaxWidth()
                 // ⚠️ Spazio fermo: il dito si misura qui, non sul blocco che si sposta.
                 .onGloballyPositioned { dragSpace.parent = it }
-                // ⚠️⚠️ **L'OROLOGIO COPRE LA CIMA, DALLA `3.42`**: Cerca è scesa sopra
-                // Cestino e Impostazioni, quindi l'inset alto sta sull'elenco, non sul campo.
-                // L'inset orizzontale resta solo qui e su Cerca: la riga in basso è centrata
-                // sulla colonna intera (`3.41`).
+                // L'inset alto (l'orologio) è qui, perché Cerca è in fondo. L'inset orizzontale
+                // è solo qui e su Cerca: la riga di Cestino e Impostazioni è centrata sulla
+                // colonna intera.
                 .windowInsetsPadding(
                     WindowInsets.safeDrawing.only(
                         WindowInsetsSides.Horizontal + WindowInsetsSides.Top
@@ -163,19 +153,17 @@ fun FolderRail(
         ) {
             val density = LocalDensity.current
             val areaPx = with(density) { maxHeight.toPx() }
-            // Stima dell'altezza del blocco (maniglia + elenco): serve a limitare il lift.
+            // L'altezza massima del blocco (maniglia ed elenco), per limitare l'alzata.
             val blockCapPx = areaPx
             val maxLift = (areaPx - 48f).coerceAtLeast(0f)
             /*
-             * ⚠️⚠️ **IL LIFT SEGUE IL DITO NELLO SPAZIO FERMO, DALLA `3.42`** (`3.41-01`).
-             * La `3.41` accumulava il delta locale, e non bastava: quel delta è calcolato
-             * nelle coordinate del nodo che `offset` sposta. A ogni evento il dito e il
-             * nodo si sono mossi insieme, quindi il delta contiene anche lo spostamento
-             * già applicato e la lista torna indietro. L'ancora è la posizione del dito
-             * nel riquadro che non si muove, e il lift è la distanza da lì.
-             * ⚠️ **Mentre il dito è giù il modello non riscrive il lift**: `onLift`
-             * ricompone il chiamante, e l'effetto che riallinea `liftPx` rimetteva il
-             * valore del frame prima. Il disegno usa solo lo stato locale.
+             * ⚠️ **L'alzata segue il dito nello spazio fermo** (voce `3.41-01`): il delta locale
+             * è calcolato nelle coordinate del nodo che `offset` sposta, quindi contiene anche
+             * lo spostamento già applicato, e la lista torna indietro. L'ancora è la posizione
+             * del dito nel riquadro che non si muove ([railLiftForFinger]).
+             * ⚠️ **Mentre il dito è giù il modello non riscrive l'alzata**: `onLift` ricompone il
+             * chiamante, e l'effetto che riallinea `liftPx` rimetterebbe il valore del
+             * fotogramma prima. Il disegno usa solo lo stato locale.
              */
             var lift by remember { mutableFloatStateOf(liftPx) }
             val maxLiftNow = rememberUpdatedState(maxLift)
@@ -196,19 +184,12 @@ fun FolderRail(
                     .heightIn(max = with(density) { blockCapPx.toDp() })
             ) {
                 /*
-                 * ⚠️⚠️ **LA MANIGLIA È SOPRA L'ELENCO, AL CENTRO, CON DUE RIGHE TENUI, DALLA `3.72`**.
-                 * La `3.71` l'aveva messa sotto (voce `3.70-07`), e la voce `3.71-06` l'ha riportata
-                 * su: *con la navigazione a gesti non si riesce ad interagire perché il
-                 * trascinamento dal bordo ha la precedenza. Rimettila in alto, ma la spaziatura dal
-                 * bordo è PERFETTA*. Restano il segno, il centro e il riquadro della `3.71`; fino
-                 * alla `3.70` era a destra, coi sei puntini di Material.
-                 * ⚠️ **Mai più in fondo alla colonna**: là il gesto di sistema dal bordo inferiore
-                 * vince sul trascinamento, e la maniglia non si prende.
-                 * ⚠️ **Centrata, come la maniglia di una scheda**: due righe orizzontali dicono
-                 * 'si trascina in su e in giù' a chi le ha viste sulle schede di Android.
-                 * ⚠️ **Il riquadro del tocco è più grande del segno** ([HANDLE_TOUCH]): le due righe
-                 * sono sottili, e un bersaglio grande quanto loro non si prenderebbe al primo colpo.
-                 * Il nome per i lettori di schermo resta `folders_rail_move`.
+                 * La maniglia è sopra l'elenco, al centro, con due righe tenui (voce `3.71-06`),
+                 * come quella di una scheda di Android.
+                 * ⚠️ **Mai in fondo alla colonna**: con la navigazione a gesti il gesto di sistema
+                 * dal bordo inferiore vince sul trascinamento, e la maniglia non si prende.
+                 * Il riquadro del tocco ([HANDLE_TOUCH]) è più grande delle due righe, che sono
+                 * sottili. Il nome per i lettori di schermo è `folders_rail_move`.
                  */
                 val handleInk = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = HANDLE_INK)
                 val handleName = stringResource(R.string.folders_rail_move)
@@ -236,9 +217,9 @@ fun FolderRail(
                                 onVerticalDrag = { change, dragAmount ->
                                     val y = dragSpace.fingerY(change.position) ?: return@detectVerticalDragGestures
                                     if (!dragSpace.anchored) {
-                                        // L'oltre-soglia è l'unico delta locale affidabile:
-                                        // il nodo non si è ancora mosso. L'ancora è su quel
-                                        // punto, e da lì si usa solo lo spazio fermo.
+                                        // Il primo delta, oltre la soglia, è il solo locale
+                                        // affidabile: il nodo non si è ancora mosso. L'ancora
+                                        // è lì, e da lì si usa solo lo spazio fermo.
                                         dragSpace.anchorY = y - dragAmount
                                         dragSpace.anchorLift = lift
                                         dragSpace.anchored = true
@@ -296,9 +277,8 @@ fun FolderRail(
                 onSearch = onSearch,
                 modifier = Modifier
                     .fillMaxWidth()
-                    // ⚠️ Inset orizzontale come quando il campo stava in cima: il disegno
-                    // non cambia, cambia solo il posto. Niente inset alto: l'orologio non
-                    // è qui, e un inset alto aprirebbe un vuoto sopra Cestino.
+                    // Solo l'inset orizzontale: l'orologio è in cima alla colonna, e un inset
+                    // alto aprirebbe un vuoto sopra Cestino.
                     .windowInsetsPadding(
                         WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)
                     )
@@ -306,16 +286,11 @@ fun FolderRail(
             )
 
             /*
-             * ⚠️⚠️ **Cestino e Impostazioni IN BASSO CON ETICHETTA, DALLA `3.39`**
-             * (`3.38-03`): non più icone in testata accanto a Cerca (sembravano azioni di
-             * cancellazione sulla lista). Due colonne, icona sopra e testo sotto.
-             */
-            /*
-             * ⚠️⚠️ **CENTRATI SULLA COLONNA INTERA, DALLA `3.41`** (`3.40-01`): le due colonne
-             * uguali della `3.40` stavano dentro l'inset orizzontale, quindi il centro del
-             * contenuto non era il centro della colonna. Qui la riga è larga quanto il rail.
-             * Il testo è centrato: senza `TextAlign.Center` un'etichetta lunga resta a sinistra
-             * del suo riquadro e la coppia sembra spostata.
+             * Cestino e Impostazioni in basso, con l'etichetta (collaudo `3.38-03`): accanto a
+             * Cerca, come icone nude, sembravano azioni di cancellazione sulla lista.
+             * ⚠️ **Centrati sulla colonna intera** (voce `3.40-01`): la riga è fuori dall'inset
+             * orizzontale. Il testo è centrato in [RailAction], se no un'etichetta lunga
+             * resterebbe a sinistra del suo riquadro.
              */
             Row(
                 modifier = Modifier
@@ -323,7 +298,7 @@ fun FolderRail(
                     .padding(horizontal = 4.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // ⚠️ AIV Play has a bin from Android 11 only (`Store.hasBin`, since 5.40).
+                // AIV Play ha il cestino solo da Android 11 (`Store.hasBin`).
                 if (Store.hasBin) {
                     RailAction(
                         icon = { tint ->
@@ -361,11 +336,10 @@ fun FolderRail(
  * L'elenco delle cartelle della colonna, con i suoi tre stati vuoti (permesso, lettura, nessuna
  * cartella) e il tocco lungo che apre [FolderHoldDialog].
  *
- * ⚠️ **Vive a sé dalla `3.70`** perché lo usano due colonne: quella di sempre, che lo alza con la
- * maniglia, e quella dello schermo largo, che lo ancora in basso fra il 40 e il 70% dell'altezza
- * ([FolderRailWide]). Una seconda copia dell'elenco divergerebbe al primo ritocco di una riga.
- * ⚠️ **[modifier] va al solo elenco pieno**: è lui che deve rispettare l'altezza che la colonna
- * gli concede, mentre i tre stati vuoti sono una riga di testo o un anello.
+ * Lo usano due colonne: [FolderRail], che lo alza con la maniglia, e [FolderRailWide], che lo
+ * ancora in basso fra il 40 e il 70% dell'altezza.
+ * [modifier] va al solo elenco pieno, che deve rispettare l'altezza concessa dalla colonna; i tre
+ * stati vuoti sono una riga di testo o un anello.
  */
 @Composable
 fun FolderRailList(
@@ -395,9 +369,8 @@ fun FolderRailList(
     }
 
     val context = LocalContext.current
-    // ⚠️ Riletto a ogni ritorno nell'app e dopo la domanda, come nella casa del telefono (dalla
-    // `6.27`, rilievo D28): il permesso si concede anche dalle impostazioni di sistema, e prima la
-    // colonna restava sul testo finché non si ricomponeva da capo.
+    // ⚠️ Riletto a ogni ritorno nell'app e dopo la domanda, come nella casa del telefono
+    // (rilievo D28): il permesso si concede anche dalle impostazioni di sistema.
     var granted by remember { mutableStateOf(Folder.granted(context)) }
     LifecycleResumeEffect(Unit) {
         granted = Folder.granted(context)
@@ -406,7 +379,7 @@ fun FolderRailList(
     val askAccess = Store.rememberAccessRequest(explain = false) { granted = Folder.granted(context) }
     LaunchedEffect(granted) { onRead(granted) }
 
-    // ⚠️ The column is a list: favourites first from the `5.80`, and no grid order.
+    // La colonna è un elenco: prima i preferiti, e nessun ordine da griglia.
     val folders = buckets?.filter { selection.visible(it.path, peeking) }
         ?.let { selection.arrange(it, grid = false) }
     var holding by remember { mutableStateOf<Folder.Bucket?>(null) }
@@ -458,11 +431,10 @@ fun FolderRailList(
                         modifier = Modifier.size(22.dp)
                     )
                     /*
-                     * ⚠️ **Il nome va a capo sulle giunture camelCase, dalla
-                     * `3.54`** (sua richiesta): [camelBreak] è lo stesso criterio
-                     * delle destinazioni e delle cartelle nascoste. Due righe al
-                     * massimo, poi l'ellissi in fondo; senza giunture il nome
-                     * lungo si spezzava dove capitava.
+                     * Il nome va a capo sulle giunture camelCase (richiesta
+                     * dell'utente): [camelBreak], lo stesso criterio delle
+                     * destinazioni e delle cartelle nascoste. Due righe al massimo,
+                     * poi l'ellissi.
                      */
                     Text(
                         text = camelBreak(bucket.name),
@@ -493,21 +465,16 @@ fun FolderRailList(
 }
 
 /**
- * La colonna delle cartelle sullo schermo largo (telefono e tablet in orizzontale), dalla `3.70`.
+ * La colonna delle cartelle sullo schermo largo (telefono e tablet in orizzontale).
  *
- * ⚠️⚠️ **L'ELENCO È ANCORATO IN BASSO E NON SI SPOSTA PIÙ** (richiesta dell'utente del
- * 2026-10-04, B2: *occupa con poche cartelle solo il 40% inferiore della schermata, che sale al
- * 70% con una lista lunga: la lista scorre, ma non supera mai il 70% dello schermo, ancorata in
- * basso*). Niente maniglia: in orizzontale l'altezza è poca, e un blocco da trascinare ne
- * consumerebbe una parte per un gesto che lì non serve.
- * ⚠️ **L'altezza la decide il numero di cartelle** (scelta B3): l'elenco prende quello che gli
- * serve fra [RAIL_LIST_MIN] e [RAIL_LIST_MAX] della colonna, e oltre scorre dentro.
- * ⚠️⚠️ **SOPRA C'È LA TESTA**, cioè quello che la schermata ci mette ([head]): nella griglia di
- * una cartella sfumatura, icona e pastiglie dell'intestazione, nella schermata iniziale
- * l'intestazione di casa. Prende lo spazio che l'elenco lascia, fra il 30 e il 60%, come
- * l'intestazione del telefono si stringe scorrendo la griglia.
- * ⚠️ **Niente Cerca, Cestino e Impostazioni in fondo**: sullo schermo largo vivono nella pillola
- * sotto il filtro (decisione B4).
+ * L'elenco è ancorato in basso e non si sposta (scelta B2 dell'utente): niente maniglia, perché
+ * in orizzontale l'altezza è poca. La sua altezza la decide il numero di cartelle (scelta B3), fra
+ * [RAIL_LIST_MIN] e [RAIL_LIST_MAX] della colonna, e oltre scorre dentro.
+ * Sopra c'è la testa ([head]) che la schermata sceglie: nella griglia di una cartella gradiente,
+ * icona e pastiglie dell'intestazione, nella schermata iniziale l'intestazione di casa. Prende lo
+ * spazio che l'elenco lascia, fra il 30 e il 60%.
+ * Cerca, Cestino e Impostazioni non sono in fondo: sullo schermo largo sono nella pillola sotto
+ * il filtro (decisione B4).
  */
 @Composable
 fun FolderRailWide(
@@ -552,11 +519,10 @@ const val RAIL_LIST_MAX = 0.7f
  * Quanto alzare il blocco perché il dito, nello spazio fermo, sia andato da
  * [anchorY] a [fingerY].
  *
- * ⚠️ **Non si sommano i delta locali.** Se il nodo si è spostato di D e il dito
- * di F, il delta locale vale F - D: riapplicarlo sposta di F - D e al giro dopo
- * di D - (F - D), cioè oscilla. Qui F è [fingerY] - [anchorY], misurati entrambi
- * nel riquadro che non si muove.
- * ⚠️ Dito verso l'alto: [fingerY] cala e il lift cresce (il blocco sale).
+ * ⚠️ **Non si sommano i delta locali**: se il nodo si è spostato di D e il dito di F, il delta
+ * locale vale F - D, e riapplicarlo fa oscillare il blocco. Qui F è [fingerY] - [anchorY],
+ * misurati tutti e due nel riquadro che non si muove.
+ * Dito verso l'alto: [fingerY] cala e l'alzata cresce (il blocco sale).
  */
 internal fun railLiftForFinger(
     anchorLift: Float,
@@ -583,14 +549,12 @@ private class RailDragSpace {
 }
 
 /**
- * Cerca sopra Cestino e Impostazioni: lente a sinistra + campo contornato (mockup).
+ * Cerca, sopra Cestino e Impostazioni: lente a sinistra e campo contornato (mockup).
  *
- * ⚠️ **Il campo è un tocco che apre la ricerca**, non un filtro locale sulle cartelle:
- * il placeholder dice "Cerca nelle cartelle" / "Cerca in *X*", cioè immagini, e la
- * schermata [Screen.Search] è già quella strada.
- * ⚠️ **Il testo del campo è centrato in verticale sul tondo della lente**: la `Row`
- * allinea al centro, e la lente Material ha il cerchio sulla metà superiore del glifo
- * ma l'allineamento centrale della riga è quello che il mockup chiede sul campo.
+ * Il campo è un tocco che apre la ricerca ([Screen.Search]), non un filtro sulle cartelle:
+ * l'invito ('Cerca nelle cartelle', 'Cerca in *X*') parla di immagini.
+ * La `Row` allinea al centro, come chiede il mockup, anche se il cerchio della lente Material è
+ * nella metà superiore del glifo.
  */
 @Composable
 private fun RailSearch(
@@ -598,8 +562,8 @@ private fun RailSearch(
     onSearch: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // ⚠️ L'invito lo compone [searchInvitation], che serve anche alla pillola del tablet in
-    // verticale: due copie dello stesso grassetto divergerebbero al primo ritocco.
+    // L'invito lo compone [searchInvitation], che serve anche alla pillola del tablet in
+    // verticale: il grassetto è scritto una volta sola.
     val placeholder = searchInvitation(folderName)
     Row(
         modifier = modifier,
@@ -636,7 +600,7 @@ private fun RailSearch(
     }
 }
 
-/** Un'azione in basso nel rail: icona + etichetta, non un'icona nuda. */
+/** Un'azione in fondo alla colonna: icona ed etichetta. */
 @Composable
 private fun RailAction(
     icon: @Composable (tint: androidx.compose.ui.graphics.Color) -> Unit,
@@ -669,10 +633,9 @@ private fun RailAction(
 /**
  * Il riquadro destro vuoto: nessuna cartella ancora scelta.
  *
- * ⚠️ Solo sul tablet, quando la casa è a due colonne e non si è ancora toccata una
- * cartella. Sul telefono questa situazione non esiste: si apre la griglia subito.
- * ⚠️⚠️ **DALLA `3.39` È LA STESSA IDENTITÀ DELLA HOME TELEFONO** (`3.38-04`, mockup):
- * logo + titolo + firma con link, più in basso "Tocca una cartella per iniziare".
+ * Compare quando la casa è a due colonne e non si è ancora toccata una cartella; sul telefono
+ * si apre subito la griglia. In alto l'identità della casa del telefono (collaudo `3.38-04`:
+ * logo, titolo, firma con link), sotto l'invito a scegliere una cartella.
  */
 @Composable
 fun FoldersTabletHint(
@@ -680,14 +643,13 @@ fun FoldersTabletHint(
     /**
      * Se sopra l'invito c'è l'identità dell'app.
      *
-     * ⚠️ **Spenta sullo schermo largo, dalla `3.70`**: là l'identità è nella testa della colonna
-     * delle cartelle (scelta B5), e due loghi a pochi centimetri si leggerebbero come un errore.
+     * Spenta sullo schermo largo: là l'identità è nella testa della colonna delle cartelle
+     * (scelta B5), e due loghi a pochi centimetri si leggerebbero come un errore.
      */
     identity: Boolean = true,
     /**
      * Lo spazio della pillola, che non fa parte dell'area utile: l'invito si centra in quello che
-     * resta (voce `3.70-05`: *al centro dell'area utile della griglia (lo spazio orizzontale della
-     * pillola non ne fa parte)*).
+     * resta (voce `3.70-05`).
      */
     pillRoom: PaddingValues = PaddingValues()
 ) {
@@ -705,8 +667,8 @@ fun FoldersTabletHint(
             Spacer(Modifier.height(48.dp))
         }
         /*
-         * ⚠️ **Al 50% di opacità, dalla `3.71`** (voci `3.70-05`, `3.70-06` e `3.70-07`): è un
-         * invito e non un contenuto, e la frase nuova dice dove si sceglie.
+         * Al 50% di opacità (voci `3.70-05`, `3.70-06` e `3.70-07`): è un invito, non un
+         * contenuto, e la frase dice dove si sceglie.
          */
         Text(
             text = stringResource(R.string.folders_tablet_pick),
@@ -720,14 +682,11 @@ fun FoldersTabletHint(
 /**
  * Il margine delle righe dell'elenco verso i bordi della colonna.
  *
- * ⚠️ Lo legge anche la testa di casa coricata ([RailIdentity]), che si allinea alle cartelle.
+ * Lo legge anche la testa di casa in orizzontale ([RailIdentity]), che si allinea alle cartelle.
  */
 internal val RAIL_ROW_INSET = 12.dp
 
-/**
- * Il margine delle righe sul tablet in verticale, dalla `3.71` (voce `3.70-07`: *la lista
- * cartelle deve avere un po' più di margine verso i bordi esterni*).
- */
+/** Il margine delle righe sul tablet in verticale, più largo (voce `3.70-07`). */
 private val RAIL_ROW_INSET_TALL = 20.dp
 
 /** Lunghezza e spessore delle due righe della maniglia, e lo stacco fra loro. */
@@ -741,20 +700,18 @@ private val HANDLE_TOUCH = 24.dp
 /**
  * Quanto inchiostro hanno le righe della maniglia.
  *
- * ⚠️ **La metà di 0,38, dalla `3.73`** (voce `3.72-02`: *voglio la maniglia ancora più
- * trasparente: opacità dimezzata rispetto all'attuale*). 0,38 era il valore della maniglia coi
- * puntini dalla `3.40`.
+ * La metà di 0,38 (voce `3.72-02`: opacità dimezzata).
  */
 private const val HANDLE_INK = 0.38f / 2
 
-/** L'opacità dell'invito a scegliere una cartella: il numero è suo (voce `3.70-05`). */
+/** L'opacità dell'invito a scegliere una cartella: il numero è dell'utente (voce `3.70-05`). */
 private const val PICK_HINT_INK = 0.5f
 
 /**
- * Riga a due colonne per Cartelle + contenuto, allineata al mockup.
+ * La riga a due colonne, cartelle e contenuto, come nel mockup.
  *
- * ⚠️ **Il lato segue [Hand]** come nel Visualizzatore: destri -> elenco a sinistra;
- * mancini -> elenco a destra.
+ * Il lato segue [Hand], come nel visualizzatore: per i destri l'elenco è a sinistra, per i
+ * mancini a destra.
  */
 @Composable
 fun FoldersTabletSplit(
