@@ -1,6 +1,10 @@
 package io.github.roccobot.aiv
 
+import android.net.Uri
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 
 /**
  * Le **scene condivise** fra le prove: le schermate vere, montate con gli argomenti minimi.
@@ -101,4 +105,54 @@ internal fun Casa(
         buckets = buckets,
         onRead = {}
     )
+}
+
+/**
+ * L'editor completo con gli argomenti minimi, su tutto lo schermo.
+ *
+ * ⚠️ **Di serie è un'immagine intonsa che nessun comando può salvare**: niente filigrana e niente
+ * ridimensionamento, perché tutti e due accenderebbero 'Salva' a immagine non toccata, e la
+ * maggior parte delle prove guarda proprio quando 'Salva' si accende. I loro casi vivono in
+ * `FiligranaTest` e in `RidimensionaTest`, che passano i propri valori.
+ * ⚠️ **Il tema e i `CompositionLocal` restano a chi chiama**: il lato del FAB e l'ordine dei
+ * moduli viaggiano così anche nell'app, e ogni classe li sceglie per sé.
+ *
+ * @param uri l'immagine da aprire: un file vero, perché finché l'anteprima non è decodificata i
+ *   comandi sono spenti (vedi [quadrato]).
+ * @param resize il piano di ridimensionamento configurato, che esiste anche quando non si applica.
+ */
+@Composable
+internal fun Editore(
+    uri: Uri = quadrato(),
+    marked: Boolean = false,
+    marking: Boolean = false,
+    hasMark: Boolean = false,
+    onMark: (Boolean) -> Unit = {},
+    onMarkSetup: () -> Unit = {},
+    resize: Resize.Plan = Resize.Plan(Resize.Mode.LONG, Resize.DEFAULT_PX),
+    saved: Resize.Plan = Resize.NONE,
+    resizing: Boolean = false,
+    onResize: (Resize.Plan?) -> Unit = {},
+    onResizeDefault: (Resize.Plan) -> Unit = {},
+    onSave: (Look, Boolean) -> Unit = { _, _ -> },
+    onBack: () -> Unit = {}
+) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        AdvancedEditorScreen(
+            uri = uri,
+            busy = false,
+            marked = marked,
+            marking = marking,
+            hasMark = hasMark,
+            onMark = onMark,
+            onMarkSetup = onMarkSetup,
+            resize = resize,
+            saved = saved,
+            resizing = resizing,
+            onResize = onResize,
+            onResizeDefault = onResizeDefault,
+            onSave = onSave,
+            onBack = onBack
+        )
+    }
 }

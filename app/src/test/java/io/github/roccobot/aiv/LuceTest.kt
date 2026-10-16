@@ -1,11 +1,8 @@
 package io.github.roccobot.aiv
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Color
-import android.net.Uri
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -14,7 +11,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color as InkColor
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
@@ -23,15 +19,12 @@ import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.click
 import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
@@ -44,9 +37,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.GraphicsMode
-import java.io.File
 import kotlin.math.abs
-import kotlinx.coroutines.runBlocking
 import org.junit.Before
 
 /**
@@ -77,18 +68,10 @@ class LuceTest {
     @get:Rule
     val banco = createComposeRule()
 
-    /**
-     * ⚠️⚠️ **IL MINI-ONBOARDING DEI MODULI SI SPEGNE PRIMA, DALLA `2.50`**: il suo velo copre lo
-     * schermo e **consuma il primo tocco**, che è quello che deve fare davanti a chi apre l'editor
-     * la prima volta e quello che rende rossa qualunque prova che tocchi un gettone. È la stessa
-     * riga che [NascosteTest] scrive per la scorciatoia delle colonne.
-     */
+    /** I veli d'aiuto dell'editor si segnano come visti prima di montarlo: vedi [senzaOnboarding]. */
     @Before
-    fun senzaOnboarding() {
-        runBlocking {
-            Hint.MODULES.remember(ApplicationProvider.getApplicationContext())
-            Hint.EDITOR_TOOLS.remember(ApplicationProvider.getApplicationContext())
-        }
+    fun veliVisti() {
+        senzaOnboarding()
     }
 
 
@@ -151,11 +134,11 @@ class LuceTest {
     @Test
     fun `un gesto compiuto scrive un passo nella storia`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta(R.string.look_light)
 
         banco.onNodeWithContentDescription(testo(R.string.editor_undo)).assertIsNotEnabled()
 
-        muovi(CONTRASTO, 0.5f)
+        banco.muovi(CONTRASTO, 0.5f)
 
         assertEquals(
             "Il cursore non ha mosso l'anteprima",
@@ -177,9 +160,9 @@ class LuceTest {
     fun `Annulla e Ripristina camminano nella storia`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta(R.string.look_light)
 
-        muovi(CONTRASTO, 0.5f)
+        banco.muovi(CONTRASTO, 0.5f)
 
         banco.onNodeWithContentDescription(testo(R.string.editor_undo)).performClick()
         banco.waitForIdle()
@@ -210,14 +193,14 @@ class LuceTest {
     @Test
     fun `un passo nuovo taglia quello che veniva dopo`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta(R.string.look_light)
 
-        muovi(CONTRASTO, 0.5f)
+        banco.muovi(CONTRASTO, 0.5f)
         banco.onNodeWithContentDescription(testo(R.string.editor_undo)).performClick()
         banco.waitForIdle()
         banco.onNodeWithContentDescription(testo(R.string.editor_redo)).assertIsEnabled()
 
-        muovi(OMBRE, 0.25f)
+        banco.muovi(OMBRE, 0.25f)
 
         banco.onNodeWithContentDescription(testo(R.string.editor_redo)).assertIsNotEnabled()
         assertEquals("Il passo nuovo non è quello che si vede", 1, quanti("+25"))
@@ -233,9 +216,9 @@ class LuceTest {
     @Test
     fun `il numero azzera il suo cursore e scrive un passo`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta(R.string.look_light)
 
-        muovi(CONTRASTO, 0.5f)
+        banco.muovi(CONTRASTO, 0.5f)
 
         val azzera = testo(R.string.look_reset_one, testo(R.string.look_contrast))
         banco.onNodeWithContentDescription(azzera).performClick()
@@ -260,10 +243,10 @@ class LuceTest {
     @Test
     fun `Originale riporta a zero e si disfa`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta(R.string.look_light)
 
-        muovi(CONTRASTO, 0.5f)
-        muovi(OMBRE, 0.25f)
+        banco.muovi(CONTRASTO, 0.5f)
+        banco.muovi(OMBRE, 0.25f)
 
         banco.onNodeWithContentDescription(testo(R.string.editor_original)).performClick()
         banco.waitForIdle()
@@ -293,10 +276,10 @@ class LuceTest {
     @Test
     fun `a riposo il salvataggio e spento`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta(R.string.look_light)
 
         banco.onNodeWithText(testo(R.string.editor_save)).assertIsNotEnabled()
-        muovi(CONTRASTO, 0.5f)
+        banco.muovi(CONTRASTO, 0.5f)
         banco.onNodeWithText(testo(R.string.editor_save)).assertIsEnabled()
     }
 
@@ -311,9 +294,9 @@ class LuceTest {
     @Test
     fun `il doppio tocco sul nome azzera il suo cursore`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta(R.string.look_light)
 
-        muovi(CONTRASTO, 0.5f)
+        banco.muovi(CONTRASTO, 0.5f)
 
         banco.onNodeWithContentDescription(
             testo(R.string.look_peek_one, testo(R.string.look_contrast))
@@ -341,9 +324,9 @@ class LuceTest {
     @Test
     fun `il doppio tocco sulla barra azzera senza lasciare passi in mezzo`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta(R.string.look_light)
 
-        muovi(CONTRASTO, 0.5f)
+        banco.muovi(CONTRASTO, 0.5f)
 
         /*
          * ⚠️⚠️ **IL TOCCO VA A UN QUARTO DELLA BARRA E NON AL CENTRO, ED È LA CONTROPROVA CHE LO
@@ -378,7 +361,7 @@ class LuceTest {
     @Test
     fun `il doppio tocco sull'immagine la ingrandisce`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta(R.string.look_light)
 
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
         val prima = bianchi(palco)
@@ -413,18 +396,18 @@ class LuceTest {
     @Test
     fun `un cursore mosso col dito non riporta indietro gli altri`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta(R.string.look_light)
 
-        tocca(CONTRASTO, 0.25f)
-        val mosso = valore(CONTRASTO)
+        banco.tocca(CONTRASTO, 0.25f)
+        val mosso = banco.valore(CONTRASTO)
         assertTrue("Il tocco sulla barra non ha mosso il cursore", abs(mosso) > 0.1f)
 
-        tocca(OMBRE, 0.75f)
-        assertTrue("Il secondo tocco non ha mosso il suo cursore", abs(valore(OMBRE)) > 0.1f)
+        banco.tocca(OMBRE, 0.75f)
+        assertTrue("Il secondo tocco non ha mosso il suo cursore", abs(banco.valore(OMBRE)) > 0.1f)
         assertEquals(
             "Muovendo un secondo cursore il primo è tornato al valore di prima",
             mosso,
-            valore(CONTRASTO),
+            banco.valore(CONTRASTO),
             SOGLIA
         )
     }
@@ -483,7 +466,7 @@ class LuceTest {
     @Test
     fun `il doppio tocco sull'immagine ci arriva con una corsa`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta(R.string.look_light)
 
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
         val prima = bianchi(palco)
@@ -566,7 +549,7 @@ class LuceTest {
     @Test
     fun `il secondo tocco che trascina ingrandisce solo verso il basso`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta(R.string.look_light)
 
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
         val prima = bianchi(palco)
@@ -619,70 +602,6 @@ class LuceTest {
         return conto
     }
 
-    /**
-     * Aspetta che la scena sia davvero in piedi, cioè che l'anteprima sia decodificata.
-     *
-     * ⚠️⚠️ **`waitForIdle` NON BASTA, ED È QUELLO CHE HA FATTO UNA PROVA ROSSA IN CI E VERDE
-     * QUI**: la decodifica dell'anteprima gira su `Dispatchers.IO`, cioè su un thread vero, e
-     * nessuna attesa di composizione la comprende. Finché non è finita i cursori sono spenti e
-     * il palco non c'è, quindi una prova che agisce là dentro tocca una scheda che non si può
-     * toccare: su una macchina più lenta arriva un attimo dopo, e la corsa cambia esito.
-     * ⚠️ **Si aspetta il PALCO e non un cursore**: il palco compare solo quando l'immagine
-     * esiste, mentre i cursori ci sono sempre e cambiano solo stato.
-     */
-    private fun pronta() {
-        banco.waitUntil(ATTESA) {
-            banco.onAllNodesWithContentDescription(testo(R.string.look_compare))
-                .fetchSemanticsNodes().isNotEmpty()
-        }
-        banco.waitForIdle()
-        /*
-         * ⚠️⚠️ **SI APRE LA LUCE, E DALLA `2.35` SERVE**: l'editor nasce sul **Ritaglio** (sua
-         * istruzione, 2026-09-13), e questo banco misura i cursori della Luce, che là non ci sono.
-         * Senza questa riga ogni caso che tocca un cursore muore con *no existing nodes*, cioè
-         * rosso per una decisione e non per un difetto.
-         * ⚠️ **Vive qui e non in ogni caso**: è la scena da cui queste prove partono, ed è anche
-         * quello che fa lui prima di lavorare sulla luce.
-         */
-        banco.onNodeWithContentDescription(testo(R.string.look_light)).performClick()
-        banco.waitForIdle()
-    }
-
-    /**
-     * Muove un cursore fino in fondo al suo gesto, cioè come un dito che si alza.
-     *
-     * ⚠️⚠️ **`SetProgress` NON RICOMPONE FRA LE DUE CHIAMATE, ed è per questo che misura**:
-     * l'azione semantica di uno `Slider` invoca `onValueChange` e subito dopo
-     * `onValueChangeFinished`, nella stessa passata. Un dito vero ci mette quasi sempre un
-     * fotogramma in mezzo, quindi il banco qui è **più severo** della mano, che è esattamente
-     * quello che serve per prendere un difetto che di là si vedrebbe una volta su dieci.
-     *
-     * @param quale la riga del cursore, nell'ordine in cui la scheda li disegna.
-     */
-    private fun muovi(quale: Int, a: Float) {
-        banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[quale]
-            .performSemanticsAction(SemanticsActions.SetProgress) { it(a) }
-        banco.waitForIdle()
-    }
-
-    /**
-     * Tocca la barra di un cursore a una frazione della sua larghezza, come farebbe un dito.
-     *
-     * ⚠️ **Un tocco secco e non una strisciata**: toccando lontano dal tondo il cursore salta
-     * subito al punto, quindi il valore si muove senza dover iniettare un gesto con la sua durata,
-     * che col clock di prova è una delle trappole di casa.
-     */
-    private fun tocca(quale: Int, dove: Float) {
-        banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[quale]
-            .performTouchInput { click(Offset(width * dove, height / 2f)) }
-        banco.waitForIdle()
-    }
-
-    /** Che cosa dice un cursore di sé: il valore che annuncia, non quello che il numero scrive. */
-    private fun valore(quale: Int): Float =
-        banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[quale]
-            .fetchSemanticsNode().config[SemanticsProperties.ProgressBarRangeInfo].current
-
     /** Quanti nodi portano scritto [detto]: è la spia di che cosa dicono i numeri dei cursori. */
     private fun quanti(detto: String): Int =
         banco.onAllNodesWithText(detto).fetchSemanticsNodes().size
@@ -692,54 +611,16 @@ class LuceTest {
     private val app: Context get() = ApplicationProvider.getApplicationContext()
 
     /**
-     * L'editor completo montato con gli argomenti minimi, e con un'immagine vera.
-     *
-     * ⚠️⚠️ **L'IMMAGINE SERVE DAVVERO, E NON È UN LUSSO**: finché l'anteprima non è decodificata
-     * i comandi sono spenti, quindi una scena con un indirizzo finto misurerebbe una scheda in cui
-     * non si può toccare niente. Un quadrato scritto nella cache basta: quello che si guarda qui è
-     * la storia dei passi, e non i pixel.
+     * L'editor completo con gli argomenti di serie, su un quadrato bianco: quello che si guarda qui
+     * è la storia dei passi, e non i pixel.
      */
     @Composable
     private fun Scena(onSave: (Look) -> Unit = {}) {
         // ⚠️ Il secondo argomento è il tocco lungo (un file nuovo accanto): qui si misura il
         // valore salvato, quindi la prova guarda il primo e lascia stare il gesto.
-        val consegna: (Look, Boolean) -> Unit = { look, _ -> onSave(look) }
         AivTheme(darkTheme = false) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                AdvancedEditorScreen(
-                    uri = quadrato(),
-                    busy = false,
-                    // ⚠️ Nessuna filigrana scelta: qui si misura la storia dei passi, e una firma
-                    // pronta accenderebbe 'Salva' anche a immagine intonsa. Il caso suo vive in
-                    // `FiligranaTest`.
-                    marked = false,
-                    marking = false,
-                    hasMark = false,
-                    onMark = {},
-                    onMarkSetup = {},
-                    resize = Resize.Plan(Resize.Mode.LONG, Resize.DEFAULT_PX),
-                    // ⚠️ Spento: un ridimensionamento che rimpicciolisce accenderebbe 'Salva' a
-                    // immagine intonsa, e il caso suo vive in `RidimensionaTest`.
-                    saved = Resize.NONE,
-                    resizing = false,
-                    onResize = {},
-                    onResizeDefault = {},
-                    onSave = consegna,
-                    onBack = {}
-                )
-            }
+            Editore(onSave = { look, _ -> onSave(look) })
         }
-    }
-
-    /** Un PNG vero su disco, e il suo indirizzo. */
-    private fun quadrato(): Uri {
-        val file = File(app.cacheDir, "luce.png")
-        if (!file.exists()) {
-            val mappa = Bitmap.createBitmap(LATO, LATO, Bitmap.Config.ARGB_8888)
-            mappa.eraseColor(Color.WHITE)
-            file.outputStream().use { mappa.compress(Bitmap.CompressFormat.PNG, 100, it) }
-        }
-        return Uri.fromFile(file)
     }
 }
 
@@ -754,12 +635,6 @@ class LuceTest {
  */
 private const val CONTRASTO = 1
 private const val OMBRE = 3
-
-/** Il lato del quadrato finto: piccolo, perché di lui serve solo che esista. */
-private const val LATO = 64
-
-/** Quanto si aspetta che l'anteprima arrivi: vedi `pronta()`. */
-private const val ATTESA = 5000L
 
 /**
  * Quanto si avanza per guardare la corsa del doppio tocco a metà strada.

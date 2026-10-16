@@ -1,7 +1,6 @@
 package io.github.roccobot.aiv
 
 import android.content.Context
-import android.os.Looper
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -10,7 +9,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
-import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -87,28 +85,15 @@ class AggiornaTest {
         banco.waitForIdle()
         assertNull("toccato 'Aggiorna', la finestra doveva chiudersi", Updater.offer)
 
-        aspetta { Notices.line?.text == app.getString(R.string.update_failed) }
+        // ⚠️ Le due ruote insieme: il ciclo di Android e quello della regola di Compose, che può
+        // avere un suo distributore del filo principale. Girandone una sola, il seguito del lavoro
+        // dopo lo scaricamento può restare in coda per sempre.
+        aspetta(
+            "dopo la chiusura della finestra il lavoro non è arrivato in fondo",
+            ogniGiro = { banco.waitForIdle() },
+            dettaglio = { ": avviso '${Notices.line?.text}'" }
+        ) { Notices.line?.text == app.getString(R.string.update_failed) }
         assertEquals(app.getString(R.string.update_failed), Notices.line?.text)
-    }
-
-    /**
-     * Fa girare il filo principale finché [fatto] non risponde di sì, per al più tre secondi.
-     *
-     * ⚠️ **Le due ruote insieme**: il ciclo di Android ([Looper]) e quello della regola di
-     * Compose (`waitForIdle`), che può avere un suo distributore del filo principale. Girandone
-     * una sola, il seguito del lavoro dopo lo scaricamento può restare in coda per sempre.
-     */
-    private fun aspetta(fatto: () -> Boolean) {
-        repeat(300) {
-            shadowOf(Looper.getMainLooper()).idle()
-            banco.waitForIdle()
-            if (fatto()) return
-            Thread.sleep(10)
-        }
-        fail(
-            "dopo la chiusura della finestra il lavoro non è arrivato in fondo: avviso " +
-                "'${Notices.line?.text}'"
-        )
     }
 
     private companion object {

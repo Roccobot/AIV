@@ -17,7 +17,6 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.mutablePreferencesOf
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -51,10 +50,10 @@ class NascosteTest {
     @get:Rule
     val banco = createComposeRule()
 
-    /** Come in `RientroTest`: senza, il velo dell'onboarding si mangia il primo gesto. */
+    /** I veli della casa si segnano come visti prima di montarla: vedi [onboardingGiaVisto]. */
     @Before
-    fun onboardingGiaVisto() {
-        runBlocking { Hint.COLUMNS.remember(ApplicationProvider.getApplicationContext()) }
+    fun veliVisti() {
+        onboardingGiaVisto(cestino = false)
     }
 
     /**

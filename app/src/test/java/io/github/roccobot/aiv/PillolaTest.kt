@@ -31,7 +31,6 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -61,13 +60,10 @@ class PillolaTest {
 
     private fun voce(id: Int) = app.getString(id)
 
-    /** As in `NascosteTest`: without it the onboarding veil takes the first gesture. */
+    /** I veli della casa si segnano come visti prima di montarla: vedi [onboardingGiaVisto]. */
     @Before
-    fun onboardingGiaVisto() {
-        runBlocking {
-            Hint.COLUMNS.remember(app)
-            Hint.BIN_EMPTY.remember(app)
-        }
+    fun veliVisti() {
+        onboardingGiaVisto()
     }
 
     /**
@@ -398,12 +394,6 @@ private val CARTELLE = (1..4).map {
         path = if (it == 1) "/storage/emulated/0/Segreta" else "/storage/emulated/0/Foto$it"
     )
 }
-
-/** As in `SaltiTest`: the first composition and its effects. */
-private const val NASCITA = 1_000L
-
-/** As in `SaltiTest`: shorter than the jump's quiet, so the pill does not open again. */
-private const val RESPIRO = 100L
 
 /** As in `SaltiTest`: the flick's steps. */
 private const val PASSI = 6

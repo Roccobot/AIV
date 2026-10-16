@@ -16,7 +16,6 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Before
@@ -45,13 +44,10 @@ class AspettoFabTest {
 
     private val app: Context get() = ApplicationProvider.getApplicationContext()
 
-    /** As in `PillolaTest`: without it the onboarding veil covers the FAB. */
+    /** I veli della casa si segnano come visti prima di montarla: vedi [onboardingGiaVisto]. */
     @Before
-    fun onboardingGiaVisto() {
-        runBlocking {
-            Hint.COLUMNS.remember(app)
-            Hint.BIN_EMPTY.remember(app)
-        }
+    fun veliVisti() {
+        onboardingGiaVisto()
     }
 
     /**

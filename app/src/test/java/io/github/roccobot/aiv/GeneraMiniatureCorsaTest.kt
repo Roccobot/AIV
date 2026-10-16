@@ -8,7 +8,6 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
-import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -103,20 +102,5 @@ class GeneraMiniatureCorsaTest {
 
         assertNull("dopo 'Annulla' la pagina non deve tornare", Warmup.run)
         assertNull("dopo 'Annulla' non si dice niente", Notices.line)
-    }
-
-    /**
-     * Fa girare il filo principale finché [fatto] non risponde di sì, per al più tre secondi.
-     *
-     * ⚠️ **Il filo principale va fatto girare a mano**: sul banco è fermo, e la frase finale della
-     * generazione gli arriva come un compito da eseguire.
-     */
-    private fun aspetta(perche: String, fatto: () -> Boolean) {
-        repeat(300) {
-            shadowOf(Looper.getMainLooper()).idle()
-            if (fatto()) return
-            Thread.sleep(10)
-        }
-        fail(perche)
     }
 }

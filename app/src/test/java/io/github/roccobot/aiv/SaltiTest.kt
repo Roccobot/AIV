@@ -336,12 +336,6 @@ private const val RIGA = 48
  */
 private const val LONTANO = 100_000f
 
-/** Quanto si lascia respirare la scena dopo un gesto, col clock fermo. */
-private const val RESPIRO = 100L
-
-/** Quanto la scena si compone prima che la prova la tocchi. */
-private const val NASCITA = 1_000L
-
 /**
  * Quanto il dito resta fermo prima di staccarsi, in millisecondi.
  *

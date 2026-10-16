@@ -1,21 +1,14 @@
 package io.github.roccobot.aiv
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Color
-import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
-import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -23,7 +16,6 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Before
@@ -31,7 +23,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.GraphicsMode
-import java.io.File
 
 /**
  * Il lavoro dell'editor completo nella `6.27` (rilievo A9 della revisione della 6.25): attraversa
@@ -53,14 +44,10 @@ class EditorRicreatoTest {
 
     private var salvato: Look? = null
 
-    /** I veli d'aiuto si spengono prima: consumano il primo tocco (vedi `SviluppoTest`). */
+    /** I veli d'aiuto dell'editor si segnano come visti prima di montarlo: vedi [senzaOnboarding]. */
     @Before
-    fun senzaOnboarding() {
-        runBlocking {
-            Hint.MODULES.remember(app)
-            Hint.EDITOR_TOOLS.remember(app)
-            Hint.DRAW.remember(app)
-        }
+    fun veliVisti() {
+        senzaOnboarding(Hint.DRAW)
     }
 
     /**
@@ -94,45 +81,19 @@ class EditorRicreatoTest {
         banco.waitForIdle()
         aperto = true
         banco.waitForIdle()
-        pronta()
+        banco.pronta()
         assertNull("l'immagine doveva tornare intonsa", salva())
     }
 
     private fun mostra(contenuto: @Composable () -> Unit) {
         banco.activityRule.scenario.onActivity { it.setContent { AivTheme(darkTheme = false) { contenuto() } } }
         banco.waitForIdle()
-        pronta()
+        banco.pronta()
     }
 
     @Composable
     private fun Editor() {
-        Box(modifier = Modifier.fillMaxSize()) {
-            AdvancedEditorScreen(
-                uri = quadrato(),
-                busy = false,
-                marked = false,
-                marking = false,
-                hasMark = false,
-                onMark = {},
-                onMarkSetup = {},
-                resize = Resize.Plan(Resize.Mode.LONG, Resize.DEFAULT_PX),
-                saved = Resize.NONE,
-                resizing = false,
-                onResize = {},
-                onResizeDefault = {},
-                onSave = { look, _ -> salvato = look },
-                onBack = {}
-            )
-        }
-    }
-
-    /** Il palco compare quando l'immagine esiste: vedi `pronta()` in `LuceTest`. */
-    private fun pronta() {
-        banco.waitUntil(5_000) {
-            banco.onAllNodesWithContentDescription(app.getString(R.string.look_compare))
-                .fetchSemanticsNodes().isNotEmpty()
-        }
-        banco.waitForIdle()
+        Editore(onSave = { look, _ -> salvato = look })
     }
 
     private fun disegnaUnRettangolo() {
@@ -151,15 +112,5 @@ class EditorRicreatoTest {
         banco.onNodeWithText(app.getString(R.string.editor_save)).performClick()
         banco.waitForIdle()
         return salvato
-    }
-
-    private fun quadrato(): Uri {
-        val file = File(app.cacheDir, "ricreato.png")
-        if (!file.exists()) {
-            val mappa = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888)
-            mappa.eraseColor(Color.WHITE)
-            file.outputStream().use { mappa.compress(Bitmap.CompressFormat.PNG, 100, it) }
-        }
-        return Uri.fromFile(file)
     }
 }

@@ -129,9 +129,6 @@ class ScattoGlifoTest {
 /** How many frames the test captures: the fling, the farewell's wait and the way back. */
 private const val FOTOGRAMMI = 480
 
-/** As in `SaltiTest`: the first composition and its effects. */
-private const val NASCITA = 1_000L
-
 
 /** As in `SaltiTest`. */
 private const val DA = 0.8f
