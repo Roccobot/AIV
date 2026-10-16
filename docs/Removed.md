@@ -8,9 +8,7 @@
 > `rules/Roccobot.md` di `Roccobot/tools`, § '🗄️ Le cose tolte vivono in Removed.md').
 > Le voci vanno dalla più recente alla più vecchia.
 
-## 6.30
-
-### 🖼️ Il bordo d'accento dei pannelli
+## 🖼️ Il bordo d'accento dei pannelli
 
 - **Che cosa faceva**: un contorno nel colore d'accento intorno a menu, dialoghi, schede e
   notifiche, disegnato sopra la superficie senza occupare spazio.
@@ -24,7 +22,7 @@
   - le note di `Rules.md` § '🌫️ Sfocatura dietro i pannelli e bordo'.
 - Il comando che mostra il codice di allora: `git show v6.29:app/src/main/java/io/github/roccobot/aiv/Edge.kt`.
 
-### 📁 La voce 'Copertina predefinita' del menu del FAB
+## 📁 La voce 'Copertina predefinita' del menu del FAB
 
 - **Che cosa faceva**: dal menu della griglia rimetteva come copertina della cartella la sua
   immagine più recente.
