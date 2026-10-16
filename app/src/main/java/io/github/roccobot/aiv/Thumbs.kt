@@ -318,11 +318,17 @@ object Thumbs {
      *   dello stesso file, che è esattamente quello che serve.
      * - ⚠️ **Si filtra prima e si rimuove dopo**: `keys` è un insieme che il caricatore
      *   compone, e rimuovere mentre lo si scorre è la via all'errore di concorrenza.
+     * ⚠️⚠️ **E DIMENTICA ANCHE LA MISURA E IL PESO DEL FILE, dalla `6.26`** (rilievi B14 e C20
+     * della revisione della 6.25): [Pixels] e [sizeOf] tengono quei due numeri per indirizzo, e
+     * questo è il punto in cui l'app dichiara un file riscritto, dalla scansione, dal cestino e dai
+     * salvataggi del visualizzatore.
      */
     @Synchronized
     fun forget(context: Context, uri: AndroidUri) {
         val at = uri.toString()
         AvifCache.forget(context, uri)
+        Pixels.forget(uri)
+        forgetSize(uri)
         stale += at
         while (stale.size > KEYS) stale.remove(stale.first())
         val cache = SingletonImageLoader.get(context).memoryCache ?: return
