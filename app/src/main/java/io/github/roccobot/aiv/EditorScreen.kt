@@ -2,7 +2,6 @@ package io.github.roccobot.aiv
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.graphics.drawable.Drawable
 import android.content.pm.ActivityInfo
 import android.net.Uri
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -55,7 +53,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.produceState
@@ -1363,7 +1360,6 @@ private fun CropStage(
     keep: Float?,
     onCrop: (ImageEdit.Crop) -> Unit
 ) {
-    val dim = Color.Black.copy(alpha = VEIL)
     val line = Color.White
     var held by remember { mutableStateOf(Grab.NONE) }
     // Il valore più recente senza rifare il gesto: `rememberUpdatedState` serve a questo, dentro
