@@ -46,6 +46,10 @@ import org.robolectric.annotation.Config
 @Config(shadows = [OmbraArchivio::class])
 class CopertinaTest {
 
+    /** I modelli costruiti dalle prove, chiusi alla fine di ognuna (`ModelliChiusi`). */
+    @get:Rule
+    val modelli = ModelliChiusi()
+
     @get:Rule
     val banco = createComposeRule()
 
@@ -291,7 +295,7 @@ class CopertinaTest {
      */
     @Test
     fun `il modello esce solo se una scelta e partita`() {
-        val model = ViewerViewModel(ApplicationProvider.getApplicationContext<Application>())
+        val model = modelli.nuovo(ApplicationProvider.getApplicationContext<Application>())
         model.openGrid(7L, CARTELLA)
         model.startCover()
         model.coverAway()

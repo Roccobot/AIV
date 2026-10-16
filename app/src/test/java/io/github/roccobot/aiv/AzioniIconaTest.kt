@@ -11,16 +11,17 @@ import android.os.Looper
 import android.provider.MediaStore
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import java.time.Duration
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowContentResolver
 import org.robolectric.shadows.ShadowEnvironment
-import java.time.Duration
 
 /**
  * Le due azioni dell'icona che portano a una cartella, quando la cartella è di quelle che il
@@ -37,6 +38,10 @@ import java.time.Duration
 @RunWith(AndroidJUnit4::class)
 @Config(shadows = [ArchivioAperto::class])
 class AzioniIconaTest {
+
+    /** I modelli costruiti dalle prove, chiusi alla fine di ognuna (`ModelliChiusi`). */
+    @get:Rule
+    val modelli = ModelliChiusi()
 
     private val app = ApplicationProvider.getApplicationContext<Application>()
     private val main get() = shadowOf(Looper.getMainLooper())
@@ -58,7 +63,7 @@ class AzioniIconaTest {
     /** L'ultima cartella riapre la sua griglia, col nome che l'azione porta con sé. */
     @Test
     fun `l'ultima cartella riapre la sua griglia`() {
-        val model = ViewerViewModel(app)
+        val model = modelli.nuovo(app)
         aspetta { model.settings != null }
         assertNotNull("Le impostazioni non sono arrivate", model.settings)
         val intent = Intent(Shortcuts.FOLDER)
@@ -81,7 +86,7 @@ class AzioniIconaTest {
         // ⚠️ Robolectric has no storage until one is declared, and Tree.roots takes only one whose
         // folder can be read.
         ShadowEnvironment.addExternalDir("memoria").mkdirs()
-        val model = ViewerViewModel(app)
+        val model = modelli.nuovo(app)
         val memoria = Tree.roots(app).firstOrNull()
         assertNotNull("Il banco non ha nessuna memoria", memoria)
         val percorso = memoria!!.file.absolutePath + "/DCIM/Camera"

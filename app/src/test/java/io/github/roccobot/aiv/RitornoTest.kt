@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -27,8 +28,12 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class RitornoTest {
 
+    /** I modelli costruiti dalle prove, chiusi alla fine di ognuna (`ModelliChiusi`). */
+    @get:Rule
+    val modelli = ModelliChiusi()
+
     private fun modello(): ViewerViewModel =
-        ViewerViewModel(ApplicationProvider.getApplicationContext<Application>())
+        modelli.nuovo(ApplicationProvider.getApplicationContext<Application>())
 
     /** L'avvio dall'icona: l'app parte da casa, cioè dall'elenco delle cartelle. */
     @Test

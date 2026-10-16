@@ -4,11 +4,12 @@ import android.app.Application
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import java.time.Duration
 import org.junit.Assert.assertEquals
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
-import java.time.Duration
 
 /**
  * Il Feed durante una selezione nella `6.27` (rilievo D15 della revisione della 6.25): una notizia
@@ -23,6 +24,10 @@ import java.time.Duration
  */
 @RunWith(AndroidJUnit4::class)
 class FeedOccupatoPlayTest {
+
+    /** I modelli costruiti dalle prove, chiusi alla fine di ognuna (`ModelliChiusi`). */
+    @get:Rule
+    val modelli = ModelliChiusi()
 
     private val main get() = shadowOf(Looper.getMainLooper())
 
@@ -51,7 +56,7 @@ class FeedOccupatoPlayTest {
     @Test
     fun `la selezione nel Feed rimanda la rilettura`() {
         val app = ApplicationProvider.getApplicationContext<Application>()
-        val model = ViewerViewModel(app)
+        val model = modelli.nuovo(app)
         aspetta { model.settings != null }
         model.goHome()
         model.readFeed(granted = false, selection = FolderSelection(), date = FeedDate.TAKEN)

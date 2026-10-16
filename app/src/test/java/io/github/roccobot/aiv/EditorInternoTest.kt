@@ -12,6 +12,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
@@ -33,6 +34,10 @@ import org.robolectric.annotation.Config
 @RunWith(AndroidJUnit4::class)
 class EditorInternoTest {
 
+    /** I modelli costruiti dalle prove, chiusi alla fine di ognuna (`ModelliChiusi`). */
+    @get:Rule
+    val modelli = ModelliChiusi()
+
     private val app get() = ApplicationProvider.getApplicationContext<Application>()
 
     /**
@@ -43,7 +48,7 @@ class EditorInternoTest {
      * `file` dà il nome senza toccare il disco.
      */
     private fun apreCon(id: String): Screen {
-        val model = ViewerViewModel(app)
+        val model = modelli.nuovo(app)
         model.editWith(Uri.parse("file:///storage/emulated/0/Pictures/prova.jpg"))
         model.editorChosen(id)
         repeat(200) {
