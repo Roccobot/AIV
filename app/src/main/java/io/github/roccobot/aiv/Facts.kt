@@ -20,24 +20,18 @@ import java.util.Locale
  * Che cosa si sa delle immagini scelte: il conto e il peso sempre, tutto il resto solo
  * quando è **una sola**.
  *
- * ⚠️ **Il peso è la somma, il resto non si somma**: nome e misure di dieci fotografie
- * diverse non si possono riassumere senza inventare, e una riga che dicesse 'varie' non
- * direbbe niente. Con una sola la domanda ha una risposta esatta, ed è [one].
+ * Il peso si somma, il resto no: nome e misure di dieci immagini non si riassumono senza
+ * inventare. Con una sola la risposta è esatta, ed è [one].
  */
 class Facts(val count: Int, val bytes: Long, val one: OneFile? = null)
 
 /**
- * I dati di UN file, campo per campo.
+ * I dati di un file, campo per campo.
  *
- * ⚠️⚠️ **`null` VUOL DIRE 'NON C'È', E LA RIGA NON SI SCRIVE** (richiesta dell'utente,
- * 2026-08-30: *nel caso in cui non ci sia un dato, la riga corrispondente non viene
- * mostrata*). Da qui la scelta di tenere **i campi separati** invece di una lista di
- * righe già formattate: il formato lo decide l'interfaccia, che sa la lingua e le
- * impostazioni, e questa classe dice solo che cosa il file contiene. ⚠️ Niente stringhe di
- * ripiego tipo 'n.d.': un campo vuoto qui è un campo assente là.
- * ⚠️ **I numeri restano numeri** (millisecondi, gradi decimali, secondi, millimetri): la
- * formattazione dipende dalla lingua, e un `Double` formattato troppo presto è un dato che
- * non si può più formattare bene.
+ * ⚠️ **`null` vuol dire 'non c'è', e la riga non si scrive** (richiesta dell'utente): niente
+ * stringhe di ripiego come 'n.d.'. I campi sono separati e i numeri restano numeri
+ * (millisecondi, gradi decimali, secondi, millimetri): il formato lo decide l'interfaccia, che
+ * conosce la lingua e le impostazioni.
  */
 class OneFile(
     val name: String?,
@@ -45,9 +39,9 @@ class OneFile(
     val mime: String?,
     val width: Int?,
     val height: Int?,
-    /** Quando la fotografia è stata SCATTATA, dai dati EXIF. Millisecondi epoch. */
+    /** Quando l'immagine è stata scattata, dai dati EXIF o dal MediaStore. Millisecondi epoch. */
     val taken: Long?,
-    /** Quando il FILE è stato modificato l'ultima volta, dal filesystem. */
+    /** Quando il file è stato modificato l'ultima volta. */
     val modified: Long?,
     /** Il percorso della cartella che lo contiene, senza il nome del file. */
     val folder: String?,
@@ -55,10 +49,9 @@ class OneFile(
     /**
      * Come tiene i suoi colori. Vedi [coloursOf].
      *
-     * ⚠️ **È un dato diverso da [encoding], anche se i due si leggono negli stessi byte**:
-     * quello dice come l'immagine è **compressa**, questo che cosa contiene un pixel. Su un
-     * PNG a tavolozza le due righe dicono 'PNG, 8 bit' e 'colore indicizzato, 256 colori', che
-     * sono due informazioni e non due modi di dire la stessa.
+     * È un dato diverso da [encoding], anche se si legge negli stessi byte: quello dice come
+     * l'immagine è compressa, questo che cosa contiene un pixel (su un PNG a tavolozza, 'PNG, 8
+     * bit' e 'colore indicizzato, 256 colori').
      */
     val colours: Colours?,
     /** Fotogrammi e durata, se è animata. `null` su un'immagine ferma. Vedi [motionOf]. */
@@ -74,27 +67,16 @@ class OneFile(
 /**
  * I campi delle informazioni, nell'ordine in cui l'utente li ha chiesti.
  *
- * ⚠️⚠️ **L'ORDINE DI QUESTO `enum` È IL VALORE DI FABBRICA**, e viene dall'elenco
- * dell'utente parola per parola: nome, tipo, pixel, peso, data di acquisizione, ultima
- * modifica, percorso, codifica, altri EXIF, posizione. Chi riordina le costanti cambia
- * l'aspetto predefinito della schermata di ogni telefono che non ha mai toccato
- * l'impostazione, quindi non si riordina per estetica.
- * ⚠️⚠️ **I TRE CAMPI DELLA `1.16` STANNO DOPO LA CODIFICA, e non in fondo**: metodo colore,
- * fotogrammi e durata parlano di **come è fatto il file**, come la codifica, e la riga che li
- * spiega si legge accanto a lei. Chi aveva già riordinato la lista non li perde e non li vede
- * spostati: [factOrderOf] aggiunge in coda i gettoni che il suo archivio non nomina.
- * ⚠️ **[always] sono i tre non negoziabili** (nome, pixel e peso): l'utente li ha dichiarati
- * sempre visibili, quindi l'interruttore per loro non esiste. Restano **spostabili**, che è
- * un'altra cosa: la richiesta dice 'sempre visibili', non 'in posizione fissa'.
- * ⚠️ **Il nome invece è ANCHE fisso in testa**, e quello sì è una posizione: sta scritto
- * nella richiesta (*nome del file con estensione, sempre in testa*), e lo garantisce
- * [factOrderOf] invece di lasciarlo alla buona volontà dell'interfaccia.
- * ⚠️ **Il gettone non è il nome della costante**: vale la regola di [Choice], cioè che
- * rinominare una costante non deve azzerare la scelta salvata su un telefono.
- * ⚠️ **Il nome della riga sta QUI e non in un `when` dell'interfaccia**, al contrario delle
- * altre scelte di `Settings.kt`: serve in **due** posti (la riga delle impostazioni e
- * l'etichetta nel dialogo), e un `when` da dieci rami scritto due volte è il posto dove le
- * due copie prima o poi diranno due parole diverse per la stessa cosa.
+ * ⚠️ **L'ordine di questo `enum` è il valore di fabbrica**: riordinare le costanti cambia la
+ * scheda di ogni telefono che non ha mai toccato l'impostazione. Metodo colore, fotogrammi e
+ * durata sono dopo la codifica perché parlano di come è fatto il file; chi ha già riordinato la
+ * lista li riceve in coda da [factOrderOf].
+ * [always] sono le quattro righe che ogni file ha (nome, tipo, pixel e peso): l'utente le vuole
+ * sempre visibili, quindi non hanno l'interruttore, ma restano spostabili. Il nome è anche fisso
+ * in testa, e lo garantisce [factOrderOf].
+ * Il gettone non è il nome della costante: vale la regola di [Choice].
+ * L'etichetta della riga vive qui, e non in un `when` dell'interfaccia, perché serve in due posti
+ * (la riga delle impostazioni e l'etichetta nella scheda).
  */
 enum class FactField(
     override val token: String,
@@ -102,13 +84,7 @@ enum class FactField(
     val always: Boolean = false
 ) : Choice {
     NAME("name", R.string.facts_name, always = true),
-    /*
-     * ⚠️⚠️ **BLOCCATO DALLA `1.82`, SU SUA RICHIESTA** (riscontro del giro della `1.81`, voce
-     * `riordino-scorre`: *'Tipo di file' va bloccato come Nome, Pixel e Dimensione*). La ragione
-     * si legge dalla scheda: nome, tipo, pixel e peso sono le quattro righe che **qualunque**
-     * file porta, e una scheda che non dicesse di che cosa si tratta lascerebbe il nome a
-     * indovinarlo dal suffisso.
-     */
+    /* Bloccato come nome, pixel e peso, su richiesta dell'utente (voce `riordino-scorre`). */
     KIND("kind", R.string.facts_kind, always = true),
     PIXELS("pixels", R.string.facts_pixels, always = true),
     SIZE("size", R.string.facts_size, always = true),
@@ -126,14 +102,10 @@ enum class FactField(
 /**
  * L'ordine salvato, ricondotto a qualcosa di sensato.
  *
- * ⚠️⚠️ **I CAMPI CHE MANCANO SI AGGIUNGONO IN CODA invece di sparire**, ed è quello che
- * permette a una versione futura di aggiungere un campo senza che chi ha già riordinato la
- * lista lo perda: l'archivio di quel telefono elenca nove gettoni su dieci, e il decimo
- * compare da sé. Il contrario (mostrare solo quelli elencati) farebbe nascere ogni campo
- * nuovo **invisibile**, cioè introvabile.
- * ⚠️ **I gettoni sconosciuti si scartano**: un archivio scritto da una versione più nuova,
- * o a mano, non deve far cadere l'app.
- * ⚠️ **Il nome torna sempre in testa**, anche se l'archivio dicesse altro.
+ * ⚠️ **I campi che mancano si aggiungono in coda**: così un campo nuovo compare anche a chi ha già
+ * riordinato la lista, invece di nascere invisibile.
+ * I gettoni sconosciuti si scartano: un archivio scritto da una versione più nuova, o a mano, non
+ * deve far andare in errore l'app. Il nome torna sempre in testa.
  */
 fun factOrderOf(tokens: List<String>): List<FactField> {
     val known = tokens.mapNotNull { t -> FactField.entries.firstOrNull { it.token == t } }
@@ -142,16 +114,9 @@ fun factOrderOf(tokens: List<String>): List<FactField> {
 }
 
 /**
- * Quanto pesa una selezione, e **nient'altro**.
- *
- * ⚠️⚠️ **NASCE PERCHÉ IL PESO IN TESTA ALLA SELEZIONE PASSAVA DA [factsOf], CHE CON UN FILE SOLO
- * FA MOLTO DI PIÙ** (censimento della UI del 2026-09-05, dove il rilievo è confermato). Là il
- * ritorno anticipato taglia corto quando gli indirizzi sono **più di uno**, quindi lasciava
- * passare proprio il caso singolo, cioè l'inizio di ogni selezione: per scrivere un peso si
- * leggevano anche le misure dell'immagine e tutto l'EXIF, cioè il corredo del dialogo delle
- * informazioni. Adesso chi vuole solo la somma chiede solo la somma.
- * ⚠️ **[factsOf] la chiama**, invece di rifare il giro: il peso di una selezione è una cosa sola,
- * e due somme scritte in due posti divergono al primo ripiego che cambia.
+ * Quanto pesa una selezione, e nient'altro: il peso in testa alla selezione la chiama al posto di
+ * [factsOf], che con un file solo legge anche misure ed EXIF. [factsOf] la chiama a sua volta,
+ * così la somma è scritta in un posto solo.
  */
 suspend fun weightOf(context: Context, uris: List<Uri>): Long = withContext(Dispatchers.IO) {
     var bytes = 0L
@@ -162,24 +127,14 @@ suspend fun weightOf(context: Context, uris: List<Uri>): Long = withContext(Disp
 /**
  * I dati di una selezione, letti dal disco.
  *
- * ⚠️⚠️ **LE MISURE SI LEGGONO DALLE INTESTAZIONI E NON DECODIFICANDO**
- * (`inJustDecodeBounds`), ed è la differenza fra leggere qualche decina di byte e
- * ricostruire trenta megapixel per scrivere '8160 x 6120'. Vale anche per i formati che
- * il MediaStore non descrive, quindi non serve un secondo ramo per loro.
- * ⚠️ **Il peso invece NON si prende dal decodificatore**: quello dice quanto misura
- * l'immagine, non quanto pesa il file. Per un `file://` lo dice il filesystem, per tutto
- * il resto la colonna che ogni provider serve.
+ * Le misure si leggono dalle intestazioni (`inJustDecodeBounds`), senza decodificare i pixel.
+ * Il peso viene dal filesystem per un `file://` e dalla colonna del provider per il resto.
  *
- * ⚠️⚠️ **SI PASSA DAL FILE VERO QUANDO C'È, e non è un'ottimizzazione**: da Android 10 il
- * MediaStore **censura la posizione** nei dati EXIF che serve attraverso un `content://`, a
- * meno di chiedere un permesso in più. AIV GitHub ha l'accesso a tutti i file, quindi legge il
- * percorso e apre il file: le coordinate arrivano intere e senza chiedere niente.
- * ⚠️⚠️ **AIV PLAY CHIEDE QUEL PERMESSO IN PIÙ, DALLA `6.27`** (sua scelta R1, rilievo C21 della
- * revisione della 6.25): fino alla `6.26` la nota qui sopra valeva per le due varianti, e in AIV
- * Play la riga della posizione non compariva per le foto della fotocamera. Col permesso l'EXIF si
- * legge dall'originale ([withPlace]).
- * ⚠️ **Per una fotografia senza percorso** (una chat, il web) la riga della posizione
- * semplicemente non compare, che è la regola di tutta la schermata e non un caso speciale.
+ * ⚠️ **Si passa dal file vero quando c'è**: da Android 10 il MediaStore toglie la posizione dai
+ * dati EXIF che serve con un `content://`, salvo un permesso in più. AIV GitHub apre il file;
+ * AIV Play chiede quel permesso (scelta R1 dell'utente, rilievo C21) e legge l'EXIF
+ * dall'originale ([withPlace]). Per un'immagine senza percorso né permesso la riga della
+ * posizione non compare.
  */
 suspend fun factsOf(context: Context, uris: List<Uri>): Facts = withContext(Dispatchers.IO) {
     val bytes = weightOf(context, uris)
@@ -198,14 +153,13 @@ suspend fun factsOf(context: Context, uris: List<Uri>): Facts = withContext(Disp
         if (file != null) ExifInterface(file)
         else streamOf(context, withPlace(context, uri))?.use { ExifInterface(it) }
     }.recoverCatching {
-        // ⚠️ The original refused (a permission withdrawn in the meantime): the EXIF without the
-        // place is still worth the other rows.
+        // L'originale è stato rifiutato (un permesso tolto nel frattempo): l'EXIF senza la
+        // posizione vale comunque per le altre righe.
         streamOf(context, uri)?.use { ExifInterface(it) }
     }.getOrNull()
 
-    // ⚠️ Le misure si girano come l'EXIF dice, o una foto verticale scattata col telefono
-    // di lato si annuncerebbe orizzontale: il file la conserva com'è uscita dal sensore, e
-    // il numero che interessa è quello di come la si vede.
+    // ⚠️ Le misure si girano come dice l'EXIF: il file conserva l'immagine come l'ha letta il
+    // sensore, e contano le misure di come la si vede.
     val turned = exif?.getAttributeInt(
         ExifInterface.TAG_ORIENTATION,
         ExifInterface.ORIENTATION_NORMAL
@@ -216,17 +170,10 @@ suspend fun factsOf(context: Context, uris: List<Uri>): Facts = withContext(Disp
         ExifInterface.ORIENTATION_TRANSVERSE
     )
     /*
-     * ⚠️⚠️ **SU UN AVIF `BitmapFactory` NON DICE NEMMENO LE MISURE**, e non è un caso
-     * limite: passa dallo stesso decodificatore di sistema che sui file veri si rifiuta
-     * (vedi [Avif]), quindi `inJustDecodeBounds` torna a mani vuote e la scheda scriverebbe
-     * '?' proprio sul formato che la `1.26` ha aggiunto. Le misure le dice l'intestazione,
-     * e [Avif.dimensions] gira già i lati se il file dichiara una rotazione.
-     * ⚠️⚠️ **E SU UN SVG NON LE DICE PER UN'ALTRA RAGIONE (1.31)**: là il decodificatore si
-     * rifiuta, qui il formato non lo conosce nessuno, perché `BitmapFactory` legge i formati
-     * a pixel. Il sintomo però è lo stesso, cioè `inJustDecodeBounds` a mani vuote, e per
-     * questo le due letture stanno nello stesso posto.
-     * ⚠️ **Si legge SOLO quando l'altra strada ha fallito**: su un JPEG questa riga non
-     * apre niente.
+     * ⚠️ **Su un AVIF e su un SVG `BitmapFactory` non dà le misure**: sul primo passa dal
+     * decodificatore di sistema che si rifiuta (vedi [Avif]), il secondo non è un formato a
+     * pixel. Le misure le dà l'intestazione ([Avif.dimensions] gira già i lati) o il documento
+     * SVG. Si legge solo quando l'altra strada ha fallito.
      */
     val fallback = if (bounds.outWidth <= 0 || bounds.outHeight <= 0) {
         runCatching {
@@ -237,11 +184,8 @@ suspend fun factsOf(context: Context, uris: List<Uri>): Facts = withContext(Disp
                 when {
                     Avif.looksLike(head2) -> Avif.dimensions(head2)
                     /*
-                     * ⚠️⚠️ **QUI SI RIAPRE IL FILE, e non si può fare altrimenti**: un SVG va
-                     * letto **intero** per sapere quanto è grande, perché è un documento XML e
-                     * non un'intestazione, e questo stream è già stato consumato per i primi
-                     * 128 kilobyte. ⚠️ Il costo è quello di un file di testo di pochi
-                     * kilobyte, non quello di una decodifica: non si disegna niente.
+                     * Qui si riapre il file: un SVG va letto intero per sapere quanto è grande,
+                     * e questo flusso ha già consumato i primi 128 kB. Non si disegna niente.
                      */
                     Svg.looksLike(head2) -> streamOf(context, uri)
                         ?.use { Svg.dimensions(it) }
@@ -271,13 +215,11 @@ suspend fun factsOf(context: Context, uris: List<Uri>): Facts = withContext(Disp
                 streamOf(context, uri)?.use { encodingOf(it) }
             }.getOrNull(),
             /*
-             * ⚠️⚠️ **TRE APERTURE E NON UNA, ed è una scelta e non una svista**: ogni lettore
-             * cammina il file in avanti e a distanze diverse (la codifica si ferma al primo
-             * SOF, il metodo colore arriva ai chunk, il conteggio dei fotogrammi va in fondo),
-             * quindi un flusso solo andrebbe riavvolto, e un `InputStream` di un `content://`
-             * non si riavvolge. Aprire tre volte costa tre `open` e nessuna decodifica.
-             * ⚠️ **La trasparenza di una GIF è una quarta lettura**, e solo per le GIF: là
-             * sta nei blocchi dei fotogrammi, non nell'intestazione.
+             * ⚠️ **Tre aperture, una per lettore**: ognuno legge il file in avanti fino a un
+             * punto diverso (la codifica al primo SOF, il metodo colore ai chunk, i fotogrammi
+             * fino in fondo), e un `InputStream` di un `content://` non si riavvolge.
+             * La trasparenza di una GIF è una quarta lettura, solo per le GIF: è nei blocchi
+             * dei fotogrammi, non nell'intestazione.
              */
             colours = runCatching {
                 val read = streamOf(context, uri)?.use { coloursOf(it) }
@@ -301,9 +243,8 @@ suspend fun factsOf(context: Context, uris: List<Uri>): Facts = withContext(Disp
                 ?.takeIf { it > 0 },
             latitude = place?.getOrNull(0),
             longitude = place?.getOrNull(1),
-            // ⚠️ Zero è un'altitudine legittima (il livello del mare), quindi il valore di
-            // ripiego è un numero che nessun luogo ha: senza, una foto scattata in
-            // spiaggia perderebbe la riga e una senza il dato ne guadagnerebbe una falsa.
+            // ⚠️ Zero è un'altitudine legittima (il livello del mare), quindi il ripiego è un
+            // numero che nessun luogo ha.
             altitudeM = exif?.getAltitude(NO_ALTITUDE)?.takeIf { it != NO_ALTITUDE }
         )
     )
@@ -315,20 +256,14 @@ private const val NO_ALTITUDE = -1e9
 /**
  * La data di scatto dai dati EXIF, letta dal tag e convertita a mano.
  *
- * ⚠️⚠️ **NON SI USA `ExifInterface.dateTimeOriginal`, e non è una preferenza di stile**:
- * quella proprietà è dichiarata a uso interno della libreria (`RestrictTo`), quindi lint la
- * segnala come **errore** e il rilascio non passa. Il tag invece è pubblico ed è lo stesso
- * dato.
- * ⚠️⚠️ **SI PARSA CON `Locale.US`, e questa è la trappola vera**: `SimpleDateFormat` legge
- * l'anno secondo il **calendario** della lingua del telefono, e con una lingua che non usa
- * quello gregoriano (il tailandese conta dal 543 a.C.) l'anno 2026 diventerebbe un altro,
- * in silenzio e solo su quei telefoni.
- * ⚠️ **L'EXIF scrive l'ora dell'orologio, senza fuso**: la si interpreta nel fuso del
- * telefono, che è anche quello in cui verrà scritta, quindi la riga mostra esattamente
- * l'ora che ha scritto la fotocamera. Un fuso diverso da quello dello scatto sposterebbe
- * l'istante ma non la stringa, ed è il compromesso che fanno tutte le gallerie.
- * ⚠️ **`DATETIME` come ripiego di `DATETIME_ORIGINAL`**: qualche apparecchio scrive solo il
- * secondo, e una data giusta vale più di una riga assente.
+ * ⚠️ **Non si usa `ExifInterface.dateTimeOriginal`**: è dichiarata a uso interno della libreria
+ * (`RestrictTo`), e lint la segnala come errore. Il tag è pubblico ed è lo stesso dato.
+ * ⚠️ **Si legge con `Locale.US`**: `SimpleDateFormat` legge l'anno secondo il calendario della
+ * lingua del telefono, e col tailandese (che conta dal 543 a.C.) il 2026 diventerebbe un altro
+ * anno.
+ * L'EXIF scrive l'ora dell'orologio senza fuso: la si interpreta nel fuso del telefono, che è
+ * anche quello in cui si mostra, quindi la riga riporta l'ora scritta dalla fotocamera.
+ * `DATETIME` fa da ripiego a `DATETIME_ORIGINAL`, perché qualche apparecchio scrive solo il primo.
  */
 private fun exifMoment(exif: ExifInterface?): Long? {
     val text = exif?.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL)
@@ -343,21 +278,13 @@ private fun exifMoment(exif: ExifInterface?): Long? {
 private const val EXIF_PATTERN = "yyyy:MM:dd HH:mm:ss"
 
 /**
- * Il flusso dei byte del file che sta a [uri], da qualunque parte arrivi.
+ * Il flusso dei byte del file in [uri], da qualunque parte arrivi.
  *
- * ⚠️⚠️ **NASCE PERCHÉ SU UN'IMMAGINE DI RETE QUESTA SCHEDA NON SAPEVA NIENTE, dalla 1.45**
- * (segnalazione dell'utente, 2026-09-03, sull'immagine di Pexels: *si apre perfettamente ma
- * poi mi dà info estremamente scarne e probabilmente errate (JPG, 0 byte)*). Il difetto era
- * uno solo ripetuto **otto volte**: ogni lettura di questo file passava dal
- * `ContentResolver`, che su uno `https` va in errore, e ogni `runCatching` intorno lo
- * nascondeva. Risultato: nessuna misura, nessuna codifica, nessun EXIF, e i due campi che non
- * passavano da qui (peso e tipo) presi da fonti cieche.
- * ⚠️ **I byte remoti non si riscaricano**: li ha messi in cache `ImageSource.loadRemote`
- * mentre apriva l'immagine. Se non ci sono ancora, si torna `null` e la scheda dice 'non c'è',
- * che è la sua risposta normale a un dato che manca.
- * ⚠️ **Non si riavvolge, e va bene così**: chi legge qui apre e chiude, e le note su 'tre
- * aperture e non una' spiegano perché. Un `ByteArrayInputStream` per volta costa una copia del
- * riferimento, non dei byte.
+ * ⚠️ **Ogni lettura di questo file passa da qui**: il `ContentResolver` su un `https` va in
+ * errore, e ogni `runCatching` intorno lo nasconderebbe, lasciando la scheda vuota.
+ * I byte remoti non si riscaricano: li ha messi in cache `ImageSource.loadRemote` aprendo
+ * l'immagine. Se non ci sono ancora si restituisce `null`, e la scheda tratta il dato come
+ * assente. Ogni lettore apre e chiude il suo flusso (vedi le tre aperture in [factsOf]).
  */
 private fun streamOf(context: Context, uri: Uri): java.io.InputStream? =
     when (uri.scheme?.lowercase()) {
@@ -366,11 +293,11 @@ private fun streamOf(context: Context, uri: Uri): java.io.InputStream? =
     }
 
 /**
- * L'indirizzo da cui l'EXIF di una foto del MediaStore arriva con le coordinate, dalla `6.27`.
+ * L'indirizzo da cui l'EXIF di un'immagine del MediaStore arriva con le coordinate.
  *
- * ⚠️ `MediaStore.setRequireOriginal` chiede al sistema i byte senza la censura della posizione, e
- * si può chiedere solo col permesso della posizione ([Store.seesLocation]): senza, aprire quel
- * indirizzo va in errore. Da Android 10, dove la censura comincia.
+ * ⚠️ `MediaStore.setRequireOriginal` chiede i byte con la posizione, e si può chiedere solo col
+ * permesso della posizione ([Store.seesLocation]): senza, aprire quell'indirizzo va in errore.
+ * Vale da Android 10, dove il sistema comincia a togliere la posizione.
  */
 internal fun withPlace(context: Context, uri: Uri): Uri =
     if (uri.authority == MediaStore.AUTHORITY && Store.seesLocation(context) &&
@@ -380,24 +307,18 @@ internal fun withPlace(context: Context, uri: Uri): Uri =
 /**
  * Quanti byte pesa il file dietro un indirizzo, o `0` se non si sa.
  *
- * ⚠️ **Condivisa dalla `1.82`**: la usa anche il registro dei download del visualizzatore, dove
- * i byte sono metà della firma di un file già scaricato (vedi [DownloadLog]). Due letture della
- * stessa misura darebbero due numeri il giorno che una delle due impara un caso in più.
+ * La usa anche il registro dei download del visualizzatore, dove il peso è metà della firma di un
+ * file già scaricato ([DownloadLog]): una lettura sola per la stessa misura.
  */
 internal fun sizeOf(context: Context, uri: Uri): Long {
     /*
-     * ⚠️⚠️ **UNA MEMORIA PER INDIRIZZO, DALLA `1.81`, e prima ogni assestamento della selezione
-     * pagava una query PER FILE** (censimento della UI del 2026-09-05). Il peso in testa alla
-     * selezione si rifà a ogni cambiamento, quindi scegliendo trenta immagini una per una si
-     * interrogava il `ContentResolver` centinaia di volte per numeri che non cambiano. Le altre
-     * due letture dello stesso genere ce l'avevano già (`Names` e `Videos`), e questa no.
-     * ⚠️⚠️ **Chi riscrive un file lo dimentica** ([forgetSize], chiamata da `Thumbs.forget`,
-     * dalla `6.26`, rilievo C20 della revisione della 6.25): fino alla `6.25` la mappa non si
-     * svuotava mai, quindi dopo un salvataggio sopra l'originale la scheda `Info` e la selezione
-     * dicevano il peso di prima finché l'app restava aperta.
-     * ⚠️ **Lo zero non si ricorda**, ed è la clausola che conta: zero è anche il ripiego di una
-     * lettura andata male (un indirizzo di rete non ancora in cache), e memorizzarlo
-     * trasformerebbe un errore di un attimo in un peso sbagliato per sempre.
+     * Una memoria per indirizzo: il peso in testa alla selezione si rifà a ogni cambiamento, e
+     * senza memoria interrogherebbe il `ContentResolver` centinaia di volte.
+     * ⚠️ **Chi riscrive un file lo dimentica** ([forgetSize], chiamata da `Thumbs.forget`;
+     * rilievo C20): altrimenti dopo un salvataggio sopra l'originale la scheda `Info` e la
+     * selezione direbbero il peso di prima.
+     * ⚠️ **Lo zero non si ricorda**: è anche il ripiego di una lettura andata male (un indirizzo
+     * di rete non ancora in cache), e diventerebbe un peso sbagliato per sempre.
      */
     pesi.get(uri)?.let { return it }
     val letto = readSize(context, uri)
@@ -413,8 +334,8 @@ internal fun forgetSize(uri: Uri) {
 /**
  * I pesi già letti, per indirizzo. Vedi la nota su [sizeOf].
  *
- * ⚠️ **Con un tetto, dalla `6.26`** (rilievo C20): senza, cresceva di un indirizzo per ogni file
- * mai pesato. Quattromila coprono la selezione di una cartella grande; un peso uscito si rilegge.
+ * Con un tetto (rilievo C20), o crescerebbe di un indirizzo per ogni file mai pesato. Quattromila
+ * coprono la selezione di una cartella grande; un peso uscito si rilegge.
  */
 private val pesi = LruCache<Uri, Long>(4096)
 
@@ -423,10 +344,8 @@ private fun readSize(context: Context, uri: Uri): Long {
         return uri.path?.let { runCatching { File(it).length() }.getOrNull() } ?: 0L
     }
     /*
-     * ⚠️⚠️ **UN INDIRIZZO DI RETE NON HA UNA RIGA NEL `ContentResolver`, ED È IL '0 byte' CHE
-     * L'UTENTE HA VISTO**: la query qui sotto falliva e il ripiego era zero, cioè un peso
-     * dichiarato e falso invece di un peso mancante. Il numero vero è quello dei byte
-     * scaricati, che la cache ha già.
+     * ⚠️ Un indirizzo di rete non ha una riga nel `ContentResolver`, e la query darebbe zero: il
+     * peso vero è quello dei byte scaricati, che la cache ha già.
      */
     if (uri.scheme?.lowercase() in setOf("http", "https")) {
         return RemoteCache.read(context, uri)?.size?.toLong() ?: 0L
@@ -454,28 +373,17 @@ private fun nameOf(context: Context, uri: Uri): String? {
 /**
  * Il tipo MIME, chiesto prima a chi serve il file e poi all'estensione.
  *
- * ⚠️ **L'estensione è il ripiego e non la prima scelta**: un `content://` può servire un
- * JPEG con un nome che finisce in `.png`, e in quel caso il provider dice la verità e il
- * nome no. Ma per un `file://` il provider non c'è, e allora l'estensione è tutto quello
- * che si ha. ⚠️ **La codifica vera la dice [encodingOf]**, che guarda i byte: quando le due
- * cose non concordano, quella ha ragione.
+ * L'estensione è il ripiego: un `content://` può servire un JPEG con un nome in `.png`, e là il
+ * provider ha ragione; per un `file://` il provider non c'è. La codifica vera la dice
+ * [encodingOf], che guarda i byte.
  */
 private fun mimeOf(context: Context, uri: Uri): String? {
     runCatching { context.contentResolver.getType(uri) }.getOrNull()?.let { return it }
     /*
-     * ⚠️⚠️ **SU UN INDIRIZZO DI RETE SI GUARDANO I BYTE PRIMA DEL NOME, dalla 1.45, E IL CASO
-     * CHE L'HA FATTO NASCERE È ISTRUTTIVO** (segnalazione dell'utente, 2026-09-03:
-     * *apparentemente un JPG, si apre perfettamente ma AIV mi dice che è un AVIF*). AIV
-     * diceva **la verità**: quell'indirizzo finisce in `.jpeg`, ma Pexels sceglie il formato
-     * in base all'header `Accept`, e AIV lo chiede da browser (`image/avif` in testa), quindi
-     * riceve un AVIF per davvero. Misurato: senza `Accept` quel percorso serve `image/jpeg`
-     * e 1.834.818 byte, con l'`Accept` di AIV serve `image/avif` e 1.000.893 byte.
-     * ⚠️ **Quindi il difetto non era il tipo dichiarato nella barra ma quello scritto QUI**:
-     * là il tipo arriva dalla risposta HTTP, qui arrivava dall'estensione, e i due si
-     * contraddicevano nella stessa schermata. La causa vera non è un doppio `.jpeg` nel
-     * percorso, come sembrava: è la negoziazione del contenuto.
-     * ⚠️ **Il ripiego resta l'estensione**, per i file locali senza provider (`file://`) e per
-     * quello che nessuna firma riconosce.
+     * ⚠️ **Su un indirizzo di rete si guardano i byte prima del nome**: un server può scegliere il
+     * formato secondo l'header `Accept`, e AIV chiede come un browser (`image/avif` in testa),
+     * quindi un indirizzo in `.jpeg` può arrivare come AVIF. Il tipo della barra viene dalla
+     * risposta HTTP, e questa riga deve dire lo stesso.
      */
     if (uri.scheme?.lowercase() in setOf("http", "https")) {
         val head = runCatching {
@@ -495,18 +403,10 @@ private fun mimeOf(context: Context, uri: Uri): String? {
 /**
  * Il tipo che i primi byte di un file dichiarano, e `null` se non lo dicono.
  *
- * ⚠️⚠️ **NON REIMPLEMENTA I DUE RICONOSCITORI CHE ESISTONO GIÀ**: AVIF e SVG hanno il loro,
- * in `Avif` e in `Svg`, e sono più che una firma (il primo legge i marchi del contenitore
- * ISO-BMFF, il secondo tollera una dichiarazione XML lunga in testa). Riscriverli qui vorrebbe
- * dire due risposte possibili alla stessa domanda. Qui si aggiungono solo le firme che nessuno
- * possiede, e sono quattro righe di magia in chiaro.
- * ⚠️ **L'ordine conta per una coppia sola**: `Avif.looksLike` va provato **prima** del ripiego
- * sull'estensione ma è indifferente rispetto alle firme qui sotto, perché un contenitore
- * ISO-BMFF comincia con la lunghezza di un box e non può collidere con `BM`, `GIF8`, `RIFF`
- * né coi due byte di un JPEG.
- * ⚠️ **Il TIFF c'è benché l'app non lo sappia aprire**: questa funzione risponde 'che cosa
- * sono questi byte', non 'so aprirli', e un file che si dichiara per quello che è dà un
- * messaggio d'errore migliore di un file senza nome di formato.
+ * AVIF e SVG usano i riconoscitori di `Avif` e `Svg`, che sono più di una firma (marchi del
+ * contenitore, dichiarazione XML in testa): qui si aggiungono solo le firme degli altri formati.
+ * Il TIFF c'è anche se l'app non lo apre: la funzione dice che cosa sono questi byte, e un file
+ * col suo formato dà un messaggio d'errore migliore.
  */
 private fun sniffMime(head: ByteArray): String? {
     fun ascii(at: Int, text: String): Boolean =
@@ -530,22 +430,11 @@ private fun sniffMime(head: ByteArray): String? {
 /**
  * Il nome del formato ricavato da un tipo MIME: `image/svg+xml` diventa `SVG`.
  *
- * ⚠️⚠️ **ESISTE PERCHÉ LA STESSA REGOLA VIVEVA IN UN POSTO SOLO SU DUE, e il posto sbagliato**
- * (riscontro `info-svg` della `1.41`: *vedo ancora la vecchia dicitura con XML*). Nella `1.40`
- * il taglio del suffisso era entrato nel **pannello** delle informazioni, e la **barra delle
- * info** del visualizzatore ha continuato a scrivere `SVG+XML` per due versioni, perché
- * calcolava il formato per conto suo. Adesso il calcolo è qui e i due posti lo chiamano: è la
- * stessa cura di [InfoSideRow], e per la stessa ragione.
- *
- * ⚠️ **Il suffisso dopo il `+` non è il formato, è la SINTASSI in cui è scritto** (RFC 6839):
- * chi legge quella riga vuole sapere che immagine ha davanti, e `+xml` risponde a un'altra
- * domanda. ⚠️ **Fra i tipi che l'app dichiara è l'unico che ne ha uno** (misurato sul manifesto
- * e sui sorgenti: apng, avif, bmp, gif, jpeg, png, svg+xml, tiff, webp), quindi oggi il taglio
- * riguarda un formato solo; vale lo stesso per tutti, perché un `+json` o un `+zip` di domani
- * avrebbero lo stesso difetto.
- *
- * ⚠️ **Maiuscolo INVARIANTE e non della lingua del telefono**: un tipo MIME è ASCII e non è una
- * parola, e la regola turca della `i` cambierebbe `image/tiff` in `TİFF`.
+ * La chiamano tutti e due i posti che scrivono il formato, il pannello delle informazioni e la
+ * barra delle informazioni del visualizzatore, perché dicano la stessa cosa (voce `info-svg`).
+ * Il suffisso dopo il `+` è la sintassi in cui il formato è scritto (RFC 6839), non il formato.
+ * ⚠️ **Maiuscolo invariante, non della lingua del telefono**: la regola turca della `i`
+ * cambierebbe `image/tiff` in `TİFF`.
  */
 fun kindOf(mime: String?): String? = mime
     ?.substringAfterLast('/')
@@ -556,9 +445,8 @@ fun kindOf(mime: String?): String? = mime
 /**
  * La data di scatto secondo il MediaStore, quando l'EXIF non ce l'ha.
  *
- * ⚠️ Serve davvero e non è un doppione: le immagini scaricate spesso perdono l'EXIF, e il
- * MediaStore la ricava anche dal **nome** del file (`IMG_20260830_154212`), che è
- * un'informazione vera che altrimenti si butterebbe.
+ * Le immagini scaricate spesso perdono l'EXIF, e il MediaStore la ricava anche dal nome del file
+ * (`IMG_20260830_154212`).
  */
 private fun takenFromStore(context: Context, uri: Uri): Long? = runCatching {
     val column = MediaStore.Images.Media.DATE_TAKEN
@@ -571,9 +459,8 @@ private fun takenFromStore(context: Context, uri: Uri): Long? = runCatching {
 /**
  * L'ultima modifica secondo il MediaStore.
  *
- * ⚠️⚠️ **QUELLA COLONNA È IN SECONDI, non in millisecondi**, al contrario di `DATE_TAKEN`
- * che sta accanto a lei: prenderla per millisecondi darebbe il 1970 su ogni fotografia, ed
- * è lo scambio che si nota solo guardando la data stampata.
+ * ⚠️ **Quella colonna è in secondi**, al contrario di `DATE_TAKEN`, che è in millisecondi: letta
+ * come millisecondi darebbe il 1970 su ogni immagine.
  */
 private fun modifiedFromStore(context: Context, uri: Uri): Long? = runCatching {
     val column = MediaStore.Images.Media.DATE_MODIFIED
