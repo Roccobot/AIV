@@ -63,8 +63,9 @@ import kotlinx.coroutines.withContext
  * arriva soltanto il risultato.
  *
  * ⚠️⚠️ **OGNI GIRO CREA UN INVOLUCRO NUOVO, ed è la trappola di questo file**: i due lettori
- * **riusano lo stesso `Bitmap`** per non allocare venti tele al secondo, quindi i pixel
- * cambiano ma l'oggetto resta quello. Se si tenesse lo stesso [ImageBitmap], Compose non
+ * **riusano due `Bitmap` a turno** per non allocare venti tele al secondo (dalla `6.28`, prima
+ * uno solo), quindi un fotogramma può arrivare sullo stesso oggetto di due giri fa, coi pixel
+ * cambiati. Se si tenesse lo stesso [ImageBitmap], Compose non
  * vedrebbe nessun cambiamento e l'animazione starebbe **ferma pur girando**. `asImageBitmap()`
  * costruisce un involucro nuovo a ogni chiamata, ed è per questo che si chiama a ogni
  * fotogramma invece di ricordarlo.

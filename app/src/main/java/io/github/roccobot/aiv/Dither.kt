@@ -264,6 +264,7 @@ internal object DrawWork {
     var gradients = 0
     var glass = 0
     var meshes = 0
+    var canvases = 0
 }
 
 /** Il programma del rumore, oppure `null` sotto Android 13, dove `RuntimeShader` non c'è. */
