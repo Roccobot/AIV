@@ -952,7 +952,32 @@ quindi le due app si installano una accanto all'altra.
   pagina `Cestino` mostra quello di sistema, voce qui sotto), la vista 'Cartelle di sistema' con
   'Nuova cartella', la rinomina di una cartella, la scelta di un'app esterna per 'Modifica', la copia di sicurezza prima di
   sovrascrivere e 'Pulisci' degli SVG. La scaletta per riportarle, una per rilascio con MediaStore,
-  vive nel brief.
+  vive nel brief (`Pareggio`).
+  - **Le due politiche di Google che decidono** (lette il 2026-10-10): quella su
+    `MANAGE_EXTERNAL_STORAGE` (<https://support.google.com/googleplay/android-developer/answer/10467955>)
+    e quella su foto e video, che ammette le gallerie
+    (<https://support.google.com/googleplay/android-developer/answer/14115180>). Un account
+    personale nuovo fa un test chiuso con 12 tester per 14 giorni
+    (<https://support.google.com/googleplay/android-developer/answer/14151465>).
+  - **L'imbuto è `FileJobDialogs` in `FileOps.kt`**: nessuna di quelle funzioni controlla
+    `Folder.granted()`, quindi una funzione riportata in AIV Play passa da lì.
+  - **Non verificato, e da guardare prima della serie**: dove una galleria può spostare le
+    immagini col MediaStore (si pensa solo `DCIM` e `Pictures`, per i video anche `Movies`).
+    Per questo 'Cartelle di sistema' e copia o sposta fuori da quelle cartelle potrebbero non
+    tornare mai in AIV Play.
+  - **Le scelte A1 e B1 dello Store** (2026-10-11): la parte dello Store si apre in parallelo
+    alle funzioni di AIV Play, e la chiave di caricamento su Google Play è quella che firma già
+    AIV, senza secret nuovi.
+
+### 🚫 Le cose che lui ha escluso, e che non si ripropongono
+
+Travasate dal brief il 2026-10-16 (`Tagliando`), dove vivevano senza una casa durevole.
+
+- **Le misure relative (rem/em) per l'app**: scartate il 2026-10-03, e tolte anche dai
+  'Prossimi passi' del DF.
+- **Scegliere e spostare un elemento con un solo trascinamento** (nota D del giro 4.90: *non
+  facciamola per ora*).
+- **Lo sfogliatore Web**, abbandonato (`4.64-06`).
 - ⚠️⚠️ **'Elimina' è tornato in AIV Play dalla `5.20`, attraverso il MediaStore** (sue scelte A1 e
   B1, 2026-10-11; `MediaDelete.kt`):
   - **da Android 11 sposta nel cestino di sistema** (`createTrashRequest`), dove il sistema tiene
