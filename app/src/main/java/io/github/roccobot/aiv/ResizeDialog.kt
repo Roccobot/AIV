@@ -11,9 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PushPin
-import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -233,7 +230,7 @@ fun ResizeDialog(
                 commands = if (!known) emptyList() else listOf(
                     TitleCommand(
                         text = stringResource(R.string.look_resize_default),
-                        glyph = Icons.Filled.PushPin,
+                        glyph = Glyphs.Material.PushPin,
                         onTap = { plan?.let(onDefault) },
                         enabled = plan != null &&
                             Resize.portable(plan.mode) &&

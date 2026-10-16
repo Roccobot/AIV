@@ -4,8 +4,6 @@ import android.content.Context
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -72,7 +70,9 @@ class MenuInferioreTest {
      */
     @Test
     fun `a sinistra l'ordine e il rovescio, viste comprese`() {
-        fun e(name: String) = PillEntry(Icons.Default.Close, name) {}
+        // Qui conta l'ordine delle etichette, non il disegno: il cursore di testo si legge senza
+        // una composizione, i glifi dei file no.
+        fun e(name: String) = PillEntry(Glyphs.TextCursor, name) {}
         val destra = listOf("Vista 1", "Vista 2", "Nascoste", "Cerca", "Indirizzo", "Cestino", "Impostazioni").map { e(it) }
         assertEquals(
             listOf("Impostazioni", "Cestino", "Indirizzo", "Cerca", "Nascoste", "Vista 2", "Vista 1"),

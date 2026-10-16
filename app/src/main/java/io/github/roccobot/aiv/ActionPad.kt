@@ -26,15 +26,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ControlPointDuplicate
-import androidx.compose.material.icons.filled.Flip
-import androidx.compose.material.icons.filled.FlipToBack
-import androidx.compose.material.icons.filled.FlipToFront
-import androidx.compose.material.icons.filled.FormatPaint
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -92,7 +83,6 @@ import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.zIndex
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import kotlinx.coroutines.launch
@@ -764,11 +754,11 @@ fun PadKey.label(): Int = when (this) {
 fun PadKey.glyph(): ImageVector = when (this) {
     PadKey.COPY -> Glyphs.FolderPair
     PadKey.MOVE -> Glyphs.FolderPairDashed
-    PadKey.SHARE -> Icons.Default.Share
+    PadKey.SHARE -> Glyphs.Material.Share
     PadKey.RENAME -> Glyphs.TextCursor
     PadKey.DELETE -> Glyphs.PickDelete
-    PadKey.INFO -> Icons.Outlined.Info
-    PadKey.LIST -> Icons.AutoMirrored.Outlined.FormatListBulleted
+    PadKey.INFO -> Glyphs.Material.InfoOutlined
+    PadKey.LIST -> Glyphs.Material.FormatListBulletedOutlined
     PadKey.ALL -> Glyphs.PickAll
     PadKey.NONE -> Glyphs.PickNone
     PadKey.INVERT -> Glyphs.PickInvert
@@ -778,7 +768,7 @@ fun PadKey.glyph(): ImageVector = when (this) {
     PadKey.TURN_RIGHT -> Glyphs.TurnRight
     PadKey.CENTRE_ACROSS -> Glyphs.AlignAcross
     PadKey.CENTRE_DOWN -> Glyphs.AlignDown
-    PadKey.FLIP -> Icons.Filled.Flip
+    PadKey.FLIP -> Glyphs.Material.Flip
     PadKey.ORIGINAL -> Glyphs.EditReset
     PadKey.UNDO -> Glyphs.EditUndo
     PadKey.REDO -> Glyphs.EditRedo
@@ -787,10 +777,10 @@ fun PadKey.glyph(): ImageVector = when (this) {
     PadKey.MOD_CROP, PadKey.MOD_GEOMETRY, PadKey.MOD_LIGHT, PadKey.MOD_COLOUR,
     PadKey.MOD_MIX, PadKey.MOD_TONE, PadKey.MOD_DETAIL, PadKey.MOD_EFFECTS,
     PadKey.MOD_PRESET, PadKey.MOD_DRAW -> modGlyph(this)
-    PadKey.DRAW_RAISE -> Icons.Filled.FlipToFront
-    PadKey.DRAW_STYLE -> Icons.Filled.FormatPaint
-    PadKey.DRAW_DUPLICATE -> Icons.Filled.ControlPointDuplicate
-    PadKey.DRAW_LOWER -> Icons.Filled.FlipToBack
+    PadKey.DRAW_RAISE -> Glyphs.Material.FlipToFront
+    PadKey.DRAW_STYLE -> Glyphs.Material.FormatPaint
+    PadKey.DRAW_DUPLICATE -> Glyphs.Material.ControlPointDuplicate
+    PadKey.DRAW_LOWER -> Glyphs.Material.FlipToBack
     PadKey.DRAW_TURN -> Glyphs.TurnRight
 }
 
@@ -1069,7 +1059,7 @@ private const val VIA_MS = 100
  * Il lato della × che prende il posto del glifo, e quanto zoom fanno i due simboli.
  *
  * La × è più piccola del glifo dell'app, come ha chiesto l'utente, un gradino sotto [PAD_ICON].
- * È `Icons.Default.Close` (`Rules.md` § '🖌️ Come entra un disegno').
+ * È la croce di Material, [Glyphs.Material.Close] (`Rules.md` § '🖌️ Come entra un disegno').
  * Lo zoom è una frazione e non una misura: il glifo dell'app può non essere quadrato (il
  * marchio), e una misura lo schiaccerebbe. Chi entra parte piccolo e chi esce finisce piccolo,
  * quindi a metà strada i due simboli hanno la stessa misura.
@@ -1357,7 +1347,7 @@ fun TapHoldFab(
                 }
             ) {
                 Icon(
-                    imageVector = Icons.Default.Close,
+                    imageVector = Glyphs.Material.Close,
                     // Muta: a parlare è il glifo dell'app.
                     contentDescription = null,
                     modifier = Modifier.size(CHIUDI_LATO)

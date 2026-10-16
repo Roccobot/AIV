@@ -20,9 +20,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -938,7 +935,7 @@ private fun PairArrow() {
             .clipToBounds()
     ) {
         Icon(
-            imageVector = Icons.Filled.ArrowDownward,
+            imageVector = Glyphs.Material.ArrowDownward,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.layout { measurable, constraints ->
@@ -983,7 +980,7 @@ private fun Between(content: @Composable BoxScope.() -> Unit) {
 @Composable
 private fun PairSkip() {
     Icon(
-        imageVector = Icons.Filled.MoreHoriz,
+        imageVector = Glyphs.Material.MoreHoriz,
         contentDescription = null,
         tint = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.size(ARROW_SIZE)

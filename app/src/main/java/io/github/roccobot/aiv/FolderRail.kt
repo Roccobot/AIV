@@ -31,10 +31,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -317,7 +313,7 @@ fun FolderRail(
                 RailAction(
                     icon = { tint ->
                         Icon(
-                            imageVector = Icons.Default.Settings,
+                            imageVector = Glyphs.Material.Settings,
                             contentDescription = null,
                             tint = tint,
                             modifier = Modifier.size(24.dp)
@@ -420,7 +416,7 @@ fun FolderRailList(
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Folder,
+                        imageVector = Glyphs.Material.Folder,
                         contentDescription = null,
                         tint = when {
                             colour == FolderColour.NONE ->
@@ -571,7 +567,7 @@ private fun RailSearch(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Icon(
-            imageVector = Icons.Default.Search,
+            imageVector = Glyphs.Material.Search,
             contentDescription = stringResource(R.string.hub_search),
             tint = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.size(28.dp)

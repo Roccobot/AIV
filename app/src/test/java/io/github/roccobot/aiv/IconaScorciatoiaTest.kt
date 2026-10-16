@@ -1,8 +1,6 @@
 package io.github.roccobot.aiv
 
 import android.app.Application
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Folder
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.ColorUtils
 import androidx.test.core.app.ApplicationProvider
@@ -32,7 +30,7 @@ class IconaScorciatoiaTest {
      */
     @Test
     fun `il glifo copre il centro sul fondo chiaro`() {
-        val icona = Shortcuts.iconBitmap(app, Icons.Filled.Folder)
+        val icona = Shortcuts.iconBitmap(app, Shortcuts.glyph(app, R.drawable.ic_m_folder))
         val centro = icona.width / 2
         assertEquals(app.getColor(R.color.launcher_background), icona.getPixel(centro, centro))
         assertEquals(app.getColor(R.color.launcher_foreground), icona.getPixel(1, 1))

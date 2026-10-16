@@ -233,12 +233,28 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   glifi dell'allineamento restano 800x800, perché riscalarli vorrebbe dire mille arrotondamenti e
   un disegno non più confrontabile col file di partenza. `android:width` e `android:height` dicono
   la misura, il viewport le unità; il verificatore riporta il loro rapporto e non lo giudica.
+- ⚠️⚠️ **I glifi di Material vivono in `res/drawable/ic_m_<nome>.xml` dalla 6.30, e la libreria non
+  c'è più** (scelta H1a dell'utente): `material-icons-extended` era ferma alla 1.7.8 dal febbraio
+  2025 e pesava 35,7 MB. Ogni glifo che l'app usava è entrato col disegno identico, il commento
+  `<!-- Material: Icons.<stile>.<nome> 1.7.8 -->` in testa, e si chiama da `Glyphs.Material`.
+  - **Come sono stati portati**: il tracciato ricostruito dalle chiamate a `PathBuilder` della
+    libreria, in ordine, riscritto in coordinate assolute coi comandi per esteso, e reso a 240px
+    accanto alla libreria, da sinistra a destra e da destra a sinistra: zero pixel diversi su tutti.
+    Le icone `AutoMirrored` di Material dichiarano `android:autoMirrored`.
+  - ⚠️ **Il punto corrente si somma in decimale, ma si scrive il decimale solo se torna lo stesso
+    `Float`**: chi disegna i nodi relativi somma in virgola mobile a 32 bit, e la somma decimale
+    pura (19,2 al posto di 19,199999) costava 31 pixel su `ic_m_settings` e 2 su `ic_m_edit`.
+    Dove le due somme non coincidono resta il numero lungo.
+  - **Un glifo di Material nuovo entra allo stesso modo**, dalla 1.7.8 scaricata a parte e non come
+    dipendenza, con la misura a zero pixel.
 - ⚠️⚠️ **Un file che arriva si misura prima contro il glifo di Material, e a zero pixel di scarto
-  vince Material**: due copie dello stesso disegno sono vietate in testa a `Glyphs.kt`.
-  - **Come si misura**: il tracciato di `Icons.Filled.<nome>` si ricostruisce dal bytecode di
-    `material-icons` (le chiamate a `PathBuilder` in ordine), si rende accanto al file a 240px e si
-    contano i pixel diversi. ⚠️ Confrontare le due `d` non serve: assoluto contro relativo cambia
-    quasi tutti i numeri e nessun pixel.
+  vince Material**, cioè il file `ic_m_*`: due copie dello stesso disegno sono vietate in testa a
+  `Glyphs.kt`. Per questo la croce di contorno (`Icons.Outlined.Close`), uguale a zero pixel a
+  quella piena, non ha un file suo.
+  - **Come si misura**: si rende il file accanto al suo `ic_m_*` a 240px e si contano i pixel
+    diversi; se quel glifo di Material non è ancora in `res/`, il tracciato si prende dalla
+    1.7.8 come sopra. ⚠️ Confrontare le due `d` non serve: assoluto contro relativo cambia quasi
+    tutti i numeri e nessun pixel.
   - ⚠️ **Zero vuol dire zero**: un file ammorbidito da lui parte dallo 0,1% della tela.
   - ⚠️ **Il caso in mezzo si dichiara**: uno scarto sopra zero può essere una scala o una
     traslazione uniforme dello stesso disegno, che si vede dall'inchiostro (stesso centro, lati in
@@ -246,6 +262,11 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
 - ⚠️⚠️ **L'arrotondamento a 0,4 degli spigoli è una regola del progetto** (sua istruzione) per ogni
   disegno che entra in `res/`, suo o di casa. Il presidio è `tools/icon-round.py` (§ '🧰 Gli
   strumenti che questo repo si porta dietro').
+  - ⚠️⚠️ **L'eccezione sono i glifi di Material, `ic_m_*`, che non si raccordano** (scelta H1a
+    dell'utente, 6.30): sono entrati in `res/` per togliere la libreria, col patto del disegno
+    identico, e un raccordo li cambierebbe. `icon-round.py` li riconosce dal commento
+    `<!-- Material: ... -->` e li dichiara esclusi, come il logo. Un glifo di Material che si vuole
+    ammorbidito diventa un file suo, col nome di casa, come `ic_mod_crop.xml`.
   - ⚠️ **Il verificatore dice dove manca un raccordo e con che raggio, e il raccordo lo fa chi
     disegna**. Scartato un `--fix` automatico: sul segno di spunta ha raccordato il vertice in cui
     il giro si chiude al posto della punta, senza nessun errore.
@@ -270,10 +291,11 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
     angoli retti, il raggio resta 0,4.
   - ⚠️ **Il raccordo è un arco fra due rette e una quadratica col controllo nel vertice dove c'è
     una curva**: un arco è tangente ai suoi due lati solo se sono rette.
-  - ⚠️ **Il tracciato si ricostruisce dal bytecode**, si raccorda e si riscrive in coordinate
-    assolute coi comandi per esteso; gli scarti misurati vivono in testa a ogni file.
+  - ⚠️ **Il tracciato si prende dal suo file `ic_m_*`** (o, per un glifo che non c'è, dal bytecode
+    della 1.7.8, come sopra), si raccorda e si riscrive in coordinate assolute coi comandi per
+    esteso; gli scarti misurati vivono in testa a ogni file.
   - ⚠️⚠️ **Un glifo senza spigoli convessi esterni resta a zero pixel, e resta di Material**:
-    `Palette` e `Timeline` (i moduli Colore e Curve chiamano `Icons`), `CropPortrait` e
+    `Palette` e `Timeline` (i moduli Colore e Curve usano `ic_m_palette` e `ic_m_timeline`), `CropPortrait` e
     `CropLandscape`. `PhotoSizeSelectLarge` ne aveva quarantotto ed è diventato `ic_resize.xml`;
     `BrandingWatermark` ne aveva zero, ed è entrato in `res/` come `ic_watermark.xml` solo quando è
     stato specchiato su sua richiesta (`docs/Editor.md` § '🎛️ I due tasti del salvataggio, e i
@@ -1263,7 +1285,8 @@ esecuzione.
   mancava una macchina, il Mac o GitHub. Uno strumento nuovo col browser lo usa.
 - **`tools/icon-round.py`**: dice quali spigoli esterni sono ancora vivi, con l'angolo e il raggio
   che spetta a ognuno. Avvisa e non blocca: uno spigolo vivo in un disegno suo può essere voluto.
-  - ⚠️⚠️ **Oggi risponde zero, con `ic_tian` dichiarato escluso**: un numero diverso da zero
+  - ⚠️⚠️ **Oggi risponde zero, con `ic_tian` e i glifi di Material `ic_m_*` dichiarati esclusi**
+    (questi dalla 6.30, § '🖌️ Come entra un disegno'): un numero diverso da zero
     riguarda un disegno appena entrato.
   - **Come conta, e ogni punto ha tolto un falso positivo o una lacuna**: guarda le tangenti e non
     le corde (un raccordo già fatto è un arco, e la sua corda svolta di metà arco); le curve smooth

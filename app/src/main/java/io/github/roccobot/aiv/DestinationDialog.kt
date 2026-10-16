@@ -20,10 +20,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.CreateNewFolder
-import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
@@ -192,7 +188,7 @@ fun DestinationDialog(
                 ) {
                     IconButton(onClick = { if (!up()) onDismiss() }) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            imageVector = Glyphs.Material.ArrowBack,
                             contentDescription = stringResource(R.string.settings_back)
                         )
                     }
@@ -220,7 +216,7 @@ fun DestinationDialog(
                     if (here != null && Store.files) {
                         IconButton(onClick = { naming = true }) {
                             Icon(
-                                imageVector = Icons.Default.CreateNewFolder,
+                                imageVector = Glyphs.Material.CreateNewFolder,
                                 contentDescription = stringResource(R.string.dest_new)
                             )
                         }
@@ -256,7 +252,7 @@ fun DestinationDialog(
                                 horizontalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Folder,
+                                    imageVector = Glyphs.Material.Folder,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.size(24.dp)
@@ -448,7 +444,7 @@ private fun FolderShortcut(
                 ) {
                     IconButton(onClick = onDismiss) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            imageVector = Glyphs.Material.ArrowBack,
                             contentDescription = stringResource(R.string.settings_back)
                         )
                     }

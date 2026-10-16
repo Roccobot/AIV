@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -198,7 +196,7 @@ private fun TintDot(tint: FrontTint, picked: Boolean, onPick: () -> Unit) {
 @Composable
 private fun TintMark(sotto: Color, top: Boolean) {
     Icon(
-        imageVector = Icons.Default.Check,
+        imageVector = Glyphs.Material.Check,
         contentDescription = null,
         tint = if (sotto.luminance() > TINT_DARK_INK) Color.Black else Color.White,
         modifier = Modifier

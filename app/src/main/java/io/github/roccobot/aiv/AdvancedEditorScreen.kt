@@ -55,27 +55,12 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.ContentPaste
-import androidx.compose.material.icons.filled.ControlPointDuplicate
-import androidx.compose.material.icons.filled.CropFree
-import androidx.compose.material.icons.filled.Flip
-import androidx.compose.material.icons.filled.FlipToBack
-import androidx.compose.material.icons.filled.FlipToFront
-import androidx.compose.material.icons.filled.FormatPaint
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Style
-import androidx.compose.material.icons.filled.Timeline
-import androidx.compose.material.icons.filled.Transform
 import androidx.compose.material3.AlertDialog
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.Typeface
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.text.input.TextFieldValue
@@ -630,7 +615,7 @@ fun AdvancedEditorScreen(
             ) {
                 // ⚠️ La stessa porta del gesto di sistema, cioè [leave]: vedi la nota su di lei.
                 IconButton(onClick = { leave() }) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.settings_back))
+                    Icon(Glyphs.Material.ArrowBack, stringResource(R.string.settings_back))
                 }
                 /*
                  * ⚠️ **In testa c'è quello che si sta facendo, non quale editor è** (istruzione
@@ -3747,7 +3732,7 @@ private val MODULES = listOf(
         rows = { COLOUR_ROWS },
         clear = { it.copy(chroma = Chroma.NONE) },
         spent = { !it.chroma.idle },
-        icon = { Icons.Filled.Palette },
+        icon = { Glyphs.Material.Palette },
         auto = true
     ),
     Module(
@@ -3769,7 +3754,7 @@ private val MODULES = listOf(
         rows = { emptyList() },
         clear = { it.copy(tone = Tone.NONE) },
         spent = { !it.tone.idle },
-        icon = { Icons.Filled.Timeline },
+        icon = { Glyphs.Material.Timeline },
         extra = Extra.CURVES
     ),
     /*
@@ -3807,7 +3792,7 @@ private val MODULES = listOf(
             )
         },
         spent = { false },
-        icon = { Icons.Filled.Style },
+        icon = { Glyphs.Material.Style },
         extra = Extra.PRESETS
     )
 )
@@ -4727,7 +4712,7 @@ private fun Comandi(
             Icon(
                 modifier = glyph,
                 imageVector = if (chosen.extra == Extra.CORNERS) {
-                    Icons.Filled.Transform
+                    Glyphs.Material.Transform
                 } else {
                     Glyphs.Aim
                 },
@@ -4843,19 +4828,19 @@ private fun DrawMenu(
     }
     MenuShell(state = state, position = MenuInWindow) {
         val sopra = PadAction(
-            PadKey.DRAW_RAISE, Icons.Filled.FlipToFront, R.string.draw_raise, enabled = i < prima.marks.size - 1
+            PadKey.DRAW_RAISE, Glyphs.Material.FlipToFront, R.string.draw_raise, enabled = i < prima.marks.size - 1
         ) {
             state.close()
             onEdit { it.swapping(i, i + 1) }
             segui(i + 1)
         }
         val copiato = gaze.styleClip
-        val stile = if (copiato == null) PadAction(PadKey.DRAW_STYLE, Icons.Filled.FormatPaint, R.string.draw_copy) {
+        val stile = if (copiato == null) PadAction(PadKey.DRAW_STYLE, Glyphs.Material.FormatPaint, R.string.draw_copy) {
             state.close()
             gaze.styleClip = segno
         } else PadAction(
             key = PadKey.DRAW_STYLE,
-            icon = Icons.Filled.ContentPaste,
+            icon = Glyphs.Material.ContentPaste,
             label = R.string.draw_paste,
             onHold = {
                 state.close()
@@ -4873,17 +4858,17 @@ private fun DrawMenu(
              */
             gaze.load(segno.styledLike(copiato))
         }
-        val doppio = PadAction(PadKey.DRAW_DUPLICATE, Icons.Filled.ControlPointDuplicate, R.string.pick_duplicate) {
+        val doppio = PadAction(PadKey.DRAW_DUPLICATE, Glyphs.Material.ControlPointDuplicate, R.string.pick_duplicate) {
             state.close()
             onEdit { d -> d.marks.getOrNull(i)?.let { d.inserting(i + 1, it.moved(Draw.duplicateShift(w, h))) } ?: d }
             onPick(i + 1)
         }
-        val sotto = PadAction(PadKey.DRAW_LOWER, Icons.Filled.FlipToBack, R.string.draw_lower, enabled = i > 0) {
+        val sotto = PadAction(PadKey.DRAW_LOWER, Glyphs.Material.FlipToBack, R.string.draw_lower, enabled = i > 0) {
             state.close()
             onEdit { it.swapping(i, i - 1) }
             segui(i - 1)
         }
-        val gira = if (gaze.turning) PadAction(PadKey.DRAW_TURN, Icons.Filled.Transform, R.string.draw_transform) {
+        val gira = if (gaze.turning) PadAction(PadKey.DRAW_TURN, Glyphs.Material.Transform, R.string.draw_transform) {
             state.close()
             gaze.turning = false
         } else PadAction(PadKey.DRAW_TURN, Glyphs.TurnRight, R.string.draw_rotate) {
@@ -5776,7 +5761,7 @@ private fun ModuleBody(
                  * caso.
                  */
                 PadAction(
-                    PadKey.FLIP, Icons.Filled.Flip, R.string.editor_flip,
+                    PadKey.FLIP, Glyphs.Material.Flip, R.string.editor_flip,
                     enabled = live,
                     onHold = { pose(Spin.DOWN) },
                     holdLabel = R.string.editor_flip_down
@@ -5807,7 +5792,7 @@ private fun ModuleBody(
             horizontalArrangement = Arrangement.spacedBy(CROP_CMD_GAP)
         ) {
             CropCmd(
-                icon = Icons.AutoMirrored.Filled.ArrowBack,
+                icon = Glyphs.Material.ArrowBack,
                 label = R.string.editor_crop_back,
                 enabled = live && look.framing.undoable
             ) {
@@ -5818,7 +5803,7 @@ private fun ModuleBody(
                 onSettled()
             }
             CropCmd(
-                icon = Icons.AutoMirrored.Filled.ArrowForward,
+                icon = Glyphs.Material.ArrowForward,
                 label = R.string.editor_crop_on,
                 enabled = live && look.framing.redoable
             ) {
@@ -5845,7 +5830,7 @@ private fun ModuleBody(
              * gettone, che rimette a nuovo il modulo intero.
              */
             CropCmd(
-                icon = Icons.Filled.CropFree,
+                icon = Glyphs.Material.CropFree,
                 label = R.string.editor_crop_clear,
                 enabled = live && (!look.crop.whole || look.framing.undoable)
             ) {
@@ -7087,7 +7072,7 @@ private fun TextKeys(look: Look, gaze: Gaze, live: Boolean, pill: Boolean, delet
         TextKey(stringResource(R.string.draw_text_edit), selected = false, enabled = live && segno != null, toggle = false,
             onClick = { gaze.picked?.let { gaze.askWords(look.drawing, it) } },
             modifier = Modifier.weight(1f)) { tinta ->
-            Icon(Icons.Filled.Edit, contentDescription = null, tint = tinta)
+            Icon(Glyphs.Material.Edit, contentDescription = null, tint = tinta)
         }
         delete(Modifier.weight(1f))
     }

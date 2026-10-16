@@ -1,7 +1,6 @@
 package io.github.roccobot.aiv
 
 import android.content.Context
-import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -12,8 +11,9 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 
 /**
- * Le icone che Material non ha: il catalogo, coi nomi con cui si chiamano dal codice. Come entra
- * un disegno, e quando vince Material, lo dice `Rules.md` § '🖌️ Come entra un disegno'.
+ * Le icone dell'app: il catalogo, coi nomi con cui si chiamano dal codice. Quelle disegnate qui o
+ * dall'utente sono voci dirette, quelle di Material sono in [Material]. Come entra un disegno, e
+ * quando vince Material, lo dice `Rules.md` § '🖌️ Come entra un disegno'.
  *
  * I disegni vivono in `res/drawable`, un file per glifo, e questo file dice che cosa vuol dire
  * ognuno: così il verificatore `tools/icon-check.py` e l'app leggono lo stesso file.
@@ -230,7 +230,7 @@ object Glyphs {
     /*
      * Da qui molti glifi ammorbidiscono un glifo che Material ha: divergono apposta, e lo scarto
      * è misurato in testa a ogni file. I glifi che l'ammorbidimento lascia a zero pixel di scarto
-     * (`search`, `image`, `public`, `folder`, `recycling`) restano chiamate a `Icons`; `settings`
+     * (`search`, `image`, `public`, `folder`) restano quelli di Material, in [Material]; `settings`
      * pure, perché la differenza è fra due esportazioni dello stesso disegno di Google.
      */
 
@@ -359,8 +359,8 @@ object Glyphs {
      * I glifi dei moduli dell'editor completo: glifi di Material coi bordi esterni arrotondati di
      * 0,4, su richiesta dell'utente, da 0,10% a 0,66% della tela di scarto (in testa a ogni file).
      * `Palette` e `Timeline` sono tutti curve, l'arrotondamento li lascia identici, quindi i
-     * moduli 'Colore' e 'Curve' chiamano `Icons`. Il tracciato si ricostruisce dal bytecode di
-     * `material-icons` (`Rules.md` § '🖌️ Come entra un disegno').
+     * moduli 'Colore' e 'Curve' usano i glifi di [Material]. Il tracciato si ricostruiva dal
+     * bytecode di `material-icons` (`Rules.md` § '🖌️ Come entra un disegno').
      */
 
     /** Le forbici del ritaglio: il primo modulo dell'editor completo. */
@@ -479,6 +479,175 @@ object Glyphs {
      * ⚠️ `ic_launcher_foreground.xml` non è nel catalogo: è l'icona dell'app, si disegna con
      * `Image` sopra il proprio fondo colorato e non si tinge. Il suo chiamante è `Identity.kt`.
      */
+
+    /**
+     * I glifi di Material che l'app usa così come sono: un file `ic_m_<nome>.xml` per glifo, col
+     * nome di Material e lo stile (`Outlined` in coda al nome di quelli di contorno).
+     *
+     * ⚠️⚠️ **Vengono dalla libreria `material-icons-extended` 1.7.8, che dalla 6.30 non è più fra
+     * le dipendenze** (scelta H1a dell'utente): era ferma dal febbraio 2025 e pesava 35,7 MB, dei quali
+     * l'app usava solo i glifi di questo elenco. Ogni tracciato è ricostruito dalle chiamate a `PathBuilder` della
+     * libreria, in ordine, e riscritto in coordinate assolute; reso a 240 px accanto alla libreria,
+     * da sinistra a destra e da destra a sinistra, cambiava zero pixel. L'origine di ognuno è in
+     * testa al suo file, e le icone che si specchiano nelle lingue da destra a sinistra (le
+     * `AutoMirrored` di Material) lo dichiarano con `android:autoMirrored`.
+     * ⚠️ **Non si raccordano**: il disegno è quello di Material, identico, e `tools/icon-round.py`
+     * li dichiara esclusi (`Rules.md` § '🖌️ Come entra un disegno').
+     * La croce di contorno di Material (`Icons.Outlined.Close`) è lo stesso disegno di quella piena,
+     * a zero pixel, quindi c'è solo [Close].
+     */
+    object Material {
+
+        val ArrowBack: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_arrow_back)
+
+        val ArrowDownward: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_arrow_downward)
+
+        val ArrowForward: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_arrow_forward)
+
+        val ArrowUpward: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_arrow_upward)
+
+        val Check: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_check)
+
+        val Close: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_close)
+
+        val ContentPaste: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_content_paste)
+
+        val ControlPointDuplicate: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_control_point_duplicate)
+
+        val CreateNewFolder: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_create_new_folder)
+
+        val CropFree: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_crop_free)
+
+        val CropLandscape: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_crop_landscape)
+
+        val CropPortrait: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_crop_portrait)
+
+        val DeleteForever: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_delete_forever)
+
+        val DragIndicator: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_drag_indicator)
+
+        val Edit: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_edit)
+
+        val FilterListOutlined: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_filter_list_outlined)
+
+        val FitScreenOutlined: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_fit_screen_outlined)
+
+        val Flip: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_flip)
+
+        val FlipToBack: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_flip_to_back)
+
+        val FlipToFront: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_flip_to_front)
+
+        val Folder: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_folder)
+
+        val FormatListBulletedOutlined: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_format_list_bulleted_outlined)
+
+        val FormatPaint: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_format_paint)
+
+        val HideImageOutlined: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_hide_image_outlined)
+
+        val Image: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_image)
+
+        val ImageOutlined: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_image_outlined)
+
+        val Info: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_info)
+
+        val InfoOutlined: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_info_outlined)
+
+        val InsertDriveFile: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_insert_drive_file)
+
+        val KeyboardArrowRight: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_keyboard_arrow_right)
+
+        val LightModeOutlined: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_light_mode_outlined)
+
+        val Lock: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_lock)
+
+        val MoreHoriz: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_more_horiz)
+
+        val MovieOutlined: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_movie_outlined)
+
+        val NavigateBeforeOutlined: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_navigate_before_outlined)
+
+        val NavigateNextOutlined: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_navigate_next_outlined)
+
+        val Palette: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_palette)
+
+        val Pause: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_pause)
+
+        val PhotoSizeSelectActualOutlined: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_photo_size_select_actual_outlined)
+
+        val PlayArrow: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_play_arrow)
+
+        val Public: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_public)
+
+        val PushPin: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_push_pin)
+
+        val SdStorage: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_sd_storage)
+
+        val Search: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_search)
+
+        val Settings: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_settings)
+
+        val Share: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_share)
+
+        val Style: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_style)
+
+        val Timeline: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_timeline)
+
+        val Transform: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_transform)
+
+        val VolumeUpOutlined: ImageVector
+            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_volume_up_outlined)
+    }
 
     /** La griglia di Material: ogni icona del sistema è disegnata dentro un 24x24. */
     private const val GRID = 24f

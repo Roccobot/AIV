@@ -4,9 +4,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.padding
@@ -2993,7 +2990,7 @@ private fun Stage(
                             if (shape == Adaptive.Shape.TALL) {
                                 ActionPill(
                                     entries = listOfNotNull(
-                                        PillEntry(Icons.Default.Search, stringResource(R.string.hub_search)) {
+                                        PillEntry(Glyphs.Material.Search, stringResource(R.string.hub_search)) {
                                             model.openSearch()
                                         },
                                         // ⚠️ AIV Play ha il cestino solo da Android 11 (`Store.hasBin`).
@@ -3001,7 +2998,7 @@ private fun Stage(
                                             model.openBin()
                                         }.takeIf { Store.hasBin },
                                         PillEntry(
-                                            Icons.Default.Settings,
+                                            Glyphs.Material.Settings,
                                             stringResource(R.string.hub_settings)
                                         ) { model.openSettings() }
                                     ),

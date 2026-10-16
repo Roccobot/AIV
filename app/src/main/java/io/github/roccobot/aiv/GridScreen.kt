@@ -47,22 +47,6 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.DeleteForever
-import androidx.compose.material.icons.filled.MoreHoriz
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.outlined.FilterList
-import androidx.compose.material.icons.outlined.HideImage
-import androidx.compose.material.icons.outlined.Image
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -147,7 +131,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.material.icons.filled.Folder
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.layout.positionInParent
 
@@ -705,7 +688,7 @@ fun GridScreen(
                 job = FileJob.Rename(chosen.toList())
             }
         },
-        PadAction(PadKey.INFO, Icons.Outlined.Info, R.string.pick_info) {
+        PadAction(PadKey.INFO, Glyphs.Material.InfoOutlined, R.string.pick_info) {
             job = FileJob.Facts(chosen.toList())
         },
         PadAction(PadKey.MOVE, Glyphs.FolderPairDashed, R.string.pick_move) {
@@ -726,7 +709,7 @@ fun GridScreen(
         ) {
             job = FileJob.Transfer(chosen.toList(), move = false)
         },
-        PadAction(PadKey.SHARE, Icons.Default.Share, R.string.menu_share) {
+        PadAction(PadKey.SHARE, Glyphs.Material.Share, R.string.menu_share) {
             // La lista si prende adesso: dentro la coroutine `chosen` potrebbe essere cambiata.
             val list = chosen.toList()
             scope.launch { ImageActions.shareMany(context, list) }
@@ -752,7 +735,7 @@ fun GridScreen(
         },
         // 'Lista' dà un avviso, con la frase dettata dall'utente: l'avviso di sistema dice solo
         // che qualcosa è negli appunti.
-        PadAction(PadKey.LIST, Icons.AutoMirrored.Outlined.FormatListBulleted, R.string.pick_list) {
+        PadAction(PadKey.LIST, Glyphs.Material.FormatListBulletedOutlined, R.string.pick_list) {
             val list = chosen.toList()
             scope.launch {
                 // Il percorso si chiede per un elemento solo: sono tutti nella stessa cartella.
@@ -1023,14 +1006,14 @@ fun GridScreen(
             PillEntry(Glyphs.BinRestore, stringResource(R.string.bin_restore_all), enabled = filled, short = stringResource(R.string.start_restore)) {
                 askRestoreAll()
             },
-            PillEntry(Icons.Default.DeleteForever, stringResource(R.string.bin_empty), enabled = filled, short = stringResource(R.string.start_empty)) {
+            PillEntry(Glyphs.Material.DeleteForever, stringResource(R.string.bin_empty), enabled = filled, short = stringResource(R.string.start_empty)) {
                 askEmpty()
             }
         )
         else -> listOfNotNull(
-            onSearchHere?.let { PillEntry(Icons.Default.Search, cerca, short = cerca, onTap = it) },
+            onSearchHere?.let { PillEntry(Glyphs.Material.Search, cerca, short = cerca, onTap = it) },
             onBin?.let { PillEntry(Glyphs.Bin, cestino, short = cestino, onTap = it) },
-            onSettings?.let { PillEntry(Icons.Default.Settings, impostazioni, short = impostazioni, onTap = it) }
+            onSettings?.let { PillEntry(Glyphs.Material.Settings, impostazioni, short = impostazioni, onTap = it) }
         )
     }
     val pillShown = pillEntries.isNotEmpty()
@@ -1305,8 +1288,8 @@ fun GridScreen(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = { if (picking) chosen = emptySet() else onBack() }) {
                     Icon(
-                        imageVector = if (picking) Icons.Default.Close
-                        else Icons.AutoMirrored.Filled.ArrowBack,
+                        imageVector = if (picking) Glyphs.Material.Close
+                        else Glyphs.Material.ArrowBack,
                         contentDescription = stringResource(
                             if (picking) R.string.pick_leave else R.string.settings_back
                         )
@@ -1352,7 +1335,7 @@ fun GridScreen(
                             trailingIcon = if (query.isEmpty()) null else ({
                                 IconButton(onClick = { onQuery("") }) {
                                     Icon(
-                                        imageVector = Icons.Default.Close,
+                                        imageVector = Glyphs.Material.Close,
                                         contentDescription = stringResource(R.string.search_clear)
                                     )
                                 }
@@ -1839,7 +1822,7 @@ fun GridScreen(
                             onSearchHere?.let { cerca ->
                                 MenuRow(
                                     text = stringResource(R.string.hub_search),
-                                    icon = Icons.Default.Search,
+                                    icon = Glyphs.Material.Search,
                                     onTap = { menu.close(); cerca() }
                                 )
                             }
@@ -1856,7 +1839,7 @@ fun GridScreen(
                                 if (onSearchHere != null) HorizontalDivider()
                                 MenuRow(
                                     text = stringResource(R.string.folder_cover_auto),
-                                    icon = Icons.Outlined.HideImage,
+                                    icon = Glyphs.Material.HideImageOutlined,
                                     onTap = { menu.close(); togli() }
                                 )
                             }
@@ -1872,7 +1855,7 @@ fun GridScreen(
                                 if (onBin != null) HorizontalDivider()
                                 MenuRow(
                                     text = stringResource(R.string.hub_settings),
-                                    icon = Icons.Default.Settings,
+                                    icon = Glyphs.Material.Settings,
                                     onTap = { menu.close(); vaiAlleImpostazioni() }
                                 )
                             }
@@ -1911,7 +1894,7 @@ fun GridScreen(
                         )
                         MenuRow(
                             text = stringResource(R.string.bin_empty),
-                            icon = Icons.Default.DeleteForever,
+                            icon = Glyphs.Material.DeleteForever,
                             enabled = filled,
                             danger = true,
                             onTap = { menu.close(); askEmpty() }
@@ -1968,7 +1951,7 @@ fun GridScreen(
                     corner = Modifier.pillCorner(),
                     mark = { d ->
                         if (!bin) Marchio(d)
-                        else Icon(imageVector = Icons.Default.MoreHoriz, contentDescription = d)
+                        else Icon(imageVector = Glyphs.Material.MoreHoriz, contentDescription = d)
                     },
                     restLabel = stringResource(R.string.pick_actions),
                     entries = pillEntries,
@@ -1981,7 +1964,7 @@ fun GridScreen(
                     fabGlyph = { d ->
                         JumpGlyph(arm) {
                             if (!bin) Marchio(d)
-                            else Icon(imageVector = Icons.Default.MoreHoriz, contentDescription = d)
+                            else Icon(imageVector = Glyphs.Material.MoreHoriz, contentDescription = d)
                         }
                     }
                 )
@@ -2267,7 +2250,7 @@ private fun PickFab(
 ) {
     val home = @Composable { d: String? ->
         if (mark) Marchio(d)
-        else Icon(imageVector = Icons.Default.MoreHoriz, contentDescription = d)
+        else Icon(imageVector = Glyphs.Material.MoreHoriz, contentDescription = d)
     }
     TapHoldFab(
         label = arm?.let { jumpLabel(it, stringResource(R.string.pick_actions)) }
@@ -2445,7 +2428,7 @@ internal fun Thumbnail(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Check,
+                    imageVector = Glyphs.Material.Check,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size(TICK * 0.72f)
@@ -2497,7 +2480,7 @@ internal fun ClipLabel(length: Long?, modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.spacedBy(BADGE_LIP)
     ) {
         Icon(
-            imageVector = Icons.Default.PlayArrow,
+            imageVector = Glyphs.Material.PlayArrow,
             contentDescription = stringResource(R.string.grid_item_clip),
             tint = Color.White,
             modifier = Modifier.size(BADGE_GLYPH)
@@ -2630,15 +2613,17 @@ private fun FilterMark(lit: Boolean, glyph: @Composable () -> Unit) {
 }
 
 /** Il disegno che questo filtro porta **sul tasto**: spento sono le tre righe. */
+@Composable
 private fun MediaKind.onKey(): ImageVector = when (this) {
-    MediaKind.ALL -> Icons.Outlined.FilterList
-    MediaKind.IMAGES -> Icons.Outlined.Image
-    MediaKind.VIDEOS -> Icons.Outlined.Movie
+    MediaKind.ALL -> Glyphs.Material.FilterListOutlined
+    MediaKind.IMAGES -> Glyphs.Material.ImageOutlined
+    MediaKind.VIDEOS -> Glyphs.Material.MovieOutlined
 }
 
 /** Il disegno che questo filtro porta **nel popup**: 'tutto' là è la croce che lo toglie. */
+@Composable
 private fun MediaKind.inMenu(): ImageVector = when (this) {
-    MediaKind.ALL -> Icons.Default.Close
+    MediaKind.ALL -> Glyphs.Material.Close
     else -> onKey()
 }
 
