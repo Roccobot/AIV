@@ -112,81 +112,35 @@ import kotlinx.coroutines.withContext
 /**
  * Le pagine delle impostazioni: la radice e quelle che le pendono sotto.
  *
- * ⚠️⚠️ **GRUPPI CON UN TITOLO, E SOTTO-PAGINE**, richiesta dell'utente (*le impostazioni sono
- * ancora da riordinare e mettere in sotto-pagine*). Prima era una colonna sola di dodici voci
- * separate da dieci filetti, che si scorreva per due schermate e mezzo senza sapere dove si
- * era: un filetto dice 'qui cambia argomento' ma non dice **quale**, e dieci filetti di fila
- * non dicono più niente. Un titolo di gruppo fa entrambe le cose, quindi i filetti sono
- * spariti tutti tranne quello sopra il piede.
- * ⚠️⚠️ **QUANTI SIANO NON STA SCRITTO, ED È UNA REGOLA** (istruzione dell'utente, 2026-09-03:
- * *è davvero necessario un testo che tenga il conto delle quantità di elementi UI? Non si
- * riuscirà mai a tenerla aggiornata*). Qui c'era scritto 'quattro gruppi e due sotto-pagine',
- * più 'le tre pagine' e 'cinque delle voci': **tre conti su tre erano diventati falsi**, e si
- * ricavano tutti con un comando o leggendo [Page]. Il criterio universale sta in
- * `rules/Roccobot.md` § '🔢 I conti si contano, non si scrivono'.
- * - ⚠️⚠️ **E LA PASSATA DI QUEL GIORNO NON AVEVA PRESO TUTTO: la `1.78` ne ha trovati altri
- *   quattro in questo stesso file**, tutti al presente e tutti falsi ('le tre pagine' due
- *   volte, 'tutte e quattro le pagine', 'i quattro gruppi'). Le pagine sono quelle di [Page] e
- *   i gruppi si contano cercando le chiamate a [Group]: adesso le note nominano la fonte invece
- *   di riportarne il conto.
- * - ⚠️ **Il 'dodici voci' qui sopra RESTA, e non è un'eccezione di comodo**: è al passato e
- *   dichiarato tale, cioè descrive com'era prima di questo riordino, e un tempo passato non
- *   invecchia. Quello che invecchia è il conto di com'è **adesso**.
+ * Gruppi con un titolo e sotto-pagine: un titolo di gruppo dice dove cambia argomento e quale,
+ * quindi fra i gruppi non ci sono filetti, salvo quello sopra il piede. Le pagine sono quelle
+ * di [Page] e i gruppi sono le chiamate a [Group]: i conti non si scrivono nei commenti, perché
+ * diventano falsi (`rules/Roccobot.md` § '🔢 I conti si contano, non si scrivono').
  *
- * ⚠️⚠️ **SOTTO-PAGINA SI DIVENTA IN QUATTRO MODI, e la regola completa vive in `Rules.md`**,
- * § '⚙️ Dove va un'impostazione, e chi la deve trovare': perché la voce è un **elenco** che
- * cresce e porta comandi propri riga per riga (le cartelle nascoste e i dati di Info erano da
- * sole più di metà dell'altezza della schermata); perché le voci sono **delicate** e il tocco
- * in più è una protezione ('Adattamento e zoom', nata così su richiesta dell'utente: *sono
- * impostazioni delicate*); perché la **famiglia** ha superato la soglia dell'utente
- * (*fino a 2-3 opzioni correlate basta una sotto-sezione; più di 2-3 si va con la
- * sotto-pagina*), che è il modo con cui nasce 'Opzioni di visualizzazione'; oppure perché è un
- * **comando che ha bisogno di un paragrafo**, che è il quarto e nasce con la pagina delle
- * miniature memorizzate (dalla `2.97` quel paragrafo vive nelle sue due conferme: vedi
- * [Page.THUMBS]).
- * - ⚠️ **Una riga sola che non è né un elenco né delicata, in una sotto-pagina costerebbe un
- *   tocco senza guadagnare niente**, ed è la clausola che vale più delle altre.
- * - ⚠️ **La soglia si conta sulla FAMIGLIA e non sulla sezione**: sotto 'Aspetto' vivono il
- *   tema dell'app e l'effetto dietro i pannelli, cioè due famiglie, e nessuna arriva alla
- *   soglia. Contandola sulla sezione, il tema dell'app finirebbe dietro un tocco.
- * - ⚠️⚠️ **E DALLA `2.09` C'È UN QUINTO MODO, CHE È UNA SUA SCELTA E NON UN CRITERIO NUOVO**
- *   (`d-imp-strada`: **`livelli`**): una famiglia che ne **contiene** già un'altra scende
- *   dietro una porta, perché nella pagina piatta la sua riga e il suo contenuto si leggevano
- *   allo stesso livello. È il modo con cui nascono le cinque pagine del primo livello, e fino
- *   alla `2.08` era proprio il caso che la profondità uno vietava.
+ * ⚠️ **Quando una voce diventa sotto-pagina lo dice `Rules.md`**, § '⚙️ Dove va
+ * un'impostazione, e chi la deve trovare': un elenco con comandi riga per riga, voci delicate,
+ * una famiglia oltre la soglia dell'utente, un comando che ha bisogno di un paragrafo, una
+ * famiglia che ne contiene un'altra. La soglia si conta sulla famiglia e non sulla sezione, e
+ * una riga sola che non rientra in nessun caso, dietro un tocco, costerebbe senza guadagnare
+ * niente.
  *
- * ⚠️⚠️ **OGNI RIGA CHE APRE UNA PAGINA DICE QUANTO È LUNGO QUELLO CHE C'È DENTRO**, e non è
- * decorazione: nascondere un elenco dietro un tocco fa perdere l'unica cosa che l'elenco
- * aperto diceva da sé, cioè la sua lunghezza. Senza il riepilogo bisogna entrare per sapere
- * se c'è qualcosa, che è esattamente il costo che le sotto-pagine dovevano togliere.
- * - ⚠️⚠️ **E IL RIEPILOGO SI CALCOLA O SI COMPONE, MAI SI SCRIVE A MANO**, per la stessa
- *   ragione dei conti nei commenti: quello delle cartelle e quello di Info contano le righe
- *   (`R.plurals`), quelli delle altre due si compongono dalle stesse stringhe che la pagina
- *   usa dentro. Il precedente è misurato: `settings_zoom_page_summary` era una frase fissa che
- *   nominava tre argomenti, la `1.26` ne ha portato là un quarto, e quella frase è rimasta
- *   falsa in ventisette lingue fino alla `1.46`.
+ * ⚠️ **Ogni riga che apre una pagina dice quanto è lungo quello che c'è dentro**: senza il
+ * riepilogo bisognerebbe entrare per saperlo. Il riepilogo si calcola (`R.plurals`) o si
+ * compone dalle stesse stringhe della pagina, mai si scrive a mano: una frase fissa come
+ * `settings_zoom_page_summary` è rimasta falsa in tutte le lingue per molte versioni.
  *
- * ⚠️⚠️ **LA RICERCA DEVE TROVARE OGNI VOCE, DOVUNQUE VIVA, e la copertura si scrive nello
- * stesso giro della sotto-pagina.** [LocalQuery] è fornito nel solo ramo della radice, quindi
- * una voce spostata dietro un tocco **esce** dalla ricerca: le due vie con cui non esce sono
- * [PageOfRows], per le pagine fatte di righe, e il parametro `extra` di [PageRow], per quelle
- * che sono elenchi con comandi riga per riga. ⚠️ **Fidarsi del riepilogo non è una terza
- * via**: è quello che ha lasciato fuori dalla ricerca le voci dello zoom per venti versioni.
- * ⚠️⚠️ **E DALLA `2.10` SI TROVANO ANCHE I TITOLI, che è la sua voce accettabile** (giro
- * accorpato, `imp-ricerca`): quello di una **pagina** rimette in scena la riga che la apre
- * ([PageOfRows]), quello di una **sezione** fa comparire il titolo con le voci che contiene
- * ([Section] e [LocalSection]). Le due strade sono diverse perché le due cose lo sono: una
- * pagina è un posto dove si va, una sezione è un'etichetta sopra righe che restano dove sono.
+ * ⚠️ **La ricerca deve trovare ogni voce, dovunque viva, e la copertura si scrive nello stesso
+ * giro della sotto-pagina.** [LocalQuery] è fornito nel solo ramo della radice, quindi una voce
+ * dietro un tocco resta fuori dalla ricerca, salvo che passi da [PageOfRows] (pagine fatte di
+ * righe) o dal parametro `extra` di [PageRow] (elenchi con comandi riga per riga). Il riepilogo
+ * non basta: è così che le voci dello zoom sono rimaste fuori dalla ricerca.
+ * Si trovano anche i titoli (voce `imp-ricerca`): quello di una pagina rimette in scena la riga
+ * che la apre ([PageOfRows]), quello di una sezione fa comparire il titolo con le sue voci
+ * ([Section] e [LocalSection]).
  *
- * ⚠️⚠️ **LA SPIEGAZIONE SOTTO UNA VOCE HA UN CRITERIO, E IL CODICE SE NE È ALLONTANATO.** Il
- * criterio, che regge: una spiegazione sotto un'impostazione il cui nome dice già tutto è
- * rumore, e dopo tre nessuno legge la quarta; quindi ce l'ha la voce in cui il nome non può
- * portare il senso (a che cosa SERVE la scacchiera, che cosa fa 'ingrandisci' quando è spento,
- * che cosa significa 100%, di che cosa è il rovescio l'ordine inverso, che cosa si apre
- * esattamente all'avvio). ⚠️ **Ma oggi la spiegazione ce l'hanno quasi tutte**, quindi il
- * criterio è scritto e non applicato, e la potatura è una decisione dell'utente perché cambia
- * quello che legge: sta fra le voci aperte del brief. Fino alla `1.46` qui c'era scritto che le
- * voci con la spiegazione sono cinque, ed è quel numero fermo ad aver nascosto lo scostamento.
+ * La spiegazione sotto una voce ha un criterio: ce l'ha la voce il cui nome non basta a dire il
+ * senso, perché sotto un nome che dice già tutto è rumore. Oggi ce l'hanno quasi tutte, e la
+ * potatura è una decisione dell'utente, aperta nel brief.
  */
 @Composable
 fun SettingsScreen(
@@ -200,53 +154,33 @@ fun SettingsScreen(
     modifier: Modifier = Modifier
 ) {
     /*
-     * ⚠️⚠️ **SALVATA E NON SOLO RICORDATA, dalla `1.46`**: `ViewerActivity` non dichiara
-     * `configChanges`, quindi ruotare il telefono ricrea la composizione, e con un `remember`
-     * semplice si tornava nella radice perdendo anche quello che si stava cercando.
-     * ⚠️ **Si salvano gli ORDINALI e non le costanti**: un `Int` non pone dubbi su che cosa il
-     * salvataggio sappia serializzare, mentre un enum ci arriva solo se qualcuno gli scrive un
-     * `Saver`. Il valore vero resta [page], che si legge sotto.
+     * ⚠️ **Salvata e non solo ricordata**: `ViewerActivity` non dichiara `configChanges`, quindi
+     * una rotazione ricrea la composizione, e con un `remember` si tornerebbe nella radice
+     * perdendo anche la ricerca. Si salvano gli ordinali, perché un `Int` si serializza senza un
+     * `Saver`; il valore vero è [page].
      */
     val stack = rememberSaveable(saver = PAGE_STACK) { mutableStateListOf() }
-    /*
-     * ⚠⚠ **QUI VIVEVA LA SCORCIATOIA DELLA `2.72`, CHE APRIVA UNA PAGINA DA FUORI, E DALLA
-     * `2.75` NON C'È PIÙ**: il suo unico chiamante era il tocco lungo sul tasto 'Filigrana' in
-     * testata all'editor, che adesso apre la propria pagina in una scheda **sopra** l'editor
-     * invece di navigare (il perché vive su `MarkSheet`). Con lei escono il parametro `start` e
-     * l'enum `SettingsPage`, che senza quel chiamante non aveva più nessuno.
-     */
     val page = stack.lastOrNull() ?: Page.ROOT
-    // ⚠️⚠️ **LO SCORRIMENTO DELLA RADICE VIVE QUI E NON DENTRO LA PAGINA**: ogni pagina di
-    // [Page] sta in un ramo di un `when`, quindi uno stato ricordato dentro `Shell` nascerebbe
-    // nuovo a ogni ritorno, e si tornerebbe indietro trovandosi in cima. Tenuto qui,
-    // sopravvive al passaggio, perché `SettingsScreen` non esce di scena. Le sotto-pagine
-    // invece il proprio lo vogliono nuovo: si entra dall'inizio.
+    // ⚠️ **Lo scorrimento della radice è qui e non dentro la pagina**: ogni pagina di [Page] è
+    // un ramo di un `when`, quindi uno stato ricordato dentro `Shell` nascerebbe nuovo a ogni
+    // ritorno, in cima. Qui resta, perché `SettingsScreen` non esce di scena. Le sotto-pagine
+    // invece si aprono dall'inizio.
     val rootScroll = rememberScrollState()
-    // ⚠️ Sta QUI e non dentro `RootPage` per la stessa ragione dello scorrimento: una
-    // sotto-pagina e il ritorno non devono cancellare quello che si stava cercando. E si
-    // salva, come la pagina, perché una rotazione non è un modo di annullare una ricerca.
+    // Qui e non dentro `RootPage`, per la stessa ragione: andare in una sotto-pagina e tornare
+    // non cancella la ricerca. Si salva, perché una rotazione non annulla una ricerca.
     var query by rememberSaveable { mutableStateOf("") }
     val scope = rememberCoroutineScope()
-    // ⚠️ Due funzioni e non due assegnazioni sparse: chi apre una pagina non deve sapere che
-    // la navigazione è una pila, e chi torna indietro nemmeno.
+    // Due funzioni: chi apre una pagina o torna indietro non deve sapere che la navigazione è
+    // una pila.
     fun open(next: Page) {
         /*
-         * ⚠️⚠️ **UNA RICERCA FINISCE QUANDO PORTA DA QUALCHE PARTE, DALLA `2.11`** (riscontro
-         * del giro della `2.10`, voce `imp-cerca-titoli` approvata con una nota: *se dalla
-         * ricerca poi approdo ad un elemento con cui interagisco (es. apro una sotto-pagina),
-         * la ricerca si resetta e torno all'inizio delle impostazioni senza nulla digitato nel
-         * 'cerca'*). Cioè una ricerca è il modo di **arrivare** a una voce, non uno stato in
-         * cui restare: arrivati, ha finito il suo lavoro, e trovarsela ancora accesa al
-         * ritorno costringe a svuotare il campo per rivedere il pannello intero.
-         * ⚠️⚠️ **SI SCRIVE QUI E NON NEI CHIAMANTI, perché questa è la sola porta**: ogni
-         * `PageRow` apre la sua pagina passando di qua, quindi una voce nuova prende la regola
-         * per costruzione, e non c'è un secondo modo di aprire una pagina con cui sbagliare.
-         * ⚠️ **Vale per la NAVIGAZIONE e non per ogni tocco**, che è più stretto della lettera
-         * della sua frase: un interruttore toccato mentre la ricerca è in corso resta dove
-         * lui lo sta guardando, e svuotare il campo glielo farebbe sparire da sotto il dito.
-         * ⚠️ **Lo scorrimento torna in cima solo se la ricerca c'era**: senza, si rifarebbe il
-         * difetto che la riga qui sopra esiste per evitare, cioè una radice che si azzera a
-         * ogni giro in una sotto-pagina.
+         * ⚠️ **Una ricerca finisce quando porta a una pagina** (nota dell'utente sulla voce
+         * `imp-cerca-titoli`): è il modo di arrivare a una voce, e trovarla ancora accesa al
+         * ritorno costringerebbe a svuotare il campo. È scritto qui perché questa è la sola
+         * porta: ogni `PageRow` apre la sua pagina passando di qua.
+         * Vale per la navigazione e non per ogni tocco: svuotare il campo dopo un interruttore
+         * glielo farebbe sparire da sotto il dito. Lo scorrimento torna in cima solo se la
+         * ricerca c'era, o la radice si azzererebbe a ogni sotto-pagina.
          */
         if (query.isNotBlank()) {
             query = ""
@@ -256,35 +190,25 @@ fun SettingsScreen(
     }
     fun back() { if (stack.isNotEmpty()) stack.removeAt(stack.lastIndex) }
     // ⚠️ Vince su quello dell'attività (`ViewerActivity`, che qui chiama `leaveSettings`)
-    // perché è registrato DOPO: il dispatcher di Android serve l'ultimo arrivato fra quelli
-    // accesi. È lo stesso annidamento della selezione nella griglia, che regge da versioni.
+    // perché è registrato dopo: il dispatcher di Android serve l'ultimo fra quelli accesi,
+    // come per la selezione nella griglia.
     BackHandler(enabled = stack.isNotEmpty()) { back() }
-    // ⚠️ Con una ricerca in corso Indietro la annulla invece di uscire, ed è quello che fa
-    // ogni ricerca dentro un elenco: uscire dalle impostazioni lasciando l'elenco filtrato
-    // costringerebbe a rientrare per rivederlo intero. I due non sono mai accesi insieme.
+    // Con una ricerca in corso Indietro la annulla e non esce, come ogni ricerca in un elenco.
+    // I due gestori non sono mai accesi insieme.
     BackHandler(enabled = page == Page.ROOT && query.isNotBlank()) { query = "" }
 
     /*
-     * ⚠️⚠️ **LA CACHE DELLE MINIATURE SI MISURA E SI SVUOTA QUI, SENZA PASSARE DAL MODELLO**,
-     * e non è una scorciatoia: il modello tiene lo **stato dell'app**, cioè quello che altre
-     * schermate osservano, e una cartella di file temporanei non è stato di nessuno. Il
-     * contesto basta a leggerla e a svuotarla, e mettere un campo nel modello vorrebbe dire
-     * tenerlo d'accordo con un disco che si svuota anche da solo (Android può farlo quando lo
-     * spazio finisce).
-     * ⚠️⚠️ **LA MISURA VA SU UN THREAD DI I/O DALLA `2.99`, E FINO ALLA `2.98` ERA SINCRONA**: la
-     * cartella aveva un tetto di poche centinaia di file, e dalla risposta `disco` a
-     * `d-mini-disco` ne può tenere decine di migliaia, cioè altrettante `stat` sul thread che
-     * disegna. ⚠️ **Il primo valore è l'ultima misura di questo processo** ([AvifCache.known]), e
-     * finché non ce n'è nessuna la riga non dice niente: un 'nessuna miniatura' per un istante
-     * sarebbe un riepilogo falso. Anche lo svuotamento va su un thread di I/O.
-     * ⚠️ [emptied] non è un contatore di cortesia: è la sola cosa che dice a [produceState] di
-     * rifare la misura dopo uno svuotamento, e senza di lui la riga continuerebbe a dire i
-     * megabyte di prima finché non si esce dalle impostazioni. ⚠️ **Dalla `2.97` la chiave è
-     * doppia**: anche 'Genera miniature' scrive in quella cartella, e [Warmup.finished] è il suo
-     * contatore gemello.
-     * ⚠️⚠️ **LA GENERAZIONE PARTE DA QUI E NON DAL MODELLO**, per la stessa ragione dello
-     * svuotamento: il lavoro vive in [Warmup], che è un oggetto di processo, e l'unico dato che
-     * gli serve sono le cartelle nascoste, che la schermata ha già in mano.
+     * ⚠️ **La cache delle miniature si misura, si svuota e si riempie qui, senza il modello**:
+     * il modello tiene lo stato che altre schermate osservano, e una cartella di file temporanei
+     * che Android può svuotare da sé non lo è. La generazione vive in [Warmup], un oggetto di
+     * processo, e le serve solo l'elenco delle cartelle nascoste, che la schermata ha già.
+     * ⚠️ **La misura va su un thread di I/O**: la cartella può tenere decine di migliaia di file
+     * (risposta `disco` a `d-mini-disco`), cioè altrettante `stat` sul thread che disegna. Il
+     * primo valore è l'ultima misura di questo processo ([AvifCache.known]), e senza misura la
+     * riga non dice niente, perché 'nessuna miniatura' per un istante sarebbe falso.
+     * ⚠️ [emptied] e [Warmup.finished] sono le chiavi che fanno rifare la misura a
+     * [produceState] dopo uno svuotamento o una generazione: senza, la riga direbbe i megabyte di
+     * prima.
      */
     val context = LocalContext.current
     var emptied by remember { mutableIntStateOf(0) }
@@ -301,11 +225,10 @@ fun SettingsScreen(
     val generateThumbs: () -> Unit = { Warmup.start(context, settings.hiddenFolders, settings.folderSelection) }
 
     /*
-     * ⚠️⚠️ **DUE COLONNE DA 600 dp, DALLA `3.33`** (mockup `settings`): indice a lato e
-     * pagina scelta nello spazio principale. Sul telefono la pila a pieno schermo non cambia.
-     * ⚠️ **Salto dall'indice**: svuota la pila e apre la pagina (o resta in radice). Così da
-     * tablet si cambia sezione senza risalire i gradini; Indietro dentro la pagina continua
-     * a usare la pila come sul telefono.
+     * Due colonne da 600dp in su (mockup `settings`): l'indice a lato e la pagina scelta nello
+     * spazio principale. Sul telefono resta la pila a pieno schermo.
+     * Il salto dall'indice svuota la pila e apre la pagina, così sul tablet si cambia sezione
+     * senza risalire; Indietro dentro la pagina usa la pila come sul telefono.
      */
     val widthDp = LocalConfiguration.current.screenWidthDp
     val dual = Adaptive.sideAvailable(widthDp)
@@ -320,7 +243,7 @@ fun SettingsScreen(
 
     @Composable
     fun Pages(chrome: Modifier) {
-    // ⚠️ A fade instead of the hard cut between two pages: see [CUT_FADE_MS].
+    // Una dissolvenza fra due pagine e non un taglio netto: vedi [CUT_FADE_MS].
     AnimatedContent(
         targetState = page,
         transitionSpec = { fadeIn(tween(CUT_FADE_MS)) togetherWith fadeOut(tween(CUT_FADE_MS)) using null },
@@ -336,14 +259,11 @@ fun SettingsScreen(
         ) {
             SearchField(query = query, onQuery = { query = it })
             /*
-             * ⚠️⚠️ **LA COLONNA IN PIÙ È IL MODO DI SAPERE SE LA RICERCA HA TROVATO
-             * QUALCOSA, e non un annidamento di troppo**: le righe si filtrano una per una e
-             * nessuno le conta, quindi l'unica cosa che sa quante ne sono rimaste è il
-             * **layout**, che senza figli misura zero. Contarle durante la composizione
-             * vorrebbe dire leggere un totale scritto da chi viene dopo, cioè mostrare
-             * 'nessun risultato' per un fotogramma anche quando i risultati ci sono.
-             * ⚠️ La spaziatura è la stessa del guscio, se no le voci si stringerebbero fra
-             * loro appena entrano in questa colonna.
+             * ⚠️ **La colonna in più dice se la ricerca ha trovato qualcosa**: le righe si
+             * filtrano una per una e nessuno le conta, e il layout senza figli misura zero.
+             * Contarle durante la composizione mostrerebbe 'nessun risultato' per un
+             * fotogramma anche quando i risultati ci sono.
+             * La spaziatura è quella del guscio, o le voci qui dentro si stringerebbero.
              */
             var empty by remember { mutableStateOf(false) }
             Column(
@@ -364,9 +284,8 @@ fun SettingsScreen(
                     )
                 }
             }
-            // ⚠️ Una pagina vuota sotto un campo di ricerca si legge come un'app rotta, non
-            // come 'non c'è niente': la riga dice che la ricerca ha funzionato e non ha
-            // trovato, che sono due cose diverse.
+            // Una pagina vuota sotto un campo di ricerca si legge come un'app guasta: la riga
+            // dice che la ricerca ha funzionato e non ha trovato niente.
             if (empty && query.isNotBlank()) {
                 Text(
                     text = stringResource(R.string.settings_search_none),
@@ -378,14 +297,12 @@ fun SettingsScreen(
         }
 
         /*
-         * ⚠️⚠️ **LE CINQUE PAGINE DEL PRIMO LIVELLO, DALLA `2.09`, E OGNUNA NE CONTIENE UN'ALTRA**
-         * (sua risposta `livelli` a `d-imp-strada`, giro della `2.07`): sono le famiglie che
-         * prima vivevano distese nella pagina piatta, e la loro ragione non è la lunghezza ma
-         * quella scritta in `Rules.md`, § '⚙️ Dove va un'impostazione, e chi la deve
-         * trovare'. Il titolo di ognuna dice la **domanda** a cui le voci di dentro rispondono.
-         * ⚠️ **Il corpo lo scrive una funzione a sé**, e non è una divisione di comodo: lo stesso
-         * corpo lo compone la radice quando una ricerca è in corso (vedi [PageOfRows]), quindi
-         * scritto qui dentro sarebbe irraggiungibile proprio mentre si cerca.
+         * Le pagine del primo livello (risposta `livelli` a `d-imp-strada`): famiglie che ne
+         * contengono un'altra, per la ragione scritta in `Rules.md`, § '⚙️ Dove va
+         * un'impostazione, e chi la deve trovare'. Il titolo di ognuna dice la domanda a cui le
+         * sue voci rispondono.
+         * ⚠️ **Il corpo è una funzione a sé** perché lo compone anche la radice durante una
+         * ricerca (vedi [PageOfRows]): scritto qui dentro, mentre si cerca non si troverebbe.
          */
         Page.FOLDERS -> Shell(
             title = stringResource(R.string.settings_group_browse),
@@ -434,10 +351,9 @@ fun SettingsScreen(
 
         Page.FACTS -> {
             /*
-             * ⚠️⚠️ **LO SCORRIMENTO DELLA PAGINA ARRIVA FIN DENTRO IL RIORDINO, dalla `1.81`**:
-             * l'elenco è più alto della finestra, e senza questo il trascinamento arrivava al
-             * bordo dello schermo e là si fermava (il perché per esteso è su [Reorderable]).
-             * Il guscio nasce **qui** perché lo devono avere in mano tutti e due.
+             * ⚠️ **Lo scorrimento della pagina arriva fin dentro il riordino**: l'elenco è più
+             * alto della finestra, e senza il trascinamento si fermerebbe al bordo dello
+             * schermo (vedi [Reorderable]). Nasce qui perché lo usano il guscio e l'elenco.
              */
             val scroll = rememberScrollState()
             Shell(
@@ -452,12 +368,10 @@ fun SettingsScreen(
         }
 
         /*
-         * ⚠️⚠️ **NASCE NELLA `2.50` ED È UN ELENCO CON COMANDI PER RIGA, come i campi info**: il
-         * guscio che scorre serve al trascinamento che arriva al bordo, quindi nasce qui e lo
-         * ricevono tutti e due (vedi [Reorderable]).
-         * ⚠️ **Sotto 'Editor e salvataggio' e non in una sezione sua**: quella pagina **è** quella
-         * dell'editor di immagini, e una sezione con quel nome là dentro scriverebbe la stessa
-         * parola due volte a mezzo centimetro di distanza.
+         * Un elenco con comandi per riga, come i campi info: lo scorrimento nasce qui per il
+         * trascinamento che arriva al bordo (vedi [Reorderable]).
+         * È sotto 'Editor e salvataggio' e non in una sezione sua: quella pagina è già quella
+         * dell'editor, e una sezione con lo stesso nome ripeterebbe la parola.
          */
         Page.STYLES -> {
             val scroll = rememberScrollState()
@@ -480,8 +394,8 @@ fun SettingsScreen(
             ButtonOrders(settings = settings, onChange = onChange)
         }
 
-        // ⚠️ From the 6.20 the page does not scroll as a whole: its content does, and 'Aggiungi
-        // cartella' stays on a fixed band at the bottom (see [HiddenFolders]).
+        // La pagina non scorre per intero: scorre il contenuto, e 'Aggiungi cartella' resta su
+        // una fascia fissa in fondo (vedi [HiddenFolders]).
         Page.HIDDEN -> Shell(
             title = stringResource(R.string.folder_selection),
             onBack = { back() },
@@ -491,8 +405,8 @@ fun SettingsScreen(
             HiddenFolders(settings = settings, onChange = onChange)
         }
 
-        // ⚠️ A list with commands on each row, like the info fields, under a fixed band: only the
-        // list scrolls, and its scroll is the one the drag needs (see [FavouriteFolders]).
+        // Un elenco con comandi per riga, come i campi info, sotto una fascia fissa: scorre solo
+        // l'elenco, ed è il suo scorrimento che serve al trascinamento (vedi [FavouriteFolders]).
         Page.FAVOURITES -> Shell(
             title = stringResource(R.string.favourite_folders),
             onBack = { back() },
@@ -522,19 +436,9 @@ fun SettingsScreen(
         }
 
         /*
-         * ⚠️⚠️ **NASCE NELLA `1.81` PERCHÉ LA FAMIGLIA HA SUPERATO LA SOGLIA, E LUI L'HA CHIESTA
-         * ALLA LETTERA** (riscontro del giro della `1.80`, campo libero punto A: *Crea una nuova
-         * sotto-pagina 'Rinomina e download' delle impostazioni (sezione 'Modifica e backup')*).
-         * Le tre voci rispondono alla stessa domanda, *che nome ha il file che salvo e dove
-         * finisce*, e tre sono oltre il *2-3* della sua soglia.
-         * ⚠️ **La copertura della ricerca si scrive nello stesso giro**, e qui viene da sé: la
-         * pagina è fatta di RIGHE, quindi la radice ne compone il corpo al posto della riga che
-         * la apre mentre una ricerca è in corso (vedi [PageOfRows]).
-         */
-        /*
-         * ⚠️ **La filigrana è una pagina dentro 'Editor e salvataggio'**, come 'Rinomina e
-         * download' e come gli stili: la famiglia è una sola (*che logo scrivo sulle immagini che
-         * salvo*) e le sue voci sono oltre la soglia del *2-3*.
+         * La filigrana è una pagina dentro 'Editor e salvataggio', come 'Rinomina e download' e
+         * gli stili: la famiglia è una sola (che logo scrivere sulle immagini salvate) e le sue
+         * voci sono oltre la soglia.
          */
         Page.MARK -> Shell(
             title = stringResource(R.string.settings_mark),
@@ -544,6 +448,11 @@ fun SettingsScreen(
             MarkPage(settings = settings, onChange = onChange)
         }
 
+        /*
+         * 'Rinomina e download' (richiesta dell'utente): le sue voci rispondono alla stessa
+         * domanda, che nome ha il file salvato e dove finisce, e sono oltre la soglia. La pagina
+         * è fatta di righe, quindi la ricerca la copre con [PageOfRows].
+         */
         Page.SAVING -> Shell(
             title = stringResource(R.string.settings_rename_download),
             onBack = { back() },
@@ -553,25 +462,12 @@ fun SettingsScreen(
         }
 
         /*
-         * ⚠️⚠️ **UNA SOTTO-PAGINA PER DUE COMANDI, ed è un quarto modo di diventarlo**
-         * (richiesta dell'utente, 2026-09-04: *un 'Elimina le miniature memorizzate' con un >
-         * che ti porta ad una sotto-schermata dove c'è un avviso al centro ... Sotto, un
-         * pulsante*). I tre modi scritti in `Rules.md` sono l'elenco che cresce, la voce
-         * delicata e la famiglia oltre la soglia, e questa non è nessuno dei tre: non è
-         * delicata (*non è un'operazione con risvolti potenzialmente dannosi*, parole sue) e
-         * non è una famiglia. È un **comando che ha bisogno di un paragrafo**, e un paragrafo
-         * di quattro righe in una riga della pagina piatta la farebbe alta il doppio delle
-         * altre per una cosa che si fa una volta l'anno.
-         * ⚠️⚠️ **DALLA `2.97` SI CHIAMA 'GESTISCI LE MINIATURE MEMORIZZATE', PORTA DUE TASTI, E IL
-         * PARAGRAFO VIVE NELLE LORO CONFERME, ED È LA SUA SPECIFICA** (*il tasto esistente diventa
-         * 'Svuota la cache delle miniature' senza introduzione. Al tocco, sarà richiesta conferma
-         * ... In aggiunta, voglio un nuovo pulsante 'Genera miniature'*). Resta una sotto-pagina
-         * perché è lui a chiamarla così (*anche come titolo della sotto-pagina delle
-         * impostazioni*), e perché i due paragrafi si leggono comunque prima di un comando.
-         * ⚠️ **Non porta `lowered()`**, e non è una dimenticanza: il 15% più in basso è la
-         * definizione di 'centrato' per quello che **si apre in mezzo** allo schermo, cioè
-         * dialoghi, pannelli e menu, che hanno una finestra propria e un centro da spostare.
-         * Questa è una schermata intera, e il suo contenuto sta già sotto la testata.
+         * 'Gestisci le miniature memorizzate', una sotto-pagina per due comandi (specifica
+         * dell'utente): è il caso del comando che ha bisogno di un paragrafo, e il paragrafo è
+         * nelle conferme dei due tasti, 'Svuota la cache delle miniature' e 'Genera miniature'.
+         * ⚠️ **Non usa `lowered()`**: il 15% più in basso è la definizione di 'centrato' per
+         * quello che si apre in mezzo allo schermo con una finestra propria, e questa è una
+         * schermata intera, col contenuto già sotto la testata.
          */
         Page.THUMBS -> Shell(
             title = stringResource(R.string.settings_thumbs),
@@ -580,13 +476,10 @@ fun SettingsScreen(
             scrolls = false
         ) {
             /*
-             * ⚠️⚠️ **`BoxWithConstraints` E NON UNA COLONNA CHE SCORRE**, perché le due cose
-             * che servono qui si escludono a vicenda: dentro un `verticalScroll` l'altezza di
-             * un figlio è quella del suo contenuto, quindi non c'è nessuno spazio avanzato da
-             * distribuire e 'al centro' non vuol dire più niente. Sapendo quanto spazio c'è,
-             * la colonna si fa alta **almeno** così e centra; e quando il contenuto è più alto
-             * (schermo piccolo di traverso, corpo del testo ingrandito) scorre invece di
-             * essere tagliato.
+             * ⚠️ **`BoxWithConstraints` e non solo una colonna che scorre**: dentro un
+             * `verticalScroll` un figlio è alto quanto il contenuto, e 'al centro' non vuol dire
+             * niente. Sapendo lo spazio, la colonna si fa alta almeno così e centra; con un
+             * contenuto più alto (schermo piccolo in orizzontale, testo ingrandito) scorre.
              */
             BoxWithConstraints(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 val room = maxHeight
@@ -602,14 +495,12 @@ fun SettingsScreen(
         }
 
         /*
-         * ⚠️⚠️ **UNA SOTTO-PAGINA PER DUE RAGIONI, E SI DICHIARANO QUANDO NASCE** (§ '⚙️ Dove va
-         * un'impostazione, e chi la deve trovare'): è un comando che ha bisogno di un paragrafo,
-         * perché chi esporta deve sapere che cosa il file porterà e che una password dimenticata
-         * non si recupera; e le sue caselle sono una famiglia sola (*che cosa porto con me*) ben
-         * oltre il *2-3* della soglia.
-         * ⚠️ **La ricerca la trova dalla riga che la apre**, con le parole di dentro in `extra`:
-         * il corpo non si appiattisce, perché due tasti e una barra d'avanzamento in mezzo ai
-         * risultati di una ricerca sarebbero comandi fuori dal loro contesto.
+         * Una sotto-pagina per due ragioni (`Rules.md` § '⚙️ Dove va un'impostazione, e chi la
+         * deve trovare'): è un comando che ha bisogno di un paragrafo, perché chi esporta deve
+         * sapere che cosa il file contiene e che una password dimenticata non si recupera; e le
+         * sue caselle sono una famiglia sola oltre la soglia.
+         * ⚠️ **La ricerca la trova dalla riga che la apre**, con le parole di dentro in `extra`: due
+         * tasti e una barra d'avanzamento fra i risultati sarebbero comandi fuori contesto.
          */
         Page.BACKUP -> Shell(
             title = stringResource(R.string.backup_title),
@@ -628,8 +519,8 @@ fun SettingsScreen(
             LookPage(settings = settings, onChange = onChange)
         }
 
-        // ⚠️ Pila salvata prima della `3.41`: Navigazione non è più una pagina. Le due voci
-        // stanno nel Visualizzatore, e l'ordinale di NAV non si riusa per un'altra pagina.
+        // ⚠️ Per una pila salvata quando Navigazione era una pagina: le sue voci sono nel
+        // Visualizzatore, e l'ordinale di NAV non si riusa (vedi [Page]).
         Page.NAV -> Shell(
             title = stringResource(R.string.settings_group_viewer),
             onBack = { back() },
@@ -679,47 +570,39 @@ fun SettingsScreen(
         Pages(modifier)
     }
 
-    // ⚠️ Fuori dal `when` e non dentro la pagina delle miniature: la generazione si chiede anche
-    // dalla pagina piatta mentre si cerca, e la sua pagina deve comparire da tutte e due.
+    // ⚠️ Fuori dal `when`: la generazione si chiede anche dalla radice durante una ricerca, e
+    // la sua pagina deve comparire in tutti e due i casi.
     Warmup.run?.let { WarmupPage(it, onCancel = { Warmup.cancel() }) }
 }
 
 /**
  * Quale pagina si sta guardando.
  *
- * ⚠️⚠️ **LA PROFONDITÀ È DUE DALLA `2.09`, E PRIMA ERA UNO** (sua risposta `livelli` a
- * `d-imp-strada`): fino alla `2.08` la navigazione era **questo valore e nient'altro**, quindi
- * una sotto-pagina non ne poteva aprire un'altra e Indietro riportava sempre alla radice. Le
- * cinque famiglie che sono scese di un livello ne contengono già una ciascuna (l'elenco dei
- * dati, l'ordine dei pulsanti, la vista delle cartelle, le nascoste, 'Rinomina e download'),
- * quindi senza una pila non si potevano chiudere.
- * ⚠️ **`ROOT` non entra mai nella pila**: la radice è la pila **vuota**, e mettercela dentro
+ * La navigazione è una pila di questi valori (risposta `livelli` a `d-imp-strada`): una
+ * sotto-pagina ne può aprire un'altra, e Indietro risale di un gradino.
+ * ⚠️ **`ROOT` non entra mai nella pila**: la radice è la pila vuota, e mettercela dentro
  * darebbe due modi di dire la stessa cosa, con un Indietro che a volte non esce.
+ * ⚠️ **Le voci nuove vanno in coda**: la pila si salva per ordinali ([PAGE_STACK]), e una voce
+ * in mezzo sposterebbe quelle dopo, quindi una rotazione durante un aggiornamento riaprirebbe
+ * una pagina diversa.
  */
 internal enum class Page {
     ROOT,
     FOLDERS, VIEWER, INFO, CONTROLS, EDITING,
-    // ⚠️ `BACKUP` in coda e non vicino a chi gli somiglia: la pila si salva per ordinali (vedi
-    // [PAGE_STACK]), e una voce infilata in mezzo sposterebbe quelle dopo, cioè una rotazione in
-    // corso di aggiornamento riaprirebbe una pagina diversa.
     FACTS, HIDDEN, ZOOM, VIEWS, THUMBS, BUTTONS, SAVING, STYLES, MARK, BACKUP,
-    // ⚠️⚠️ **TRE SOTTO-PAGINE NUOVE DALLA `3.40`** (`3.27-03`): in coda, stessi ordinali di prima
-    // fino a BACKUP. LOOK = tema e profondità pannelli; NAV = scorrimento; START = avvio.
-    // ⚠️ **NAV RESTA NELL'ENUM DALLA `3.41`** anche se non si apre più: toglierlo sposterebbe
-    // l'ordinale di START. Una pila salvata su NAV si mostra come il Visualizzatore.
+    // LOOK: tema e profondità dei pannelli; START: avvio. ⚠️ NAV non si apre più, ma toglierlo
+    // sposterebbe l'ordinale di START: una pila salvata su NAV mostra il Visualizzatore.
     LOOK, NAV, START,
-    // ⚠️ **BIN in coda**: le due voci del cestino, ultima sotto-pagina di Gestione dei file.
+    // Le voci del cestino, sotto-pagina di 'Gestione dei file'.
     BIN,
-    // ⚠️ From the `5.80`, last for the same reason as the others: the saved stack keeps ordinals.
     FAVOURITES
 }
 
 /**
  * Come la pila delle pagine sopravvive a una rotazione.
  *
- * ⚠️ **Salva gli ordinali** per la stessa ragione per cui li salvava il valore solo di prima:
- * un `Int` il `Bundle` lo sa scrivere, un enum no. ⚠️ E il ripristino torna una lista di stato,
- * non una lista qualunque: quella che si legge è la stessa che si modifica aprendo una pagina.
+ * Salva gli ordinali, perché un `Int` il `Bundle` lo sa scrivere e un enum no. Il ripristino
+ * restituisce una lista di stato, la stessa che si modifica aprendo una pagina.
  */
 private val PAGE_STACK = listSaver<SnapshotStateList<Page>, Int>(
     save = { it.map(Page::ordinal) },
@@ -729,45 +612,35 @@ private val PAGE_STACK = listSaver<SnapshotStateList<Page>, Int>(
 /**
  * Che cosa si sta cercando nelle impostazioni, e stringa vuota quando non si cerca.
  *
- * ⚠️⚠️ **UN `CompositionLocal` E NON UN PARAMETRO IN VENTOTTO RIGHE** (richiesta
- * dell'utente, 2026-09-01: *aggiungi un 'cerca' nelle impostazioni*). Le voci di questa
- * schermata sono una trentina, e ognuna è una chiamata a sé con le sue stringhe: passare il
- * testo cercato a mano vorrebbe dire trenta parametri da tenere d'accordo, e la voce nuova
- * che si dimentica di filtrarsi resterebbe in scena mentendo.
- * ⚠️ **Filtra la RIGA e non l'elenco**: non esiste un modello di dati delle impostazioni da
- * setacciare, esistono i composabili che le disegnano, e l'unico posto che conosce le
- * parole di una riga è la riga stessa.
+ * ⚠️ **Un `CompositionLocal` e non un parametro in ogni riga**: ogni voce è una chiamata a sé
+ * con le sue stringhe, e passare il testo cercato a mano vorrebbe dire un parametro per voce,
+ * con il rischio di una voce nuova che non si filtra.
+ * Filtra la riga e non l'elenco: non esiste un modello di dati delle impostazioni, e l'unico
+ * posto che conosce le parole di una riga è la riga stessa.
  */
 private val LocalQuery = compositionLocalOf { "" }
 
 /**
  * Il titolo della sezione in cui la riga vive, per chi cerca il nome di una sezione.
  *
- * ⚠️⚠️ **DALLA `2.10`, ED È LA META DELLA SUA VOCE ACCETTABILE** (riscontro del giro
- * accorpato, voce `imp-ricerca`: *adesso che le impostazioni sono più strutturate, forse
- * dovrebbe trovare anche i titoli di sezione*). Fino alla `2.09` cercando 'Aspetto' non
- * compariva niente: i titoli di sezione spariscono mentre si cerca (vedi [Group]) e nessuna
- * riga porta quella parola.
- * ⚠️⚠️ **PER QUESTO [Section] È UN CONTENITORE E [Group] NO**: un titolo scritto come riga a
- * sé non può dire niente alle voci che lo seguono, perché in Compose un valore arriva ai
- * figli e non ai fratelli. L'unica alternativa era scrivere il nome della sezione in ognuna
- * delle trenta chiamate, cioè trenta posti da tenere d'accordo.
+ * Serve alla voce `imp-ricerca`: i titoli di sezione spariscono durante una ricerca (vedi
+ * [Group]) e nessuna riga contiene quella parola, quindi senza questo cercando 'Aspetto' non
+ * comparirebbe niente.
+ * ⚠️ **Per questo [Section] è un contenitore e [Group] no**: in Compose un valore arriva ai
+ * figli e non ai fratelli, quindi un titolo scritto come riga a sé non può dire niente alle voci
+ * che lo seguono.
  */
 private val LocalSection = compositionLocalOf { "" }
 
 /**
  * Se una riga con questi testi deve comparire adesso.
  *
- * ⚠️ **Senza ricerca in corso compare tutto**, ed è il caso normale: la stringa vuota non è
- * un filtro che non trova niente, è l'assenza di filtro.
- * ⚠️ **Confronto senza maiuscole e senza accenti**: chi cerca 'cestino' lo scrive minuscolo,
- * e chi cerca la qualità la digita quasi sempre senza accento. Le ventotto lingue rendono il
- * secondo caso la regola e non l'eccezione.
- * ⚠️⚠️ **E IL NOME DELLA SEZIONE VALE COME UN TESTO DELLA RIGA, dalla `2.10`**: chi cerca
- * 'Funzionalità avanzate' cerca le voci che ci vivono dentro, e nessuna di loro porta quella
- * parola. ⚠️ **Il risultato dice comunque perché è un risultato**, ed è la clausola che regge
- * la scelta: quando la corrispondenza viene di là, [Section] rimette in scena il proprio
- * titolo, quindi sopra quelle righe si legge la parola cercata.
+ * Senza ricerca in corso compare tutto: la stringa vuota è l'assenza di filtro.
+ * Il confronto ignora maiuscole e accenti: chi cerca la qualità la digita quasi sempre senza
+ * accento, e in molte lingue è la regola.
+ * Il nome della sezione vale come un testo della riga: chi cerca una sezione cerca le sue
+ * voci. Il risultato dice perché è un risultato, perché [Section] rimette in scena il proprio
+ * titolo sopra quelle righe.
  */
 @Composable
 private fun shown(vararg texts: String?): Boolean {
@@ -781,9 +654,8 @@ private fun shown(vararg texts: String?): Boolean {
  * Il testo ridotto a quello che serve per confrontarlo: minuscolo e senza segni.
  *
  * ⚠️ **`Normalizer` e non una tabella di lettere**: la scomposizione canonica stacca il segno
- * dalla lettera in **tutte** le lingue, e il filtro che toglie i segni combinanti vale per
- * l'italiano come per il vietnamita. Una tabella scritta a mano coprirebbe le vocali
- * accentate italiane e sbaglierebbe le altre ventisette lingue.
+ * dalla lettera in tutte le lingue, dall'italiano al vietnamita, mentre una tabella scritta a
+ * mano coprirebbe le sole vocali accentate italiane.
  */
 private fun plain(text: String): String =
     Normalizer.normalize(text.trim().lowercase(), Normalizer.Form.NFD)
@@ -805,25 +677,23 @@ internal fun Searchable(vararg texts: String?, content: @Composable () -> Unit) 
 /**
  * Il campo in cui si scrive che cosa si cerca, in testa alla pagina.
  *
- * ⚠️ **Scorre con l'elenco invece di restare inchiodato in testata**, ed è una scelta: appena
- * si scrive qualcosa l'elenco si accorcia a poche righe e il campo resta in vista da sé,
- * mentre una testata fissa costerebbe uno strato in più su ogni pagina di [Page] per un caso
- * che non capita.
- * ⚠️ La crocetta compare **solo con qualcosa scritto**: un tasto che non ha niente da
- * cancellare è un bersaglio che si preme per sbaglio.
+ * Scorre con l'elenco e non è fisso in testata: appena si scrive l'elenco si accorcia e il
+ * campo resta in vista da sé, mentre una testata fissa costerebbe uno strato in più su ogni
+ * pagina di [Page].
+ * La crocetta compare solo con qualcosa scritto: senza niente da cancellare sarebbe un
+ * bersaglio che si preme per sbaglio.
  */
 @Composable
 private fun SearchField(query: String, onQuery: (String) -> Unit) {
     TextField(
         value = query,
         onValueChange = onQuery,
-        // ⚠️ Una riga sola: il testo cercato è una parola, e un campo che si allarga
-        // spingerebbe l'elenco giù mentre lo si guarda.
+        // Una riga sola: un campo che si allarga spingerebbe l'elenco giù mentre lo si guarda.
         singleLine = true,
         placeholder = { Text(stringResource(R.string.settings_search)) },
         leadingIcon = {
-            // ⚠️ Senza descrizione per lo schermo: la lente ripete quello che il campo dice
-            // già col suo suggerimento, e il lettore leggerebbe 'cerca' due volte.
+            // Senza descrizione: la lente ripete il suggerimento del campo, e il lettore di
+            // schermo leggerebbe 'cerca' due volte.
             Icon(imageVector = Icons.Default.Search, contentDescription = null)
         },
         trailingIcon = {
@@ -837,18 +707,12 @@ private fun SearchField(query: String, onQuery: (String) -> Unit) {
             }
         },
         /*
-         * ⚠️⚠️ **UNA PASTIGLIA E NON UN RIQUADRO, dalla 1.21** (riscontro dell'utente,
-         * 2026-09-01: *forse la barra di ricerca va migliorata esteticamente*). Il campo
-         * squadrato con il contorno che c'era prima è il vestito di un **modulo da
-         * compilare**, e in cima a una pagina fatta di righe e interruttori era l'unico
-         * oggetto con un bordo: si leggeva come un dato da inserire invece che come un
-         * filtro. La pastiglia piena è la forma con cui una ricerca si presenta dappertutto.
-         * ⚠️ **Il filetto sotto se ne va con lui**: la riga che Material disegna sotto un
-         * campo di testo serve a dire dove si scrive, e su una forma già chiusa raddoppia il
-         * contorno. Si toglie negli **stati tutti e tre**, o ricompare toccando il campo.
-         * ⚠️ **Il fondo è `surfaceContainerHigh` e non un colore scritto a mano**: è lo
-         * stesso della bottomsheet della selezione, quindi segue il tema chiaro e scuro
-         * senza che nessuno lo ritocchi.
+         * Una pastiglia e non un riquadro (riscontro dell'utente): un campo squadrato col
+         * contorno si legge come un modulo da compilare, la pastiglia piena come una ricerca.
+         * ⚠️ **Il filetto di Material si toglie in tutti e tre gli stati**, o ricompare toccando
+         * il campo: su una forma già chiusa raddoppierebbe il contorno.
+         * Il fondo è `surfaceContainerHigh`, lo stesso del pannello della selezione, quindi
+         * segue il tema chiaro e scuro.
          */
         shape = RoundedCornerShape(SEARCH_PILL),
         colors = TextFieldDefaults.colors(
@@ -869,19 +733,14 @@ private val SEARCH_PILL = 28.dp
 /**
  * La pagina piatta: le sezioni, le voci che si toccano qui, e le porte delle famiglie.
  *
- * ⚠️ L'ordine delle sezioni va dal generale al particolare: prima com'è fatta l'app e che cosa
- * ci si vede dentro, poi come si sfoglia, come si comanda e come si modifica, e per ultimo che
- * cosa succede all'accensione, che è la voce che si tocca una volta e non si guarda più. È un
- * criterio **stabile**: ordinare per frequenza, o per la domanda che si fa più spesso, si
+ * L'ordine delle sezioni va dal generale al particolare, e finisce con quello che si tocca
+ * una volta e non si guarda più: è un criterio stabile, mentre un ordine per frequenza si
  * riaprirebbe a ogni voce aggiunta.
- * ⚠️⚠️ **DALLA `2.09` UNA FAMIGLIA GRANDE NON VIVE QUI, VIVE DIETRO UNA PORTA** (sua risposta
- * `livelli` a `d-imp-strada`, giro della `2.07`), e quello che resta in questa pagina sono le
- * voci che nessuna famiglia raccoglie. ⚠️ **Il guadagno non è la lunghezza**, che non è mai
- * stata il suo metro: è che scorrendo si leggono domande invece di opzioni.
- * ⚠️⚠️ **DOVE VA UNA VOCE NUOVA LO DICE UNA REGOLA, e non questo elenco**: sta in
- * `Rules.md` § '⚙️ Dove va un'impostazione, e chi la deve trovare', e la cosa da leggere
- * prima di aggiungere una riga è quella. Qui accanto a ogni sezione c'è il **perché** di
- * quella sezione, che è l'altra metà.
+ * Una famiglia grande vive dietro una porta (risposta `livelli` a `d-imp-strada`), e qui restano
+ * le voci che nessuna famiglia raccoglie: scorrendo si leggono domande e non opzioni.
+ * ⚠️ **Dove va una voce nuova lo dice `Rules.md`**, § '⚙️ Dove va un'impostazione, e chi la
+ * deve trovare': va letto prima di aggiungere una riga. Qui accanto a ogni sezione c'è il suo
+ * perché.
  */
 @Composable
 private fun ColumnScope.RootPage(
@@ -898,16 +757,11 @@ private fun ColumnScope.RootPage(
 ) {
     Section(stringResource(R.string.settings_group_look)) {
 
-        /*
-         * ⚠️⚠️ **PRIMA SOTTO-PAGINA DI ASPETTO, DALLA `4.05`, ED È IL POSTO CHE HA DETTO LUI** (nota
-         * del giro della `4.04`: *sposta 'Pulsanti e indicatori' al primo posto della schermata
-         * principale delle impostazioni, prima di 'Tema e dettagli grafici'*). Dalla `3.41` era
-         * l'ultima; prima si chiamava 'Etichette e pulsanti' e stava sotto 'Comandi e indicatori'.
-         */
+        // Prima sotto-pagina di 'Aspetto', per scelta dell'utente (nota del giro della `4.04`).
         PageOfRows(
             label = stringResource(R.string.settings_page_controls),
-            // ⚠️ L'elemento interattivo principale c'è solo sul telefono, e il riepilogo dice
-            // quello che la pagina contiene davvero.
+            // L'elemento interattivo principale c'è solo sul telefono, e il riepilogo dice quello
+            // che la pagina contiene davvero.
             summary = listOfNotNull(
                 stringResource(R.string.settings_main_control)
                     .takeIf { pillOffered(LocalConfiguration.current.smallestScreenWidthDp) },
@@ -918,14 +772,11 @@ private fun ColumnScope.RootPage(
             onOpen = { onOpen(Page.CONTROLS) }
         ) { ControlsPage(settings = settings, onChange = onChange, onOpen = onOpen) }
 
-        /*
-         * ⚠️⚠️ **TEMA E PANNELLI SCENDONO DI UN LIVELLO DALLA `3.40`** (`3.27-03`): restano
-         * la stessa famiglia 'Aspetto', ma dietro una porta come Cartelle/Visualizzatore,
-         * così la radice non ammucchia gettoni accanto alle porte.
-         */
+        // Tema e pannelli (voce `3.27-03`): dietro una porta come le cartelle e il
+        // visualizzatore, così la radice non mescola pastiglie e porte.
         PageOfRows(
             label = stringResource(R.string.settings_page_look),
-            // ⚠️ Le voci che AIV Play fissa non ci sono, e il riepilogo non le nomina
+            // Le voci che AIV Play fissa non ci sono, e il riepilogo non le nomina
             // (`Store.fullSettings`).
             summary = listOfNotNull(
                 stringResource(R.string.settings_ui_theme),
@@ -936,23 +787,18 @@ private fun ColumnScope.RootPage(
         ) { LookPage(settings = settings, onChange = onChange) }
 
         /*
-         * ⚠️⚠️ **TRE PORTE AL POSTO DI DICIOTTO RIGHE, DALLA `2.09`, ED È LA SUA RISPOSTA**
-         * (`d-imp-strada` del giro della `2.07`: **`livelli`**). Le tre famiglie che rispondono a
-         * *che cosa vedo* vivono dietro un tocco, e il riepilogo dice che cosa c'è dentro senza
-         * bisogno di entrare.
-         * ⚠️⚠️ **STANNO IN 'Aspetto' PERCHÉ LE LORO DUE SEZIONI SONO SPARITE, e non è un ripiego**:
-         * una sezione che conterrebbe **soltanto** la porta della propria famiglia scriverebbe la
-         * stessa parola due volte a mezzo centimetro di distanza ('Cartelle' sopra 'Cartelle'), ed è
-         * il caso che la regola chiama *una voce sola non prende un titolo*. I due titoli non si sono
-         * persi e non sono stati tradotti di nuovo: adesso titolano le due pagine.
-         * ⚠️ **L'ordine va dal contenitore al contenuto**: le cartelle, poi l'immagine aperta, poi
-         * quello che l'app dice di lei.
+         * Le famiglie che rispondono a 'che cosa vedo' (risposta `livelli` a `d-imp-strada`),
+         * dietro un tocco, col riepilogo di quello che c'è dentro.
+         * Sono in 'Aspetto' e non in una sezione ciascuna: una sezione con la sola porta della
+         * sua famiglia ripeterebbe la parola ('Cartelle' sopra 'Cartelle'), e una voce sola non
+         * prende un titolo. Quei titoli oggi sono i titoli delle pagine.
+         * L'ordine va dal contenitore al contenuto: le cartelle, l'immagine aperta, quello che
+         * l'app dice di lei.
          */
         PageOfRows(
             label = stringResource(R.string.settings_group_browse),
-            // ⚠️ L'ultima voce c'è **solo se esiste**, come la riga che la apre: un riepilogo che
-            // nomina le cartelle nascoste dove non ce n'è nessuna manda a cercare una riga che
-            // dentro non si trova.
+            // Il riepilogo nomina soltanto le voci che la pagina mostra: una voce assente nel
+            // riepilogo manderebbe a cercare una riga che dentro non c'è.
             summary = buildList {
                 add(stringResource(R.string.settings_front))
                 if (Store.fullSettings) add(stringResource(R.string.settings_colour))
@@ -989,38 +835,19 @@ private fun ColumnScope.RootPage(
     }
 
     /*
-     * ⚠️⚠️ **SEZIONE NUOVA NELLA `1.46`, E MANTIENE UNA PROMESSA CHE IL CODICE AVEVA MESSO PER
-     * ISCRITTO**: il cestino stava fra le cartelle *PER MANCANZA DI UNO MIGLIORE*, con la riga
-     * *il giorno che le voci del cestino diventano due, il gruppo si fa*. La famiglia è una
-     * domanda sola: come non si perde un file quando lo si modifica o lo si cancella. E il
-     * legame fra le due metà non è supposto, lo dice la stringa pubblicata della copia di
-     * sicurezza, che finisce proprio nel cestino.
-     * ⚠️⚠️ **DALLA `2.09` LA SEZIONE PORTA DUE FAMIGLIE E NON UNA**: la porta dell'editor e del
-     * salvataggio, e le due voci del cestino. La domanda della sezione resta quella di allora,
-     * *come non si perde un file*, e il legame fra le due metà non è supposto: lo dice la
-     * stringa pubblicata della copia di sicurezza, che finisce proprio nel cestino.
-     * ⚠️⚠️ **DALLA `3.41` LE DUE VOCI DEL CESTINO STANNO DIETRO UNA PORTA** (`3.40-04`),
-     * ultima di questo gruppo: la soglia del *2-3* le lasciava in chiaro, e lui ha chiesto
-     * il contrario. Il titolo della sezione, da questo giro, è 'Gestione dei file'.
-     * ⚠️ **L'ordine interno segue il percorso di un file**: con che cosa si modifica e come si
-     * salva, e poi che cosa succede se si cancella.
-     * ⚠️⚠️ **IL TITOLO NON NOMINA PIÙ IL CESTINO DALLA 1.48** ('Modifica e cestino', riscritto
-     * dall'utente nel giro della `1.46`), e la voce del cestino è **rimasta qui**: chi la cerca
-     * la trova con la ricerca, che confronta il titolo della voce e non quello della sezione.
-     * La parola nuova, 'backup', nomina la copia di sicurezza, che prima nel titolo non
-     * compariva pur essendo la voce in mezzo.
+     * 'Gestione dei file': la domanda è come non si perde un file quando lo si modifica o lo si
+     * cancella, e il legame fra le sue porte lo dice la stringa della copia di sicurezza, che
+     * finisce nel cestino. Il cestino è una porta (voce `3.40-04`, per scelta dell'utente).
+     * L'ordine segue il percorso di un file: come si modifica, come si salva, che cosa succede
+     * se si cancella.
      */
     Section(stringResource(R.string.settings_group_files)) {
 
-        /*
-         * ⚠️⚠️ **L'EDITOR E IL SALVATAGGIO SCENDONO DI UN LIVELLO NELLA `2.09`**. Il cestino,
-         * dalla `3.41`, è la porta in fondo a questa sezione e non più due righe in chiaro.
-         */
         PageOfRows(
             label = stringResource(R.string.settings_page_editing),
             summary = listOfNotNull(
-                // ⚠️ AIV Play has neither the choice of the editor nor the safety copy: it has
-                // only its own editors, which never write over the original.
+                // AIV Play non ha né la scelta dell'editor né la copia di sicurezza: ha solo i
+                // suoi editor, che non scrivono mai sull'originale.
                 if (Store.files) stringResource(R.string.settings_editor) else null,
                 if (Store.files) stringResource(R.string.settings_editor_backup) else null,
                 stringResource(R.string.settings_quality),
@@ -1037,10 +864,8 @@ private fun ColumnScope.RootPage(
             )
         }
 
-        /*
-         * ⚠️⚠️ **PORTA AUTONOMA DALLA `3.27`** (`d-settings-order`): rinomina e download si usano
-         * anche senza aprire l'editor, quindi non vivono più dentro 'Editor e salvataggio'.
-         */
+        // Una porta sua (`d-settings-order`): rinomina e download si usano anche senza
+        // l'editor, quindi non sono dentro 'Editor e salvataggio'.
         PageOfRows(
             label = stringResource(R.string.settings_rename_download),
             summary = listOfNotNull(
@@ -1051,13 +876,9 @@ private fun ColumnScope.RootPage(
             onOpen = { onOpen(Page.SAVING) }
         ) { RenameAndDownload(settings = settings, onChange = onChange) }
 
-        /*
-         * ⚠️⚠️ **SOTTO-PAGINA CESTINO, ULTIMA DI QUESTO GRUPPO, DALLA `3.41`** (`3.40-04`).
-         * Le due voci che stavano qui in chiaro (attiva il cestino, e per quanto si tiene)
-         * rispondono a una domanda sola e lui le vuole dietro una porta.
-         */
-        // ⚠️ AIV Play has no bin of its own (`Store.files`): from Android 11 it shows the
-        // system's trash, which keeps files by its own rules, so there is nothing to set here.
+        // Il cestino, ultima porta della sezione. AIV Play non ha un cestino suo
+        // (`Store.files`): da Android 11 mostra quello di sistema, che tiene i file con regole
+        // sue, quindi qui non c'è niente da impostare.
         if (Store.files) {
             PageOfRows(
                 label = stringResource(R.string.bin_title),
@@ -1071,10 +892,7 @@ private fun ColumnScope.RootPage(
     }
 
     Section(stringResource(R.string.settings_group_start)) {
-        /*
-         * ⚠️⚠️ **SOTTO-PAGINA DALLA `3.40`** (`3.27-03`): appunti e cartella d'avvio dietro
-         * una porta, stessa famiglia di prima.
-         */
+        // Appunti e cartella d'avvio dietro una porta (voce `3.27-03`).
         PageOfRows(
             label = stringResource(R.string.settings_group_start),
             summary = listOf(
@@ -1092,30 +910,18 @@ private fun ColumnScope.RootPage(
     }
 
     /*
-     * ⚠️⚠️ **IL GRUPPO DELLE 'FUNZIONALITÀ AVANZATE' NASCE NELLA 1.36 CON UNA VOCE SOLA, e
-     * questa volta il gruppo per una riga si fa** (richiesta dell'utente, 2026-09-02: *nelle
-     * impostazioni creiamo una nuova sezione 'Funzionalità avanzate' al cui interno c'è una
-     * voce...*). Due note qui sopra dicono il contrario per il cestino e per lo sfoglio delle
-     * sole immagini, e la differenza non è il numero di righe: quelle due sono impostazioni
-     * normali senza un tema proprio, questa è una funzione che **può fare danni** e il titolo
-     * è metà dell'avviso. Un interruttore così in mezzo agli altri sarebbe uno dei tanti.
-     * ⚠️ **In fondo alla pagina, dopo tutti i gruppi**: chi scorre fin qui sta cercando
-     * qualcosa di insolito, ed è esattamente il pubblico di questa voce.
-     * ⚠️⚠️ **LA VOCE PER CUI IL GRUPPO ERA NATO SE N'È ANDATA NELLA `1.81`, E IL GRUPPO RESTA**:
-     * l'estensione è scesa nella sotto-pagina 'Rinomina e download' su sua richiesta (campo
-     * libero del giro della `1.80`, punto A), e qui è rimasta la memoria grafica delle
-     * miniature, che è l'altra funzione che può fare danni. Il titolo continua a essere metà
-     * dell'avviso, quindi la ragione del gruppo non è decaduta col trasloco.
+     * 'Avanzate', in fondo alla pagina (richiesta dell'utente): ci sono le funzioni che possono
+     * fare danni, e il titolo è metà dell'avviso; chi scorre fin qui cerca qualcosa di insolito.
+     * Con la memoria grafica ci sono le voci sull'app stessa: aggiornamento, miniature,
+     * esportazione e avvisi (voce `3.40-04`).
      */
     Section(stringResource(R.string.settings_group_advanced)) {
 
         /*
-         * ⚠️⚠️ **VIVE QUI E NON FRA LE IMPOSTAZIONI DELLA GRIGLIA, e la domanda lo decide**: chi
-         * cerca questa voce non si chiede 'come vedo le cartelle', si chiede 'come faccio a
-         * rendere l'app più leggera'. È una funzione che tocca il modo in cui il telefono tiene la
-         * memoria, e può fare danni: il perché misurato sta su [Settings.gpuThumbs].
-         * ⚠️⚠️ **DALLA `3.27` È DI NUOVO UNA VOCE SOLA** (`d-settings-order`): gestisci le
-         * miniature è scesa in 'Gestione dell'app' con esportazione e ripristino avvisi.
+         * La memoria grafica è qui e non fra le impostazioni della griglia: chi la cerca si
+         * chiede come rendere l'app più leggera, non come vedere le cartelle. Tocca il modo in
+         * cui il telefono tiene la memoria e può fare danni: il perché misurato è su
+         * [Settings.gpuThumbs].
          */
         SwitchRow(
             label = stringResource(R.string.settings_gpu_thumbs),
@@ -1125,11 +931,10 @@ private fun ColumnScope.RootPage(
         )
 
         /*
-         * ⚠️⚠️ **L'AGGIORNAMENTO AUTOMATICO VIVE QUI DALLA `5.60`, ED È LA DOMANDA A DECIDERLO**:
-         * chi lo cerca si chiede 'come tengo aggiornata l'app', cioè una domanda sull'app stessa,
-         * la stessa di miniature, esportazione e avvisi che vivono in questa sezione. Le sue scelte
-         * C1 e D1 (2026-10-11): l'interruttore, acceso di fabbrica, e `Controlla ora`, che cerca
-         * subito e dice com'è andata. Solo in AIV GitHub (`Store.updates`).
+         * L'aggiornamento automatico è qui perché è una domanda sull'app stessa, come
+         * miniature, esportazione e avvisi. Scelte C1 e D1 dell'utente: l'interruttore, acceso
+         * di fabbrica, e `Controlla ora`, che cerca subito e dice com'è andata. Solo in AIV
+         * GitHub (`Store.updates`).
          */
         if (Store.updates) {
             val updatesLabel = stringResource(R.string.settings_updates)
@@ -1152,11 +957,6 @@ private fun ColumnScope.RootPage(
             }
         }
 
-        /*
-         * ⚠️⚠️ **STESSA SEZIONE DALLA `3.41`** (`3.40-04`): 'Funzionalità avanzate' e
-         * 'Gestione dell'app' si fondono, nello stesso ordine relativo, sotto 'Avanzate'.
-         * Prima la memoria grafica, poi miniature, esportazione e avvisi.
-         */
         val thumbsLabel = stringResource(R.string.settings_thumbs)
         val thumbsClear = stringResource(R.string.settings_thumbs_do)
         val thumbsMake = stringResource(R.string.settings_thumbs_gen)
@@ -1217,41 +1017,31 @@ private fun ColumnScope.RootPage(
         }
     }
 
-    // ⚠️ Mentre si cerca il piede non c'è: il filetto dice 'le impostazioni finiscono qui' e
-    // il logo è la firma della pagina intera, e sotto due risultati direbbero l'una e l'altra
-    // cosa di un elenco che non è la pagina.
+    // Mentre si cerca il piede non c'è: il filetto e il logo chiudono la pagina intera, non
+    // un elenco di risultati.
     if (LocalQuery.current.isNotBlank()) return
 
-    // ⚠️ **L'UNICO filetto che resta**, e resta perché non separa due gruppi ma dice che
-    // i gruppi sono finiti: sotto non c'è un'altra impostazione, c'è il piede.
+    // Il solo filetto della pagina: non separa due gruppi, dice che i gruppi sono finiti.
     HorizontalDivider(Modifier.padding(vertical = 12.dp))
-    // ⚠️⚠️ **`fillMaxWidth` NON È DECORAZIONE: senza, il blocco NON è centrato**, ed è
-    // il difetto che l'utente ha visto (2026-08-29). `Identity` centra i propri figli
-    // fra loro, ma senza larghezza propria prende quella del testo più lungo e questa
-    // colonna la posa a sinistra, perché il suo allineamento è quello di serie: il
-    // blocco risultava centrato **su sé stesso** e spostato verso il bordo. Dandogli
-    // tutta la larghezza, il centro dei figli è il centro dello schermo.
-    // ⚠️ L'icona è IDENTICA a quella della schermata iniziale, e nella 0.47 non lo
-    // era: la ragione, e il fatto che la questione sia già stata decisa nei due versi,
-    // stanno accanto ad `AppIcon`.
+    // ⚠️ **`fillMaxWidth` non è decorazione**: `Identity` centra i figli fra loro, ma senza
+    // larghezza propria è largo quanto il testo più lungo, e questa colonna lo posa a sinistra.
+    // Con tutta la larghezza il centro dei figli è il centro dello schermo.
+    // L'icona è la stessa della schermata iniziale: il perché è accanto ad `AppIcon`.
     Identity(iconSize = 72.dp, modifier = Modifier.fillMaxWidth())
 
     Spacer(Modifier.height(24.dp))
 }
 
 /**
- * Tema dell'app e profondità dietro menu/pannelli.
- *
- * ⚠️⚠️ **NASCE CON LA `3.40`** (`3.27-03`): prima vivevano distese sotto Aspetto nella radice.
+ * Tema dell'app e profondità dietro i menu e i pannelli (voce `3.27-03`).
  */
 @Composable
 private fun LookPage(
     settings: Settings,
     onChange: (Settings) -> Unit
 ) {
-    // ⚠️ Il tema dell'APP sta per primo e prima di quello dello sfondo, che gli somiglia
-    // ma risponde a un'altra domanda (vedi `UiTheme`): messo dopo, si leggerebbe come
-    // una variante di quello, e sono due assi indipendenti.
+    // Il tema dell'app è prima di quello dello sfondo, che gli somiglia ma risponde a un'altra
+    // domanda (vedi `UiTheme`): messo dopo, sembrerebbe una sua variante.
     Choices(
         label = stringResource(R.string.settings_ui_theme),
         detail = stringResource(R.string.settings_ui_theme_desc),
@@ -1261,9 +1051,8 @@ private fun LookPage(
             stringResource(
                 when (it) {
                     UiTheme.SYSTEM -> R.string.settings_system
-                    // ⚠️ Stringhe PROPRIE e non quelle della tinta del fondo, che
-                    // sono al femminile perché dicono 'tinta chiara': qui il nome è
-                    // 'tema', e riusarle darebbe 'Tema: Chiara'.
+                    // ⚠️ Stringhe proprie e non quelle della tinta del fondo, che sono
+                    // al femminile: riusarle darebbe 'Tema: Chiara'.
                     UiTheme.LIGHT -> R.string.settings_theme_light
                     UiTheme.DARK -> R.string.settings_theme_dark
                 }
@@ -1273,13 +1062,11 @@ private fun LookPage(
     )
 
     /*
-     * ⚠️ **La spiegazione dichiara il costo**, che è la ragione per cui la voce esiste: chi
-     * sceglie deve sapere che cosa sta comprando, o leggerà la lentezza come un difetto
-     * dell'app.
-     * ⚠️ **Tre gettoni e non due interruttori** (dalla `1.81`): 'mai insieme' è una regola
-     * strutturale, vedi [PanelDepth].
-     * ⚠️ **AIV Play non ha la voce, dalla `5.30`**: là resta solo l'ombra (`Store.fit`), e una
-     * scelta con una risposta sola non è una scelta.
+     * La spiegazione dichiara il costo: chi sceglie deve saperlo, o leggerà la lentezza come
+     * un difetto dell'app.
+     * Pastiglie e non interruttori: le scelte si escludono, vedi [PanelDepth].
+     * AIV Play non ha la voce: là resta solo l'ombra (`Store.fit`), e una scelta con una
+     * risposta sola non è una scelta.
      */
     if (Store.fullSettings) Choices(
         label = stringResource(R.string.settings_depth),
@@ -1298,19 +1085,14 @@ private fun LookPage(
         onSelect = { onChange(settings.copy(panelDepth = it)) }
     )
 
-    /*
-     * ⚠️⚠️ **IN FONDO A 'TEMA E DETTAGLI GRAFICI', ED È IL POSTO CHE HA DETTO LUI**: dalla `4.04` qui
-     * viveva la voce della pillola (commento a `4.03-03`), e dalla `4.10` ne resta l'aspetto, che
-     * vale per tutti i pulsanti principali (nota E del giro della `4.04`). La scelta dell'elemento
-     * è salita in cima a 'Pulsanti e indicatori'.
-     */
+    // L'aspetto dei pulsanti principali, in fondo a 'Tema e dettagli grafici' per scelta
+    // dell'utente (nota E del giro della `4.04`). La scelta dell'elemento è in cima a
+    // 'Pulsanti e indicatori'.
     ButtonLookChoices(settings = settings, onChange = onChange)
 }
 
 /**
- * Cosa fare all'avvio: appunti e cartella iniziale.
- *
- * ⚠️⚠️ **NASCE CON LA `3.40`** (`3.27-03`).
+ * Che cosa fare all'avvio: appunti e cartella iniziale (voce `3.27-03`).
  */
 @Composable
 private fun StartPage(
@@ -1324,9 +1106,8 @@ private fun StartPage(
         checked = settings.clipboardStart,
         onChange = { onChange(settings.copy(clipboardStart = it)) }
     )
-    // ⚠️ L'interruttore e la riga della cartella si mostrano e si nascondono INSIEME, e per
-    // questo la ricerca li tratta come un blocco solo: la riga sotto non ha un titolo suo, e
-    // rimasta sola direbbe un nome di cartella senza dire di che cosa parla.
+    // L'interruttore e la riga della cartella sono un blocco solo per la ricerca: la riga sotto
+    // non ha un titolo suo, e da sola mostrerebbe un nome di cartella senza contesto.
     val startLabel = stringResource(R.string.settings_start_folder)
     val startDesc = stringResource(R.string.settings_start_folder_desc)
     Searchable(startLabel, startDesc) {
@@ -1334,9 +1115,8 @@ private fun StartPage(
             label = startLabel,
             detail = startDesc,
             checked = settings.openAtStart,
-            // ⚠️ Acceso senza una cartella scelta porta ALL'ELENCO invece di accendersi
-            // e non fare niente: un interruttore che dipende da un'altra voce e non lo
-            // dice è il modo classico di far sembrare rotta un'impostazione.
+            // ⚠️ Acceso senza una cartella scelta apre la scelta della cartella: acceso senza
+            // effetto, l'interruttore sembrerebbe guasto.
             onChange = {
                 if (it && settings.startFolder == null) onStartFolder()
                 else onChange(settings.copy(openAtStart = it))
@@ -1355,12 +1135,8 @@ private fun StartPage(
 /**
  * La pagina 'Cartelle': come si vedono le cartelle di casa, e quali.
  *
- * ⚠️⚠️ **NASCE NELLA `2.09` DA QUATTRO VOCI CHE VIVEVANO IN TRE POSTI DIVERSI**: l'intestazione
- * e il colore stavano in 'Aspetto', la vista e le nascoste nella sezione 'Cartelle'. La domanda
- * che le tiene insieme è una sola, *come riconosco e come vedo una cartella*, e quattro sono
- * oltre il *2-3* della soglia dell'utente.
- * ⚠️ **Ne contiene altre due**, ed è una delle cinque per cui la profondità è passata a due:
- * vedi [Page].
+ * La domanda che tiene insieme le sue voci è una sola, come si riconosce e come si vede una
+ * cartella, e le voci sono oltre la soglia dell'utente. Contiene altre pagine: vedi [Page].
  */
 @Composable
 private fun FoldersPage(
@@ -1369,32 +1145,11 @@ private fun FoldersPage(
     onOpen: (Page) -> Unit
 ) {
     /*
-     * ⚠️⚠️ **QUATTRO PASTIGLIE E NON QUATTRO INTERRUTTORI, ED È LA SUA RICHIESTA** (risposta a
-     * `d-frontespizio` del giro della `1.81`, registrata nel brief: *la voce 'Elementi del
-     * intestazione' ... e i quattro chip*). Sono **indipendenti**, cioè tutte le combinazioni
-     * sono ammesse, e il pezzo che le disegna dichiara proprio quello: [Toggles], non [Choices].
-     * ⚠️⚠️ **UNA VOCE SOLA E NON QUATTRO, e il criterio è quello del pannello**: rispondono
-     * tutte alla stessa domanda (*che cosa c'è nell'intestazione di una cartella*), quindi sono
-     * una famiglia; quattro righe con quattro titoli sarebbero quattro domande che nessuno si fa
-     * separatamente. Il perché per esteso vive in `Rules.md`, § '⚙️ Dove va
-     * un'impostazione, e chi la deve trovare'.
-     * ⚠️⚠️ **VIVEVA IN 'Aspetto' FINO ALLA `2.08`, E DALLA `2.09` STA CON LE CARTELLE**: è uno
-     * degli otto traslochi approvati in blocco, e la ragione è che la sua domanda nomina una
-     * cartella (*che cosa c'è nell'intestazione di una cartella*), non il vestito dell'app.
-     * Sotto 'Aspetto' ci stava per il **verbo**, cioè perché parla di come si vede qualcosa, e
-     * quello è il posto in cui l'effetto si vede, non quello in cui la voce si cerca.
-     * ⚠️ **La ricerca le trova per nome**: [Toggles] passa i nomi delle pastiglie a `shown`,
-     * quindi cercando 'gradiente' compare questa voce.
-     * ⚠️⚠️ **AIV Play ha le sole 'Info' e 'Seleziona tutti', dalla `5.30`** (sua nota sul giro
-     * della `5.20`): il gradiente è sempre acceso e il titolo graziato non c'è (`Store.fit`). Le
-     * pastiglie sono un elenco di [Chip], così il nome, il valore e il tocco di una pastiglia
-     * viaggiano insieme in tutte e due le varianti.
-     */
-    /*
-     * ⚠️⚠️ **THE FIRST ENTRY FROM THE `5.80`, AND TITLE, PARAGRAPH AND CHIPS ARE HIS** (request of
-     * 2026-10-12): *Sarà la prima opzione in alto*. No chip is lit until he chooses, because there
-     * is no factory value; the window that asks lives in the home (`FolderOrderDialog`).
-     * ⚠️ **The same choice as the window, with other names on purpose**: *il nome diverso è voluto*.
+     * L'ordine delle cartelle, prima voce della pagina: titolo, paragrafo e pastiglie sono
+     * dell'utente. Nessuna pastiglia è accesa finché non sceglie, perché non c'è un valore di
+     * fabbrica; la finestra che lo chiede è nella home (`FolderOrderDialog`).
+     * ⚠️ **È la stessa scelta della finestra, con nomi diversi di proposito** (scelta
+     * dell'utente).
      */
     Choices(
         label = stringResource(R.string.folder_order),
@@ -1406,10 +1161,10 @@ private fun FoldersPage(
     )
 
     /*
-     * ⚠️⚠️ **THE FEED'S DATE, FROM 6.02, UNDER 'Disposizione in vista griglia', AND TITLE,
-     * PARAGRAPH AND CHIPS ARE HIS** (2026-10-14): the same choice as the view options of the Feed,
-     * with the same two chips. Here the paragraph says what the Feed is, because this is the place
-     * where someone who never opened it reads about it.
+     * La data del Feed, sotto 'Disposizione in vista griglia': titolo, paragrafo e pastiglie
+     * sono dell'utente. È la stessa scelta delle opzioni di visualizzazione del Feed, con le
+     * stesse due pastiglie; qui il paragrafo dice che cos'è il Feed, perché è il posto in cui
+     * ne legge chi non l'ha mai aperto.
      */
     Choices(
         label = stringResource(R.string.feed_order),
@@ -1420,6 +1175,17 @@ private fun FoldersPage(
         onSelect = { onChange(settings.copy(feedDate = it)) }
     )
 
+    /*
+     * Gli elementi dell'intestazione di una cartella (risposta a `d-frontespizio`): pastiglie
+     * indipendenti, cioè tutte le combinazioni sono ammesse, e per questo [Toggles] e non
+     * [Choices]. Una voce sola e non una per pastiglia, perché rispondono alla stessa domanda
+     * (`Rules.md` § '⚙️ Dove va un'impostazione, e chi la deve trovare'), e con le cartelle e non
+     * in 'Aspetto', perché la domanda nomina una cartella.
+     * La ricerca le trova per nome: [Toggles] passa i nomi delle pastiglie a `shown`.
+     * AIV Play ha le sole 'Info' e 'Seleziona tutti': il gradiente è sempre acceso e il titolo
+     * graziato non c'è (`Store.fit`). Le pastiglie sono un elenco di [Chip], così nome, valore e
+     * tocco viaggiano insieme in tutte e due le varianti.
+     */
     val frontChips = listOfNotNull(
         Chip(stringResource(R.string.settings_front_wash), settings.frontWash) {
             it.copy(frontWash = !it.frontWash)
@@ -1443,22 +1209,15 @@ private fun FoldersPage(
     )
 
     /*
-     * ⚠️⚠️ **DOVE SI VEDE IL COLORE DI UNA CARTELLA, DALLA `1.87`**: la domanda è *come
-     * riconosco una cartella nella schermata iniziale*.
-     * ⚠️⚠️ **IL POSTO CHE AVEVA DETTO LUI ERA 'Aspetto'** (*aggiungi un selettore nelle
-     * impostazioni ('Colore delle cartelle', sotto 'Aspetto')*), e dalla `2.09` sta con le
-     * cartelle: è uno degli otto traslochi che ha approvato in blocco, e sposta la voce senza
-     * toccarne né la chiave né il testo.
-     * ⚠️ **Dopo l'intestazione**: quella parla di una cartella aperta, questa della stessa
-     * cartella vista da fuori, e messe vicine si leggono in fila.
-     * ⚠️ **Cinque gettoni e non un interruttore**, come la profondità dei pannelli: gli stili si
-     * escludono a vicenda, e con quattro interruttori esisterebbe lo stato in cui sono accesi
-     * tutti.
-     * ⚠️ **Ha una gemella nel dialogo delle opzioni**, cioè la scorciatoia del tocco lungo sul
-     * FAB (vedi `ColourChips` in `FolderScreen.kt`): stessa preferenza, stessi cinque nomi, che
-     * arrivano dalla stessa funzione.
-     * ⚠️ **AIV Play non ha la voce, dalla `5.30`**: là c'è il solo 'Nome', sempre acceso
-     * (`Store.fit`), e la gemella del dialogo sparisce con lei.
+     * Dove si vede il colore di una cartella: la domanda è come si riconosce una cartella nella
+     * schermata iniziale, quindi è con le cartelle (trasloco approvato dall'utente, con la
+     * stessa chiave e lo stesso testo). Viene dopo l'intestazione: quella parla della cartella
+     * aperta, questa della stessa cartella vista da fuori.
+     * Pastiglie e non interruttori, come la profondità dei pannelli: gli stili si escludono.
+     * Ha una gemella nel dialogo delle opzioni (`ColourChips` in `FolderScreen.kt`), con gli
+     * stessi nomi dalla stessa funzione.
+     * AIV Play non ha la voce: là c'è il solo 'Nome', sempre acceso (`Store.fit`), e la gemella
+     * del dialogo sparisce con lei.
      */
     if (Store.fullSettings) Choices(
         label = stringResource(R.string.settings_colour),
@@ -1470,34 +1229,28 @@ private fun FoldersPage(
     )
 
     /*
-     * ⚠️⚠️ **PAGINA NUOVA, ED È LA SOLA AGGIUNTA DI STRUTTURA DELLA `1.46`**: le voci che
-     * decidono come si presentano gli elenchi di casa sono una domanda sola e sono più di
-     * tre, quindi la soglia dell'utente le manda dietro un tocco.
-     * ⚠️⚠️ **E QUATTRO DI LORO PRIMA NON SI RAGGIUNGEVANO AFFATTO DA QUI**: le opzioni della
-     * vista a elenco e di quella ad albero vivevano soltanto nel dialogo della schermata
-     * iniziale, quindi la ricerca delle impostazioni non le trovava. Non era una scelta
-     * dichiarata come quella di `Settings.folderView`, che l'eccezione ce l'ha scritta nel
-     * KDoc: era un buco, e il precedente di casa è che una scelta da guardare ha **casa e
-     * scorciatoia insieme**, come le colonne.
-     * ⚠️ **Il titolo è LA STESSA stringa che titola il dialogo**, ed è deliberato: due
-     * superfici con lo stesso titolo sono la prova visibile che il dialogo è una scorciatoia
-     * alla stessa cosa, e non un secondo posto in cui quella scelta vive per conto suo.
+     * Le opzioni di visualizzazione: le voci su come si presentano le viste della home sono una
+     * domanda sola e oltre la soglia, quindi dietro un tocco. Una scelta da guardare ha la sua
+     * casa qui e la scorciatoia nel dialogo della home, come le colonne, e la ricerca delle
+     * impostazioni la trova.
+     * ⚠️ **Il titolo è la stessa stringa del dialogo**, di proposito: dice che il dialogo è una
+     * scorciatoia alla stessa scelta, non un secondo posto in cui vive.
      */
     PageOfRows(
         label = stringResource(R.string.view_options),
-        // ⚠️ Composto dai tre nomi che la pagina usa come titolini: zero stringhe nuove, e se
-        // un titolino cambia cambia anche il riepilogo.
+        // Composto dai nomi che la pagina usa come titolini: nessuna stringa nuova, e se un
+        // titolino cambia cambia anche il riepilogo.
         summary = listOfNotNull(
             stringResource(R.string.view_grid),
             stringResource(R.string.view_list),
-            // ⚠️ `hub_view_tree` ('Cartelle di sistema') e NON `view_tree` ('Cartelle'), che
-            // collide col titolo di questa sezione. Not in AIV Play (`Store.views`).
+            // ⚠️ `hub_view_tree` ('Cartelle di sistema') e non `view_tree` ('Cartelle'), che
+            // ripeterebbe il titolo di questa sezione. Non c'è in AIV Play (`Store.views`).
             stringResource(R.string.hub_view_tree).takeIf { FolderView.TREE in Store.views }
         ).joinToString(SUMMARY_JOIN),
         onOpen = { onOpen(Page.VIEWS) }
     ) { ViewOptionsPage(settings = settings, onChange = onChange) }
 
-    // The mode selector must stay reachable even when both lists are empty.
+    // La scelta del modo resta raggiungibile anche quando i due elenchi sono vuoti.
     PageRow(
         label = stringResource(R.string.folder_selection),
         summary = stringResource(if (settings.folderMode == FolderMode.INCLUDED)
@@ -1509,9 +1262,10 @@ private fun FoldersPage(
     )
 
     /*
-     * ⚠️ **A sub-page because it is a list that grows with commands on each row** (the first way in
-     * `Rules.md` § '⚙️ Dove va un'impostazione'), and *in fondo* as he asked. The search finds it
-     * by the words of its page and by the folders in it, like 'Cartelle incluse/escluse'.
+     * Una sotto-pagina perché è un elenco che cresce, con comandi per riga (`Rules.md` § '⚙️ Dove
+     * va un'impostazione, e chi la deve trovare'), e in fondo per scelta dell'utente. La ricerca
+     * la trova per le parole della pagina e per le cartelle che contiene, come le cartelle
+     * incluse ed escluse.
      */
     PageRow(
         label = stringResource(R.string.favourite_folders),
@@ -1524,37 +1278,36 @@ private fun FoldersPage(
 }
 
 /**
- * The name of a [FolderOrder] on its chip, in the settings and in the view options. The window that
- * asks the order uses longer ones.
+ * Il nome di un [FolderOrder] sulla sua pastiglia, nelle impostazioni e nelle opzioni di
+ * visualizzazione. La finestra che chiede l'ordine usa nomi più lunghi.
  */
 internal fun FolderOrder.chip(): Int = when (this) {
     FolderOrder.ALPHA -> R.string.folder_order_alpha
     FolderOrder.RECENT -> R.string.folder_order_recent
 }
 
-/** The name of a [FeedDate] on its chip, in the settings and in the view options: his two names. */
+/** Il nome di un [FeedDate] sulla sua pastiglia, nelle impostazioni e nelle opzioni: dell'utente. */
 internal fun FeedDate.chip(): Int = when (this) {
     FeedDate.TAKEN -> R.string.feed_date_taken
     FeedDate.MODIFIED -> R.string.feed_date_modified
 }
 
 /**
- * 'Cartelle preferite': the favourite folders in the order the grid and the list show them, from
- * the `5.80` (his request of 2026-10-12).
+ * 'Cartelle preferite': le cartelle preferite nell'ordine in cui le mostrano la griglia e
+ * l'elenco (richiesta dell'utente).
  *
- * ⚠️ **The knobs are those of the info fields** (*manopole identiche a quelle delle info*), that is
- * [Reorderable], and the page's own scroll reaches the drag, as on that page.
- * ⚠️ **'Aggiungi cartella' follows the content while the list is empty, and is a fixed band at the
- * bottom once it is not** (his note A on the giro of the `5.80`): the page does not scroll as a
- * whole, only the list does, so the button is always in sight above it, as the fixed band of
- * 'Esporta e importa'. Its destination dialog is that of the hidden ones: a folder already there
- * is not added twice.
- * ⚠️ **The empty page centres its line and keeps it apart from the explanation**, the other half of
- * the same note: with nothing under it, the line is the content of the page, not a footnote.
- * ⚠️ **The × takes a folder out at once, without asking**: a favourite hides nothing and goes back
- * with a long press, so a confirmation would protect nothing.
- * ⚠️ **The same pieces make [FavouritesSheet]**, which the view options open over the home from the
- * `5.90`: the list and the button are written once, and only the frame differs.
+ * Le maniglie sono quelle dei campi info, cioè [Reorderable], come le ha chieste l'utente, e lo
+ * scorrimento della pagina arriva al trascinamento.
+ * ⚠️ **'Aggiungi cartella' segue il contenuto finché l'elenco è vuoto, poi è una fascia fissa in
+ * fondo** (nota A dell'utente): scorre solo l'elenco, quindi il tasto resta sempre in vista,
+ * come la fascia fissa di 'Esporta e importa'. Il dialogo delle destinazioni è quello delle
+ * nascoste: una cartella già presente non si aggiunge due volte.
+ * La pagina vuota centra la sua riga e la stacca dalla spiegazione: senza altro sotto, quella
+ * riga è il contenuto della pagina.
+ * La × toglie subito una cartella, senza chiedere: una preferita non nasconde niente e torna
+ * con una pressione lunga, quindi una conferma non proteggerebbe niente.
+ * Gli stessi pezzi compongono [FavouritesSheet], che le opzioni di visualizzazione aprono sopra
+ * la home: elenco e tasto sono scritti una volta, e cambia solo la cornice.
  */
 @Composable
 private fun ColumnScope.FavouriteFolders(list: List<String>, onList: (List<String>) -> Unit) {
@@ -1562,7 +1315,8 @@ private fun ColumnScope.FavouriteFolders(list: List<String>, onList: (List<Strin
     if (list.isEmpty()) {
         FavouritesNone()
     } else {
-        // The list's own scroll is the one the drag moves near the edges (see [Reorderable]).
+        // Lo scorrimento dell'elenco è quello che il trascinamento muove vicino ai bordi (vedi
+        // [Reorderable]).
         val scroll = rememberScrollState()
         Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(scroll)) {
             FavouritesList(list, onList, scroll)
@@ -1572,12 +1326,13 @@ private fun ColumnScope.FavouriteFolders(list: List<String>, onList: (List<Strin
 }
 
 /**
- * 'Cartelle preferite' over the home, from the long press on the main button (his note B on the
- * giro of the `5.80`, mockup `homeLongPress.png`).
+ * 'Cartelle preferite' sopra la home, dalla pressione lunga sul pulsante principale (nota B
+ * dell'utente, mockup `homeLongPress.png`).
  *
- * ⚠️ **A sheet and not a trip to the settings**, for the reason written on [MarkSheet]: Back must
- * bring him to the home he left, not up the settings stack. The sheet scrolls by itself, so the
- * list takes no scroll of its own, and 'Aggiungi cartella' is its fixed foot.
+ * ⚠️ **Un pannello e non un salto nelle impostazioni**, per la ragione scritta su [MarkSheet]:
+ * Indietro deve riportare alla home di partenza, non risalire la pila delle impostazioni. Il
+ * pannello scorre da sé, quindi l'elenco non ha uno scorrimento suo, e 'Aggiungi cartella' è il
+ * suo piede fisso.
  */
 @Composable
 internal fun FavouritesSheet(list: List<String>, onList: (List<String>) -> Unit, onDismiss: () -> Unit) {
@@ -1591,7 +1346,7 @@ internal fun FavouritesSheet(list: List<String>, onList: (List<String>) -> Unit,
     }
 }
 
-/** The line of the empty page: centred, and apart from the explanation above it. */
+/** La riga della pagina vuota: centrata, e staccata dalla spiegazione sopra. */
 @Composable
 private fun FavouritesNone() {
     Text(
@@ -1603,7 +1358,7 @@ private fun FavouritesNone() {
     )
 }
 
-/** The favourites with their knobs and their ×. */
+/** Le preferite con le loro maniglie e la loro ×. */
 @Composable
 private fun FavouritesList(list: List<String>, onList: (List<String>) -> Unit, scroll: ScrollState?) {
     Reorderable(
@@ -1631,7 +1386,7 @@ private fun FavouritesList(list: List<String>, onList: (List<String>) -> Unit, s
     }
 }
 
-/** 'Aggiungi cartella', with the destination dialog it opens. */
+/** 'Aggiungi cartella', col dialogo delle destinazioni che apre. */
 @Composable
 private fun FavouritesAdd(list: List<String>, onList: (List<String>) -> Unit, modifier: Modifier = Modifier) {
     var picking by remember { mutableStateOf(false) }
@@ -1639,9 +1394,9 @@ private fun FavouritesAdd(list: List<String>, onList: (List<String>) -> Unit, mo
         Text(stringResource(R.string.folder_add))
     }
     if (picking) {
-        // ⚠️ AIV GitHub goes straight into the tree, as for the included folders; AIV Play reads
-        // no tree (`Store.files`), and shows the folders with pictures, which are the ones a
-        // favourite can bring to the top anyway.
+        // AIV GitHub apre direttamente l'albero, come per le cartelle incluse; AIV Play non legge
+        // l'albero (`Store.files`) e mostra le cartelle con immagini, che sono comunque le sole
+        // che una preferita può portare in cima.
         CompositionLocalProvider(
             LocalDestLook provides DestLook(
                 view = if (Store.files) FolderView.TREE else FolderView.GRID,
@@ -1650,7 +1405,7 @@ private fun FavouritesAdd(list: List<String>, onList: (List<String>) -> Unit, mo
         ) {
             DestinationDialog(
                 action = R.string.favourite_add,
-                // Choosing a favourite moves no file, so nothing is a source here.
+                // Scegliere una preferita non sposta file, quindi qui non c'è nessuna origine.
                 from = emptySet(),
                 onDismiss = { picking = false },
                 onPick = { dir ->
@@ -1667,13 +1422,11 @@ private fun FavouritesAdd(list: List<String>, onList: (List<String>) -> Unit, mo
 /**
  * La pagina 'Visualizzatore': come si guarda un'immagine aperta.
  *
- * ⚠️⚠️ **RACCOGLIE UN TRASLOCO CHE ARRIVA DA DUE SEZIONI**: la coppia dello sfondo veniva da
- * 'Aspetto' (che cosa c'è dietro un'immagine trasparente è una domanda sul visualizzatore, non
- * sul vestito dell'app) e la riproduzione diretta dei video veniva da 'Navigazione' (quella
- * dice che cosa fa un video **quando lo apro**, non come ci si arriva).
- * ⚠️ **'Adattamento e zoom' resta una pagina a sé**, dentro questa: le sue voci sono delicate,
- * che è uno dei quattro modi di diventare una sotto-pagina, e quel tocco in più è una
- * protezione che non si toglie raccogliendole.
+ * Lo sfondo è qui perché che cosa c'è dietro un'immagine trasparente è una domanda sul
+ * visualizzatore, non sull'aspetto dell'app; la riproduzione dei video perché dice che cosa fa
+ * un video quando lo si apre.
+ * 'Adattamento e zoom' resta una pagina a sé, dentro questa: le sue voci sono delicate, e il
+ * tocco in più è una protezione.
  */
 @Composable
 private fun ViewerPage(
@@ -1715,22 +1468,14 @@ private fun ViewerPage(
     )
 
     /*
-     * ⚠️⚠️ **LE VOCI DELICATE STANNO IN UNA SOTTO-PAGINA, per volontà dell'utente**
-     * (2026-09-01: *sono impostazioni delicate: le voglio in una sotto-pagina 'Adattamento e
-     * zoom'*). Sono le sole del pannello che cambiano il modo in cui un'immagine viene
-     * **misurata** invece di che cosa si vede intorno: sbagliarle non rompe niente, ma rende
-     * ogni immagine diversa da come ci si aspetta, e chi le incontra per caso scorrendo
-     * l'elenco non ha modo di saperlo.
-     * ⚠️ **Restano col visualizzatore**, come chiedeva la richiesta alla lettera: la `1.46` le
-     * aveva raccolte in una pagina dentro la sezione, la `2.09` ha mandato la sezione intera
-     * dietro una porta, e loro sono rimaste dove erano rispetto alle vicine.
+     * ⚠️ **Le voci delicate sono in una sotto-pagina, per scelta dell'utente**: sono le sole
+     * che cambiano il modo in cui un'immagine è misurata, e sbagliarle rende ogni immagine
+     * diversa da come ci si aspetta senza che si capisca perché.
      */
     PageOfRows(
         label = stringResource(R.string.settings_zoom_page),
-        // ⚠️⚠️ **IL RIEPILOGO SI COMPONE DAI TITOLI DELLE VOCI, dalla 1.46, e prima era una
-        // frase a mano**: `settings_zoom_page_summary` nominava tre argomenti e la pagina ne
-        // portava quattro dalla 1.26, cioè era invecchiata in silenzio in ventisette lingue.
-        // Composto così non può: se una voce entra, esce o cambia nome, il riepilogo la segue.
+        // Il riepilogo si compone dai titoli delle voci: se una voce entra, esce o cambia nome,
+        // il riepilogo la segue (vedi la nota su [SettingsScreen]).
         summary = listOf(
             stringResource(R.string.settings_fit_grow),
             stringResource(R.string.settings_zoom_max),
@@ -1741,15 +1486,9 @@ private fun ViewerPage(
     ) { ZoomAndFit(settings = settings, onChange = onChange) }
 
     /*
-     * ⚠️⚠️ **ADESSO HA UNA SPIEGAZIONE SUA, E PRIMA NON POTEVA AVERNE**: fino alla `2.08` viveva
-     * sotto 'Sfoglia solo le immagini' ed era **muta** per richiesta dell'utente (2026-09-03:
-     * *senza testo esplicativo*), perché la descrizione della voce sopra nominava già il tocco
-     * di cui questa parla. Le due sono l'una il rovescio dell'altra, quella spegne il **gesto**
-     * e questa accende il **tocco**: staccandole, la richiesta di allora sarebbe diventata una
-     * riga senza niente intorno che la spieghi.
-     * ⚠️ **È il solo costo in stringhe del trasloco**, e si paga una volta: il testo dice quello
-     * che diceva la vicina, cioè che cosa parte da sé e che cosa no. Il perché sia spenta di
-     * fabbrica sta su `Settings.clipAutoplay`.
+     * Ha una spiegazione sua: staccata da 'Sfoglia solo le immagini', di cui è il rovescio,
+     * senza testo resterebbe una riga senza contesto. Il perché sia spenta di fabbrica è su
+     * `Settings.clipAutoplay`.
      */
     SwitchRow(
         label = stringResource(R.string.settings_clip_autoplay),
@@ -1758,18 +1497,14 @@ private fun ViewerPage(
         onChange = { onChange(settings.copy(clipAutoplay = it)) }
     )
 
-    /*
-     * ⚠️⚠️ **QUI DALLA `3.41`, E NON PIÙ IN UNA PAGINA 'NAVIGAZIONE'** (`3.40-04`): le due
-     * voci non sono né una sezione né una sotto-pagina. Restano nello stesso ordine.
-     */
+    // Le due voci di navigazione, qui e non in una pagina loro (voce `3.40-04`).
     SwitchRow(
         label = stringResource(R.string.settings_images_only),
         detail = stringResource(R.string.settings_images_only_desc),
         checked = settings.imagesOnly,
         onChange = { onChange(settings.copy(imagesOnly = it)) }
     )
-    // ⚠️ AIV Play non ha la voce, dalla `5.30`: là la sequenza va sempre dalla più recente
-    // (`Store.fit`).
+    // AIV Play non ha la voce: là la sequenza va sempre dalla più recente (`Store.fit`).
     if (Store.fullSettings) SwitchRow(
         label = stringResource(R.string.settings_reverse_order),
         detail = stringResource(R.string.settings_reverse_order_desc),
@@ -1781,13 +1516,10 @@ private fun ViewerPage(
 /**
  * La pagina 'Informazioni': che cosa l'app dice di un file.
  *
- * ⚠️⚠️ **È LA FAMIGLIA CHE ERA SPARSA IN TRE SEZIONI, e il codice lo confessava**: la regola
- * scritta dice che *l'interruttore della barra delle info è lontano dall'elenco dei dati che
- * governa*, e il peso della selezione stava fra i comandi. Adesso l'interruttore, l'elenco dei
- * dati, il contatore dei fotogrammi e il peso di una selezione rispondono alla stessa domanda
- * nello stesso posto.
- * ⚠️ **L'elenco dei dati resta una pagina a sé**, dentro questa: è un elenco con comandi riga
- * per riga, cioè il primo dei quattro modi, e la sua copertura per la ricerca è `extra`.
+ * L'interruttore della barra delle info, l'elenco dei dati, il contatore dei fotogrammi e il peso
+ * di una selezione rispondono alla stessa domanda nello stesso posto.
+ * L'elenco dei dati resta una pagina a sé, dentro questa: è un elenco con comandi riga per riga,
+ * e la ricerca lo copre con `extra`.
  */
 @Composable
 private fun InfoPage(
@@ -1795,27 +1527,14 @@ private fun InfoPage(
     onChange: (Settings) -> Unit,
     onOpen: (Page) -> Unit
 ) {
-    // ⚠️ Serve alla riga che porta i nomi delle voci interne fra i testi della ricerca: quella
-    // lista si ricorda, e una lettura di risorsa dentro un `remember` vuole l'oggetto delle
-    // risorse invece di `stringResource`, che è componibile.
+    // Le risorse e non `stringResource`, che è componibile: la riga dei campi ricorda i loro
+    // nomi in un `remember`, dove si legge una risorsa con l'oggetto delle risorse.
     val res = LocalResources.current
 
     /*
-     * ⚠️⚠️ **INTERRUTTORE PIÙ RIGA SUBORDINATA, dalla 1.38, ED È UN RITORNO ALLA FORMA DELLA
-     * 1.25** (riscontro `chip-colonna`, 2026-09-02: *torna indietro nelle impostazioni -> due
-     * righe: 'Barra delle info' in linea con l'interruttore off/on; 'Posizione'
-     * gerarchicamente subordinata alla riga precedente, in linea e allineati a destra, i chip
-     * 'In alto' 'In basso' in questo ordine*).
-     * ⚠️⚠️ **LA 1.26 AVEVA FUSO LE DUE RIGHE IN TRE GETTONI, E LA RICHIESTA ERA DELL'ALTRO
-     * POSTO: È UN MIO SCAMBIO, e lui lo ha detto per esteso** (*quando l'ho chiesto per il
-     * pannello l'hai fatta nelle impostazioni, e viceversa; di conseguenza ti ho sempre dato il
-     * feedback sbagliato*). I tre gettoni impilati che questa riga si porta dietro da tre
-     * versioni sono nati da quello scambio, e ogni riscontro che li ha limati stava limando la
-     * cosa sbagliata. Non è quindi la 'quinta forma in cinque versioni': è la 1.25 rimessa dove
-     * era, con l'aggiunta che segue.
-     * ⚠️ **La forma corretta di 'gerarchicamente subordinata' è quella già scritta**: si veda
-     * [InfoSideRow], che è la riga della 1.25 tornata in scena, e che adesso vive in un file
-     * suo perché la vogliono **identica** in due posti.
+     * Interruttore e riga subordinata (riscontro `chip-colonna` dell'utente): 'Barra delle
+     * info' con l'interruttore, e sotto 'Posizione' con le pastiglie 'In alto' e 'In basso'.
+     * La riga è [InfoSideRow], in un file suo perché è identica in due posti.
      */
     SwitchRow(
         label = stringResource(R.string.settings_info_visible),
@@ -1825,16 +1544,9 @@ private fun InfoPage(
     )
 
     /*
-     * ⚠️⚠️ **I DUE GETTONI SI TOCCANO SOLO A BARRA ACCESA, dalla 1.38** (stessa richiesta: *in
-     * entrambi i casi, i due chip della posizione sono selezionabili solo quando l'interruttore
-     * principale è ON*), e questa è la parte NUOVA rispetto alla 1.25, dove restavano sempre
-     * attivi.
-     * ⚠️⚠️ **MA IL VALORE SOTTO NON SI PERDE, ed è la ragione per cui `infoPosition` resta un
-     * campo suo**: spenta la barra, il lato scelto rimane scritto e si ritrova riaccendendola.
-     * Spegnere i gettoni è una cosa che riguarda quello che si può toccare, non quello che si
-     * ricorda.
-     * ⚠️ **Chi cerca 'In alto' con la ricerca li trova comunque**, spenti: nasconderli
-     * direbbe che quell'impostazione non esiste, mentre esiste e ha un interruttore sopra.
+     * Le pastiglie si toccano solo a barra accesa (stessa richiesta), ma il valore non si
+     * perde: `infoPosition` è un campo suo, e il lato scelto si ritrova riaccendendo la barra.
+     * La ricerca le trova anche spente: nasconderle direbbe che l'impostazione non esiste.
      */
     if (shown(
             stringResource(R.string.settings_info_position),
@@ -1848,23 +1560,17 @@ private fun InfoPage(
             enabled = settings.infoVisible,
             onSelect = { onChange(settings.copy(infoPosition = it)) },
             /*
-             * ⚠️⚠️ **NIENTE RIENTRO A SINISTRA, dalla 1.41, e la 1.38 lo aveva rimesso**
-             * (riscontro `barra-impostazioni`, 2026-09-03: *di nuovo 'Posizione' con rientro
-             * -> deve stare allineato a sinistra e basta, senza spazi/indentazioni
-             * iniziali*). 'Gerarchicamente subordinata' lo dicono il corpo leggero del
-             * titolo e il fatto che i gettoni si spengono con l'interruttore sopra: uno
-             * scalino a sinistra è una terza cosa, e non l'ha chiesta.
-             * ⚠️ **Resta il solo distacco in alto**, che non è un rientro ma l'aria fra due
-             * righe.
+             * ⚠️ **Niente rientro a sinistra** (riscontro `barra-impostazioni`): la
+             * subordinazione la dicono il corpo leggero del titolo e le pastiglie che si
+             * spengono con l'interruttore. Resta il solo distacco in alto fra le due righe.
              */
             modifier = Modifier.padding(top = 4.dp)
         )
     }
 
     /*
-     * ⚠️ **Accanto alla barra delle info e non fra le voci dell'editor**: sono le due sole
-     * impostazioni che dicono che cosa si vede SOPRA l'immagine mentre la si guarda, e chi
-     * cerca l'una trova l'altra.
+     * Accanto alla barra delle info e non fra le voci dell'editor: tutte e due dicono che cosa
+     * si vede sopra l'immagine mentre la si guarda, e chi cerca l'una trova l'altra.
      */
     SwitchRow(
         label = stringResource(R.string.settings_anim_counter),
@@ -1882,27 +1588,20 @@ private fun InfoPage(
         ),
         onOpen = { onOpen(Page.FACTS) },
         /*
-         * ⚠️⚠️ **QUESTA PAGINA NON SI APPIATTISCE NELLA RICERCA, e i suoi campi si cercano da
-         * qui**: dentro c'è un ELENCO con due comandi per riga, la casella e le due frecce, e
-         * le frecce lavorano sull'ordine INTERO, quindi in un elenco filtrato manderebbero un
-         * campo in una posizione che non si vede. La copertura è l'altra: i nomi dei campi
-         * entrano fra i testi che la ricerca confronta su questa riga, e chi cerca 'fotocamera'
-         * trova la riga che porta dove quella voce vive. Costa zero stringhe, perché quei nomi
-         * esistono già in tutte le lingue.
-         */
-        /*
-         * ⚠️ **Ricordati, e fino alla `1.80` si rifacevano a ogni ricomposizione della
-         * radice** (censimento della UI del 2026-09-05): quella lista di nomi si ricostruiva a
-         * ogni tocco su una voce del pannello, insieme alla conversione in array che `PageRow`
-         * fa dentro. ⚠️ **La chiave è l'oggetto delle risorse e non il `Context`**: quello che
-         * cambia quando cambia la lingua è il primo, e con lui i nomi si rileggono da soli.
+         * ⚠️ **Questa pagina non si appiattisce nella ricerca**: è un elenco con comandi per
+         * riga che lavorano sull'ordine intero, e in un elenco filtrato sposterebbero un campo
+         * in una posizione che non si vede. I nomi dei campi entrano fra i testi che la ricerca
+         * confronta su questa riga: chi cerca 'fotocamera' trova la riga che porta a quella
+         * voce, senza stringhe nuove.
+         * Ricordati, o si ricostruirebbero a ogni tocco su una voce del pannello. La chiave è
+         * l'oggetto delle risorse e non il `Context`, perché è lui che cambia con la lingua.
          */
         extra = remember(res, settings.factOrder) {
             settings.factOrder.map { res.getString(it.label) }
         }
     )
 
-    // ⚠️ Il costo che quest'interruttore esiste per togliere sta su `Settings.pickWeight`.
+    // Il costo che questo interruttore toglie è descritto su `Settings.pickWeight`.
     SwitchRow(
         label = stringResource(R.string.settings_pick_weight),
         detail = stringResource(R.string.settings_pick_weight_desc),
@@ -1913,10 +1612,8 @@ private fun InfoPage(
 }
 
 /**
- * Le due voci del cestino: se è acceso, e per quanto si tengono i file.
- *
- * ⚠️⚠️ **NASCE CON LA `3.41`** (`3.40-04`): ultima sotto-pagina di 'Gestione dei file'.
- * Prima stavano in chiaro nella sezione, sotto editor e rinomina.
+ * Le voci del cestino: se è acceso, e per quanto si tengono i file. Ultima sotto-pagina di
+ * 'Gestione dei file' (voce `3.40-04`).
  */
 @Composable
 private fun BinPage(
@@ -1949,10 +1646,8 @@ private fun BinPage(
 }
 
 /**
- * La pagina 'Comandi e tasti': come si presentano i comandi che si usano.
- *
- * ⚠️ **Le tre voci sono quelle che stavano in cima a 'Comandi e indicatori', nello stesso
- * ordine**: chi le conosceva le ritrova dove le aveva lasciate, un gradino più in là.
+ * La pagina 'Pulsanti e indicatori': come si presentano i comandi che si usano e i segni che
+ * li accompagnano.
  */
 @Composable
 private fun ControlsPage(
@@ -1960,15 +1655,14 @@ private fun ControlsPage(
     onChange: (Settings) -> Unit,
     onOpen: (Page) -> Unit
 ) {
-    // ⚠️ Serve alla riga che porta i nomi delle voci interne fra i testi della ricerca: quella
-    // lista si ricorda, e una lettura di risorsa dentro un `remember` vuole l'oggetto delle
-    // risorse invece di `stringResource`, che è componibile.
+    // Le risorse e non `stringResource`, che è componibile: la riga dei tasti ricorda i loro
+    // nomi in un `remember`, dove si legge una risorsa con l'oggetto delle risorse.
     val res = LocalResources.current
 
     /*
-     * ⚠️⚠️ **LA PRIMA VOCE DELLA PAGINA DALLA `4.10`, ED È IL POSTO CHE HA DETTO LUI** (nota E del
-     * giro della `4.04`). Sul tablet non c'è, perché il tablet in verticale ha già la sua pillola:
-     * lo decide [pillOffered], lo stesso conto che [pillMode] fa per l'app.
+     * L'elemento interattivo principale, prima voce della pagina per scelta dell'utente (nota E
+     * del giro della `4.04`). Sul tablet non c'è, perché in verticale ha già la sua pillola: lo
+     * decide [pillOffered], lo stesso conto di [pillMode].
      */
     if (pillOffered(LocalConfiguration.current.smallestScreenWidthDp)) {
         MainControlChoices(settings = settings, onChange = onChange)
@@ -1977,13 +1671,10 @@ private fun ControlsPage(
     Choices(
         label = stringResource(R.string.settings_hand),
         /*
-         * ⚠️⚠️ **DALLA `1.57` QUESTA VOCE DICE UN'ALTRA COSA, e la chiave è la stessa** (tappa
-         * del piano d'azione): diceva quale **mano** si usa e rovesciava le file di un
-         * riquadro, adesso dice da che parte sta il **FAB**. La specchiatura se n'è andata
-         * del tutto, e quel mestiere lo fanno l'ordine che si trascina e questo lato.
-         * ⚠️ **La chiave resta `hand`**: la domanda ha cambiato forma ma non verso, quindi chi
-         * aveva scelto la sinistra ritrova la sinistra. Una chiave nuova gli avrebbe rimesso
-         * il valore di fabbrica senza dirglielo.
+         * La voce dice da che parte è il FAB. ⚠️ **La chiave resta `hand`**, dal tempo in cui
+         * diceva quale mano si usa: la domanda ha cambiato forma ma non verso, quindi chi aveva
+         * scelto la sinistra ritrova la sinistra, mentre una chiave nuova avrebbe rimesso il
+         * valore di fabbrica.
          */
         detail = stringResource(R.string.settings_hand_desc),
         options = Hand.entries,
@@ -2000,14 +1691,9 @@ private fun ControlsPage(
     )
 
     /*
-     * ⚠️⚠️ **LE DUE VOCI NUOVE DELLA `1.56` STANNO CON LA MANO, e la famiglia è di tre.**
-     * La domanda che le tiene insieme è una sola, e si scrive come la scrive chi apre il
-     * pannello: *come si presentano i comandi che uso*. Da che parte stanno, come si leggono,
-     * in che ordine sono.
-     * ⚠️⚠️ **FINO ALLA `2.08` QUESTE TRE STAVANO NELLA PAGINA PIATTA, e la nota di allora
-     * diceva che tre non fanno scattare la soglia**: è ancora vero, e non è quello che le ha
-     * fatte scendere. Sono scese perché la strada B raccoglie una famiglia dietro una porta
-     * quando ne contiene già un'altra, e qui l'altra è l'ordine dei pulsanti.
+     * La domanda della famiglia è come si presentano i comandi che si usano: da che parte sono,
+     * come si leggono, in che ordine. È dietro una porta perché contiene già un'altra famiglia,
+     * l'ordine dei pulsanti.
      */
     SwitchRow(
         label = stringResource(R.string.settings_labels),
@@ -2017,15 +1703,10 @@ private fun ControlsPage(
     )
 
     /*
-     * ⚠️⚠️ **VIVE QUI PERCHÉ LO HA CHIESTO LUI, E LA FAMIGLIA LO REGGE** (punto D del campo libero
-     * del giro accorpato: *in `Impostazioni`/`Comandi e indicatori` (che diventa `Etichette e
-     * pulsanti`) aggiungi 'Indicatore dell'ultimo media visualizzato'*). La domanda della
-     * famiglia è *come si presentano i comandi che uso*, e un indicatore non è un comando: a
-     * tenerli insieme è il titolo della pagina che le contiene, 'Comandi e indicatori', che
-     * quella parola ce l'ha già.
-     * ⚠️ **Senza spiegazione**, per il criterio di questo file: il titolo dice per intero che
-     * cos'è, e quello che resta da sapere lo dicono i nomi, che dalla `2.92` sono tre.
-     * ⚠️ **AIV Play non ha né il segno né la voce, dalla `5.30`** (`Store.marksLast`).
+     * L'indicatore dell'ultimo elemento visto, qui per richiesta dell'utente (punto D del giro
+     * accorpato): non è un comando, ma il titolo della pagina nomina gli indicatori.
+     * Senza spiegazione: il titolo dice che cos'è, e il resto lo dicono i nomi delle scelte.
+     * AIV Play non ha né il segno né la voce (`Store.marksLast`).
      */
     if (Store.marksLast) Choices(
         label = stringResource(R.string.settings_last_mark),
@@ -2045,23 +1726,17 @@ private fun ControlsPage(
     )
 
     /*
-     * ⚠️⚠️ **LA RICERCA TROVA I TASTI DA QUI, e non da dentro la pagina**: quella è un ELENCO
-     * con un comando per riga, quindi non si appiattisce (le manopole lavorano sull'ordine
-     * intero, e in un elenco filtrato manderebbero un tasto in una posizione che non si vede).
-     * La copertura è l'altra via prevista dalla regola: i nomi dei tasti arrivano qui come
-     * testi in più, e sono stringhe che esistono già in tutte le lingue.
+     * ⚠️ **La ricerca trova i tasti da qui**, come i campi delle info: la pagina è un elenco con
+     * maniglie che lavorano sull'ordine intero, quindi non si appiattisce, e i nomi dei tasti
+     * arrivano qui come testi in più.
      */
     PageRow(
         label = stringResource(R.string.settings_buttons),
         summary = null,
         onOpen = { onOpen(Page.BUTTONS) },
-        // ⚠️ Ricordati come i nomi dei campi delle info, e per la stessa ragione: le cinque
-        // liste fanno molti elementi ripetuti, e si rifacevano tutte a ogni tocco su una voce
-        // del pannello.
-        // ⚠️ **I sette moduli ci sono anche dove l'editor completo non c'è**, al contrario del
-        // loro riquadro: un nome in più fra i testi che la ricerca confronta porta alla pagina
-        // giusta, mentre toglierlo darebbe una ricerca che risponde in modo diverso a seconda
-        // della versione di Android.
+        // Ricordati come i nomi dei campi delle info, per la stessa ragione.
+        // I moduli ci sono anche dove l'editor completo non c'è: toglierli darebbe una ricerca
+        // che risponde in modo diverso secondo la versione di Android.
         extra = remember(res) {
             (MENU_KEYS + PICK_KEYS + TURN_KEYS + STEP_KEYS + MOD_KEYS).distinct()
                 .map { res.getString(it.label()) }
@@ -2073,9 +1748,8 @@ private fun ControlsPage(
 /**
  * La pagina 'Editor e salvataggio': con che cosa si modifica un file e con che nome si salva.
  *
- * ⚠️ **Il titolo non dice 'Modifica e backup'**, che è la sezione da cui si arriva: due testi
- * uguali uno sopra l'altro direbbero due volte la stessa cosa, e la sezione porta anche le due
- * voci del cestino, che qui dentro non ci sono.
+ * Il titolo non ripete quello della sezione da cui si arriva, 'Gestione dei file', che
+ * contiene anche altre porte.
  */
 @Composable
 private fun EditingPage(
@@ -2085,20 +1759,19 @@ private fun EditingPage(
     onOpen: (Page) -> Unit
 ) {
     /*
-     * ⚠️⚠️ **È LO STESSO SELETTORE del primo utilizzo** (richiesta dell'utente), e la parola
-     * 'stesso' è tecnica e non descrittiva: la finestra è una sola, [EditorPicker], aperta
-     * dal modello (`chooseEditor`) invece che da questa schermata. Due finestre gemelle
-     * sarebbero divergite alla prima voce aggiunta.
+     * ⚠️ **È lo stesso selettore del primo utilizzo** (richiesta dell'utente): la finestra è
+     * una sola, [EditorPicker], aperta dal modello (`chooseEditor`). Due finestre gemelle
+     * divergerebbero alla prima voce aggiunta.
      */
     val editorLabel = stringResource(R.string.settings_editor)
     val editorDesc = stringResource(R.string.settings_editor_desc)
-    // ⚠️ AIV Play has only its own editors (`ViewerViewModel.edit`): nothing to choose.
+    // AIV Play ha solo i suoi editor (`ViewerViewModel.edit`): non c'è niente da scegliere.
     if (Store.files) Searchable(editorLabel, editorDesc) {
         val context = LocalContext.current
         val noEditor = stringResource(R.string.settings_editor_none)
-        // ⚠️ Ricordato, e non chiesto a ogni disegno: leggerlo vuol dire interrogare il
-        // `PackageManager`. La chiave è la scelta. ⚠️ Fuori dal thread principale dalla `6.28`
-        // (rilievo B13): finché il sistema non risponde la riga resta vuota, non 'nessuna'.
+        // Ricordato e non chiesto a ogni disegno, perché leggerlo interroga il `PackageManager`;
+        // la chiave è la scelta. ⚠️ Fuori dal thread principale (rilievo B13): finché il
+        // sistema non risponde la riga resta vuota, non 'nessuna'.
         val editorFound by produceState<String?>("", settings.editorApp) {
             value = withContext(Dispatchers.IO) { Editors.labelOf(context, settings.editorApp) }
         }
@@ -2107,14 +1780,10 @@ private fun EditingPage(
     }
 
     /*
-     * ⚠️⚠️ **VALE PER TUTTI GLI EDITOR DALLA `1.13`, ed è il rovescio di quello che c'era
-     * scritto qui** (domanda dell'utente: *vale solo per l'editor interno o per tutti quelli
-     * che supportano 'Modifica'?*). Fino alla `1.12` copriva il solo editor semplice, e la
-     * nota di allora spiegava perché un'app di fuori non si potesse coprire: la copia si fa
-     * **prima** di lanciarla, quindi si può eccome. Vive sotto la scelta dell'app perché è la
-     * stessa faccenda, non perché ne riguardi una sola.
+     * La copia di sicurezza vale per tutti gli editor, anche quelli di altre app: la copia si
+     * fa prima di lanciarli. È sotto la scelta dell'app perché è la stessa faccenda.
+     * Non c'è in AIV Play, i cui editor non scrivono mai sull'originale (`ImageEdit.outDir`).
      */
-    // ⚠️ Not in AIV Play, whose editors never write over the original (`ImageEdit.outDir`).
     if (Store.files) {
         SwitchRow(
             label = stringResource(R.string.settings_editor_backup),
@@ -2125,13 +1794,11 @@ private fun EditingPage(
     }
 
     /*
-     * ⚠️⚠️ **VIVE NELLA FAMIGLIA DELL'EDITOR PERCHÉ RISPONDE ALLA SUA STESSA DOMANDA**, cioè
-     * *che cosa succede quando modifico una fotografia*: quale editor si apre, se l'originale
-     * si salva prima, e con quanta cura si riscrive il file. Non vive in 'Rinomina e download',
-     * che risponde a *che nome ha il file che salvo e dove finisce*: là il nome, qui i pixel.
-     * ⚠️ **Riguarda il solo editor completo**, ed è scritto nella sua spiegazione: quello di
-     * casa non ricomprime affatto quando puo evitarlo, quindi per lui questa scelta non
-     * esisterebbe.
+     * La qualità è nella famiglia dell'editor perché risponde alla sua domanda, che cosa
+     * succede quando si modifica un'immagine; 'Rinomina e download' risponde a che nome ha il
+     * file e dove finisce. Là il nome, qui i pixel.
+     * ⚠️ **Riguarda il solo editor completo**, come dice la sua spiegazione: l'editor semplice
+     * non ricomprime quando può evitarlo.
      */
     if (advancedEditorAvailable()) {
         Choices(
@@ -2153,33 +1820,11 @@ private fun EditingPage(
     }
 
     /*
-     * ⚠️⚠️ **TRE VOCI DIETRO UN TOCCO DALLA `1.81`, E LA SOTTO-PAGINA L'HA CHIESTA LUI ALLA
-     * LETTERA** (riscontro del giro della `1.80`, campo libero punto A: *Crea una nuova
-     * sotto-pagina 'Rinomina e download' delle impostazioni (sezione 'Modifica e backup')*).
-     * Fino alla `1.80` erano due righe in questa pagina, e la terza (l'estensione) viveva in
-     * 'Funzionalità avanzate': tre voci sono oltre il *2-3* della sua soglia, e la famiglia è
-     * una sola, cioè *che nome ha il file che salvo e dove finisce*.
-     * ⚠️ **La terza voce cambia sezione e non perde la sua chiave**: chi aveva acceso
-     * l'estensione in 'Rinomina' se la ritrova accesa, perché il posto nell'interfaccia e la
-     * chiave nell'archivio sono due cose indipendenti (vedi `Settings.extRename`).
-     * ⚠️⚠️ **DALLA `2.09` È UNA PAGINA DENTRO UNA PAGINA**, ed è uno dei due casi che hanno
-     * fatto cadere la profondità uno: la sua famiglia (la scelta dell'editor, la copia di
-     * sicurezza, e lei) è scesa dietro una porta, e lei era già una pagina. La domanda non è
-     * cambiata, e non è quella del cestino, che parla di quello che si cancella.
-     * ⚠️ **Il riepilogo si compone dai titoli delle tre voci**, come quello dello zoom: scritto
-     * a mano invecchierebbe al primo trasloco, e il precedente è misurato.
-     */
-    /*
-     * ⚠️⚠️ **GLI STILI DELL'EDITOR COMPLETO SI GESTISCONO QUI, DALLA `2.50`, ED È SUA
-     * ISTRUZIONE** (nota sulla voce `preset-salva` del giro della `2.40`: *servirà una nuova
-     * sezione delle Impostazioni (visibile a chi ha l'editor completo): 'Stili di modifica'*).
-     * ⚠️⚠️ **NON SI APPIATTISCE NELLA RICERCA, come l'elenco dei campi info, e per la stessa
-     * ragione**: dentro c'è un elenco che si riordina, e le sue frecce lavorano sull'ordine
-     * **intero**, quindi in un elenco filtrato sposterebbero uno stile in una posizione che non
-     * si vede. La copertura è l'altra: i nomi dei tre comandi entrano fra i testi che la ricerca
-     * confronta su questa riga.
-     * ⚠️ **C'è dove c'è l'editor completo**, come la qualità di scrittura: gli stili sono suoi, e
-     * su un telefono che non lo può aprire quella pagina non avrebbe niente da governare.
+     * Gli stili dell'editor completo (nota dell'utente sulla voce `preset-salva`).
+     * ⚠️ **Non si appiattiscono nella ricerca**, come l'elenco dei campi info: è un elenco che
+     * si riordina sull'ordine intero, quindi i nomi dei suoi comandi entrano fra i testi che la
+     * ricerca confronta su questa riga.
+     * C'è dove c'è l'editor completo, come la qualità: gli stili sono suoi.
      */
     if (advancedEditorAvailable()) {
         PageRow(
@@ -2195,17 +1840,10 @@ private fun EditingPage(
     }
 
     /*
-     * ⚠️⚠️ **LA FILIGRANA VIVE QUI DALLA `2.71`, E FINO ALLA `2.70` STAVA NELLA RADICE** (voce
-     * `filigrana` del giro della `2.70`, punto 1: *'Filigrana' nelle impostazioni deve stare
-     * dentro la sotto-pagina 'Editor e salvataggio'*). La sua domanda è quella di questa pagina,
-     * cioè *che cosa succede quando modifico un'immagine*, e in testa a `MarkSettings.kt` era
-     * **già scritto** che vivesse qui: a stare nella radice, sotto 'Aspetto', era la porta. Cioè
-     * il codice e la nota dicevano due cose diverse, ed è la nota che aveva ragione.
-     * ⚠️ **La ricerca la copre appiattendo il corpo**, come le altre pagine fatte di righe: là
-     * dentro non c'è nessun elenco che si riordina, quindi le sue voci si filtrano da sé e
-     * `PageOfRows` le compone al posto di questa riga mentre una ricerca è in corso.
-     * ⚠️ **Il trasloco non tocca nessuna chiave**, quindi chi aveva già scelto un logo se lo
-     * ritrova: il posto nell'interfaccia e la chiave nell'archivio sono due cose indipendenti.
+     * La filigrana (voce `filigrana`, scelta dell'utente): la sua domanda è quella di questa
+     * pagina, che cosa succede quando si modifica un'immagine.
+     * La ricerca la copre appiattendo il corpo con `PageOfRows`, come le altre pagine fatte di
+     * righe: dentro non c'è un elenco che si riordina.
      */
     PageOfRows(
         label = stringResource(R.string.settings_mark),
@@ -2219,18 +1857,12 @@ private fun EditingPage(
  * La riga dell'editor di immagini: il titolo col tasto 'Imposta', la spiegazione e l'app in
  * vigore.
  *
- * ⚠️⚠️ **DALLA `5.00` IL TASTO È SULLA RIGA DEL TITOLO** (sua nota del giro della `4.99`: *deve
- * stare a destra del titolo 'Editor di immagini', oppure a destra dell'intero paragrafo, perché
- * altrimenti non è chiaro a che cosa è riferito*). Fino alla `4.99` la forma era quella della
- * cartella d'avvio, con il tasto sotto la spiegazione accanto al valore ([ValueAndPick]); la
- * cartella d'avvio la tiene, perché lui ha nominato questa riga sola.
- * ⚠️ **Dalla `5.01` il tasto dice 'Imposta', e l'app in vigore ha la sua riga** (sua nota su
- * `5.00-02`, col mockup).
- * ⚠️⚠️ **DALLA `5.02` 'Imposta' E IL NOME FINISCONO SULLA STESSA VERTICALE, quella del nome, e la
- * riga dice 'app: [nome]' tutta a destra** (sua nota su `5.01-02`). Il testo del tasto rientrava
- * del margine interno del `TextButton`: il tasto si sposta verso la fine di quel margine, così il
- * bersaglio resta intero e il testo arriva al bordo. Sotto la riga c'è più aria prima della voce
- * successiva.
+ * Il tasto è sulla riga del titolo (nota dell'utente del giro della `4.99`): sotto la
+ * spiegazione non sarebbe chiaro a che cosa si riferisce. La cartella d'avvio tiene la forma di
+ * [ValueAndPick], perché la nota nominava questa riga sola.
+ * ⚠️ **'Imposta' e il nome finiscono sulla stessa verticale** (nota su `5.01-02`), e la riga
+ * dell'app è tutta a destra: il tasto si sposta della larghezza del margine interno del
+ * `TextButton`, così il bersaglio resta intero e il testo arriva al bordo.
  */
 @Composable
 internal fun EditorChoice(label: String, detail: String, current: String, onChoose: () -> Unit) {
@@ -2268,8 +1900,8 @@ internal fun EditorChoice(label: String, detail: String, current: String, onChoo
 /**
  * Il guscio comune a tutte le pagine: la colonna che scorre, la freccia e il titolo.
  *
- * ⚠️ Il titolo prende `weight`, e non è un dettaglio: 'Informazioni sul file' in tedesco e
- * in tamil è quasi il doppio, e senza peso una `Row` lo taglia invece di mandarlo a capo.
+ * ⚠️ Il titolo prende `weight`: 'Informazioni sul file' in tedesco e in tamil è quasi il doppio,
+ * e senza peso una `Row` lo taglierebbe e non lo manderebbe a capo.
  */
 @Composable
 private fun Shell(
@@ -2280,33 +1912,20 @@ private fun Shell(
     /**
      * Se la colonna scorre tutta intera.
      *
-     * ⚠️ Spento vuol dire che **il contenuto si prende l'altezza**, ed è l'unico modo di avere
-     * un figlio con `weight`: in una colonna che scorre lo spazio avanzato non esiste, perché
-     * l'altezza è la somma dei figli. Lo spegne la pagina che ha una cosa sola da mettere in
-     * mezzo, e da lì in poi lo scorrimento se lo fa quel figlio.
+     * Spento, il contenuto prende l'altezza, ed è l'unico modo di avere un figlio con `weight`:
+     * in una colonna che scorre lo spazio avanzato non esiste. Lo spegne la pagina che scorre
+     * per conto suo dentro un figlio.
      */
     scrolls: Boolean = true,
     /**
      * Se in fondo alla riga del titolo compare il numero di versione.
      *
-     * ⚠️⚠️ **SOLO NELLA PAGINA PRINCIPALE, e per richiesta** (utente, 2026-09-04: *nelle
-     * impostazioni, in linea con il titolo 'Impostazioni' ma a destra, vorrei che apparisse il
-     * numero della versione dell'app*). Su ogni sotto-pagina sarebbe la stessa riga ripetuta a
-     * ogni livello, e il numero smetterebbe di essere una firma per diventare un ornamento.
+     * Solo nella pagina principale, accanto al titolo (richiesta dell'utente): su ogni
+     * sotto-pagina sarebbe la stessa riga ripetuta, un ornamento e non una firma.
      */
     version: Boolean = false,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    /*
-     * ⚠️⚠️ **I DUE TASTI DELLO SCORRIMENTO VIVONO QUI, ED È LA SUA RISPOSTA `tutto`**
-     * (`d-salti-dove` del giro della `1.95`): scritti nel guscio, coprono la pagina piatta e
-     * tutte le sotto-pagine con una riga sola, invece di una riga per pagina.
-     * ⚠️ **Nelle pagine che NON scorrono da sé si spengono senza una condizione**: là [scroll]
-     * non si muove, quindi `canScrollForward` risponde di no e i tasti non compaiono. Una
-     * guardia scritta a mano direbbe la stessa cosa in un secondo posto.
-     * ⚠️ **Non c'è nessun FAB sotto**, e questa è la sola schermata dell'app in cui succede:
-     * `aboveFab` spento toglie il posto che gli si lascerebbe per niente.
-     */
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -2326,28 +1945,19 @@ private fun Shell(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.headlineSmall,
-                    // ⚠️ La linea di base entra nel conto della riga: vedi il numero qui sotto.
+                    // La linea di base serve all'allineamento col numero di versione, qui sotto.
                     modifier = Modifier.weight(1f).alignByBaseline().heading()
                 )
                 if (version) {
                     /*
-                     * ⚠️⚠️ **IL NUMERO ARRIVA DA `BuildConfig` E NON DA UNA STRINGA**: la fonte
-                     * unica del `versionName` è `app/build.gradle.kts`, e il tag del rilascio la
-                     * conferma invece di ripeterla. Una stringa scritta a mano qui sarebbe il
-                     * secondo posto in cui scriverla, e il primo a mentire.
-                     * ⚠️⚠️ **IL NOME DELL'APP AL POSTO DELLA `v`, dalla `1.59`** (sua richiesta, giro
-                     * della `1.58`: *invece della forma 'v1.58' scrivi in formato 'AIV 1.58'*). Erano
-                     * la stessa cosa a due lettere di distanza soltanto in apparenza: `v` dice che
-                     * quello che segue è una versione, che il numero già dice da sé, mentre `AIV`
-                     * dice **di che cosa** è la versione, e in un pannello che non nomina l'app da
-                     * nessun'altra parte quello è l'unico posto in cui compare.
-                     * ⚠️ **Non si traduce e non è una stringa**, come la `v` di prima: è il nome
-                     * proprio dell'app, uguale in tutte e ventotto le lingue, e una stringa
-                     * sarebbe ventotto righe da mantenere per ripetere tre lettere.
-                     * ⚠️ **Discreto vuol dire questi tre pezzi insieme**: il corpo più piccolo che
-                     * il tema abbia, il monospazio, e l'inchiostro tenue. Il monospazio serve a una
-                     * cosa precisa: le cifre hanno tutte la stessa larghezza, quindi il numero non
-                     * cambia ingombro passando dalla `1.9` alla `1.10`.
+                     * ⚠️ **Il numero arriva da `BuildConfig` e non da una stringa**: la fonte
+                     * unica del `versionName` è `app/build.gradle.kts`, e una stringa scritta qui
+                     * sarebbe un secondo posto da tenere d'accordo.
+                     * 'AIV' e non 'v' (richiesta dell'utente): dice di che cosa è la versione, in
+                     * un pannello che non nomina l'app altrove. È il nome proprio, uguale in tutte
+                     * le lingue, quindi non è una stringa da tradurre.
+                     * Discreto: il corpo più piccolo del tema, l'inchiostro tenue e il monospazio,
+                     * che dà a tutte le cifre la stessa larghezza.
                      */
                     Text(
                         text = "AIV " + BuildConfig.VERSION_NAME,
@@ -2355,14 +1965,11 @@ private fun Shell(
                         fontFamily = FontFamily.Monospace,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = VERSION_FADE),
                         /*
-                         * ⚠️⚠️ **APPOGGIATO SULLA LINEA DI BASE DEL TITOLO, dalla `1.57`**
-                         * (riscontro dell'utente, giro della `1.56`). Centrato in verticale, come
-                         * era, un corpo piccolo accanto a uno grande galleggia a metà della sua
-                         * riga: l'occhio confronta le linee su cui i due poggiano, non i loro
-                         * centri. ⚠️ **Vale sui due testi e non su uno**: la riga allinea per linea
-                         * di base solo i figli che lo chiedono, e uno solo non ha con chi
-                         * allinearsi. La freccia resta centrata, perché un glifo non ha linea di
-                         * base.
+                         * Appoggiato sulla linea di base del titolo (riscontro dell'utente):
+                         * centrato in verticale, un corpo piccolo accanto a uno grande sembra
+                         * sospeso. ⚠️ **`alignByBaseline` va sui due testi**: la riga allinea solo
+                         * i figli che lo chiedono. La freccia resta centrata, perché un glifo non
+                         * ha linea di base.
                          */
                         modifier = Modifier.alignByBaseline().padding(end = VERSION_END)
                     )
@@ -2377,17 +1984,13 @@ private fun Shell(
 /**
  * Il titolo di un gruppo.
  *
- * ⚠️ `titleMedium` nel colore dell'accento, in mezzo alle due misure che c'erano già: il titolo
- * della pagina è `headlineSmall` e il nome di un'impostazione `titleSmall`, quindi il
- * gruppo ha bisogno di stare fra i due per leggersi come un livello e non come una voce.
- * Il colore fa il resto del lavoro, e da solo non basterebbe: chi non distingue quella tinta
- * vede comunque un testo più grande.
- * ⚠️⚠️ **IL COLORE È [accentInk] E NON `primary`, dalla `1.81`**: l'accento vero, come parole,
- * non si legge (2,43 su questo fondo, contro i 4,5 che servono), e questo era uno dei quattro
- * punti in cui l'app lo usava come inchiostro di un testo. Il corpo più grande risponde a
- * un'altra domanda, cioè a chi non distingue le tinte, e non copre il contrasto.
- * ⚠️ **Ed è un'intestazione**, cioè un punto in cui un lettore di schermo si ferma navigando
- * per intestazioni: un titolo di gruppo è esattamente quello.
+ * `titleMedium`, fra il titolo della pagina (`headlineSmall`) e il nome di un'impostazione
+ * (`titleSmall`): così il gruppo si legge come un livello e non come una voce, anche per chi non
+ * distingue la tinta.
+ * ⚠️ **Il colore è [accentInk] e non `primary`**: l'accento vero come colore di un testo non si
+ * legge (2,43 su questo fondo, contro i 4,5 che servono).
+ * È un'intestazione, cioè un punto in cui un lettore di schermo si ferma navigando per
+ * intestazioni.
  */
 @Composable
 private fun Group(title: String) {
@@ -2402,16 +2005,12 @@ private fun Group(title: String) {
 /**
  * Una sezione: il suo titolo, e le voci che ci vivono dentro.
  *
- * ⚠️⚠️ **È UN CONTENITORE DALLA `2.10`, E PRIMA ERA UNA RIGA A SÉ** ([Group], che resta per il
- * solo caso in cui il titolo divide una riga con un comando). Il cambio serve alla ricerca:
- * una voce non sa in che sezione vive, e in Compose un valore arriva ai figli e non ai
- * fratelli, quindi finché il titolo era un fratello delle voci non poteva dirglielo. Il
- * contenuto non è stato riscritto, si è spostato dentro il blocco.
- * ⚠️⚠️ **IL TITOLO TORNA IN SCENA QUANDO È LUI A FARSI TROVARE**, ed è quello che tiene in
- * piedi la regola di sotto: mentre si cerca i titoli spariscono, perché i risultati vengono da
- * sezioni diverse e mescolate e un titolo sopra righe che non gli appartengono direbbe il
- * falso. Ma quando la parola cercata è la sua, le righe che compaiono sono **tutte** sue, e il
- * titolo è la sola cosa che spiega perché sono lì.
+ * ⚠️ **È un contenitore e non una riga a sé** ([Group]) per la ricerca: in Compose un valore
+ * arriva ai figli e non ai fratelli, quindi solo così le voci sanno in che sezione vivono
+ * ([LocalSection]).
+ * Mentre si cerca i titoli spariscono, perché i risultati vengono da sezioni mescolate. Il
+ * titolo torna quando la parola cercata è la sua: allora le righe che compaiono sono tutte
+ * sue, e il titolo spiega perché sono lì.
  */
 @Composable
 private fun Section(title: String, content: @Composable () -> Unit) {
@@ -2423,13 +2022,9 @@ private fun Section(title: String, content: @Composable () -> Unit) {
  * Una riga che mostra il **valore in vigore** di una scelta che si fa altrove, col tasto che la
  * apre.
  *
- * ⚠️⚠️ **NASCE PERCHÉ ERA SCRITTA DUE VOLTE, E IL CODICE DICHIARAVA CHE DOVEVANO RESTARE
- * IDENTICHE** (censimento della UI del 2026-09-05): la nota dell'editor diceva *la forma è
- * ESATTAMENTE quella della cartella d'avvio ... due disposizioni diverse per lo stesso mestiere
- * farebbero cercare il tasto due volte*, cioè enunciava un vincolo e ne affidava il rispetto a
- * chi legge. Le due `Row` erano la stessa cosa riga per riga, con gli stessi tre modificatori.
- * ⚠️ **Le due voci restano diverse dove devono**: quello che cambia è il testo mostrato e che
- * cosa fa il tasto, e sono i due parametri.
+ * Scritta una volta perché le righe che la usano devono restare identiche: due disposizioni per
+ * lo stesso mestiere farebbero cercare il tasto due volte. Quello che cambia sono il testo e il
+ * tasto, cioè i parametri.
  */
 @Composable
 private fun ValueAndPick(value: String, pick: String, onPick: () -> Unit) {
@@ -2449,21 +2044,10 @@ private fun ValueAndPick(value: String, pick: String, onPick: () -> Unit) {
 }
 
 /**
- * La spiegazione sotto un titolo, nello stile che tutte le voci usano.
- *
- * ⚠️⚠️ **NON È PRIVATA DALLA `1.81`, e prima la Cronologia se la riscriveva** (censimento
- * della UI del 2026-09-05): quella copia dichiarava nel proprio commento di essere *lo stile
- * che le impostazioni usano per le spiegazioni*, cioè chi l'ha scritta sapeva di duplicare, e
- * non aveva un'altra via perché questa era chiusa in casa.
- * ⚠️ **Il `modifier` c'è perché serve a un chiamante**: la riga di un file ripristinato le
- * passa un peso. Un valore di serie non cambia niente per gli altri.
- */
-/**
- * Copia delle Impostazioni: apici → grassetto, `ATTENZIONE` → **Attenzione**.
- *
- * ⚠️ Giro 3.25-3.30 / 3.37 (`3.26-03`, `3.37-03`): vale in **tutte** le sezioni e
- * sotto-pagine, non solo Cartelle. `'FAB'` resta tra apici (eccezione esplicita).
- * Le elisioni italiane (`l'app`, `un'immagine`) non sono coppie di apici tipografici.
+ * I testi delle impostazioni con l'enfasi: un termine fra apici diventa grassetto, e
+ * `ATTENZIONE` diventa **Attenzione** (voci `3.26-03` e `3.37-03`), in tutte le sezioni e
+ * sotto-pagine. `'FAB'` resta fra apici, per scelta dell'utente.
+ * Le elisioni italiane (`l'app`, `un'immagine`) non sono coppie di apici.
  */
 internal fun emphasizeSettingsCopy(raw: String): AnnotatedString = buildAnnotatedString {
     var i = 0
@@ -2505,6 +2089,12 @@ internal fun emphasizeSettingsCopy(raw: String): AnnotatedString = buildAnnotate
     }
 }
 
+/**
+ * La spiegazione sotto un titolo, nello stile che tutte le voci usano.
+ *
+ * Non è privata perché la usa anche la Cronologia: una sua copia divergerebbe. Il `modifier`
+ * serve alla riga di un file ripristinato, che le passa un peso.
+ */
 @Composable
 internal fun Detail(text: String, modifier: Modifier = Modifier) {
     Text(
@@ -2518,11 +2108,10 @@ internal fun Detail(text: String, modifier: Modifier = Modifier) {
 /**
  * Una riga che apre una sotto-pagina.
  *
- * ⚠️ Il gallone è `AutoMirrored`, come la freccia Indietro: in persiano, urdu e arabo una
- * pagina si apre verso sinistra, e un gallone fisso puntato a destra indicherebbe il verso
- * sbagliato. È la stessa ragione per cui le pillole sono in una `Row` e non allineate a
- * `End`. ⚠️ Nessuna descrizione per lo schermo: la riga intera è il comando, e il lettore
- * legge già nome e riepilogo. Una parola in più ('apri') li ripeterebbe.
+ * ⚠️ La freccia è `AutoMirrored`, come quella di Indietro: in persiano, urdu e arabo una pagina
+ * si apre verso sinistra, e una freccia fissa a destra indicherebbe il verso sbagliato.
+ * Nessuna descrizione per lo schermo: la riga intera è il comando, e il lettore legge già nome e
+ * riepilogo.
  */
 @Composable
 private fun PageRow(
@@ -2530,33 +2119,27 @@ private fun PageRow(
     /**
      * La riga di spiegazione sotto il titolo, e `null` per una riga che non ne ha.
      *
-     * ⚠️⚠️ **PUÒ MANCARE DALLA `1.59`, e la prima a farne a meno è 'Ordine dei pulsanti'**
-     * (riscontro dell'utente, giro della `1.58`: *toglila del tutto*). Quella pagina si
-     * spiega da sé appena si apre, con due righe in cima e i riquadri veri sotto: il
-     * riepilogo qui ripeteva la prima di quelle due, e ripetuto fuori occupava tre righe
-     * nella pagina piatta.
-     * ⚠️ **Togliere il riepilogo NON toglie la riga dalla ricerca**: la copertura di questa
-     * pagina è [extra], che porta i nomi dei tasti di dentro. Una riga muta e senza `extra`
-     * si troverebbe col solo titolo, che è la ragione per cui questo parametro resta
-     * l'eccezione e non il difetto.
+     * Può mancare, come per 'Ordine dei pulsanti' (riscontro dell'utente): quella pagina si
+     * spiega da sé appena si apre.
+     * ⚠️ **Senza riepilogo la riga resta nella ricerca grazie a [extra]**: una riga senza
+     * riepilogo e senza `extra` si troverebbe col solo titolo.
      */
     summary: String?,
     onOpen: () -> Unit,
     /**
      * Le parole delle righe che vivono **dentro** la pagina, per la ricerca.
      *
-     * ⚠️ Serve alle pagine che sono ELENCHI con comandi riga per riga, che non si possono
-     * appiattire nella radice: là la copertura è questa, cioè la riga che apre la pagina
-     * risponde anche alle parole di dentro. Vuoto per le altre, che si appiattiscono.
+     * Serve alle pagine che sono elenchi con comandi riga per riga, che non si appiattiscono
+     * nella radice: la riga che apre la pagina risponde anche alle parole di dentro. Vuoto per
+     * le altre.
      */
     extra: List<String> = emptyList()
 ) {
     if (!shown(label, summary ?: "", *extra.toTypedArray())) return
     Row(
-        // ⚠️ `clickable` PRIMA di `padding`: così il tocco prende anche il margine, e la
-        // riga arriva ai 48dp di bersaglio senza scriverli.
-        // ⚠️ E [Modifier.bordo] prima ancora, dalla `1.59`: l'alone arriva ai fianchi dello
-        // schermo invece di fermarsi al rientro della pagina.
+        // ⚠️ `clickable` prima di `padding`: il tocco prende anche il margine, e la riga arriva
+        // ai 48dp di bersaglio senza scriverli. [Modifier.bordo] prima ancora: l'alone arriva ai
+        // fianchi dello schermo e non si ferma al rientro della pagina.
         modifier = Modifier
             .fillMaxWidth()
             .bordo()
@@ -2581,36 +2164,21 @@ private fun PageRow(
 }
 
 /**
- * Una sotto-pagina fatta di RIGHE: la riga che la apre, oppure il suo corpo mentre si cerca.
+ * Una sotto-pagina fatta di righe: la riga che la apre, oppure il suo corpo mentre si cerca.
  *
- * ⚠️⚠️ **È LA COPERTURA DELLA RICERCA PER LE SOTTO-PAGINE, e senza di lei una voce spostata
- * dietro un tocco ESCE dalla ricerca**: `LocalQuery` è fornito nel solo ramo della radice, le
- * sotto-pagine non lo ricevono, e là con la ricerca vuota [shown] risponde di sì a tutto.
- * Mandare una famiglia in sotto-pagina senza questo peggiorerebbe l'app.
- * ⚠️ **Funziona perché il corpo si compone DENTRO il provider della radice**: le righe si
- * filtrano già da sé, quindi non serve nessun elenco di voci da tenere aggiornato. L'unico
- * pezzo che non si filtra da sé è un blocco scritto a mano, e quello si avvolge in
- * [Searchable].
- * ⚠️ **Sopra il corpo appiattito non si stampa il titolo della pagina**, per coerenza con la
- * scelta già presa in [Group]: mentre si cerca i titoli non compaiono, perché i risultati
- * vengono da posti diversi e mescolati.
- * ⚠️ **Non vale per le pagine che sono ELENCHI**: là il corpo non si appiattisce, e la
- * copertura è il parametro `extra` di [PageRow].
- * ⚠️⚠️ **SI ANNIDA DA SÉ, E DALLA `2.09` È MISURATO INVECE CHE SPERATO**: il corpo di una
- * pagina si compone **dentro** il provider di `LocalQuery`, quindi una pagina dentro una
- * pagina incontra la stessa condizione una seconda volta e si appiattisce a sua volta. La
- * misura è `ImpostazioniTest`, che cerca una voce di 'Adattamento e zoom', cioè due livelli
- * sotto, e la trova; controprovata togliendo l'appiattimento alla porta che la contiene.
- *
- * ⚠️⚠️ **MA UN TITOLO DI PAGINA NON SI TROVAVA, E DALLA `2.10` LA RIGA RESTA QUANDO È LUI A
- * CORRISPONDERE** (riscontro del giro accorpato, voce `imp-ricerca`: *ho cercato 'Adattamento'
- * e non mi ha trovato 'Adattamento e zoom'*). Appiattendo **sempre**, il titolo della pagina
- * usciva di scena e nessuna delle voci di dentro porta quella parola: la ricerca rispondeva
- * che non c'era niente mentre la pagina si chiama proprio così.
- * ⚠️ **Guarda il titolo e NON il riepilogo**, che è la differenza che decide quale delle due
- * cose compare: il riepilogo nomina le voci di dentro, quindi cercando 'Sfondo' la porta del
- * visualizzatore corrisponderebbe e si prenderebbe il posto della voce vera, che è un
- * risultato migliore. Col titolo il risultato è la pagina solo quando si cerca la pagina.
+ * ⚠️ **È la copertura della ricerca per le sotto-pagine**: `LocalQuery` è fornito nel solo ramo
+ * della radice, e senza questo una voce dietro un tocco resterebbe fuori dalla ricerca. Funziona
+ * perché il corpo si compone dentro il provider della radice e le righe si filtrano da sé; un
+ * blocco scritto a mano si avvolge in [Searchable].
+ * Sopra il corpo appiattito non c'è il titolo della pagina, come per [Group]: i risultati
+ * vengono da posti mescolati. Le pagine che sono elenchi non si appiattiscono: la loro
+ * copertura è `extra` di [PageRow].
+ * Si annida da sé: una pagina dentro una pagina si appiattisce a sua volta. Lo presidia
+ * `ImpostazioniTest`, che trova una voce di 'Adattamento e zoom', due livelli sotto.
+ * ⚠️ **La riga resta quando è il titolo della pagina a corrispondere** (voce `imp-ricerca`),
+ * perché nessuna voce di dentro contiene quella parola. Guarda il titolo e non il riepilogo:
+ * il riepilogo nomina le voci di dentro, e cercando 'Sfondo' la porta del visualizzatore
+ * prenderebbe il posto della voce vera.
  */
 @Composable
 private fun PageOfRows(
@@ -2622,10 +2190,8 @@ private fun PageOfRows(
     if (LocalQuery.current.isBlank() || shown(label)) {
         PageRow(label = label, summary = summary, onOpen = onOpen)
     } else {
-        // ⚠️ Il corpo di una pagina non appartiene alla sezione in cui vive la sua porta:
-        // quelle voci rispondono alla domanda della pagina, e la loro copertura è il titolo
-        // qui sopra. Lasciando la sezione di fuori, cercarne il nome le farebbe comparire
-        // tutte senza che niente in scena dica da dove vengono.
+        // ⚠️ Il corpo di una pagina non appartiene alla sezione della sua porta: con la sezione
+        // di fuori, cercarne il nome farebbe comparire queste voci senza dire da dove vengono.
         CompositionLocalProvider(LocalSection provides "") { body() }
     }
 }
@@ -2634,40 +2200,28 @@ private fun PageOfRows(
  * I due comandi delle miniature memorizzate, 'Svuota la cache delle miniature' e 'Genera miniature',
  * con le loro conferme.
  *
- * ⚠️⚠️ **UN COMPONENTE SOLO PER I DUE POSTI IN CUI COMPARE**: la sotto-pagina e, mentre si
- * cerca, la pagina piatta che la appiattisce ([PageOfRows]). Scriverlo due volte vorrebbe dire
- * due tasti che si aggiornano in un posto e non nell'altro, che è il difetto che la copertura
- * della ricerca doveva togliere.
- * ⚠️ [head] è il titolo, e c'è **solo** nella pagina piatta: nella sotto-pagina lo dice già la
- * testata, e ripeterlo direbbe la stessa cosa due volte a mezzo centimetro di distanza.
+ * Un componente solo per i due posti in cui compare: la sotto-pagina e, mentre si cerca, la
+ * radice che la appiattisce ([PageOfRows]). [head] è il titolo, solo nella radice: nella
+ * sotto-pagina lo dice già la testata.
  *
- * ⚠️⚠️ **DALLA `2.97` I TASTI SONO DUE E L'INTRODUZIONE NON C'È PIÙ, ED È LA SUA SPECIFICA**
- * (*il tasto esistente diventa 'Svuota la cache delle miniature' senza introduzione. Al tocco, sarà
- * richiesta conferma ... In aggiunta, voglio un nuovo pulsante 'Genera miniature'*). Il paragrafo
- * di prima vive nella conferma di 'Svuota', riscritto da lui, e 'Genera' porta il suo.
- * - ⚠️ **L'ordine è il suo**: prima il tasto che c'era, poi quello nuovo.
- * - ⚠️ **Le conferme portano il solo testo**, senza titolo: la domanda è già dentro il testo, e un
- *   titolo ripeterebbe il nome del tasto appena toccato.
- * - ⚠️ **I loro tasti sono 'Sì' e 'Annulla'**, e 'Sì' è la sua parola (*Se si tocca 'Sì'*): la coppia
- *   è la stessa nelle due finestre, perché sono due domande della stessa pagina. ⚠️ **Il 'Sì' ha il
- *   colore di sempre e non quello dell'errore**: svuotare non ha *risvolti potenzialmente dannosi*,
- *   parole sue del 2026-09-04, e le miniature si rifanno da sé.
- * - ⚠️ **Non sono modali vere**, per il criterio di `Rules.md` § '👆 Che cosa fa il tocco FUORI da
- *   una finestra': il tocco fuori vale 'Annulla', cioè l'esito sicuro.
- * - ⚠️ **Nel paragrafo di 'Genera' c'è 'immagini' dove lui aveva scritto 'foto'**, per la sua regola
- *   di § '🗣️ Come si chiamano le cose': questa app apre anche tavole, scansioni e schermate.
- * - ⚠️ **'Genera' c'è su ogni versione di Android dalla `2.99`**: fino alla `2.98` mancava sotto
- *   Android 10, dove nessuna miniatura restava su disco. Adesso là tutto passa dalla decodifica, e la
- *   decodifica si tiene (vedi `KeepingDecoderFactory`, in `Thumbs.kt`).
- * - ⚠️ **I due tasti sono larghi uguali**: `IntrinsicSize.Max` li misura sul più largo, e due tasti
- *   uno sotto l'altro di due larghezze diverse si leggerebbero come due comandi di peso diverso.
+ * La specifica è dell'utente: due tasti senza introduzione, nel suo ordine, e il paragrafo
+ * nelle conferme.
+ * - Le conferme hanno il solo testo, senza titolo: la domanda è nel testo, e un titolo
+ *   ripeterebbe il nome del tasto appena toccato.
+ * - I loro tasti sono 'Sì' e 'Annulla', uguali nelle due finestre. ⚠️ **Il 'Sì' ha il colore di
+ *   sempre e non quello dell'errore**: svuotare non fa danni, le miniature si rifanno da sé.
+ * - Non sono modali vere (`Rules.md` § '👆 Che cosa fa il tocco FUORI da una finestra'): il
+ *   tocco fuori vale 'Annulla', l'esito sicuro.
+ * - 'Genera' c'è su ogni versione di Android: sotto Android 10 tutto passa dalla decodifica, che
+ *   si tiene (`KeepingDecoderFactory`, in `Thumbs.kt`).
+ * - I due tasti sono larghi uguali (`IntrinsicSize.Max`): con due larghezze si leggerebbero
+ *   come comandi di peso diverso.
  *
- * ⚠️ **'Svuota' avvisa con la notifica di casa**: quello che è successo si vede in un'altra
- * schermata, e un comando che non dà segno di aver fatto qualcosa si preme due volte. È la stessa
- * scelta, e la stessa ragione, di 'Ripristina gli avvisi'. **'Genera' lo dice alla fine**, dalla
- * sua pagina ([Warmup]).
- * ⚠️ **È `internal` per il banco**, che la monta coi due comandi finti: montata dentro la
- * schermata, 'Sì' su 'Genera' farebbe partire una generazione vera.
+ * 'Svuota' avvisa con la notifica di casa, come 'Ripristina gli avvisi': l'effetto si vede in
+ * un'altra schermata, e un comando che non dà segno si preme due volte. 'Genera' lo dice alla
+ * fine, dalla sua pagina ([Warmup]).
+ * ⚠️ **È `internal` per il banco**, che la monta coi due comandi finti: dentro la schermata,
+ * 'Sì' su 'Genera' farebbe partire una generazione vera.
  */
 @Composable
 internal fun ThumbsCard(
@@ -2681,9 +2235,8 @@ internal fun ThumbsCard(
     Column(
         modifier = modifier.fillMaxWidth().padding(vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        // ⚠️ `CenterVertically` dentro `spacedBy` è quello che mette il blocco in mezzo allo
-        // spazio avanzato: senza spazio avanzato non fa niente, che è esattamente quello che
-        // serve nella pagina piatta.
+        // `CenterVertically` dentro `spacedBy` mette il blocco in mezzo allo spazio avanzato:
+        // nella radice, dove spazio avanzato non ce n'è, non fa niente.
         verticalArrangement = Arrangement.spacedBy(THUMBS_GAP, Alignment.CenterVertically)
     ) {
         if (head != null) Text(text = head, style = MaterialTheme.typography.titleSmall)
@@ -2738,8 +2291,8 @@ private enum class ThumbsAsk(@StringRes val question: Int) {
 }
 
 /**
- * L'aria fra il titolo e i due tasti, che c'è solo nella pagina piatta: abbastanza perché il titolo
- * non si legga come l'etichetta del primo tasto.
+ * L'aria fra il titolo e i due tasti, che c'è solo nella radice: abbastanza perché il titolo non
+ * si legga come l'etichetta del primo tasto.
  */
 private val THUMBS_GAP = 28.dp
 
@@ -2750,39 +2303,19 @@ private val THUMBS_GAP = 28.dp
 private val THUMBS_SPLIT = 12.dp
 
 /**
- * Quanto è larga l'aria dentro il pulsante che svuota le miniature.
+ * L'aria dentro i tasti delle miniature, più grande del valore di Material (richiesta
+ * dell'utente): quello è calcolato per un'etichetta di una riga, e con due righe il testo si
+ * legge stipato fra i bordi.
  *
- * ⚠️⚠️ **PIÙ GRANDE DEL VALORE DI MATERIAL, DALLA `1.78`, ED È UNA SUA RICHIESTA**: *centra
- * meglio 'Svuota cache delle miniature' sul pulsante e ingrandisci un po' il pulsante*. Il
- * valore di serie (24dp di fianco, 8dp sopra e sotto) è calcolato per un'**etichetta di una
- * riga**, e qui l'etichetta va a capo: con due righe l'aria di fianco resta tre volte quella di
- * sopra, quindi il testo si legge stipato fra i due bordi orizzontali invece che posato in mezzo.
- *
- * ⚠️⚠️ **E LA SCENTRATURA CHE VEDE È VERA**: il testo sta **più in basso** del centro
- * geometrico, perché la spaziatura di riga di `labelLarge` (20sp su un corpo di 14) si
- * distribuisce in proporzione all'altezza sopra e sotto la linea di base, quindi sopra la prima
- * riga ne cade più che sotto l'ultima, e a quello si somma l'aria che l'occhiello di un
- * carattere porta sopra le maiuscole e che qui, senza discendenti in 'delle miniature', sotto
- * non c'è.
- *
- * ⚠️⚠️ **I DUE LATI NON SONO PIÙ UGUALI, DALLA `1.80`, E LA `1.78` DICEVA CHE NON SI DOVEVA
- * FARE**: là c'era scritto che la cura era dare al lato stretto abbastanza spazio da non
- * dipendere da quel margine, invece di pareggiare i due lati con un numero. Il giro l'ha
- * smentito (riscontro della `1.79`, voce `thumbs-pulsante`, non approvata: *manca ancora qualche
- * dp di spazio sotto*): l'aria simmetrica non toglie la scentratura, ne riduce solo il peso
- * relativo, e lui la vedeva ancora.
- * ⚠️⚠️ **E I 4dp NON SONO SCELTI A OCCHIO: sono la misura della sua schermata.** Sul suo
- * ritaglio l'aria sopra il testo era **83 px** e quella sotto **72**, su un pulsante alto 263,
- * cioè 11 px di scarto su quel telefono, che sono poco più di 3dp. Il numero è arrotondato in
- * su, così quel che resta cade dal lato che l'occhio perdona.
- * ⚠️ **Restano `start`/`end` e non `horizontal`**: `PaddingValues` non ha una forma che prenda i
- * fianchi insieme e i due lati orizzontali separati, e sono `start`/`end` perché in una lingua
- * che si scrive da destra i fianchi si scambiano.
- * ⚠️⚠️ **DALLA `2.97` LE ETICHETTE SONO DUE E DOVE C'È POSTO VANNO SU UNA RIGA SOLA, E LA MISURA
- * REGGE LO STESSO**: la scentratura nasce dalla prima riga e dall'ultima, che con una riga sola
- * sono la stessa, e in italiano nessuna delle due etichette porta discendenti. Il numero resta
- * quello misurato sulle due righe di allora, e la voce di collaudo chiede se su una riga si legge
- * ancora in mezzo.
+ * ⚠️ **Sotto c'è più aria che sopra, e i 4dp sono misurati**: la spaziatura di riga di
+ * `labelLarge` cade più sopra la prima riga che sotto l'ultima, e senza discendenti il testo
+ * sembra più in basso del centro. Sulla schermata dell'utente lo scarto era di 11 px (83 sopra,
+ * 72 sotto, su un tasto di 263), poco più di 3dp, arrotondati in su. L'aria simmetrica ne
+ * riduceva solo il peso (voce `thumbs-pulsante`, non approvata).
+ * Con un'etichetta su una riga sola la prima e l'ultima riga coincidono, e il numero resta
+ * quello misurato.
+ * `start`/`end` e non `horizontal`, perché `PaddingValues` non prende i fianchi insieme con i
+ * due lati separati, e in una lingua che si scrive da destra i fianchi si scambiano.
  */
 private val THUMBS_PAD =
     PaddingValues(start = 28.dp, top = 16.dp, end = 28.dp, bottom = 20.dp)
@@ -2790,72 +2323,59 @@ private val THUMBS_PAD =
 /**
  * Quanto è tenue il numero di versione accanto al titolo.
  *
- * ⚠️ **'Un po' in trasparenza' è una sua parola, e questo è il numero che le dà un valore**: la
- * riga deve leggersi da chi la cerca e sparire per chi non la cerca. Parte dall'inchiostro già
- * attenuato delle spiegazioni, non da quello del titolo, quindi il velo è il secondo di due.
+ * 'Un po' in trasparenza', come ha chiesto l'utente: la riga si legge da chi la cerca e sparisce
+ * per gli altri. Si applica all'inchiostro già attenuato delle spiegazioni.
  */
 private const val VERSION_FADE = 0.55f
 
 /**
  * Quanto rientra il numero di versione dal bordo destro della colonna.
  *
- * ⚠️⚠️ **PERCHÉ 12 E NON ZERO** (riscontro dell'utente, giro della `1.55`: *lo spazio fra il
- * numero di versione e il bordo destro dello schermo deve essere uguale a quello della freccia
- * dal bordo sinistro*). La colonna ha già i suoi 20dp per lato, ma a sinistra la freccia non
- * comincia lì: sta dentro un `IconButton` da 48dp con un glifo da 24, quindi il suo inchiostro
- * parte 12dp più in dentro. Il numero, che di scatola non ne ha, quei 12dp deve mettercili.
- * ⚠️ **È il conto di due misure di Material e non un numero a occhio**: se un domani il tocco
- * minimo diventasse 56, la freccia scenderebbe a 16 di rientro e questa riga direbbe il falso.
+ * 12 e non zero (riscontro dell'utente): il numero deve distare dal bordo destro quanto la
+ * freccia dal sinistro. La freccia è dentro un `IconButton` da 48dp con un glifo da 24, quindi
+ * il suo inchiostro parte 12dp più in dentro del rientro della colonna, e il numero, che non ha
+ * una scatola, quei 12dp li deve aggiungere.
+ * ⚠️ **È il conto di due misure di Material**: con un tocco minimo di 56 il rientro della
+ * freccia sarebbe 16, e questo numero andrebbe rifatto.
  */
 private val VERSION_END = 12.dp
 
 /**
  * Il rientro laterale di una pagina delle impostazioni.
  *
- * ⚠️ **Vive qui e non più dentro la colonna che lo applica**: dalla `1.59` lo rimettono dentro
- * anche le righe che si toccano, dopo essersi allargate fino ai fianchi dello schermo con
- * [Modifier.bordo]. Due numeri diversi darebbero un testo che si sposta quando la riga diventa
- * toccabile.
+ * ⚠️ **È una costante e non un valore dentro la colonna**: lo rimettono anche le righe che si
+ * toccano, dopo essersi allargate fino ai fianchi con [Modifier.bordo], e due numeri diversi
+ * sposterebbero il testo di una riga toccabile.
  */
 internal val PAGE_SIDE = 20.dp
 
 /**
  * Quanta aria sopra e sotto il testo di una riga che si tocca.
  *
- * ⚠️ **Sopra E sotto, dalla `1.59`**: la riga dell'interruttore aveva solo il sopra, quindi il
- * suo alone finiva sull'ultima riga di testo. Un alone che tocca il testo si legge come un
- * ritaglio sbagliato, non come un bersaglio.
+ * Sopra e sotto: con l'aria solo sopra l'alone finirebbe sull'ultima riga di testo, e un alone
+ * che tocca il testo si legge come un ritaglio sbagliato.
  */
 private val ROW_HIGH = 12.dp
 
 /**
- * L'aria di una riga stretta, dalla `2.99`: la nota di `backup-caselle` (*restringi LEGGERMENTE
- * l'interlinea delle voci*).
+ * L'aria di una riga stretta (nota dell'utente su `backup-caselle`).
  *
- * ⚠️ **Quattro punti in meno e non di più**: la riga resta sopra i 44 punti, cioè un bersaglio che
- * il dito prende, e su nove voci sono trentasei punti guadagnati.
+ * ⚠️ **Non di più**: la riga resta sopra i 44 punti, cioè un bersaglio che il dito prende.
  */
 private val ROW_TIGHT = 10.dp
 
 /**
  * Allarga chi lo porta fino ai fianchi dello schermo, oltre il rientro della pagina.
  *
- * ⚠️⚠️ **NASCE DA UN SUO RISCONTRO, giro della `1.58`, con una schermata** (*adesso che il
- * tocco per attivare un interruttore è su tutta la riga, l'area di 'hover' dovrebbe essere un
- * po' più grande e lasciare spazio intorno al testo, o ancora meglio prendere tutta la riga
- * fino ai bordi*). La riga era già toccabile per intero dalla `1.46`, ma l'alone si fermava
- * dove finisce il testo, quindi il bersaglio si vedeva più piccolo di quello che era.
- * ⚠️⚠️ **PERCHÉ NON BASTAVA TOGLIERE IL RIENTRO ALLA COLONNA**: quel rientro lo usano anche i
- * titoli di sezione, i separatori e i blocchi scritti a mano (un cursore, una casella, un
- * paragrafo), che non si toccano e devono restare dove sono. Togliendolo là avrebbero dovuto
- * rimetterselo tutti, e il primo che se ne dimenticasse si sposterebbe di venti punti.
- * ⚠️ **In Compose un rientro negativo non esiste**, quindi il lavoro lo fa un nodo di layout:
- * misura il figlio con la larghezza allargata di due rientri, dichiara al genitore la propria
- * misura di prima, e posa il figlio spostato di un rientro a sinistra. Il genitore non si
- * accorge di niente e l'alone esce dai suoi fianchi.
- * ⚠️ **'Fino ai bordi' vuol dire fino ai bordi UTILI**: la colonna della pagina porta già
- * `safeDrawingPadding`, quindi l'alone si ferma dove comincia un intaglio o una barra di
- * sistema, che è dove deve fermarsi.
+ * Riscontro dell'utente: l'alone di una riga toccabile arriva ai bordi, così il bersaglio si
+ * vede grande quanto è.
+ * ⚠️ **Il rientro della colonna resta**: lo usano anche titoli, separatori e blocchi scritti a
+ * mano, che non si toccano. Tolto alla colonna, ognuno dovrebbe rimetterselo.
+ * In Compose un rientro negativo non esiste, quindi lo fa un nodo di layout: misura il figlio
+ * più largo di due rientri, dichiara al genitore la misura di prima, e posa il figlio spostato
+ * di un rientro a sinistra.
+ * I bordi sono quelli utili: la colonna della pagina ha già `safeDrawingPadding`, quindi
+ * l'alone si ferma dove comincia un intaglio o una barra di sistema.
  */
 private fun Modifier.bordo() = layout { misurabile, vincoli ->
     val extra = PAGE_SIDE.roundToPx() * 2
@@ -2864,36 +2384,27 @@ private fun Modifier.bordo() = layout { misurabile, vincoli ->
 }
 
 /**
- * Che cosa sta fra due voci nel riepilogo di una sotto-pagina.
- *
- * ⚠️ È la stessa virgola con cui l'app già incolla gli elenchi che si leggono (`FileOps`
- * quando dice che cosa è stato fatto, e i due contatori sotto una copertina): un separatore
- * nuovo per questo posto sarebbe una seconda convenzione per lo stesso mestiere.
+ * Il separatore fra due voci nel riepilogo di una sotto-pagina: la stessa virgola con cui l'app
+ * unisce gli altri elenchi che si leggono (`FileOps`, i contatori sotto una copertina).
  */
 private const val SUMMARY_JOIN = ", "
 
 /**
- * La sotto-pagina 'Opzioni di visualizzazione': come si presentano i tre elenchi di casa.
+ * La sotto-pagina 'Opzioni di visualizzazione': come si presentano le viste della home.
  *
- * ⚠️⚠️ **LE SETTE VOCI SONO LE STESSE del dialogo del tocco lungo nella schermata iniziale, e
- * questa è la loro CASA**: là compaiono nude e solo quelle della vista scelta, perché un
- * dialogo con tutte sarebbe un secondo pannello; qui hanno il titolino della vista e stanno
- * tutte insieme, perché una pagina di impostazioni si scorre.
- * ⚠️ **Una preferenza, una chiave, un valore di fabbrica**: le due superfici scrivono la
- * stessa cosa e passano dallo stesso salvataggio, com'è già per le colonne (*che resta globale
- * per tutte le cartelle*). Un valore 'della sessione' sarebbe una terza cosa da capire.
- * ⚠️ **Chi tocca una di queste voci tocca DUE posti**: la riga è scritta due volte con due
- * componenti, e un cambiamento di forma va fatto in entrambi o divergono. È il costo
- * dichiarato di avere casa e scorciatoia.
- * ⚠️ **L'ordine è quello delle tre viste**, non quello in cui le voci sono nate: chi arriva
- * qui sta guardando una vista, e la trova dove la vista sta nel dialogo.
+ * Le voci sono quelle del dialogo del tocco lungo nella schermata iniziale, e questa è la loro
+ * casa: là compaiono solo quelle della vista scelta, qui tutte, sotto il titolino della vista.
+ * Una preferenza, una chiave, un valore di fabbrica: le due superfici scrivono la stessa cosa.
+ * ⚠️ **Chi tocca una di queste voci tocca due posti**: la riga è scritta due volte con due
+ * componenti, e un cambiamento di forma va fatto in entrambi.
+ * L'ordine è quello delle viste nel dialogo.
  */
 @Composable
 private fun ViewOptionsPage(settings: Settings, onChange: (Settings) -> Unit) {
     Section(stringResource(R.string.view_grid)) {
 
-        // ⚠️ Le colonne restano anche nella scorciatoia del tocco lungo sul FAB, e non è un
-        // doppione: la scorciatoia scrive questa stessa impostazione.
+        // Le colonne sono anche nella scorciatoia del tocco lungo sul FAB, che scrive questa
+        // stessa impostazione.
         Choices(
             label = stringResource(R.string.settings_folder_columns),
             detail = stringResource(R.string.settings_folder_columns_desc),
@@ -2903,8 +2414,8 @@ private fun ViewOptionsPage(settings: Settings, onChange: (Settings) -> Unit) {
             onSelect = { onChange(settings.copy(folderColumns = it.n)) }
         )
 
-        // ⚠️ Attaccata alle colonne: parlano della **stessa** griglia, una di quante colonne ha e
-        // l'altra di che cosa si legge sotto le copertine.
+        // Accanto alle colonne: parlano della stessa griglia, una di quante colonne ha e l'altra
+        // di che cosa si legge sotto le copertine.
         SwitchRow(
             label = stringResource(R.string.settings_folder_count),
             detail = stringResource(R.string.settings_folder_count_desc),
@@ -2912,9 +2423,8 @@ private fun ViewOptionsPage(settings: Settings, onChange: (Settings) -> Unit) {
             onChange = { onChange(settings.copy(folderCount = it)) }
         )
 
-        // ⚠️ Subito dopo, e non altrove: quella dice che cosa si legge sotto una **cartella**,
-        // questa che cosa si legge sotto un'**immagine**. Sono la stessa domanda in due griglie,
-        // e separarle vorrebbe dire cercarle in due posti.
+        // Subito dopo: quella dice che cosa si legge sotto una cartella, questa sotto
+        // un'immagine, cioè la stessa domanda in due griglie.
         SwitchRow(
             label = stringResource(R.string.settings_grid_names),
             detail = stringResource(R.string.settings_grid_names_desc),
@@ -2933,11 +2443,9 @@ private fun ViewOptionsPage(settings: Settings, onChange: (Settings) -> Unit) {
         )
 
         /*
-         * ⚠️⚠️ **QUI SONO PASTIGLIE E NELLA SCORCIATOIA È UNO SLIDER, e non è un'incoerenza**: là
-         * il gesto dice che si sta girando una manopola su una scala, e lo spazio è quello di un
-         * dialogo; qui la pagina si scorre e le tre pastiglie stanno in riga come tutte le altre
-         * scelte del pannello, dove uno slider a tre fermi sarebbe l'unico oggetto di quel genere.
-         * La preferenza è la stessa e la scala pure: cambia il vestito, non la scelta.
+         * Qui pastiglie e nella scorciatoia uno slider, di proposito: nel dialogo lo slider dice
+         * una scala, qui le pastiglie sono in riga come le altre scelte del pannello. La
+         * preferenza e la scala sono le stesse.
          */
         Choices(
             label = stringResource(R.string.text_size),
@@ -2948,11 +2456,7 @@ private fun ViewOptionsPage(settings: Settings, onChange: (Settings) -> Unit) {
             onSelect = { onChange(settings.copy(listText = it)) }
         )
 
-        /*
-         * ⚠️⚠️ **QUI DALLA `3.27`, e prima sotto 'Comandi e indicatori'** (`d-settings-order`,
-         * Applica la proposta): descrive il comportamento della lista dei file, accanto alle
-         * altre sue opzioni.
-         */
+        // Descrive l'elenco, quindi è accanto alle sue altre opzioni (`d-settings-order`).
         SwitchRow(
             label = stringResource(R.string.settings_list_path),
             detail = stringResource(R.string.settings_list_path_desc),
@@ -2961,9 +2465,9 @@ private fun ViewOptionsPage(settings: Settings, onChange: (Settings) -> Unit) {
         )
     }
 
-    // ⚠️ 'Cartelle di sistema' e non 'Cartelle': il secondo è il nome corto della vista nel
-    // dialogo, e come titolino collide col titolo della sezione da cui si arriva qui.
-    // ⚠️ AIV Play has no such view (`Store.views`), so its two switches are out too.
+    // 'Cartelle di sistema' e non 'Cartelle', il nome corto della vista nel dialogo, che
+    // ripeterebbe il titolo della sezione da cui si arriva qui.
+    // AIV Play non ha questa vista (`Store.views`), quindi nemmeno i suoi interruttori.
     if (FolderView.TREE in Store.views) Section(stringResource(R.string.hub_view_tree)) {
 
         SwitchRow(
@@ -2984,12 +2488,6 @@ private fun ViewOptionsPage(settings: Settings, onChange: (Settings) -> Unit) {
 
 /**
  * La sotto-pagina 'Adattamento e zoom': le voci che decidono come si **misura** un'immagine.
- *
- * ⚠️ **Sono quelle che stavano in cima al gruppo del visualizzatore, nello stesso ordine**:
- * chi le conosceva le ritrova dove le aveva lasciate, un gradino più in là.
- * ⚠️ **Fino alla `1.46` qui c'era scritto 'le tre voci'**, e la `1.26` lo aveva reso falso
- * portando qui anche lo zoom nel menu. Il criterio che lo vieta sta in
- * `rules/Roccobot.md` § '🔢 I conti si contano, non si scrivono'.
  */
 @Composable
 private fun ZoomAndFit(settings: Settings, onChange: (Settings) -> Unit) {
@@ -3000,23 +2498,16 @@ private fun ZoomAndFit(settings: Settings, onChange: (Settings) -> Unit) {
         onChange = { onChange(settings.copy(fitGrow = it)) }
     )
 
-    // ⚠️ Avvolto in `Searchable`, e senza di lui è l'unico pezzo di questa pagina che non si
-    // filtra da sé: un `Text` più uno `Slider` nudi resterebbero in scena mentendo, quando la
-    // pagina si appiattisce nella radice durante una ricerca. Il testo da confrontare è quello
-    // che la riga già mostra, quindi non costa una stringa.
+    // ⚠️ In `Searchable`, perché un `Text` e uno `Slider` non si filtrano da sé: quando la
+    // pagina si appiattisce nella radice durante una ricerca, resterebbero sempre in scena.
     val zoomMaxLabel = stringResource(R.string.settings_zoom_max)
     Searchable(zoomMaxLabel) {
         /*
-         * ⚠️⚠️ **IL CURSORE SCRIVE QUANDO IL DITO SI ALZA, E FINO ALLA `1.80` SCRIVEVA A OGNI
-         * FOTOGRAMMA** (censimento della UI del 2026-09-05): una strisciata sull'intera corsa
-         * ordinava quasi duecento riscritture complete delle preferenze, cioè duecento giri di
-         * `DataStore` per un valore che interessa solo alla fine del gesto.
-         * ⚠️ **Il valore mostrato viene dallo stato locale**, o il numero accanto al titolo
-         * resterebbe fermo mentre il dito si muove: quello che si scrive tardi è la
-         * **preferenza**, non quello che si vede.
-         * ⚠️ **Lo stato locale riparte quando la preferenza cambia da fuori** (la chiave è
-         * `settings.zoomMax`), così un ripristino dei valori di fabbrica riporta il cursore
-         * dove deve stare invece di lasciarlo dov'era.
+         * ⚠️ **Il cursore scrive quando il dito si alza**: scrivendo a ogni fotogramma, una
+         * strisciata sull'intera corsa ordinerebbe quasi duecento riscritture di `DataStore`.
+         * Il valore mostrato viene dallo stato locale, o il numero resterebbe fermo sotto il
+         * dito; lo stato riparte quando la preferenza cambia da fuori (chiave
+         * `settings.zoomMax`), così un ripristino dei valori di fabbrica sposta il cursore.
          */
         var quanto by remember(settings.zoomMax) { mutableFloatStateOf(settings.zoomMax) }
         Text(
@@ -3051,21 +2542,11 @@ private fun ZoomAndFit(settings: Settings, onChange: (Settings) -> Unit) {
     )
 
     /*
-     * ⚠️⚠️ **STA QUI DALLA 1.26, e nella 1.25 stava nella pagina principale**: è una
-     * correzione dell'utente (2026-09-02: *l'opzione relativa allo zoom va messa nella
-     * sotto-pagina 'Adattamento e zoom' delle impostazioni. Quando aggiungi un'impostazione
-     * nuova, attenzione a metterla nel posto giusto*). L'avevo messa accanto alla barra
-     * delle info perché parla di quello che si vede **sopra** l'immagine; ma parla di
-     * **zoom**, e questa è la pagina dello zoom: chi cerca un'impostazione la cerca per
-     * argomento, non per dove compare.
-     * ⚠️ **Spenta di fabbrica**: 'Adatta alla vista' e '100%' fanno quello che il doppio
-     * tocco fa già, e stavano in mezzo a comandi che agiscono sul file.
-     * ⚠️⚠️ **LA DESCRIZIONE NON NOMINA PIÙ IL DOPPIO TOCCO, dalla `1.46`** (istruzione
-     * dell'utente, 2026-09-03), e la nota di prima diceva che quel rimando serviva *perché una
-     * riga che dice solo 'rimetti due voci' non direbbe da che cosa si viene*. Adesso la riga
-     * dice che cosa **fa** e basta, cioè aggiungere due voci al menu contestuale: il perché
-     * sia spenta è una faccenda di chi scrive il codice e non di chi legge un'impostazione, e
-     * vive qui.
+     * Lo zoom nel menu è qui per correzione dell'utente: parla di zoom, e chi cerca
+     * un'impostazione la cerca per argomento, non per dove compare.
+     * Spenta di fabbrica: 'Adatta alla vista' e '100%' fanno quello che fa già il doppio tocco,
+     * e sarebbero in mezzo a comandi che agiscono sul file. La descrizione dice solo che cosa
+     * fa (istruzione dell'utente); il perché è qui.
      */
     SwitchRow(
         label = stringResource(R.string.settings_zoom_menu),
@@ -3076,12 +2557,11 @@ private fun ZoomAndFit(settings: Settings, onChange: (Settings) -> Unit) {
 }
 
 /**
- * The two independent lists share a page with the display mode selector.
+ * I due elenchi indipendenti, nella stessa pagina della scelta del modo.
  *
- * ⚠️ **From the 6.20 'Aggiungi cartella' is a fixed band at the bottom, and the rest scrolls above
- * it** (his note A on the giro of the 6.10: *il pulsante Aggiungi cartella... in basso che rimane
- * fisso su una fascia bianca che non scorre*), as on 'Cartelle preferite' ([FavouriteFolders]).
- * Before, the button came after the whole list, and with a long list it was off screen.
+ * ⚠️ **'Aggiungi cartella' è una fascia fissa in fondo, e il resto scorre sopra** (nota A
+ * dell'utente), come in 'Cartelle preferite' ([FavouriteFolders]): dopo un elenco lungo il tasto
+ * finirebbe fuori dallo schermo.
  */
 @Composable
 private fun ColumnScope.HiddenFolders(settings: Settings, onChange: (Settings) -> Unit) {
@@ -3095,7 +2575,7 @@ private fun ColumnScope.HiddenFolders(settings: Settings, onChange: (Settings) -
     if (included) IncludedAdd(settings, onChange)
 }
 
-/** The description, the mode chips and the list of [HiddenFolders]: the part that scrolls. */
+/** La spiegazione, le pastiglie del modo e l'elenco di [HiddenFolders]: la parte che scorre. */
 @Composable
 private fun HiddenFoldersList(settings: Settings, onChange: (Settings) -> Unit, included: Boolean) {
     FolderSelectionDetail()
@@ -3105,8 +2585,8 @@ private fun HiddenFoldersList(settings: Settings, onChange: (Settings) -> Unit, 
                 selected = settings.folderMode == mode,
                 onClick = { onChange(settings.copy(folderMode = mode)) },
                 label = {
-                    // ⚠️ **Gettone normale, stesso font degli altri** (giro 3.25-3.30,
-                    // `3.26-03`): il grassetto sta nel paragrafo descrittivo, non qui.
+                    // Pastiglia normale, con lo stesso carattere delle altre (`3.26-03`): il
+                    // grassetto è nel paragrafo descrittivo.
                     Text(
                         stringResource(
                             if (mode == FolderMode.INCLUDED) R.string.folder_mode_included
@@ -3125,8 +2605,8 @@ private fun HiddenFoldersList(settings: Settings, onChange: (Settings) -> Unit, 
     entries.sorted().forEach { entry ->
         Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                // ⚠️ **× a destra e nome più largo**; spezza camelCase e ellissi a 2 righe
-                // (giro 3.25-3.30, note B del campo libero).
+                // La × a destra e il nome più largo, spezzato sul camelCase e con l'ellissi dopo
+                // due righe (note B dell'utente).
                 Text(
                     camelBreak(hiddenName(entry)),
                     style = MaterialTheme.typography.bodyLarge,
@@ -3170,10 +2650,9 @@ private fun HiddenFoldersList(settings: Settings, onChange: (Settings) -> Unit, 
 }
 
 /**
- * ⚠️⚠️ **'Aggiungi cartella' in modalità incluse** (giro 3.24, resto di `3.13-03`):
- * autorizza una cartella senza passare da Cartelle di sistema. Usa lo stesso dialogo
- * destinazione dell'app, che già conosce scorciatoie e albero. Dalla 6.20 è la fascia fissa in
- * fondo alla pagina ([HiddenFolders]).
+ * 'Aggiungi cartella' nel modo delle cartelle incluse (`3.13-03`): autorizza una cartella senza
+ * passare da 'Cartelle di sistema', con lo stesso dialogo delle destinazioni dell'app. È la
+ * fascia fissa in fondo alla pagina ([HiddenFolders]).
  */
 @Composable
 private fun IncludedAdd(settings: Settings, onChange: (Settings) -> Unit) {
@@ -3185,10 +2664,8 @@ private fun IncludedAdd(settings: Settings, onChange: (Settings) -> Unit) {
         Text(stringResource(R.string.folder_add))
     }
     if (picking) {
-        // ⚠️ Albero subito (vista TREE + modalità escluse finta): in modalità incluse
-        // il dialogo partrebbe dalle scorciatoie già autorizzate, cioè l'elenco che
-        // si sta proprio cercando di allungare. 'Sfoglia' resta comunque raggiungibile
-        // da chi parte dalle scorciatoie in altri flussi.
+        // ⚠️ Subito l'albero (vista TREE e un modo escluse finto): nel modo incluse il dialogo
+        // partirebbe dalle scorciatoie già autorizzate, cioè proprio l'elenco da allungare.
         CompositionLocalProvider(
             LocalDestLook provides DestLook(
                 view = FolderView.TREE,
@@ -3197,12 +2674,12 @@ private fun IncludedAdd(settings: Settings, onChange: (Settings) -> Unit) {
         ) {
             DestinationDialog(
                 action = R.string.folder_authorize,
-                // Picking a folder to authorize moves no file, so nothing is a source here.
+                // Autorizzare una cartella non sposta file, quindi qui non c'è nessuna origine.
                 from = emptySet(),
                 onDismiss = { picking = false },
                 onPick = { dir ->
                     val path = portablePath(dir.absolutePath)
-                    // ⚠️ **Non ri-aggiungere** se già in lista (`3.27-02`).
+                    // Una cartella già in elenco non si aggiunge di nuovo (`3.27-02`).
                     if (path !in settings.includedFolders) {
                         onChange(settings.copy(includedFolders = settings.includedFolders + path))
                     }
@@ -3215,12 +2692,11 @@ private fun IncludedAdd(settings: Settings, onChange: (Settings) -> Unit) {
 }
 
 /**
- * Descrizione della pagina cartelle con i nomi delle modalità in grassetto
- * (giro 3.25-3.30, `3.26-03` / `3.13-01`): non tra apici e non nei gettoni.
+ * La spiegazione della pagina delle cartelle, coi nomi dei modi in grassetto (`3.26-03`,
+ * `3.13-01`): non fra apici e non nelle pastiglie.
  *
- * ⚠️ **In corpo piccolo dalla 6.20** (sua nota A sul giro della 6.10: *il testo introduttivo più
- * piccolo per occupare meno spazio*): è il paragrafo più lungo delle impostazioni, e col corpo
- * medio prendeva mezza pagina sopra i gettoni.
+ * In corpo piccolo (nota A dell'utente): è il paragrafo più lungo delle impostazioni, e col
+ * corpo medio prendeva mezza pagina sopra le pastiglie.
  */
 @Composable
 private fun FolderSelectionDetail() {
@@ -3250,22 +2726,13 @@ private fun FolderSelectionDetail() {
 /**
  * Quali dati mostrare quando si apre 'Info' su un'immagine, e in che ordine.
  *
- * ⚠️⚠️ **DUE COMANDI PER RIGA PERCHÉ SONO DUE DOMANDE DIVERSE**, richiesta dell'utente
- * (2026-08-30: *scegliere quali campi e in quale ordine*): la casella dice **se** il campo si
- * vede, la manopola **dove** sta. Un elenco che rispondesse a una sola delle due avrebbe evaso
- * metà della richiesta.
+ * Due comandi per riga perché sono due domande (richiesta dell'utente): la casella dice se il
+ * campo si vede, la maniglia di [Reorderable] dove si trova.
  *
- * ⚠️ **Il nome del file non ha nessuno dei due comandi**: è sempre visibile e sempre in
- * testa, come l'utente ha chiesto, quindi mostrargli una casella spenta o una manopola
- * inerte sarebbe offrire una scelta che non c'è. Gli altri due campi obbligatori (pixel e
- * peso) portano il **lucchetto** al posto della casella e la manopola sì: 'sempre visibile'
- * non vuol dire 'in posizione fissa'.
- *
- * ⚠️⚠️ **FINO ALLA `1.78` QUESTA KDOC DESCRIVEVA DUE FRECCE, e il riordino si fa col
- * TRASCINAMENTO dalla `1.57`**: c'era anche un blocco che dichiarava la scelta delle frecce
- * *e non il trascinamento* con le ragioni per cui il gesto costava troppo, cioè giustificava
- * per esteso il contrario di quello che il corpo fa (chiama [Reorderable]). Con lui se ne vanno
- * la nota sulle frecce spente ai due estremi e i due glifi importati e mai usati.
+ * ⚠️ **Il nome del file non ha nessuno dei due comandi**: è sempre visibile e sempre in testa,
+ * come ha chiesto l'utente, e una casella spenta offrirebbe una scelta che non c'è. Gli altri
+ * campi obbligatori (pixel e peso) hanno il lucchetto al posto della casella, e la maniglia sì:
+ * 'sempre visibile' non vuol dire 'in posizione fissa'.
  */
 @Composable
 private fun FactFields(
@@ -3276,10 +2743,9 @@ private fun FactFields(
 ) {
     val order = settings.factOrder
     /*
-     * ⚠️⚠️ **UNA RIGA IN TESTA NON SI MUOVE, ed è il nome del file**: la richiesta dell'utente
-     * dice *nome del file con estensione, sempre in testa*, e `factOrderOf` lo rimette lì
-     * comunque. Dichiararlo anche qui serve a un'altra cosa: la sua riga non prende la manopola,
-     * quindi non si può nemmeno provare a spostarlo.
+     * La riga in testa, il nome del file, non si muove (`fixed = 1`): `factOrderOf` lo rimette
+     * comunque in testa, e qui la sua riga non ha la maniglia, quindi non si prova nemmeno a
+     * spostarlo.
      */
     Reorderable(
         items = order,
@@ -3293,20 +2759,14 @@ private fun FactFields(
             onChange(settings.copy(factOff = off))
         }
         Row(
-            // ⚠️ Il rientro a destra è il posto della manopola, che [Reorderable] disegna
-            // sopra la riga: senza, un'etichetta lunga le finirebbe sotto.
+            // ⚠️ Il rientro a destra è il posto della maniglia, che [Reorderable] disegna sopra
+            // la riga: senza, un'etichetta lunga le finirebbe sotto.
             /*
-             * ⚠️⚠️ **LA RIGA INTERA È IL COMANDO ANCHE QUI, dalla `1.81`, e prima era la sola
-             * CASELLA** (censimento della UI del 2026-09-05): era l'unica riga del pannello a
-             * non seguire la regola scritta due volte, nel KDoc di `SwitchRow` e in
-             * `Rules.md` § '⚙️ Dove va un'impostazione, e chi la deve trovare'.
-             * ⚠️ **Il conflitto col trascinamento non regge come giustificazione**, ed era
-             * l'unica difesa possibile: la manopola è un fratello disegnato **dopo** la riga
-             * dentro lo stesso `Box`, quindi vince lei il collaudo del tocco, e la riga porta
-             * già il rientro a destra pari al suo spazio.
-             * ⚠️ **La casella perde il proprio gesto** (`onCheckedChange = null`): due
-             * bersagli per una scelta sola farebbero annunciare due voci a un lettore di
-             * schermo, che è il difetto che la regola di casa esiste per evitare.
+             * ⚠️ **La riga intera è il comando**, come in `SwitchRow` (`Rules.md` § '⚙️ Dove va
+             * un'impostazione, e chi la deve trovare'). Col trascinamento non c'è conflitto: la
+             * maniglia è un fratello disegnato dopo la riga nello stesso `Box`, quindi il tocco
+             * su di lei vince. La casella non ha un gesto suo (`onCheckedChange = null`), o un
+             * lettore di schermo annuncerebbe due voci per una scelta.
              */
             modifier = Modifier
                 .fillMaxWidth()
@@ -3321,21 +2781,16 @@ private fun FactFields(
                 ),
             verticalAlignment = Alignment.CenterVertically,
             /*
-             * ⚠️⚠️ **L'ARIA FRA IL SEGNO E IL NOME È UNA SOLA, DALLA `1.82`** (riscontro del
-             * giro della `1.81`, voce `riordino-scorre`: *i nomi vanno allineati e un po' più
-             * distanziati*): prima il nome partiva subito dopo la casella e molto più in là
-             * dopo il lucchetto, cioè le due specie di riga avevano due margini diversi.
+             * L'aria fra il segno e il nome è una sola (voce `riordino-scorre`): i nomi sono
+             * allineati, dopo la casella come dopo il lucchetto.
              */
             horizontalArrangement = Arrangement.spacedBy(FACT_GAP)
         ) {
             /*
-             * ⚠️⚠️ **IL LUCCHETTO STA NELLA SCATOLA DELLA CASELLA, E QUEL NUMERO NON SI SCEGLIE**
-             * (stessa voce: *i lucchetti vanno allineati alle checkbox*): una `Checkbox` non
-             * cliccabile misura il proprio disegno da 20dp più i 2dp di riempimento per lato,
-             * quindi il suo centro cade a 12dp dal bordo. Il lucchetto aveva un riempimento suo
-             * da 14dp e cadeva a 23, cioè quasi mezza casella più a destra.
-             * ⚠️ **La scatola è la stessa e il glifo resta più piccolo**: un lucchetto grande
-             * come una casella spunta peserebbe di più delle scelte vere, che sono le altre.
+             * ⚠️ **Il lucchetto è nella scatola della casella** (stessa voce): una `Checkbox`
+             * non cliccabile misura 20dp più 2dp per lato, quindi il suo centro cade a 12dp dal
+             * bordo, e il lucchetto deve cadere lì. Il glifo resta più piccolo: grande come
+             * una casella, peserebbe più delle scelte vere.
              */
             Box(
                 modifier = Modifier.size(FACT_MARK),
@@ -3362,11 +2817,8 @@ private fun FactFields(
 }
 
 /**
- * Quanto spazio lascia una riga alla manopola del trascinamento.
- *
- * ⚠️ **Si ricava da [HANDLE], che è la misura vera della manopola**, più il filo d'aria che la
- * stacca dal testo: fino alla `1.80` era un 44 scritto a mano, cioè un numero che nessuno
- * avrebbe collegato al 40 dell'altro file.
+ * Lo spazio che una riga lascia alla maniglia del trascinamento: si ricava da [HANDLE], la
+ * misura vera della maniglia, più un filo d'aria che la stacca dal testo.
  */
 private val HANDLE_ROOM = HANDLE + 4.dp
 
@@ -3374,8 +2826,7 @@ private val HANDLE_ROOM = HANDLE + 4.dp
  * La scatola del segno di una riga dei campi: la casella spunta o il lucchetto.
  *
  * ⚠️ **24dp è la misura di una `Checkbox` che non si tocca** (20 di disegno più 2 di riempimento
- * per lato): scriverne una diversa disallineerebbe di nuovo le due specie di riga, che è il
- * difetto che questa scatola esiste per chiudere.
+ * per lato): un'altra misura disallineerebbe le righe col lucchetto da quelle con la casella.
  */
 private val FACT_MARK = 24.dp
 
@@ -3383,34 +2834,30 @@ private val FACT_MARK = 24.dp
 private val FACT_GAP = 14.dp
 
 /**
- * I quattro elenchi di tasti, uno per riquadro.
+ * Gli elenchi di tasti, uno per riquadro.
  *
- * ⚠️⚠️ **QUATTRO E NON UNO, e la ragione non è di comodo**: i due riquadri delle azioni sui
- * file portano insiemi diversi in ordini diversi, tutti e due dettati dall'utente, e nessuno
- * dei due è il sottoinsieme ordinato dell'altro. Le due file dell'editor sono due perché il
- * filetto in mezzo dice che sono due mestieri. Il perché per esteso sta accanto alle chiavi,
- * in `Settings.Store`.
- * ⚠️ **Ogni elenco è un gruppo con un titolo**, e non quattro pagine: la profondità è uno, e
- * una pagina che ne aprisse altre quattro costerebbe un tocco per ognuna.
- * ⚠️ **Nessuna riga è ferma**: qui non c'è nessun tasto in posizione obbligata, al contrario
- * dei campi delle info, dove il nome del file sta in testa per richiesta.
+ * ⚠️ **Un elenco per riquadro e non uno solo**: i riquadri delle azioni sui file hanno insiemi
+ * diversi in ordini diversi, dettati dall'utente, e nessuno è il sottoinsieme ordinato di un
+ * altro; le file dell'editor sono separate perché il filetto in mezzo dice che sono due mestieri.
+ * Il perché per esteso è accanto alle chiavi, in `Settings.Store`.
+ * Ogni elenco è un gruppo con un titolo e non una pagina: una pagina per riquadro costerebbe un
+ * tocco per ognuno.
+ * Nessun tasto è in posizione obbligata, al contrario del nome del file nei campi delle info.
  */
 @Composable
 private fun ButtonOrders(settings: Settings, onChange: (Settings) -> Unit) {
     /*
-     * ⚠️⚠️ **LA RIGA DELLE ISTRUZIONI È SUA, ALLA LETTERA** (riscontro del giro della `1.56`),
-     * e non è un ornamento: il gesto è un tocco lungo, cioè l'unico che non si scopre
-     * toccando. Senza questa riga il riquadro sembra una figura e non uno strumento.
+     * La riga delle istruzioni è dell'utente (riscontro del giro della `1.56`): il gesto è un
+     * tocco lungo, l'unico che non si scopre toccando, e senza questa riga il riquadro sembra
+     * una figura e non uno strumento.
      */
     Detail(stringResource(R.string.settings_buttons_how))
     /*
-     * ⚠️⚠️ **E QUESTA DICE UNA COSA CHE DAL RIQUADRO NON SI VEDE** (sua richiesta: *è
-     * importante spiegarlo, e far capire che l'ordine del menu contestuale sarà identico per
-     * cartelle normali e cestino*). Nel cestino il riquadro porta 'Ripristina' nel posto che
-     * altrove tiene 'Rinomina': è lo stesso ordine, con una voce che cambia mestiere.
+     * Questa dice una cosa che dal riquadro non si vede (richiesta dell'utente): nel cestino il
+     * riquadro ha 'Ripristina' al posto di 'Rinomina', con lo stesso ordine.
+     * AIV Play ha il cestino e 'Rinomina' solo da Android 11 (`Store.renames`): prima la frase
+     * non avrebbe niente da spiegare.
      */
-    // ⚠️ AIV Play has the bin from 5.40 and 'Rinomina' from 5.50, both from Android 11
-    // (`Store.renames`): below that the sentence has nothing to explain.
     if (Store.renames) Detail(stringResource(R.string.settings_buttons_bin))
     PadOrder(
         title = stringResource(R.string.settings_buttons_menu),
@@ -3430,9 +2877,8 @@ private fun ButtonOrders(settings: Settings, onChange: (Settings) -> Unit) {
         title = stringResource(R.string.settings_buttons_turn),
         order = settings.turnOrder,
         difetto = TURN_KEYS,
-        // ⚠️ **Cinque e non più [SHEET_KEYS], dalla `2.02`**: da quando c'è 'Rifletti' quella
-        // fila ne ha uno in più della seconda, e la replica deve rompere le righe dove le
-        // rompe il riquadro vero. Il numero è quello della lista, non una copia.
+        // ⚠️ La misura della lista e non [SHEET_KEYS]: con 'Rifletti' questa fila ha un tasto
+        // in più della seconda, e la replica deve andare a capo dove ci va il riquadro vero.
         columns = TURN_KEYS.size,
         onOrder = { onChange(settings.copy(turnOrder = it)) }
     )
@@ -3444,16 +2890,12 @@ private fun ButtonOrders(settings: Settings, onChange: (Settings) -> Unit) {
         onOrder = { onChange(settings.copy(stepOrder = it)) }
     )
     /*
-     * ⚠️⚠️ **IL QUINTO RIQUADRO C'È SOLO DOVE C'È L'EDITOR COMPLETO** (sotto Android 13 non
-     * esiste: vedi `advancedEditorAvailable`), ed è l'unico dei cinque a dipendere dal telefono.
-     * Mostrarlo comunque vorrebbe dire far riordinare una fila che non si può aprire.
-     * ⚠️ **La preferenza invece si salva lo stesso**, e non è una contraddizione: il campo vive
-     * in `Settings` come gli altri quattro, e un archivio non deve cambiare forma con la
-     * versione di Android.
-     * ⚠️⚠️ **E LA REPLICA È DI SOLE ICONE, PERCHÉ LO È LA FILA VERA**: i sette nomi non entrano
-     * in nessuna larghezza (è la ragione per cui la `2.31` li ha tolti), quindi scriverli qui
-     * darebbe sette parole troncate e una replica che somiglia meno al modello. Il nome resta
-     * quello che un lettore di schermo annuncia.
+     * ⚠️ **Il riquadro dei moduli c'è solo dove c'è l'editor completo** (sotto Android 13 no:
+     * vedi `advancedEditorAvailable`): mostrarlo farebbe riordinare una fila che non si apre. La
+     * preferenza si salva lo stesso, perché un archivio non cambia forma con la versione di
+     * Android.
+     * La replica è di sole icone, come la fila vera: i nomi non entrano in nessuna larghezza, e
+     * restano quelli che un lettore di schermo annuncia.
      */
     if (advancedEditorAvailable()) {
         PadOrder(
@@ -3468,21 +2910,16 @@ private fun ButtonOrders(settings: Settings, onChange: (Settings) -> Unit) {
 }
 
 /*
- * ⚠️⚠️ **QUI VIVEVANO DUE NUMERI COPIATI, FINO ALLA `1.80`**: `MENU_COLUMNS = 3` e
- * `EDITOR_COLUMNS = 4`, cioè gli stessi valori di [PAD_COLUMNS] e [SHEET_KEYS] scritti una
- * seconda volta. La nota che li accompagnava enunciava il criterio giusto ('un terzo numero
- * uguale sarebbe il posto in cui divergere') e lo applicava al solo terzo numero, quello della
- * selezione, che infatti era già condiviso.
- * ⚠️ **Sono le colonne del riquadro VERO, e la replica le deve rompere dove le rompe lui**: un
- * riquadro riordinato su tre colonne e mostrato su due direbbe una bugia sul risultato. Adesso
- * lo garantisce il fatto che il numero è uno.
+ * ⚠️ Le colonne delle repliche sono quelle dei riquadri veri ([PAD_COLUMNS], [SHEET_KEYS]), mai
+ * una copia: un riquadro riordinato su tre colonne e mostrato su due direbbe il falso sul
+ * risultato.
  */
 
 /**
  * Un riquadro da riordinare, col suo titolo.
  *
- * ⚠️ **Era un elenco di righe fino alla `1.56`**, ed è stato bocciato: il perché, e che cosa
- * la replica deve somigliare, stanno in testa a [PadArrange].
+ * Perché è un riquadro e non un elenco di righe, e a che cosa la replica deve somigliare, lo dice
+ * [PadArrange].
  */
 @Composable
 private fun PadOrder(
@@ -3491,35 +2928,23 @@ private fun PadOrder(
     /**
      * L'ordine di fabbrica di questo riquadro, quello a cui 'Ripristina' riporta.
      *
-     * ⚠️ **Arriva da chi chiama e non si ricava qui**: le quattro liste di fabbrica vivono in
-     * `Settings.kt` accanto ai campi che le usano come valore iniziale, e una copia qui sarebbe
-     * il secondo posto in cui sono scritte, cioè il primo a divergere.
+     * Arriva da chi chiama: le liste di fabbrica vivono in `Settings.kt` accanto ai campi che le
+     * usano come valore iniziale, e una copia qui potrebbe divergere.
      */
     difetto: List<PadKey>,
     columns: Int,
     onOrder: (List<PadKey>) -> Unit,
-    /** Se le celle portano la parola sotto il glifo: vedi [PadArrange]. */
+    /** Se le celle mostrano la parola sotto il glifo: vedi [PadArrange]. */
     labels: Boolean = true
 ) {
     /*
-     * ⚠️⚠️ **UN 'RIPRISTINA' PER OGNI RIQUADRO, dalla `1.59`** (richiesta dell'utente, giro
-     * della `1.58`: *per ogni pannello, in linea con il suo nome, deve esserci un 'Ripristina'
-     * non troppo visibile, allineato a destra e con un font un poco più piccolo. L'effetto di
-     * ciascuno è riportare la configurazione del relativo pannello alla disposizione
-     * predefinita*).
-     * ⚠️⚠️ **UNO PER RIQUADRO E NON UNO SOLO IN CIMA**, ed è quello che ha chiesto: chi ha
-     * rovinato l'ordine di un riquadro vuole rimettere a posto quello, e un comando unico
-     * cancellerebbe anche i tre che andavano bene. È anche la ragione per cui sta sulla riga
-     * del titolo: da lì si legge di chi è.
-     * ⚠️ **Sparisce mentre si cerca**, come il titolo che accompagna: senza il titolo accanto
-     * non si saprebbe che cosa ripristina, e un comando che agisce su qualcosa che non si vede
-     * è il modo più corto per fare un danno.
-     * ⚠️⚠️ **E CHIEDE CONFERMA, DALLA `1.60`** (riscontro del giro della `1.59`: *aggiungi una
-     * conferma al tocco*). ⚠️ **La `1.59` sosteneva il contrario**, e l'argomento era che
-     * l'ordine di fabbrica non è un dato e che rifare la propria disposizione costa quattro
-     * trascinamenti: vero, ma quattro trascinamenti sono comunque un lavoro che si è fatto, e
-     * qui non c'è nessun modo di disfare. Chi legge quella nota in un commit vecchio sappia che
-     * la decisione è sua.
+     * Un 'Ripristina' per ogni riquadro, sulla riga del suo titolo, discreto e a destra
+     * (richiesta dell'utente): chi ha guastato l'ordine di un riquadro vuole rimettere a posto
+     * quello, e un comando unico cancellerebbe anche gli altri.
+     * Sparisce mentre si cerca, col titolo: senza il titolo accanto non si saprebbe che cosa
+     * ripristina.
+     * ⚠️ **Chiede conferma, per decisione dell'utente** (riscontro del giro della `1.59`): una
+     * disposizione rifatta è lavoro, e qui non c'è modo di disfare.
      */
     var chiedendo by remember { mutableStateOf(false) }
     if (LocalQuery.current.isBlank()) {
@@ -3551,13 +2976,10 @@ private fun PadOrder(
         labels = labels
     )
     /*
-     * ⚠️ **Fuori dal ramo della ricerca**, che invece nasconde la riga del titolo: là dentro,
-     * una ricerca cominciata a dialogo aperto lo toglierebbe di scena a metà.
-     * ⚠️ **Il tasto di conferma riusa la parola del comando** e non ne chiede una nuova: è lo
-     * stesso comando visto un tocco dopo, e una seconda parola per la stessa cosa sarebbe una
-     * stringa in ventotto lingue per non dire niente di più.
-     * ⚠️ **Niente paragrafo sotto la domanda**: quello che c'è da sapere è già tutto nella
-     * domanda, e un corpo che ripete il titolo è la forma con cui un dialogo si fa saltare.
+     * ⚠️ **Fuori dal ramo della ricerca**, che nasconde la riga del titolo: là dentro, una
+     * ricerca cominciata a dialogo aperto lo toglierebbe di scena a metà.
+     * Il tasto di conferma riusa la parola del comando: è lo stesso comando un tocco dopo. Niente
+     * paragrafo sotto la domanda, che dice già tutto.
      */
     if (chiedendo) {
         AlertDialog(
@@ -3588,49 +3010,35 @@ private val ARRANGE_GAP = 12.dp
 /**
  * Un numero di colonne, vestito da [Choice] per entrare nella fila di pastiglie.
  *
- * ⚠️ Esiste perché [Choices] parla di scelte con un gettone, e le colonne sono un numero:
- * questo è l'adattatore, non un'impostazione in più. ⚠️ È una `data class` per
- * l'uguaglianza, che è come la fila riconosce quale pastiglia è accesa.
+ * Un adattatore: [Choices] parla di scelte con un nome, e le colonne sono un numero. È una
+ * `data class` per l'uguaglianza, con cui la fila riconosce la pastiglia accesa.
  */
 private data class Columns(val n: Int) : Choice {
     override val token: String get() = n.toString()
 }
 
 /**
- * A row of chips for one choice. FlowRow and not Row: two of these carry labels a
- * sentence long, and on a narrow screen a fixed row would push them off the edge
- * instead of wrapping.
- *
- * ⚠️⚠️ **QUI VIVEVA ANCHE LA VARIANTE A PASTIGLIE IMPILATE, e la `1.46` l'ha cancellata perché
- * NON LA CHIAMAVA NESSUNO**: era nata nella `1.36` per far stare tre gettoni in ventotto
- * lingue (*tutti della stessa larghezza, sufficiente per la parola più lunga nella lingua che
- * esige più spazio*), e la `1.38` l'ha superata riportando la posizione della barra info alla
- * forma della `1.25`, cioè a [InfoSideRow]. Il ragionamento che portava resta là dove serve
- * ancora: la larghezza non è un numero in dp ma la massima intrinseca della colonna, perché
- * un numero sarebbe giusto in una lingua e sbagliato nelle altre.
+ * Una fila di pastiglie per una scelta. `FlowRow` e non `Row`: alcune hanno per nome una frase,
+ * e su uno schermo stretto una fila fissa le spingerebbe oltre il bordo e non andrebbe a capo.
  */
 @Composable
 internal fun <T : Choice> Choices(
     label: String,
     detail: String?,
     options: List<T>,
-    /** `null` when nothing is chosen yet: the grid order has no factory value, from the `5.80`. */
+    /** `null` quando non c'è ancora una scelta: l'ordine delle cartelle non ha un valore di fabbrica. */
     selected: T?,
     nameOf: @Composable (T) -> String,
     /**
-     * One chip per line, each as wide as the page, from the 6.20 (his note B on the giro of the
-     * 6.10, on 'Rendering dei pixel': *devono essere grandi uguali ed entrambi devono essere a tutta
-     * larghezza*). For chips with a sentence for a name, which a flowing row sizes one by one.
+     * Una pastiglia per riga, larga quanto la pagina (nota B dell'utente su 'Rendering dei
+     * pixel'): per le pastiglie che hanno per nome una frase, che una fila misurerebbe una per una.
      */
     stacked: Boolean = false,
     onSelect: (T) -> Unit
 ) {
-    // ⚠️⚠️ **ANCHE I NOMI DELLE PASTIGLIE entrano nella ricerca**, e non solo il titolo della
-    // riga: 'Scacchiera', 'Chiaro' e 'In alto' sono i nomi con cui si pensa a
-    // quell'impostazione, mentre il titolo che le contiene ('Sfondo', 'Posizione') è la
-    // parola che non si ricorda. Cercare quello che si vuole ottenere è il caso normale.
-    // ⚠️ Calcolati UNA volta e riusati sotto: `nameOf` è una `stringResource`, e chiamarla
-    // due volte per pastiglia raddoppierebbe le letture a ogni tasto premuto.
+    // Anche i nomi delle pastiglie entrano nella ricerca: 'Scacchiera' o 'In alto' sono le
+    // parole con cui si pensa all'impostazione, più del titolo ('Sfondo', 'Posizione').
+    // Calcolati una volta e riusati sotto: `nameOf` è una `stringResource`.
     val names = options.map { nameOf(it) }
     if (!shown(label, detail, *names.toTypedArray())) return
     Text(
@@ -3670,20 +3078,14 @@ internal fun <T : Choice> Choices(
  * 'Elemento interattivo principale': che cosa comanda l'app sul telefono in verticale, e per la
  * pillola come si presenta.
  *
- * ⚠️⚠️ **DALLA `4.10`, IN CIMA A 'PULSANTI E INDICATORI', ED È SUA** (giro della `4.04`, nota E):
- * titolo, gettoni e paragrafo sono suoi alla lettera, e il paragrafo è quello della risposta G4
- * (*quando tieni lo smartphone in verticale*). Prende il posto dell'interruttore 'Pillola al posto
- * del FAB in verticale' della `4.02`, che viveva in fondo a 'Tema e dettagli grafici'.
- * ⚠️ **Dalla `4.15` c'è il gettone `Menu inferiore`, e il paragrafo è completo con le sue
- * parole**: nella `4.10` non lo nominava, perché il gettone non c'era.
- * ⚠️ **La seconda fila c'è per la pillola e per il menu inferiore** (*'a scomparsa' solo per
- * pillola e menu inferiore*): il FAB non ha un modo a scomparsa. Il valore è uno, e per il menu il
- * secondo gettone si chiama `Fisso` invece di `Estesa`.
- * ⚠️ **La ricerca guarda anche i nomi dei gettoni**, di tutte e due le file: chi cerca 'Estesa'
+ * In cima a 'Pulsanti e indicatori' (nota E del giro della `4.04`): titolo, pastiglie e
+ * paragrafo sono dell'utente.
+ * La seconda fila c'è per la pillola e per il Menu basso: il FAB non ha un modo a scomparsa. Il
+ * valore è uno, e per il menu la seconda pastiglia si chiama `Fisso` e non `Estesa`.
+ * La ricerca guarda anche i nomi delle pastiglie di tutte e due le file: chi cerca 'Estesa'
  * trova la voce anche col FAB scelto.
- * ⚠️⚠️ **AIV Play ha due gettoni soli dalla `5.30`, FAB e pillola** (sua nota sul giro della
- * `5.20`: *rimangono pillola e FAB*), e quindi un paragrafo suo, che non nomina i due menu
- * (`settings_main_control_desc_play`). Gli elenchi vengono da `Store.mainControls`.
+ * AIV Play ha le sole pastiglie FAB e pillola (nota dell'utente), con un paragrafo suo che non
+ * nomina i menu (`settings_main_control_desc_play`). Gli elenchi vengono da `Store.mainControls`.
  */
 @Composable
 private fun MainControlChoices(settings: Settings, onChange: (Settings) -> Unit) {
@@ -3703,7 +3105,7 @@ private fun MainControlChoices(settings: Settings, onChange: (Settings) -> Unit)
         )
     }
     val modes = PhonePill.entries.filter { it != PhonePill.OFF }
-    // ⚠️ Il menu è maschile, la pillola femminile: il secondo gettone cambia nome, il valore no.
+    // Il menu è maschile, la pillola femminile: la seconda pastiglia cambia nome, il valore no.
     val bar = settings.mainControl == MainControl.BOTTOM
     val modeNames = modes.map {
         stringResource(
@@ -3714,10 +3116,10 @@ private fun MainControlChoices(settings: Settings, onChange: (Settings) -> Unit)
             }
         )
     }
-    // ⚠️ 'Fisso' è il gettone del solo menu basso: dove il menu non c'è, la ricerca non lo trova.
+    // 'Fisso' è la pastiglia del solo Menu basso: dove il menu non c'è, la ricerca non lo trova.
     val searched = controlNames + modeNames +
         listOfNotNull(stringResource(R.string.bar_fixed).takeIf { MainControl.BOTTOM in controls }) +
-        // ⚠️ And the two rests of the Start menu, where that menu exists (6.02).
+        // E le due forme a riposo del Menu 'Start', dove quel menu c'è.
         if (MainControl.CORNER in controls) {
             listOf(stringResource(R.string.start_round), stringResource(R.string.start_pill))
         } else {
@@ -3742,10 +3144,9 @@ private fun MainControlChoices(settings: Settings, onChange: (Settings) -> Unit)
             }
         }
         /*
-         * ⚠️ Il menu angolare è sempre a scomparsa (*il menu angolare sempre*), e la sua seconda fila
-         * dice come riposa: ⚠️⚠️ **FROM 6.02 THE ROUND KEY AND THE PILL ARE CHOSEN HERE** (his choice of
-         * 2026-10-14: *al limite mettiamo la scelta nelle impostazioni*). From 4.25 to 6.01 a box of
-         * the Start menu switched them, and the Feed took that box. The names are those of the box.
+         * Il Menu 'Start' è sempre a scomparsa, e la sua seconda fila dice come riposa: tondo o
+         * pillola, scelti qui per scelta dell'utente. I nomi sono quelli della casella del menu
+         * che prima li alternava, e che oggi apre il Feed.
          */
         if (settings.mainControl == MainControl.CORNER) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.oneOf()) {
@@ -3754,7 +3155,7 @@ private fun MainControlChoices(settings: Settings, onChange: (Settings) -> Unit)
                         selected = round == settings.cornerRound,
                         onClick = { onChange(settings.copy(cornerRound = round)) },
                         label = { Text(stringResource(if (round) R.string.start_round else R.string.start_pill)) },
-                        // ⚠️ His two drawings of the switch, which now name a rest each.
+                        // I due disegni dell'utente della vecchia casella, uno per forma.
                         leadingIcon = {
                             Icon(
                                 imageVector = if (round) Glyphs.RestRound else Glyphs.RestPill,
@@ -3785,14 +3186,11 @@ private fun MainControlChoices(settings: Settings, onChange: (Settings) -> Unit)
 /**
  * 'Aspetto dei pulsanti principali': di che cosa sono fatti il FAB e le pillole.
  *
- * ⚠️⚠️ **DALLA `4.10` È UNA VOCE A SÉ, IN FONDO A 'TEMA E DETTAGLI GRAFICI', ED È SUA** (giro della
- * `4.04`, nota E: *voce globale 'Aspetto dei pulsanti principali' che vale anche per il FAB*):
- * prima era la seconda fila di gettoni della pillola, e valeva solo per le pillole.
- * ⚠️ **Su ogni apparecchio, tablet compreso**: il FAB e la pillola degli schermi larghi ci sono
- * anche là.
- * ⚠️ **'Vetro' è diventato 'Traslucido'**, parola sua; la chiave della stringa resta `pill_glass`.
- * ⚠️ **'Traslucido' non compare sotto Android 12** (sua risposta, 2026-10-05): il vetro vuole un
- * `RenderEffect`, e un gettone che non fa niente è peggio di un gettone che non c'è.
+ * Una voce sola, in fondo a 'Tema e dettagli grafici', che vale anche per il FAB (nota E del
+ * giro della `4.04`). C'è su ogni apparecchio, tablet compreso.
+ * Il nome 'Traslucido' è dell'utente; la chiave della stringa resta `pill_glass`.
+ * ⚠️ **'Traslucido' non compare sotto Android 12** (risposta dell'utente): il vetro vuole un
+ * `RenderEffect`, e una pastiglia senza effetto è peggio di una pastiglia che non c'è.
  */
 @Composable
 private fun ButtonLookChoices(settings: Settings, onChange: (Settings) -> Unit) {
@@ -3813,19 +3211,16 @@ private fun ButtonLookChoices(settings: Settings, onChange: (Settings) -> Unit) 
         onSelect = { onChange(settings.copy(pillFill = it)) }
     )
     /*
-     * ⚠️⚠️ **I QUATTRO CURSORI DEL TRASLUCIDO, DALLA `4.20`, ED È SUA RICHIESTA** (nota N1 del giro
-     * della `4.15`): compaiono solo col traslucido scelto, e si nascondono tutti spegnendo
-     * [GLASS_TUNING]. Il significato di ognuno è dichiarato su [GlassTune].
-     * ⚠️ **Scrivono quando il dito si alza**, come il cursore dello zoom, e per la stessa ragione.
+     * I cursori del traslucido (nota N1 dell'utente): compaiono solo col traslucido scelto, e si
+     * nascondono tutti spegnendo [GLASS_TUNING]. Il significato di ognuno è su [GlassTune].
+     * Scrivono quando il dito si alza, come il cursore dello zoom.
      */
     if (GLASS_TUNING && settings.pillFill == PillFill.GLASS && glassAvailable()) {
         /*
-         * ⚠️⚠️ **L'ANTEPRIMA SEGUE IL DITO, ED È SUA CORREZIONE** (2026-10-05: *è impossibile
-         * configurarli alla cieca. Serve un elemento traslucido che si aggiorna in tempo reale man
-         * mano che si cambiano i valori*): i cursori muovono [vivo], che l'anteprima legge a ogni
-         * fotogramma, e la preferenza si scrive quando il dito si alza.
-         * ⚠️ **[vivo] riparte quando il valore cambia da fuori**, come lo stato del cursore dello
-         * zoom: un ripristino rimette cursori e anteprima dove devono stare.
+         * ⚠️ **L'anteprima segue il dito** (correzione dell'utente: alla cieca non si regola): i
+         * cursori muovono [vivo], che l'anteprima legge a ogni fotogramma, e la preferenza si
+         * scrive quando il dito si alza. [vivo] riparte quando il valore cambia da fuori, così un
+         * ripristino rimette a posto cursori e anteprima.
          */
         var vivo by remember(settings.glass) { mutableStateOf(settings.glass) }
         val scrivi = { onChange(settings.copy(glass = vivo)) }
@@ -3835,10 +3230,8 @@ private fun ButtonLookChoices(settings: Settings, onChange: (Settings) -> Unit) 
         GlassSlider(R.string.glass_tint, vivo.tint, GlassTune.TINT_RANGE, "%", { vivo = vivo.copy(tint = it) }, scrivi)
         GlassSlider(R.string.glass_light, vivo.shift, GlassTune.SHIFT_RANGE, "%", { vivo = vivo.copy(shift = it) }, scrivi)
         /*
-         * ⚠️⚠️ **I DUE COLORI, DALLA `4.25`, ED È LA SUA RISPOSTA B3** (*due colori memorizzabili
-         * 'Colore chiaro' e 'Colore scuro' da color picker, con ritorno al predefinito*): uno per
-         * tema, e il predefinito è l'accento che il vetro porta in quel tema ([pillAccent]).
-         * L'anteprima mostra quello del tema in cui si è.
+         * I due colori (risposta B3 dell'utente): uno per tema, e il predefinito è l'accento del
+         * vetro in quel tema ([pillAccent]). L'anteprima mostra quello del tema in vigore.
          */
         GlassColourRow(R.string.glass_colour_light, light = true, tune = settings.glass) {
             onChange(settings.copy(glass = settings.glass.withColour(true, it)))
@@ -3847,9 +3240,8 @@ private fun ButtonLookChoices(settings: Settings, onChange: (Settings) -> Unit) 
             onChange(settings.copy(glass = settings.glass.withColour(false, it)))
         }
         /*
-         * ⚠️ **'Ripristina' riporta tutto ai valori di fabbrica, colori compresi**: chi aveva mosso i
-         * cursori nella `4.20` non vede i valori nuovi della `4.25`, perché valgono dove l'archivio
-         * tace, e questo è il modo di ritrovarli.
+         * 'Ripristina' riporta tutto ai valori di fabbrica, colori compresi: chi ha mosso i cursori
+         * non vede i valori di fabbrica nuovi, che valgono solo dove l'archivio non ha niente.
          */
         TextButton(
             onClick = { onChange(settings.copy(glass = GlassTune())) },
@@ -3903,10 +3295,10 @@ private fun GlassColourRow(label: Int, light: Boolean, tune: GlassTune, onPick: 
  * Il selettore di un colore del traslucido: tonalità, saturazione e luminanza, col colore che ne
  * risulta in cima.
  *
- * ⚠️ **HSL e non una ruota**: tre cursori con le parole del modulo HSL dell'editor completo, che
- * le ventotto lingue hanno già, e un cursore si muove a un'unità per volta, una ruota no.
- * ⚠️ **Si chiude toccando fuori, come 'Annulla'**: non raccoglie un testo scritto, quindi non è una
- * modale vera (`Rules.md`, § 'Che cosa fa il tocco FUORI da una finestra').
+ * HSL e non una ruota: cursori con le parole del modulo HSL dell'editor completo, già tradotte,
+ * e un cursore si muove di un'unità per volta.
+ * Si chiude toccando fuori, come 'Annulla': non raccoglie un testo scritto, quindi non è una
+ * modale vera (`Rules.md`, § '👆 Che cosa fa il tocco FUORI da una finestra').
  *
  * @param onPick il colore scelto in ARGB, o `null` per tornare all'accento ('Predefinito').
  */
@@ -3966,7 +3358,7 @@ private val SWATCH = 28.dp
 private val SWATCH_TALL = 48.dp
 
 /**
- * Uno dei quattro cursori del traslucido: il nome col valore accanto, e il cursore sotto.
+ * Un cursore del traslucido: il nome col valore accanto, e il cursore sotto.
  *
  * ⚠️ **Muove il valore dal vivo a ogni passo** ([onMove]), perché l'anteprima lo segua, e scrive
  * la preferenza solo quando il dito si alza ([onDone]).
@@ -4001,10 +3393,10 @@ private fun GlassSlider(
  * L'anteprima del traslucido: una pillola di vetro sopra un fondo a righe colorate, coi valori
  * dei cursori così come sono adesso.
  *
- * ⚠️ **Il fondo è disegnato e non è una fotografia**: righe sottili e colori saturi sono il caso in
- * cui raggio e intensità si vedono meglio, e non c'è un file da portarsi dietro.
- * ⚠️ **È il vetro vero** ([buttonFill] con lo stesso [Backdrop] delle schermate), con il tono
- * scelto passato da [LocalPillLook]: quello che si vede qui è quello che si vedrà sulle pillole.
+ * Il fondo è disegnato e non è un'immagine: con righe sottili e colori saturi raggio e intensità
+ * si vedono meglio, e non c'è un file da includere.
+ * ⚠️ **È il vetro vero** ([buttonFill] con lo stesso [Backdrop] delle schermate), col tono scelto
+ * passato da [LocalPillLook]: quello che si vede qui è quello che si vedrà sulle pillole.
  */
 @Composable
 private fun GlassPreview(tune: GlassTune) {
@@ -4017,7 +3409,7 @@ private fun GlassPreview(tune: GlassTune) {
             .fillMaxWidth()
             .height(PREVIEW_TALL)
             .clip(RoundedCornerShape(PREVIEW_ROUND))
-            // ⚠️ Muta per il lettore di schermo: è un disegno, e le icone finte non sono comandi.
+            // Muta per il lettore di schermo: è un disegno, e le icone finte non sono comandi.
             .clearAndSetSemantics { }
     ) {
         androidx.compose.foundation.Canvas(modifier = Modifier.matchParentSize().backdropSource(backdrop)) {
@@ -4045,8 +3437,7 @@ private fun GlassPreview(tune: GlassTune) {
             }
         }
         /*
-         * ⚠️⚠️ **IL BORDO D'ACCENTO, DALLA `4.25`, ED È SUO** (punto B del giro della `4.20`, e la
-         * misura nella risposta: *5dp interni all'immagine, in sovrapposizione*): copre i bordi
+         * Il bordo d'accento (punto B dell'utente, 5dp interni e sovrapposti): copre i bordi
          * seghettati delle righe contro lo stondamento, ed è disegnato dopo, cioè sopra.
          */
         Box(
@@ -4057,19 +3448,19 @@ private fun GlassPreview(tune: GlassTune) {
     }
 }
 
-/** How thick the accent border inside the preview is: his 5dp. */
+/** Lo spessore del bordo d'accento dentro l'anteprima: i 5dp dell'utente. */
 private val PREVIEW_EDGE = 5.dp
 
-/** The preview's corner radius, shared by its clip and its border. */
+/** Il raggio degli angoli dell'anteprima, comune al ritaglio e al bordo. */
 private val PREVIEW_ROUND = 16.dp
 
-/** How tall the translucent look's preview is: enough for the pill and some stripes around it. */
+/** L'altezza dell'anteprima del traslucido: abbastanza per la pillola e qualche riga intorno. */
 private val PREVIEW_TALL = 96.dp
 
-/** The width of each stripe behind the preview's pill. */
+/** La larghezza di ogni riga dietro la pillola dell'anteprima. */
 private val PREVIEW_STRIPE = 10.dp
 
-/** The stripes' colours: saturated and far apart, where blur and intensity show the most. */
+/** I colori delle righe: saturi e lontani fra loro, dove sfocatura e intensità si vedono meglio. */
 private val PREVIEW_COLOURS = listOf(
     Color(0xFFE53935), Color(0xFFFDD835), Color(0xFF43A047), Color(0xFF1E88E5), Color(0xFF8E24AA), Color(0xFFFFFFFF)
 )
@@ -4077,15 +3468,12 @@ private val PREVIEW_COLOURS = listOf(
 /**
  * Una voce con l'interruttore.
  *
- * ⚠️⚠️ **LA RIGA INTERA È IL COMANDO, dalla `1.46`, e prima non lo era affatto**: si toccava
- * il solo interruttore, che è un bersaglio da 32dp in una pagina fatta di righe alte il
- * doppio. Il tocco è un `toggleable` con `role = Role.Switch`, e dentro l'interruttore non
- * c'è niente: due bersagli per una scelta sola farebbero annunciare due voci a un lettore di
- * schermo, che è il difetto che il dialogo delle opzioni aveva.
- * ⚠️ **Lo mette il componente e non il chiamante**, così una voce nuova ce l'ha per
- * costruzione: nessuno si ricorda di aggiungere un modificatore a una riga che sta già bene.
- * ⚠️ Il `toggleable` va **prima** del `padding`, per la ragione già scritta su [PageRow]: così
- * il bersaglio prende anche il margine e arriva ai 48dp senza scriverli.
+ * ⚠️ **La riga intera è il comando**: il solo interruttore sarebbe un bersaglio da 32dp. Il tocco
+ * è un `toggleable` con `role = Role.Switch`, e l'interruttore non ha un gesto suo, o un lettore
+ * di schermo annuncerebbe due voci per una scelta. Lo mette il componente, così una voce nuova
+ * ce l'ha da sé.
+ * Il `toggleable` va prima del `padding`, come su [PageRow]: il bersaglio prende anche il
+ * margine e arriva ai 48dp senza scriverli.
  */
 @Composable
 internal fun SwitchRow(
@@ -4116,11 +3504,9 @@ internal fun SwitchRow(
 /**
  * Una voce con la casella: la gemella di [SwitchRow] per le scelte che si sommano.
  *
- * ⚠️ **Una casella e non un interruttore**, e non è un gusto: un interruttore dice che una cosa è
- * accesa o spenta da adesso in poi, mentre qui si sceglie che cosa entra in un'operazione che
- * parte dopo. È la differenza che Material stesso tiene fra i due componenti.
- * ⚠️ **La riga intera è il bersaglio**, con `Role.Checkbox`, per la stessa ragione scritta su
- * [SwitchRow]: dentro, la casella non ascolta niente.
+ * Una casella e non un interruttore: un interruttore dice che una cosa è accesa da adesso in poi,
+ * qui si sceglie che cosa entra in un'operazione che parte dopo, come distingue Material.
+ * La riga intera è il bersaglio, con `Role.Checkbox`, per la ragione scritta su [SwitchRow].
  */
 @Composable
 internal fun CheckRow(
@@ -4131,8 +3517,8 @@ internal fun CheckRow(
     /**
      * Se la riga porta meno aria sopra e sotto: [ROW_TIGHT] invece di [ROW_HIGH].
      *
-     * ⚠️ La chiede la pagina 'Esporta e importa' dalla `2.99`, perché i suoi due tasti si vedano
-     * senza scorrere (vedi `BackupPage`).
+     * La chiede la pagina 'Esporta e importa', perché i suoi tasti si vedano senza scorrere
+     * (vedi `BackupPage`).
      */
     tight: Boolean = false
 ) {
@@ -4156,24 +3542,23 @@ internal fun CheckRow(
 
 
 /**
- * La sotto-pagina **'Rinomina e download'**: le tre voci che decidono con che nome un file si
- * salva e dove finisce.
+ * La sotto-pagina **'Rinomina e download'**: le voci che decidono con che nome un file si salva e
+ * dove finisce.
  *
- * ⚠️⚠️ **LA SEMANTICA DELLE TRE VOCI È SUA, DETTATA PAROLA PER PAROLA** (riscontro del giro
- * della `1.80`, voce `tocco-lungo-due`), e sta scritta qui perché è l'unico posto in cui si
- * vedono tutte e tre insieme:
+ * ⚠️ **Il significato delle voci è dell'utente** (voce `tocco-lungo-due`), ed è scritto qui
+ * perché è il solo posto in cui si vedono insieme:
  * - **'Consenti la rinomina al salvataggio'** riguarda la sola 'Scarica' e mostra la finestra
  *   del nome. *Non aggiunge nulla di per sé*: se è spenta, la si accende al volo con un tocco
  *   lungo su 'Scarica', e *in quel caso 'Percorso' è sempre attiva*.
  * - **'Scegli il percorso di download'** riguarda la sola 'Scarica' e *si applica se è attivo*
  *   il primo: aggiunge il tasto che sceglie la cartella.
- * - **'Consenti la modifica dell'estensione'** riguarda *sia 'Rinomina' che 'Scarica'*, e i due
- *   chip dicono in quale delle due.
+ * - **'Consenti la modifica dell'estensione'** riguarda *sia 'Rinomina' che 'Scarica'*, e le due
+ *   pastiglie dicono in quale delle due.
  *
- * ⚠️ **La subordinazione della seconda voce si LEGGE e non si impone**: l'interruttore resta
- * toccabile anche con la rinomina spenta, e a non avere effetto è il comando dentro una finestra
- * che in quel caso non si apre. Spegnere una riga che si può accendere darebbe una voce morta
- * senza dire perché, e la ragione vera la dice la sua spiegazione.
+ * La subordinazione della seconda voce si legge e non si impone: l'interruttore resta toccabile
+ * anche con la rinomina spenta, e a non avere effetto è il comando dentro una finestra che allora
+ * non si apre. Una riga disattivata sembrerebbe guasta senza dire perché; il perché lo dice la sua
+ * spiegazione.
  */
 @Composable
 private fun RenameAndDownload(settings: Settings, onChange: (Settings) -> Unit) {
@@ -4184,13 +3569,11 @@ private fun RenameAndDownload(settings: Settings, onChange: (Settings) -> Unit) 
         onChange = { onChange(settings.copy(saveRename = it)) }
     )
     /*
-     * ⚠️⚠️ **SPEGNERLA SCORDA LA CARTELLA SCELTA, DALLA `1.82`, E NON È UN'AGGIUNTA GRATUITA**:
-     * senza, spegnendo la voce i file continuerebbero ad andare nella cartella scelta mesi prima
-     * mentre il comando che la mostra e la cambia non c'è più. È il vicolo cieco della voce
-     * `save-percorso` preso dall'altra parte: là non si tornava a Download perché il selettore
-     * non la offre, qui perché non ci sarebbe più niente da toccare.
-     * ⚠️ **Accenderla non ripesca niente**: la cartella si sceglie, e ripescare quella di prima
-     * vorrebbe dire una destinazione che ricompare senza che nessuno l'abbia chiesta.
+     * ⚠️ **Spegnerla dimentica la cartella scelta**: senza, i file continuerebbero ad andare
+     * nella cartella scelta mesi prima mentre il comando che la mostra e la cambia non c'è più
+     * (il vicolo cieco della voce `save-percorso`, dall'altra parte).
+     * Accenderla non ripesca la cartella di prima: una destinazione non ricompare senza che
+     * nessuno l'abbia chiesta.
      */
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -4204,15 +3587,12 @@ private fun RenameAndDownload(settings: Settings, onChange: (Settings) -> Unit) 
         }
     )
     /*
-     * ⚠️⚠️ **I DUE CHIP SONO INDIPENDENTI, E NON UNA SCELTA FRA DUE**: lui li ha chiesti *spenti
-     * di fabbrica* e attivi *per ciascuna delle due funzionalità*, quindi le combinazioni sono
-     * quattro e non due. È la ragione per cui questa riga non passa da `Choices`, che dichiara
-     * una scelta sola e la annuncia così a un lettore di schermo.
-     * ⚠️ **I due nomi sono le stringhe dei due comandi veri**, `menu_save` e `pick_rename`:
-     * dicono esattamente 'Scarica' e 'Rinomina', cioè le due voci a cui i chip si riferiscono,
-     * e scriverne due copie vorrebbe dire due testi da tenere d'accordo in 28 lingue.
-     * ⚠️ **AIV Play non ha la voce, dalla `5.30`**: là l'estensione non si cambia, né scaricando
-     * né rinominando (`Store.fit`).
+     * ⚠️ **Le due pastiglie sono indipendenti, non una scelta fra due**: spente di fabbrica e
+     * attive per ciascuna funzione, come le ha chieste l'utente. Per questo [Toggles] e non
+     * `Choices`, che dichiara una scelta sola anche a un lettore di schermo.
+     * I nomi sono le stringhe dei comandi veri, `menu_save` e `pick_rename`, senza copie da
+     * tenere d'accordo in tutte le lingue.
+     * AIV Play non ha la voce: là l'estensione non si cambia (`Store.fit`).
      */
     if (Store.fullSettings) Toggles(
         label = stringResource(R.string.settings_ext_edit),
@@ -4232,22 +3612,18 @@ private fun RenameAndDownload(settings: Settings, onChange: (Settings) -> Unit) 
 }
 
 /**
- * Una pastiglia di [Toggles] col suo valore e col cambiamento che il tocco fa: nasce con la
- * `5.30`, quando AIV Play ha cominciato a mostrare solo alcune pastiglie di una voce.
+ * Una pastiglia di [Toggles] col suo valore e col cambiamento che fa il tocco: serve dove AIV
+ * Play mostra solo alcune pastiglie di una voce.
  */
 private class Chip(val name: String, val on: Boolean, val flip: (Settings) -> Settings)
 
 /**
  * Una voce con più pastiglie **indipendenti**: ognuna si accende e si spegne da sé.
  *
- * ⚠️⚠️ **NON È [Choices] CON UN'ALTRA FACCIA**: là le pastiglie sono una scelta sola, e il
- * componente lo dichiara; qui le combinazioni sono tutte quelle possibili. Riusare quello
- * avrebbe fatto annunciare 'scelta sola' a un lettore di schermo, che è il difetto opposto di
- * quello che il censimento della UI ha trovato sui chip della conversione.
- * ⚠️ **Il ruolo di serie di `FilterChip` è quello giusto qui**: un tasto che porta il proprio
- * stato di selezione, senza nessun gruppo che dichiari l'esclusività.
- * ⚠️ **Anche i nomi delle pastiglie entrano nella ricerca**, per la stessa ragione scritta su
- * [Choices]: sono le parole con cui si pensa a quell'impostazione.
+ * ⚠️ **Non è [Choices]**: là le pastiglie sono una scelta sola, e il componente lo dichiara a un
+ * lettore di schermo; qui ogni combinazione è ammessa. Il ruolo di serie di `FilterChip` è quello
+ * giusto: un tasto col proprio stato, senza un gruppo che dichiari l'esclusività.
+ * Anche i nomi delle pastiglie entrano nella ricerca, come su [Choices].
  */
 @Composable
 private fun Toggles(
