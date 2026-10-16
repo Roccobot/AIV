@@ -43,10 +43,10 @@ object MediaRename {
      * ⚠️ **Due fasi, come in `FileTree.rename`**: rinumerare una serie già numerata crea cicli
      * fra i nomi, e una rinomina alla volta troverebbe il nome voluto ancora occupato da un file
      * della stessa selezione. Ogni file passa prima da un nome provvisorio.
-     * ⚠️ **Il nome provvisorio non comincia col punto**, a differenza di `FileTree.rename`: un
-     * nome nascosto è un file che il MediaStore smette di elencare, e la seconda fase ha bisogno
-     * della sua riga. Se l'app si ferma fra le due fasi, i file restano col nome
-     * `aiv-<ora>-<n>`, visibili in galleria.
+     * ⚠️ **Il nome provvisorio è quello di `FileTree.parkingName`, senza il punto**: un nome
+     * nascosto è un file che il MediaStore smette di elencare, e la seconda fase ha bisogno della
+     * sua riga. Se l'app si ferma fra le due fasi, i file restano col nome `aiv-<ora>-<n>`,
+     * visibili in galleria.
      * Un nome occupato da un file fuori dalla selezione ne riceve uno libero
      * (`FileTree.freeName`), e un file la cui seconda fase fallisce torna al nome vecchio.
      * I nomi in memoria si dimenticano ([Names.forget]): la riga conserva l'indirizzo anche dopo
@@ -79,8 +79,8 @@ object MediaRename {
 
             // Fase 1: ogni file sotto un nome che non può essere di nessun altro.
             val parked = plan.filter { step ->
-                val tail = if (step.file.extension.isEmpty()) "" else ".${step.file.extension}"
-                named(context, step.row, "aiv-$stamp-${step.at}$tail").also { if (!it) failed++ }
+                named(context, step.row, FileTree.parkingName(stamp, step.at, step.file.extension))
+                    .also { if (!it) failed++ }
             }
 
             // Fase 2: il nome vero. Un nome occupato adesso è di un file fuori dalla selezione.

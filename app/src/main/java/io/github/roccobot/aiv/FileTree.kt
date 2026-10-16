@@ -208,8 +208,8 @@ object FileTree {
      * sovrascriverebbe l'`a.jpg` che deve ancora diventare `c.jpg`, e i cicli succedono ogni volta
      * che si rinumera una serie numerata. Prima tutti vanno su un nome provvisorio, poi su quello
      * vero.
-     * I nomi provvisori cominciano col punto: se l'app si ferma fra le due fasi, restano file
-     * nascosti e non immagini senza nome in galleria.
+     * I nomi provvisori sono quelli di [parkingName], visibili: se l'app si ferma fra le due fasi,
+     * le immagini restano in galleria col nome `aiv-<ora>-<n>` e si ritrovano.
      * Il numero è legato alla posizione: un file che non si riesce a spostare lascia il suo numero
      * vuoto, senza far slittare quelli dopo.
      * L'estensione viene dal file e non dal modello (istruzione dell'utente), salvo [extension].
@@ -243,7 +243,7 @@ object FileTree {
                 start + at,
                 extension ?: file.name.substringAfterLast('.', "")
             )
-            val temp = if (dir == null) null else File(dir, ".aiv-$stamp-$at")
+            val temp = if (dir == null) null else File(dir, parkingName(stamp, at, file.extension))
             if (temp != null && runCatching { file.renameTo(temp) }.getOrDefault(false)) {
                 parked += temp to (file to wanted)
             } else {
@@ -262,7 +262,7 @@ object FileTree {
                 touched += target.absolutePath
             } else {
                 failed++
-                // Si rimette com'era: col nome provvisorio, nascosto, sparirebbe dalla galleria.
+                // Si rimette com'era: col nome provvisorio resterebbe un nome che nessuno ha scelto.
                 runCatching { temp.renameTo(origin) }
             }
         }
@@ -270,6 +270,19 @@ object FileTree {
         scan(context, touched)
         Outcome(done, failed)
     }
+
+    /**
+     * Il nome provvisorio della prima fase di una rinomina in blocco: `aiv-<ora>-<n>` con
+     * l'estensione del file.
+     *
+     * ⚠️⚠️ **Senza il punto davanti** (scelta F1 sulla voce G5 della revisione Setaccio): un nome
+     * col punto è un file nascosto, e se il processo si chiude fra le due fasi le foto sparivano
+     * dalla galleria col nome vero perso. Visibile e con la sua estensione resta un'immagine che
+     * si vede e si rinomina a mano. In AIV Play il punto non c'è mai stato, perché un nome
+     * nascosto il MediaStore smette di elencarlo; il nome è lo stesso per le due varianti.
+     */
+    internal fun parkingName(stamp: Long, at: Int, extension: String): String =
+        "aiv-$stamp-$at" + if (extension.isEmpty()) "" else ".$extension"
 
     /**
      * I nomi delle immagini scelte, nell'ordine in cui la rinomina le numererà: per l'anteprima

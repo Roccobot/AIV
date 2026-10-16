@@ -1033,8 +1033,8 @@ Travasate dal brief il 2026-10-16 (`Tagliando`), dove vivevano senza una casa du
   giro della `5.40`, nel piano di una funzione per rilascio; `MediaRename.kt`, `Store.renames`):
   il tasto nei due riquadri dei file e il tocco lungo sul nome nella finestra `Info`.
   - **È la stessa rinomina di AIV GitHub**: ordine alfabetico, cancelletti del modello, due fasi
-    con un nome temporaneo (senza il punto davanti, perché un nome nascosto il MediaStore smette
-    di elencarlo), un nome libero se quello voluto è di un file estraneo. Cambia solo chi scrive:
+    con un nome temporaneo (`FileTree.parkingName`, senza il punto davanti: un nome nascosto il
+    MediaStore smette di elencarlo, e dalla `6.30` vale anche per AIV GitHub), un nome libero se quello voluto è di un file estraneo. Cambia solo chi scrive:
     il nome nuovo va nella riga del MediaStore (`DISPLAY_NAME`), e il sistema rinomina il file.
   - **La conferma è la finestra di Android** (`createWriteRequest`, una per tutti i file), come per
     `Elimina`; col no non succede niente e non si dice niente (`FileKind.speaks` tace quando non è

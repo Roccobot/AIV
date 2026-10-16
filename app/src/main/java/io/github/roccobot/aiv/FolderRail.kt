@@ -190,11 +190,15 @@ fun FolderRail(
                  * dal bordo inferiore vince sul trascinamento, e la maniglia non si prende.
                  * Il riquadro del tocco ([HANDLE_TOUCH]) è più grande delle due righe, che sono
                  * sottili. Il nome per i lettori di schermo è `folders_rail_move`.
+                 * ⚠️ **Il riquadro cresce verso l'alto, e le righe restano sopra l'elenco**: le
+                 * righe vivono nella fascia di sotto ([HANDLE_LINES_ROOM]), e il blocco è ancorato
+                 * in fondo, quindi i 48 dp del dito si prendono dallo spazio sopra la maniglia e
+                 * non dalla prima riga dell'elenco.
                  */
                 val handleInk = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = HANDLE_INK)
                 val handleName = stringResource(R.string.folders_rail_move)
                 Box(
-                    contentAlignment = Alignment.Center,
+                    contentAlignment = Alignment.BottomCenter,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .size(width = HANDLE_TOUCH * 2, height = HANDLE_TOUCH)
@@ -238,13 +242,18 @@ fun FolderRail(
                             )
                         }
                 ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(HANDLE_GAP)) {
-                        repeat(2) {
-                            Box(
-                                Modifier
-                                    .size(width = HANDLE_LINE, height = HANDLE_STROKE)
-                                    .background(handleInk, RoundedCornerShape(50))
-                            )
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.height(HANDLE_LINES_ROOM)
+                    ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(HANDLE_GAP)) {
+                            repeat(2) {
+                                Box(
+                                    Modifier
+                                        .size(width = HANDLE_LINE, height = HANDLE_STROKE)
+                                        .background(handleInk, RoundedCornerShape(50))
+                                )
+                            }
                         }
                     }
                 }
@@ -694,8 +703,16 @@ private val HANDLE_LINE = 28.dp
 private val HANDLE_STROKE = 2.dp
 private val HANDLE_GAP = 4.dp
 
-/** L'altezza del riquadro che la maniglia offre al dito; la larghezza è il doppio. */
-private val HANDLE_TOUCH = 24.dp
+/**
+ * L'altezza del riquadro che la maniglia offre al dito; la larghezza è il doppio.
+ *
+ * 48 dp, il bersaglio minimo di Material e di Android (scelta F1 sulla voce G5 della revisione
+ * Setaccio): con 24 la maniglia, vicina al bordo dove vince un gesto di sistema, si prendeva male.
+ */
+private val HANDLE_TOUCH = 48.dp
+
+/** La fascia in fondo al riquadro in cui stanno disegnate le due righe, sopra l'elenco. */
+private val HANDLE_LINES_ROOM = 24.dp
 
 /**
  * Quanto inchiostro hanno le righe della maniglia.
