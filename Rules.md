@@ -814,6 +814,14 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   telefono in indonesiano vedeva l'app in inglese. La copia la fa il compito `indonesianIn` di
   `app/build.gradle.kts`, e `IndonesianoTest` legge una stringa con tutti e due i codici. La
   cartella `values-in` non si crea a mano: sarebbe una seconda copia da tenere allineata.
+- ⚠️ **Una lingua nuova entra anche in `res/xml/locales_config.xml`**, l'elenco della pagina
+  'Lingua dell'app' di Android 13 e successivi (dalla 6.30): `LingueAppTest` fallisce finché manca.
+  È scritto a mano perché quello generato dalla build (`generateLocaleConfig`) elencava
+  l'indonesiano due volte, `id` e la copia `in`.
+- **Le chiavi uguali all'inglese in più di metà delle lingue** sono segnalate da `i18n-check.py` come
+  mai tradotte (dalla 6.30); un valore che non è testo (una sigla, un formato) si dichiara
+  `translatable="false"`, e un testo che tutte le lingue scrivono come l'inglese di proposito entra
+  nel suo elenco `UGUALI_DI_PROPOSITO`.
 
 ## 💬 I commenti del codice: il perché di oggi, in italiano
 
