@@ -226,12 +226,10 @@ object Watermark {
         // che non compare, cioè un salvataggio che non fa quello che promette.
         if (render(bytes, kind, 64) == null) return@withContext false
 
+        // ⚠️ Con [AtomicWrite] (rilievo B21): scritta sul posto, una scrittura interrotta
+        // cancellava anche la filigrana dello stesso tipo che c'era prima.
         val file = File(casa, "mark.${kind.suffix}")
-        val written = runCatching { file.writeBytes(bytes); true }.getOrDefault(false)
-        if (!written) {
-            file.delete()
-            return@withContext false
-        }
+        if (!AtomicWrite.bytes(file, bytes)) return@withContext false
         // Un solo logo per volta: quello dell'altro tipo se ne va.
         Kind.entries.filter { it != kind }.forEach { File(casa, "mark.${it.suffix}").delete() }
         true

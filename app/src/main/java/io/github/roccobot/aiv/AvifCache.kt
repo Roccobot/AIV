@@ -86,8 +86,9 @@ object AvifCache {
     fun write(context: Context, uri: Uri, box: Int, bitmap: Bitmap) {
         val file = fileFor(context, uri, box) ?: return
         runCatching {
-            file.parentFile?.mkdirs()
-            file.outputStream().use { bitmap.compress(FORMAT, QUALITY, it) }
+            // ⚠️ Con [AtomicWrite] (rilievo C9): una miniatura troncata col nome giusto si
+            // leggeva come buona, ed è peggio di una che manca.
+            AtomicWrite.write(file) { bitmap.compress(FORMAT, QUALITY, it) }
             // ⚠️ **La potatura non gira a ogni scrittura**: con [KEEP] file, elencare la cartella
             // costerebbe più della miniatura appena scritta. Gira alla prima scrittura del processo e
             // poi una volta ogni [PRUNE_EVERY], quindi la cartella supera il tetto al più di tanto.

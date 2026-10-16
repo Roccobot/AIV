@@ -62,20 +62,14 @@ object RemoteCache {
     /**
      * Tiene da parte i byte di questo indirizzo, se ci stanno.
      *
-     * ⚠️ Si scrive su un file temporaneo e poi si rinomina: un'app chiusa a metà
-     * scrittura lascerebbe altrimenti un file **troncato** con il nome giusto, cioè una
-     * cache che serve immagini rotte, che è peggio di una cache vuota.
+     * ⚠️ Con [AtomicWrite]: un'app chiusa a metà scrittura lascerebbe altrimenti un file
+     * **troncato** con il nome giusto, cioè una cache che serve immagini rotte, che è peggio di
+     * una cache vuota.
      */
     fun write(context: Context, uri: Uri, bytes: ByteArray) {
         if (bytes.size > MAX_ENTRY_BYTES) return
         val file = fileFor(context, uri)
-        runCatching {
-            file.parentFile?.mkdirs()
-            val temporary = File(file.parentFile, "${file.name}.part")
-            temporary.writeBytes(bytes)
-            if (!temporary.renameTo(file)) temporary.delete()
-            trim(file.parentFile)
-        }
+        if (AtomicWrite.bytes(file, bytes)) runCatching { trim(file.parentFile) }
     }
 
     /**

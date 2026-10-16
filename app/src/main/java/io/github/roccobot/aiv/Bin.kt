@@ -124,9 +124,7 @@ object Bin {
             lock.withLock {
                 val bin = ready(context)
                 val records = read(context).toMutableList()
-                val touched = ArrayList<String>(uris.size)
-                val landed = ArrayList<Uri>(uris.size)
-                var done = 0
+                val moved = ArrayList<Pair<File, File>>(uris.size)
                 var failed = 0
                 val now = System.currentTimeMillis()
                 for (uri in uris) {
@@ -137,18 +135,25 @@ object Bin {
                     }
                     val to = FileTree.freeName(bin, from.name)
                     if (FileTree.carry(from, to)) {
-                        done++
                         touch(context, to)
-                        touched += from.absolutePath
-                        landed += to.toUri()
+                        moved += from to to
                         records += Record(to.name, now, from.absolutePath, KIND_SENT)
                     } else {
                         failed++
                     }
                 }
-                write(context, records)
-                FileTree.scan(context, touched)
-                Sent(FileTree.Outcome(done, failed), landed)
+                // ⚠️⚠️ **SENZA L'ARCHIVIO SCRITTO I FILE TORNANO A CASA** (rilievo E12): nel
+                // cestino senza la loro riga non si potrebbero più ripristinare, e l'esito direbbe
+                // lo stesso 'spostati nel cestino'. Quello che non riesce a tornare resta nel
+                // cestino e si conta come riuscito, perché là è comunque.
+                if (moved.isNotEmpty() && !write(context, records)) {
+                    val back = moved.filter { (from, to) -> FileTree.carry(to, from) }
+                    back.forEach { (_, to) -> touch(context, to) }
+                    failed += back.size
+                    moved.removeAll(back.toSet())
+                }
+                FileTree.scan(context, moved.map { it.first.absolutePath })
+                Sent(FileTree.Outcome(moved.size, failed), moved.map { it.second.toUri() })
             }
         }
 
@@ -209,7 +214,13 @@ object Bin {
                     from.absolutePath,
                     KIND_KEPT
                 )
-                write(context, records)
+                // ⚠️ Una copia senza la sua riga non tornerebbe mai al suo posto: meglio dire che
+                // la copia non c'è, e l'editor non salva sopra l'originale.
+                if (!write(context, records)) {
+                    to.delete()
+                    touch(context, to)
+                    return@withLock null
+                }
                 to
             }
         }
@@ -616,9 +627,9 @@ object Bin {
         return records(runCatching { if (file.isFile) file.readText() else "" }.getOrDefault(""))
     }
 
-    private fun write(context: Context, records: List<Record>) {
-        runCatching { index(context).writeText(text(records)) }
-    }
+    /** Riscrive l'archivio con [AtomicWrite], e risponde se è andata. */
+    private fun write(context: Context, records: List<Record>): Boolean =
+        AtomicWrite.text(index(context), text(records))
 
     /**
      * L'archivio delle provenienze, **accanto** al cestino e non dentro.
