@@ -15,6 +15,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.core.DataMigration
 import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -1363,6 +1365,21 @@ private val Context.aivStore: DataStore<Preferences> by preferencesDataStore(
 )
 
 /**
+ * Every write to [aivStore] goes through here, never through `edit` directly (6.25).
+ *
+ * ⚠️⚠️ DATASTORE RUNS THE CHANGE ON THE CALLER'S DISPATCHER, AND HOLDS THE STORE'S WRITE LOCK WHILE
+ * IT DOES (`DataStoreImpl.transformAndWrite`, `withContext(callerContext)`, read in the 1.2.1
+ * sources). A caller whose dispatcher stops running leaves the lock held, and every later write of
+ * the process waits forever. On a phone the main thread never stops, so it never happened there; on
+ * the bench every test has a dispatcher of its own that stops with the test, and a test that ended
+ * with a write half way kept `FeedTest` waiting for four hours on GitHub (6.24). The change runs on
+ * [Dispatchers.IO], which does not stop: `ScritturaPreferenzeTest` holds it.
+ */
+private suspend fun Context.writeStore(change: suspend (MutablePreferences) -> Unit) {
+    withContext(Dispatchers.IO) { aivStore.edit(change) }
+}
+
+/**
  * La chiave dell'indicatore dell'ultimo media, e sta **a livello di file** e non fra le altre.
  *
  * ⚠️ **Perché qui**: la legge anche [MarkMigration], che deve vivere accanto al delegato dello
@@ -1472,7 +1489,7 @@ internal suspend fun storedPreferences(context: Context): Preferences = context.
  * lascerebbe un archivio fatto di due backup, cioè una cosa che nessuno dei due descrive.
  */
 internal suspend fun rewritePreferences(context: Context, change: (MutablePreferences) -> Unit) {
-    context.aivStore.edit { change(it) }
+    context.writeStore { change(it) }
 }
 
 /** Reads and writes the settings. */
@@ -1480,7 +1497,7 @@ object SettingsStore {
 
     /** Permission must be available before deciding which factory folders exist. */
     internal suspend fun initializeIncluded(context: Context, defaults: Set<String>) {
-        context.aivStore.edit { p ->
+        context.writeStore { p ->
             if (p[INCLUDED_INITIALIZED] != true) {
                 val previous = p[INCLUDED_FOLDERS]
                 if (previous == null || previous == DEFAULT_INCLUDED_FOLDERS) p[INCLUDED_FOLDERS] = defaults
@@ -1816,7 +1833,7 @@ object SettingsStore {
      * § '🔢 I conti si contano, non si scrivono'.
      */
     suspend fun clipboardOpened(context: Context, address: String, at: Long) {
-        context.aivStore.edit { p ->
+        context.writeStore { p ->
             p[CLIPBOARD_DONE] = address
             // ⚠️ Le due chiavi si scrivono INSIEME, e non è pignoleria: separate, un arresto
             // fra le due lascerebbe un indirizzo con l'istante di un altro, cioè una memoria
@@ -1826,7 +1843,7 @@ object SettingsStore {
     }
 
     suspend fun save(context: Context, settings: Settings) {
-        context.aivStore.edit { p ->
+        context.writeStore { p ->
             p[BG_TYPE] = settings.bgType.token
             p[BG_THEME] = settings.bgTheme.token
             p[FIT_GROW] = settings.fitGrow
@@ -1983,7 +2000,7 @@ object FolderAsk {
     fun flow(context: Context): Flow<Boolean> = context.aivStore.data.map { p -> p[ASKED] ?: false }
 
     suspend fun remember(context: Context) {
-        context.aivStore.edit { p -> p[ASKED] = true }
+        context.writeStore { p -> p[ASKED] = true }
     }
 
     /**
@@ -1998,7 +2015,7 @@ object FolderAsk {
      * prima `Folder.granted`.
      */
     suspend fun forget(context: Context) {
-        context.aivStore.edit { p -> p.remove(ASKED) }
+        context.writeStore { p -> p.remove(ASKED) }
     }
 }
 
@@ -2146,7 +2163,7 @@ enum class Hint(internal val token: String) {
     fun flow(context: Context): Flow<Boolean> = context.aivStore.data.map { p -> p[seen] ?: false }
 
     suspend fun remember(context: Context) {
-        context.aivStore.edit { p -> p[seen] = true }
+        context.writeStore { p -> p[seen] = true }
     }
 
     /**
@@ -2158,7 +2175,7 @@ enum class Hint(internal val token: String) {
      * storia in più. Per `flow` sono la stessa cosa, perché legge `?: false`.
      */
     suspend fun forget(context: Context) {
-        context.aivStore.edit { p -> p.remove(seen) }
+        context.writeStore { p -> p.remove(seen) }
     }
 }
 
@@ -2188,7 +2205,7 @@ object Recents {
         if (!address.startsWith("http://", true) && !address.startsWith("https://", true)) return
         if (address.contains('\t') || address.contains('\n')) return
         val clean = name.replace('\t', ' ').replace('\n', ' ')
-        context.aivStore.edit { p ->
+        context.writeStore { p ->
             val kept = (p[ENTRIES] ?: "").lineSequence()
                 .filter { it.isNotBlank() && it.substringBefore('\t') != address }
                 .take(KEEP - 1)
@@ -2198,7 +2215,7 @@ object Recents {
     }
 
     suspend fun clear(context: Context) {
-        context.aivStore.edit { p -> p.remove(ENTRIES) }
+        context.writeStore { p -> p.remove(ENTRIES) }
     }
 }
 
@@ -2230,7 +2247,7 @@ object DownloadFolder {
     fun flow(context: Context): Flow<String?> = context.aivStore.data.map { p -> p[TREE] }
 
     suspend fun set(context: Context, tree: String?) {
-        context.aivStore.edit { p ->
+        context.writeStore { p ->
             if (tree.isNullOrBlank()) p.remove(TREE) else p[TREE] = tree
         }
     }
@@ -2337,7 +2354,7 @@ object DownloadLog {
      *   questa funzione si può misurare senza aspettare un mese.
      */
     suspend fun note(context: Context, mark: String, now: Long) {
-        context.aivStore.edit { p ->
+        context.writeStore { p ->
             val vive = prune(p[SEEN].orEmpty(), now)
             p[SEEN] = vive + "$mark@$now"
         }
@@ -2345,7 +2362,7 @@ object DownloadLog {
 
     /** Scorda tutto: serve a chi vuole ricominciare, e alle prove. */
     suspend fun clear(context: Context) {
-        context.aivStore.edit { p -> p.remove(SEEN) }
+        context.writeStore { p -> p.remove(SEEN) }
     }
 
     /**
@@ -2418,7 +2435,7 @@ object FolderTints {
      * una riga.
      */
     suspend fun set(context: Context, bucket: Long, index: Int?) {
-        context.aivStore.edit { p ->
+        context.writeStore { p ->
             val ora = read(p[TINTS].orEmpty()).toMutableMap()
             if (index == null) ora.remove(bucket) else ora[bucket] = index
             p[TINTS] = ora.map { (dove, quale) -> "$dove=$quale" }.toSet()
@@ -2439,9 +2456,9 @@ object FolderTints {
      */
     suspend fun move(context: Context, da: Long, a: Long) {
         if (da == a) return
-        context.aivStore.edit { p ->
+        context.writeStore { p ->
             val ora = read(p[TINTS].orEmpty()).toMutableMap()
-            val quale = ora.remove(da) ?: return@edit
+            val quale = ora.remove(da) ?: return@writeStore
             ora[a] = quale
             p[TINTS] = ora.map { (dove, indice) -> "$dove=$indice" }.toSet()
         }
