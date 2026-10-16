@@ -5,8 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.RectF
 import android.net.Uri
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.runtime.Composable
@@ -172,18 +170,10 @@ class SviluppoTest {
     @get:Rule
     val banco = createComposeRule()
 
-    /**
-     * ⚠️⚠️ **IL MINI-ONBOARDING DEI MODULI SI SPEGNE PRIMA, DALLA `2.50`**: il suo velo copre lo
-     * schermo e **consuma il primo tocco**, che è quello che deve fare davanti a chi apre l'editor
-     * la prima volta e quello che rende rossa qualunque prova che tocchi un gettone. È la stessa
-     * riga che [NascosteTest] scrive per la scorciatoia delle colonne.
-     */
+    /** I veli d'aiuto dell'editor si segnano come visti prima di montarlo: vedi [senzaOnboarding]. */
     @Before
-    fun senzaOnboarding() {
-        runBlocking {
-            Hint.MODULES.remember(ApplicationProvider.getApplicationContext())
-            Hint.EDITOR_TOOLS.remember(ApplicationProvider.getApplicationContext())
-        }
+    fun veliVisti() {
+        senzaOnboarding()
     }
 
 
@@ -228,7 +218,7 @@ class SviluppoTest {
     @Test
     fun `il gettone cambia i cursori in scena`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         modulo(R.string.look_light)
 
         banco.onNodeWithText(testo(R.string.look_exposure)).assertExists()
@@ -257,7 +247,7 @@ class SviluppoTest {
     @Config(qualifiers = "w600dp-h900dp")
     fun `applica fa inquadrare il taglio e annulla lo disfa`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         banco.onNodeWithContentDescription(testo(R.string.look_crop)).performClick()
         banco.waitForIdle()
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
@@ -351,7 +341,7 @@ class SviluppoTest {
     @Test
     fun `la scheda non cambia altezza cambiando modulo`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
 
         val quanto = altezzaPalco()
         assertTrue(quanto > 0)
@@ -381,24 +371,24 @@ class SviluppoTest {
     @Test
     fun `il tocco lungo su un gettone azzera solo il suo modulo`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         modulo(R.string.look_light)
 
-        muovi(1, 0.5f)
-        assertTrue(valore(1) > 0.2f)
+        banco.muovi(1, 0.5f)
+        assertTrue(banco.valore(1) > 0.2f)
 
         banco.onNodeWithContentDescription(testo(R.string.look_color)).performClick()
         banco.waitForIdle()
-        muovi(0, 0.5f)
-        assertTrue(valore(0) > 0.2f)
+        banco.muovi(0, 0.5f)
+        assertTrue(banco.valore(0) > 0.2f)
 
         banco.onNodeWithContentDescription(testo(R.string.look_color)).performTouchInput { longClick() }
         banco.waitForIdle()
-        assertEquals("il colore doveva azzerarsi", 0f, valore(0), 1e-3f)
+        assertEquals("il colore doveva azzerarsi", 0f, banco.valore(0), 1e-3f)
 
         banco.onNodeWithContentDescription(testo(R.string.look_light)).performClick()
         banco.waitForIdle()
-        assertTrue("la luce non doveva essere toccata", valore(1) > 0.2f)
+        assertTrue("la luce non doveva essere toccata", banco.valore(1) > 0.2f)
     }
 
     /**
@@ -410,21 +400,21 @@ class SviluppoTest {
     @Test
     fun `il bianco e nero spegne saturazione e vividezza`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         banco.onNodeWithContentDescription(testo(R.string.look_color)).performClick()
         banco.waitForIdle()
 
-        cursore(2).assertIsEnabled()
-        cursore(3).assertIsEnabled()
+        banco.cursore(2).assertIsEnabled()
+        banco.cursore(3).assertIsEnabled()
 
         banco.onNodeWithText(testo(R.string.look_bw)).performClick()
         banco.waitForIdle()
 
-        cursore(2).assertIsNotEnabled()
-        cursore(3).assertIsNotEnabled()
+        banco.cursore(2).assertIsNotEnabled()
+        banco.cursore(3).assertIsNotEnabled()
         // ⚠️ La temperatura invece resta viva: il bianco e nero toglie i colori, non la
         // differenza fra una luce calda e una fredda, che sui grigi si vede come densità.
-        cursore(0).assertIsEnabled()
+        banco.cursore(0).assertIsEnabled()
     }
 
     /**
@@ -450,19 +440,19 @@ class SviluppoTest {
     @Test
     fun `il cursore di un modulo non muove quello dell'altro`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
 
         banco.onNodeWithContentDescription(testo(R.string.look_color)).performClick()
         banco.waitForIdle()
-        tocca(RIGA, 0.25f)
-        assertTrue("Il tocco non ha mosso la tinta", abs(valore(RIGA)) > 0.1f)
+        banco.tocca(RIGA, 0.25f)
+        assertTrue("Il tocco non ha mosso la tinta", abs(banco.valore(RIGA)) > 0.1f)
 
         banco.onNodeWithContentDescription(testo(R.string.look_light)).performClick()
         banco.waitForIdle()
         assertEquals(
             "Il tocco sulla tinta ha mosso il contrasto, che è nell'altro modulo",
             0f,
-            valore(RIGA),
+            banco.valore(RIGA),
             1e-3f
         )
     }
@@ -524,20 +514,20 @@ class SviluppoTest {
     @Test
     fun `la fascia scelta cambia i cursori`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         banco.onNodeWithContentDescription(testo(R.string.look_mix)).performClick()
         banco.waitForIdle()
 
-        muovi(0, 0.5f)
-        assertTrue("il tocco non ha mosso la tonalità del rosso", valore(0) > 0.2f)
+        banco.muovi(0, 0.5f)
+        assertTrue("il tocco non ha mosso la tonalità del rosso", banco.valore(0) > 0.2f)
 
         fascia(R.string.look_band_green)
-        assertEquals("il verde doveva essere intatto", 0f, valore(0), 1e-3f)
-        muovi(0, -0.5f)
-        assertTrue("il tocco non ha mosso la tonalità del verde", valore(0) < -0.2f)
+        assertEquals("il verde doveva essere intatto", 0f, banco.valore(0), 1e-3f)
+        banco.muovi(0, -0.5f)
+        assertTrue("il tocco non ha mosso la tonalità del verde", banco.valore(0) < -0.2f)
 
         fascia(R.string.look_band_red)
-        assertTrue("il rosso doveva ritrovare il suo valore", valore(0) > 0.2f)
+        assertTrue("il rosso doveva ritrovare il suo valore", banco.valore(0) > 0.2f)
     }
 
     /**
@@ -550,22 +540,22 @@ class SviluppoTest {
     @Test
     fun `il tocco lungo su una fascia azzera solo quella`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         banco.onNodeWithContentDescription(testo(R.string.look_mix)).performClick()
         banco.waitForIdle()
 
-        muovi(2, 0.5f)
+        banco.muovi(2, 0.5f)
         fascia(R.string.look_band_blue)
-        muovi(2, 0.5f)
-        assertTrue(valore(2) > 0.2f)
+        banco.muovi(2, 0.5f)
+        assertTrue(banco.valore(2) > 0.2f)
 
         banco.onNodeWithContentDescription(testo(R.string.look_band_blue))
             .performTouchInput { longClick() }
         banco.waitForIdle()
-        assertEquals("il blu doveva azzerarsi", 0f, valore(2), 1e-3f)
+        assertEquals("il blu doveva azzerarsi", 0f, banco.valore(2), 1e-3f)
 
         fascia(R.string.look_band_red)
-        assertTrue("il rosso non doveva essere toccato", valore(2) > 0.2f)
+        assertTrue("il rosso non doveva essere toccato", banco.valore(2) > 0.2f)
     }
 
     /**
@@ -579,7 +569,7 @@ class SviluppoTest {
     @Test
     fun `il bianco e nero lascia la sola luminanza dell'hsl`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         banco.onNodeWithContentDescription(testo(R.string.look_color)).performClick()
         banco.waitForIdle()
         banco.onNodeWithText(testo(R.string.look_bw)).performClick()
@@ -588,9 +578,9 @@ class SviluppoTest {
         banco.onNodeWithContentDescription(testo(R.string.look_mix)).performClick()
         banco.waitForIdle()
 
-        cursore(0).assertIsNotEnabled()
-        cursore(1).assertIsNotEnabled()
-        cursore(2).assertIsEnabled()
+        banco.cursore(0).assertIsNotEnabled()
+        banco.cursore(1).assertIsNotEnabled()
+        banco.cursore(2).assertIsEnabled()
     }
 
     /**
@@ -603,7 +593,7 @@ class SviluppoTest {
     @Test
     fun `le pastiglie ci sono solo nell'hsl`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         assertEquals(0, quanteFasce())
 
         banco.onNodeWithContentDescription(testo(R.string.look_mix)).performClick()
@@ -646,17 +636,17 @@ class SviluppoTest {
     @Test
     fun `il raggio e la mascheratura seguono la nitidezza`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         banco.onNodeWithContentDescription(testo(R.string.look_detail)).performClick()
         banco.waitForIdle()
 
-        cursore(1).assertIsNotEnabled()
-        cursore(2).assertIsNotEnabled()
-        cursore(3).assertIsEnabled()
+        banco.cursore(1).assertIsNotEnabled()
+        banco.cursore(2).assertIsNotEnabled()
+        banco.cursore(3).assertIsEnabled()
 
-        muovi(0, 0.5f)
-        cursore(1).assertIsEnabled()
-        cursore(2).assertIsEnabled()
+        banco.muovi(0, 0.5f)
+        banco.cursore(1).assertIsEnabled()
+        banco.cursore(2).assertIsEnabled()
     }
 
     /**
@@ -668,23 +658,23 @@ class SviluppoTest {
     @Test
     fun `il tocco lungo sul dettaglio azzera solo il dettaglio`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         modulo(R.string.look_light)
-        muovi(1, 0.5f)
-        assertTrue(valore(1) > 0.2f)
+        banco.muovi(1, 0.5f)
+        assertTrue(banco.valore(1) > 0.2f)
 
         banco.onNodeWithContentDescription(testo(R.string.look_detail)).performClick()
         banco.waitForIdle()
-        muovi(0, 0.6f)
-        assertTrue(valore(0) > 0.2f)
+        banco.muovi(0, 0.6f)
+        assertTrue(banco.valore(0) > 0.2f)
 
         banco.onNodeWithContentDescription(testo(R.string.look_detail)).performTouchInput { longClick() }
         banco.waitForIdle()
-        assertEquals("il dettaglio doveva azzerarsi", 0f, valore(0), 1e-3f)
+        assertEquals("il dettaglio doveva azzerarsi", 0f, banco.valore(0), 1e-3f)
 
         banco.onNodeWithContentDescription(testo(R.string.look_light)).performClick()
         banco.waitForIdle()
-        assertTrue("la luce non doveva essere toccata", valore(1) > 0.2f)
+        assertTrue("la luce non doveva essere toccata", banco.valore(1) > 0.2f)
     }
 
     /**
@@ -860,7 +850,7 @@ class SviluppoTest {
         // ⚠️ Dalla `2.55` le Curve sono penultime, quindi il loro gettone va portato in testa o
         // cade fuori dalla larghezza del banco: il perché vive su [davanti].
         banco.setContent { Scena(mods = davanti(PadKey.MOD_TONE)) }
-        pronta()
+        banco.pronta()
         banco.onNodeWithContentDescription(testo(R.string.look_tone)).performClick()
         banco.waitForIdle()
 
@@ -890,7 +880,7 @@ class SviluppoTest {
     @Test
     fun `il mirato esiste nel solo hsl e si annuncia senza scriversi`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         assertEquals("nella Luce non c'è niente da mirare", 0, quantiDetti(R.string.look_target))
 
         banco.onNodeWithContentDescription(testo(R.string.look_tone)).performClick()
@@ -1098,7 +1088,7 @@ class SviluppoTest {
     @Test
     fun `la geometria non deborda dal riquadro dell'immagine`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         /*
          * ⚠️⚠️ **AL MODULO SI PASSA PRIMA DELLO SCATTO A RIPOSO, E IL BANCO LO HA IMPOSTO**: la
          * scheda è alta quanto il suo contenuto, e la Geometria ha un cursore in meno della Luce,
@@ -1127,7 +1117,7 @@ class SviluppoTest {
          * allarga del 25% e la copertura ne aggiunge altrettanto, cioè una dozzina di pixel qui.
          * Una prova che non può vedere il difetto è peggio del niente.
          */
-        muovi(1, 1f)
+        banco.muovi(1, 1f)
 
         assertEquals(
             "l'immagine deformata doveva restare dentro il suo riquadro",
@@ -1154,20 +1144,20 @@ class SviluppoTest {
     @Test
     fun `Raddrizza mostra i terzi solo mentre il dito tiene il cursore`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         banco.onNodeWithContentDescription(testo(R.string.look_geometry)).performClick()
         banco.waitForIdle()
 
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
         // Down away from the knob, so the value jumps at once; then a short move.
-        cursore(0).performTouchInput { down(Offset(width * 0.62f, height / 2f)) }
-        cursore(0).performTouchInput { moveTo(Offset(width * 0.66f, height / 2f)) }
+        banco.cursore(0).performTouchInput { down(Offset(width * 0.62f, height / 2f)) }
+        banco.cursore(0).performTouchInput { moveTo(Offset(width * 0.66f, height / 2f)) }
         banco.waitForIdle()
         val tenuto = palco.captureToImage().toPixelMap()
-        cursore(0).performTouchInput { up() }
+        banco.cursore(0).performTouchInput { up() }
         banco.waitForIdle()
         val lasciato = palco.captureToImage().toPixelMap()
-        assertTrue("the dial had to move the image", valore(0) != 0f)
+        assertTrue("the dial had to move the image", banco.valore(0) != 0f)
 
         val riga = lasciato.height / 2
         val colonna = lasciato.width / 2
@@ -1222,10 +1212,10 @@ class SviluppoTest {
         assertFalse(Geometry(distortion = 0.01f).idle)
 
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         modulo(R.string.look_light)
-        muovi(1, 0.5f)
-        assertTrue(valore(1) > 0.2f)
+        banco.muovi(1, 0.5f)
+        assertTrue(banco.valore(1) > 0.2f)
 
         /*
          * ⚠️⚠️ **IL GETTONE SI CERCA PER DESCRIZIONE, DALLA `2.31`**: la fila è di icone, quindi il
@@ -1239,15 +1229,15 @@ class SviluppoTest {
         assertEquals(5, quantiCursori())
         assertEquals(0, quanteFasce())
 
-        muovi(0, 0.6f)
-        assertTrue(valore(0) > 0.2f)
+        banco.muovi(0, 0.6f)
+        assertTrue(banco.valore(0) > 0.2f)
         banco.onNodeWithContentDescription(testo(R.string.look_geometry)).performTouchInput { longClick() }
         banco.waitForIdle()
-        assertEquals("la geometria doveva azzerarsi", 0f, valore(0), 1e-3f)
+        assertEquals("la geometria doveva azzerarsi", 0f, banco.valore(0), 1e-3f)
 
         banco.onNodeWithContentDescription(testo(R.string.look_light)).performClick()
         banco.waitForIdle()
-        assertTrue("la luce non doveva essere toccata", valore(1) > 0.2f)
+        assertTrue("la luce non doveva essere toccata", banco.valore(1) > 0.2f)
     }
 
     /**
@@ -1324,7 +1314,7 @@ class SviluppoTest {
     @Test
     fun `i moduli sono icone che si annunciano, e si apre il ritaglio`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
 
         for (nome in MODULI) {
             assertEquals("il gettone di ${testo(nome)} deve annunciarsi", 1, quantiDetti(nome))
@@ -1352,7 +1342,7 @@ class SviluppoTest {
     @Test
     fun `il modulo ritaglio porta la posa e nessun cursore`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
 
         for (id in POSA) assertEquals("nella Luce la posa non c'è", 0, quantiDetti(id))
 
@@ -1389,7 +1379,7 @@ class SviluppoTest {
     @Config(qualifiers = "w600dp-h900dp")
     fun `il ritaglio si tira col dito sul palco`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         banco.onNodeWithContentDescription(testo(R.string.look_crop)).performClick()
         banco.waitForIdle()
 
@@ -1461,7 +1451,7 @@ class SviluppoTest {
         assertNull("una proporzione si scrive col suo numero", Shape.ONE.word)
 
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         /*
          * ⚠️ **Si passa dalla Luce, e dalla `2.35` serve**: l'editor si apre sul Ritaglio (sua
          * istruzione), quindi la controprova 'in un altro modulo i formati non ci sono' vuole un
@@ -1501,7 +1491,7 @@ class SviluppoTest {
     @Test
     fun `col ritaglio l'immagine lascia l'aria alle squadrette`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         banco.onNodeWithContentDescription(testo(R.string.look_crop)).performClick()
         banco.waitForIdle()
 
@@ -1595,7 +1585,7 @@ class SviluppoTest {
     @Test
     fun `la fila dei moduli segue l'ordine scelto`() {
         banco.setContent { Scena(mods = MOD_KEYS.reversed()) }
-        pronta()
+        banco.pronta()
 
         for (nome in MODULI) {
             assertEquals("nella fila ci sono tutti e otto", 1, quantiDetti(nome))
@@ -1637,7 +1627,7 @@ class SviluppoTest {
     @Test
     fun `le forme del ritaglio vanno su due righe, le parole coi versi`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         modulo(R.string.look_crop)
 
         fun cima(nodo: SemanticsNodeInteraction): Float =
@@ -1752,11 +1742,11 @@ class SviluppoTest {
     @Test
     fun `auto scrive nei punti e si puo disfare`() {
         banco.setContent { Scena(sfumato()) }
-        pronta()
+        banco.pronta()
         modulo(R.string.look_light)
 
-        val neri = valore(5)
-        val bianchi = valore(4)
+        val neri = banco.valore(5)
+        val bianchi = banco.valore(4)
         banco.onNodeWithContentDescription(testo(R.string.editor_undo)).assertIsNotEnabled()
 
         banco.onNodeWithContentDescription(testo(R.string.look_auto)).performClick()
@@ -1764,7 +1754,7 @@ class SviluppoTest {
 
         assertTrue(
             "'Auto' doveva scrivere nei due punti",
-            valore(5) != neri || valore(4) != bianchi
+            banco.valore(5) != neri || banco.valore(4) != bianchi
         )
         banco.onNodeWithContentDescription(testo(R.string.editor_undo)).assertIsEnabled()
     }
@@ -1861,22 +1851,22 @@ class SviluppoTest {
     @Test
     fun `il filtro resta spento a colori e vive sotto l'interruttore`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         modulo(R.string.look_color)
 
         assertEquals("il Colore porta cinque cursori", 5, quantiCursori())
-        cursore(4).assertIsNotEnabled()
-        cursore(3).assertIsEnabled()
+        banco.cursore(4).assertIsNotEnabled()
+        banco.cursore(3).assertIsEnabled()
 
         val interruttore = banco.onNodeWithText(testo(R.string.look_bw))
             .fetchSemanticsNode().positionInRoot.y
         assertTrue(
             "il 'Filtro BN' deve venire dopo l'interruttore",
-            cursore(4).fetchSemanticsNode().positionInRoot.y > interruttore
+            banco.cursore(4).fetchSemanticsNode().positionInRoot.y > interruttore
         )
         assertTrue(
             "e la vividezza sopra",
-            cursore(3).fetchSemanticsNode().positionInRoot.y < interruttore
+            banco.cursore(3).fetchSemanticsNode().positionInRoot.y < interruttore
         )
 
         val prima = altezzaPalco()
@@ -1885,8 +1875,8 @@ class SviluppoTest {
         banco.waitForIdle()
 
         assertEquals("col bianco e nero restano cinque", 5, quantiCursori())
-        cursore(4).assertIsEnabled()
-        cursore(2).assertIsNotEnabled()
+        banco.cursore(4).assertIsEnabled()
+        banco.cursore(2).assertIsNotEnabled()
         assertEquals("e il palco non deve accorciarsi", prima, altezzaPalco())
     }
 
@@ -1917,7 +1907,7 @@ class SviluppoTest {
     @Test
     fun `l'immagine non cambia misura entrando nel Ritaglio`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
 
         modulo(R.string.look_light)
@@ -1954,7 +1944,7 @@ class SviluppoTest {
     @Test
     fun `fra il nome di un cursore e la sua barra resta dell'aria`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         modulo(R.string.look_detail)
 
         val nome = banco
@@ -1962,7 +1952,7 @@ class SviluppoTest {
                 testo(R.string.look_peek_one, testo(R.string.look_sharpen))
             )
             .getUnclippedBoundsInRoot()
-        val barra = cursore(0).getUnclippedBoundsInRoot()
+        val barra = banco.cursore(0).getUnclippedBoundsInRoot()
         val aria = barra.left - nome.right
         assertTrue("fra il nome e la barra deve restare dell'aria, misurata $aria", aria >= 8.dp)
     }
@@ -2026,7 +2016,7 @@ class SviluppoTest {
     @Test
     fun `il ritaglio porta i suoi quattro comandi e nessun altro modulo li ha`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
 
         modulo(R.string.look_light)
         for (id in CROP_CMD) {
@@ -2055,7 +2045,7 @@ class SviluppoTest {
     @Config(qualifiers = "w600dp-h900dp")
     fun `applica taglia davvero e azzera rimette l'immagine intera`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         modulo(R.string.look_crop)
 
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
@@ -2170,7 +2160,7 @@ class SviluppoTest {
     fun `nelle curve un punto nasce e si muove nello stesso gesto`() {
         // ⚠️ Dalla `2.55` il gettone delle Curve si raggiunge solo portandolo in testa: [davanti].
         banco.setContent { Scena(mods = davanti(PadKey.MOD_TONE)) }
-        pronta()
+        banco.pronta()
         modulo(R.string.look_tone)
 
         val grafico = banco.onNodeWithContentDescription(testo(R.string.look_tone_board))
@@ -2267,7 +2257,7 @@ class SviluppoTest {
     fun `un punto nato in mezzo non trascina il bordo`() {
         // ⚠️ Come sopra: dalla `2.55` il gettone delle Curve si raggiunge solo portandolo in testa.
         banco.setContent { Scena(mods = davanti(PadKey.MOD_TONE)) }
-        pronta()
+        banco.pronta()
         modulo(R.string.look_tone)
 
         val grafico = banco.onNodeWithContentDescription(testo(R.string.look_tone_board))
@@ -2397,7 +2387,7 @@ class SviluppoTest {
     @Config(qualifiers = "w600dp-h900dp")
     fun `una maniglia d angolo tirata cambia il disegno`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         banco.onNodeWithContentDescription(testo(R.string.look_geometry)).performClick()
         banco.waitForIdle()
         banco.onNodeWithContentDescription(testo(R.string.look_corners)).performClick()
@@ -2439,7 +2429,7 @@ class SviluppoTest {
     @Test
     fun `su un'immagine larga il ritaglio parte orizzontale`() {
         banco.setContent { Scena(uri = largo()) }
-        pronta()
+        banco.pronta()
 
         banco.onNodeWithContentDescription(testo(R.string.editor_wide)).assertIsSelected()
         banco.onNodeWithText(testo(R.string.editor_shape_original)).performClick()
@@ -2462,7 +2452,7 @@ class SviluppoTest {
     @Config(qualifiers = "w600dp-h900dp")
     fun `dopo applica la cornice si tira ancora`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         banco.onNodeWithText("1:1").performClick()
         banco.waitForIdle()
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
@@ -2496,7 +2486,7 @@ class SviluppoTest {
     @Config(qualifiers = "w600dp-h900dp")
     fun `dopo una rotazione la cornice si tira ancora`() {
         banco.setContent { Scena(uri = largo()) }
-        pronta()
+        banco.pronta()
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
         palco.performTouchInput { click(center) }
         banco.waitForIdle()
@@ -2531,7 +2521,7 @@ class SviluppoTest {
     @Config(qualifiers = "w600dp-h900dp")
     fun `con un taglio applicato gli angoli si tirano ancora`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
 
         tiraAngolo(palco) { w, h -> Offset(w / 2f, h / 3f) }
@@ -2566,7 +2556,7 @@ class SviluppoTest {
     @Config(qualifiers = "w600dp-h900dp")
     fun `armando gli angoli il taglio applicato resta velato`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
 
         // Via la metà sinistra e un terzo di sopra: quello che resta è in basso a destra.
@@ -2607,7 +2597,7 @@ class SviluppoTest {
     fun `dopo un quarto di giro Originale e ancora l'immagine intera`() {
         var salvato: Look? = null
         banco.setContent { Scena(uri = largo(), onSave = { look, _ -> salvato = look }) }
-        pronta()
+        banco.pronta()
         banco.onNodeWithText(testo(R.string.editor_right)).performClick()
         banco.waitForIdle()
         banco.onNodeWithText(testo(R.string.editor_shape_original)).performClick()
@@ -2633,7 +2623,7 @@ class SviluppoTest {
     @Test
     fun `con Originale i due versi si spengono`() {
         banco.setContent { Scena(uri = largo()) }
-        pronta()
+        banco.pronta()
         val verticale = banco.onNodeWithContentDescription(testo(R.string.editor_tall))
         verticale.assertIsEnabled()
 
@@ -2665,7 +2655,7 @@ class SviluppoTest {
     @Test
     fun `con Originale i due versi spenti si vedono spenti`() {
         banco.setContent { Scena(uri = largo()) }
-        pronta()
+        banco.pronta()
         val scelto = banco.onNodeWithContentDescription(testo(R.string.editor_wide))
         val altro = banco.onNodeWithContentDescription(testo(R.string.editor_tall))
         val sceltoAcceso = scelto.captureToImage().toPixelMap()
@@ -2707,7 +2697,7 @@ class SviluppoTest {
     fun `girando con una proporzione la cornice resta nel verso scelto`() {
         var salvato: Look? = null
         banco.setContent { Scena(uri = largo(), onSave = { look, _ -> salvato = look }) }
-        pronta()
+        banco.pronta()
         banco.onNodeWithText("16:9").performClick()
         banco.waitForIdle()
         banco.onNodeWithText(testo(R.string.editor_right)).performClick()
@@ -2789,7 +2779,7 @@ class SviluppoTest {
     fun `con un taglio applicato centra dentro la porzione`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { look, _ -> salvato = look }) }
-        pronta()
+        banco.pronta()
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
         tiraAngolo(palco) { w, h -> Offset(w / 2f, h / 3f) }
         banco.onNodeWithContentDescription(testo(R.string.editor_apply)).performClick()
@@ -2829,7 +2819,7 @@ class SviluppoTest {
     fun `con un taglio applicato il ritocco della forma resta dentro la porzione`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { look, _ -> salvato = look }) }
-        pronta()
+        banco.pronta()
         banco.onNodeWithText("1:1").performClick()
         banco.waitForIdle()
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
@@ -2869,7 +2859,7 @@ class SviluppoTest {
     @Config(qualifiers = "w600dp-h900dp")
     fun `tirando un angolo del ritaglio compare la lente`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
         val prima = palco.captureToImage().toPixelMap()
         val (da, _) = bordi(prima)
@@ -2963,9 +2953,9 @@ class SviluppoTest {
     fun `con un cursore mosso Indietro chiede prima di uscire`() {
         var uscite = 0
         banco.setContent { Scena(mods = davanti(PadKey.MOD_LIGHT), onBack = { uscite += 1 }) }
-        pronta()
+        banco.pronta()
         modulo(R.string.look_light)
-        muovi(0, 0.5f)
+        banco.muovi(0, 0.5f)
         val domanda = testo(R.string.editor_discard_ask)
 
         banco.onNodeWithContentDescription(testo(R.string.settings_back)).performClick()
@@ -3001,7 +2991,7 @@ class SviluppoTest {
     fun `col solo Ritaglio mosso Indietro esce senza chiedere`() {
         var uscite = 0
         banco.setContent { Scena(onBack = { uscite += 1 }) }
-        pronta()
+        banco.pronta()
         banco.onNodeWithText(testo(R.string.editor_right)).performClick()
         banco.waitForIdle()
 
@@ -3211,39 +3201,6 @@ class SviluppoTest {
         banco.onAllNodesWithContentDescription(testo(it)).fetchSemanticsNodes().isNotEmpty()
     }
 
-    /** Vedi la nota su `pronta()` in `LuceTest`: il palco compare quando l'immagine esiste. */
-    private fun pronta() {
-        banco.waitUntil(5_000) {
-            banco.onAllNodesWithContentDescription(testo(R.string.look_compare))
-                .fetchSemanticsNodes().isNotEmpty()
-        }
-        banco.waitForIdle()
-    }
-
-    private fun cursore(quale: Int) =
-        banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[quale]
-
-    private fun muovi(quale: Int, a: Float) {
-        cursore(quale).performSemanticsAction(SemanticsActions.SetProgress) { it(a) }
-        banco.waitForIdle()
-    }
-
-    /**
-     * Tocca la barra di un cursore a una frazione della sua larghezza, come farebbe un dito.
-     *
-     * ⚠️ **Un tocco secco e non una strisciata**: toccando lontano dal tondo il cursore salta
-     * subito al punto, quindi il valore si muove senza iniettare un gesto con la sua durata, che
-     * col clock di prova è una delle trappole di casa.
-     */
-    private fun tocca(quale: Int, dove: Float) {
-        cursore(quale).performTouchInput { click(Offset(width * dove, height / 2f)) }
-        banco.waitForIdle()
-    }
-
-    private fun valore(quale: Int): Float =
-        cursore(quale).fetchSemanticsNode()
-            .config[androidx.compose.ui.semantics.SemanticsProperties.ProgressBarRangeInfo].current
-
     private fun quanti(detto: String): Int =
         banco.onAllNodesWithText(detto).fetchSemanticsNodes().size
 
@@ -3296,7 +3253,7 @@ class SviluppoTest {
     @Test
     fun `col FAB a sinistra la barra bassa comincia da Originale`() {
         banco.setContent { Scena(hand = Hand.LEFT) }
-        pronta()
+        banco.pronta()
 
         val originale = dove(R.string.editor_original)
         val annulla = dove(R.string.editor_undo)
@@ -3315,7 +3272,7 @@ class SviluppoTest {
     @Test
     fun `col FAB a destra la barra bassa finisce con Originale`() {
         banco.setContent { Scena(hand = Hand.RIGHT) }
-        pronta()
+        banco.pronta()
 
         val annulla = dove(R.string.editor_undo)
         val ripristina = dove(R.string.editor_redo)
@@ -3337,7 +3294,7 @@ class SviluppoTest {
     @Test
     fun `Salva stile compare nel solo modulo Stili e dalla parte del FAB`() {
         banco.setContent { Scena(mods = MOD_KEYS.reversed(), hand = Hand.RIGHT) }
-        pronta()
+        banco.pronta()
 
         assertEquals(
             "il comando che salva compare in un modulo che non lo chiede",
@@ -3376,7 +3333,7 @@ class SviluppoTest {
     @Test
     fun `il modulo Effetti porta i suoi sei cursori`() {
         banco.setContent { Scena(mods = davanti(PadKey.MOD_EFFECTS)) }
-        pronta()
+        banco.pronta()
 
         assertEquals("il Ritaglio non ha cursori", 0, quantiCursori())
         modulo(R.string.look_effects)
@@ -3402,25 +3359,25 @@ class SviluppoTest {
     @Test
     fun `i cursori secondari degli Effetti si spengono col loro principale`() {
         banco.setContent { Scena(mods = davanti(PadKey.MOD_EFFECTS)) }
-        pronta()
+        banco.pronta()
         modulo(R.string.look_effects)
 
-        cursore(0).assertIsEnabled()
-        cursore(1).assertIsEnabled()
-        cursore(2).assertIsNotEnabled()
-        cursore(3).assertIsNotEnabled()
-        cursore(4).assertIsEnabled()
-        cursore(5).assertIsNotEnabled()
+        banco.cursore(0).assertIsEnabled()
+        banco.cursore(1).assertIsEnabled()
+        banco.cursore(2).assertIsNotEnabled()
+        banco.cursore(3).assertIsNotEnabled()
+        banco.cursore(4).assertIsEnabled()
+        banco.cursore(5).assertIsNotEnabled()
 
         // La grana accende i suoi due e lascia spenta la 'Sfumatura' della vignettatura.
-        muovi(1, 0.5f)
-        cursore(2).assertIsEnabled()
-        cursore(3).assertIsEnabled()
-        cursore(5).assertIsNotEnabled()
+        banco.muovi(1, 0.5f)
+        banco.cursore(2).assertIsEnabled()
+        banco.cursore(3).assertIsEnabled()
+        banco.cursore(5).assertIsNotEnabled()
 
         // E la vignettatura accende la sua.
-        muovi(4, 0.8f)
-        cursore(5).assertIsEnabled()
+        banco.muovi(4, 0.8f)
+        banco.cursore(5).assertIsEnabled()
     }
 
     /**
@@ -3477,22 +3434,22 @@ class SviluppoTest {
     fun `il tocco lungo sugli Effetti azzera solo gli Effetti`() {
         // ⚠️ Il gettone si porta in testa, o cade fuori dalla larghezza del banco: vedi [davanti].
         banco.setContent { Scena(mods = davanti(PadKey.MOD_EFFECTS)) }
-        pronta()
+        banco.pronta()
         modulo(R.string.look_light)
-        muovi(1, 0.5f)
-        assertTrue(valore(1) > 0.2f)
+        banco.muovi(1, 0.5f)
+        assertTrue(banco.valore(1) > 0.2f)
 
         modulo(R.string.look_effects)
-        muovi(0, 0.6f)
-        assertTrue(valore(0) > 0.2f)
+        banco.muovi(0, 0.6f)
+        assertTrue(banco.valore(0) > 0.2f)
 
         banco.onNodeWithContentDescription(testo(R.string.look_effects))
             .performTouchInput { longClick() }
         banco.waitForIdle()
-        assertEquals("gli Effetti dovevano azzerarsi", 0f, valore(0), 1e-3f)
+        assertEquals("gli Effetti dovevano azzerarsi", 0f, banco.valore(0), 1e-3f)
 
         modulo(R.string.look_light)
-        assertTrue("la luce non doveva essere toccata", valore(1) > 0.2f)
+        assertTrue("la luce non doveva essere toccata", banco.valore(1) > 0.2f)
     }
 
     /**
@@ -3683,7 +3640,7 @@ class SviluppoTest {
     @Config(qualifiers = "w600dp-h900dp")
     fun `il confronto tiene la posa fuori dai moduli che la governano`() {
         banco.setContent { Scena(uri = largo()) }
-        pronta()
+        banco.pronta()
         /*
          * Il Ritaglio è il modulo aperto di fabbrica: di là si mette in posa.
          * ⚠️ **Il tasto si cerca per TESTO e non per descrizione**: con le etichette accese, che è
@@ -3762,11 +3719,11 @@ class SviluppoTest {
     fun `il tocco lungo su Salva chiede un file nuovo`() {
         val chiesti = mutableListOf<Boolean>()
         banco.setContent { Scena(onSave = { _, accanto -> chiesti += accanto }) }
-        pronta()
+        banco.pronta()
         // Senza niente da salvare il comando è spento: prima si muove un cursore.
         banco.onNodeWithContentDescription(testo(R.string.look_light)).performClick()
         banco.waitForIdle()
-        muovi(0, 0.5f)
+        banco.muovi(0, 0.5f)
 
         val salva = banco.onNodeWithText(testo(R.string.editor_save))
         salva.performClick()
@@ -4199,7 +4156,7 @@ class SviluppoTest {
 
     private fun verificaBarraGeometria(hand: Hand, compact: Boolean, hasMark: Boolean = true) {
         banco.setContent { Scena(hand = hand, hasMark = hasMark) }
-        pronta()
+        banco.pronta()
         banco.onNodeWithContentDescription(testo(R.string.look_geometry)).performClick()
         banco.waitForIdle()
         val tools = buildList {
@@ -4244,7 +4201,7 @@ class SviluppoTest {
     @Config(sdk = [33], qualifiers = "w600dp-h900dp")
     fun `Fluidifica apre i suoi comandi e una pennellata si annulla`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         banco.onNodeWithContentDescription(testo(R.string.look_geometry)).performClick()
         banco.waitForIdle()
 
@@ -4295,7 +4252,7 @@ class SviluppoTest {
     @Config(sdk = [33], qualifiers = "w600dp-h900dp")
     fun `Fluidifica mostra il pennello durante il tocco e per un secondo dopo`() {
         apriFluidifica()
-        muovi(0, Liquify.MAX_RADIUS)
+        banco.muovi(0, Liquify.MAX_RADIUS)
         val stage = banco.onNodeWithContentDescription(testo(R.string.look_compare))
         val before = stage.captureToImage().toPixelMap()
         banco.mainClock.autoAdvance = false
@@ -4325,7 +4282,7 @@ class SviluppoTest {
     fun `Fluidifica ingrandisce il pennello piccolo lontano dal dito`() {
         apriFluidifica()
         val stage = banco.onNodeWithContentDescription(testo(R.string.look_compare))
-        muovi(0, Liquify.MIN_RADIUS)
+        banco.muovi(0, Liquify.MIN_RADIUS)
         val before = stage.captureToImage().toPixelMap()
         stage.performTouchInput { down(Offset(width * 0.35f, height * 0.35f)) }
         banco.waitForIdle()
@@ -4345,7 +4302,7 @@ class SviluppoTest {
         assertTrue("the loupe must move to top left", topLeft > 0)
         stage.performTouchInput { up() }
         banco.mainClock.advanceTimeBy(1_100)
-        muovi(0, Liquify.MAX_RADIUS)
+        banco.muovi(0, Liquify.MAX_RADIUS)
         val largeBefore = stage.captureToImage().toPixelMap()
         stage.performTouchInput { down(Offset(width * 0.35f, height * 0.35f)) }
         banco.waitForIdle()
@@ -4360,11 +4317,11 @@ class SviluppoTest {
         apriFluidifica()
         val stage = banco.onNodeWithContentDescription(testo(R.string.look_compare))
         val before = stage.captureToImage().toPixelMap()
-        cursore(0).performTouchInput { down(Offset(width * 0.3f, height / 2f)) }
-        cursore(0).performTouchInput { moveTo(Offset(width * 0.35f, height / 2f)) }
+        banco.cursore(0).performTouchInput { down(Offset(width * 0.3f, height / 2f)) }
+        banco.cursore(0).performTouchInput { moveTo(Offset(width * 0.35f, height / 2f)) }
         banco.waitForIdle()
         assertTrue("the size preview must appear at bottom right", differenti(before, stage.captureToImage().toPixelMap(), farCorner = true) > 0)
-        cursore(0).performTouchInput { up() }
+        banco.cursore(0).performTouchInput { up() }
         banco.waitForIdle()
         assertEquals("finishing the size gesture must hide its preview", 0, differenti(before, stage.captureToImage().toPixelMap()))
         banco.onNodeWithContentDescription(testo(R.string.editor_undo)).assertIsNotEnabled()
@@ -4375,7 +4332,7 @@ class SviluppoTest {
     @Config(sdk = [33], qualifiers = "w600dp-h900dp-xhdpi")
     fun `Fluidifica disegna il bordo del tocco nero al sessanta per cento e da due pixel`() {
         apriFluidifica()
-        muovi(0, Liquify.MAX_RADIUS)
+        banco.muovi(0, Liquify.MAX_RADIUS)
         val stage = banco.onNodeWithContentDescription(testo(R.string.look_compare))
         val before = stage.captureToImage().toPixelMap()
         banco.mainClock.autoAdvance = false
@@ -4403,15 +4360,15 @@ class SviluppoTest {
         apriFluidifica()
         val stage = banco.onNodeWithContentDescription(testo(R.string.look_compare))
         val before = stage.captureToImage().toPixelMap()
-        cursore(0).performTouchInput { down(Offset(width * 0.6f, height / 2f)) }
-        cursore(0).performTouchInput { moveTo(Offset(width * 0.65f, height / 2f)) }
+        banco.cursore(0).performTouchInput { down(Offset(width * 0.6f, height / 2f)) }
+        banco.cursore(0).performTouchInput { moveTo(Offset(width * 0.65f, height / 2f)) }
         banco.waitForIdle()
         // The previous accent stroke was 6 dp: at xhdpi its coverage is 12 physical pixels.
         verificaBordo(before, stage.captureToImage().toPixelMap(), brushInk, width = 12.0)
-        cursore(0).performTouchInput { moveTo(Offset(width * 0.45f, height / 2f)) }
+        banco.cursore(0).performTouchInput { moveTo(Offset(width * 0.45f, height / 2f)) }
         banco.waitForIdle()
         verificaBordo(before, stage.captureToImage().toPixelMap(), brushInk, width = 12.0)
-        cursore(0).performTouchInput { up() }
+        banco.cursore(0).performTouchInput { up() }
         banco.waitForIdle()
         assertEquals("l'anteprima scompare al rilascio dello slider", 0,
             differenti(before, stage.captureToImage().toPixelMap()))
@@ -4498,7 +4455,7 @@ class SviluppoTest {
 
     private fun apriFluidifica() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         banco.onNodeWithContentDescription(testo(R.string.look_geometry)).performClick()
         banco.onNodeWithContentDescription(testo(R.string.look_liquify)).performClick()
         banco.waitForIdle()
@@ -4532,27 +4489,8 @@ class SviluppoTest {
             // non le riceve, quindi una prova che lo passasse per parametro misurerebbe una
             // strada che nessuno percorre.
             CompositionLocalProvider(LocalPadLook provides PadLook(mods = mods, hand = hand)) {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    AdvancedEditorScreen(
-                        uri = uri,
-                        busy = false,
-                        // La barra completa si prova anche con un logo disponibile.
-                        marked = false,
-                        marking = false,
-                        hasMark = hasMark,
-                        onMark = {},
-                        onMarkSetup = {},
-                        resize = Resize.Plan(Resize.Mode.LONG, Resize.DEFAULT_PX),
-                        // ⚠️ Spento: un ridimensionamento che rimpicciolisce accenderebbe 'Salva' a
-                        // immagine intonsa, e il caso suo vive in `RidimensionaTest`.
-                        saved = Resize.NONE,
-                        resizing = false,
-                        onResize = {},
-                        onResizeDefault = {},
-                        onSave = onSave,
-                        onBack = onBack
-                    )
-                }
+                // Con [hasMark] la barra completa si prova anche con un logo disponibile.
+                Editore(uri = uri, hasMark = hasMark, onSave = onSave, onBack = onBack)
             }
         }
     }
@@ -4572,17 +4510,6 @@ class SviluppoTest {
                     mappa.setPixel(x, y, if (x < 32) Color.WHITE else Color.rgb(90, 90, 90))
                 }
             }
-            file.outputStream().use { mappa.compress(Bitmap.CompressFormat.PNG, 100, it) }
-        }
-        return Uri.fromFile(file)
-    }
-
-    /** Un PNG vero su disco, e il suo indirizzo: senza, i comandi restano spenti. */
-    private fun quadrato(): Uri {
-        val file = File(app.cacheDir, "sviluppo.png")
-        if (!file.exists()) {
-            val mappa = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888)
-            mappa.eraseColor(Color.WHITE)
             file.outputStream().use { mappa.compress(Bitmap.CompressFormat.PNG, 100, it) }
         }
         return Uri.fromFile(file)

@@ -60,13 +60,10 @@ class MenuInferioreTest {
 
     private fun voce(id: Int) = app.getString(id)
 
-    /** As in `PillolaTest`: without it the onboarding veil takes the first gesture. */
+    /** I veli della casa si segnano come visti prima di montarla: vedi [onboardingGiaVisto]. */
     @Before
-    fun onboardingGiaVisto() {
-        runBlocking {
-            Hint.COLUMNS.remember(app)
-            Hint.BIN_EMPTY.remember(app)
-        }
+    fun veliVisti() {
+        onboardingGiaVisto()
     }
 
     /**

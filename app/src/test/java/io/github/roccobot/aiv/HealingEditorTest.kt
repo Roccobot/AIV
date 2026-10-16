@@ -3,18 +3,14 @@ package io.github.roccobot.aiv
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.core.net.toUri
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
@@ -37,11 +33,10 @@ class HealingEditorTest {
 
     private fun label(id: Int) = screen.onNodeWithText(text(id))
 
-    @Before fun prepareHints() =
-        runBlocking {
-            Hint.MODULES.remember(app)
-            Hint.EDITOR_TOOLS.remember(app)
-        }
+    /** I veli d'aiuto dell'editor si segnano come visti prima di montarlo: vedi [senzaOnboarding]. */
+    @Before fun veliVisti() {
+        senzaOnboarding()
+    }
 
     @Test fun `painting waits for Apply and corrections use normal undo redo and save`() {
         var saved: Look? = null
@@ -103,10 +98,7 @@ class HealingEditorTest {
 
     private fun open(onSave: (Look) -> Unit = {}) {
         screen.setContent { Scene(onSave) }
-        screen.waitUntil(5_000) {
-            screen.onAllNodesWithContentDescription(text(R.string.look_compare)).fetchSemanticsNodes().isNotEmpty()
-        }
-        command(R.string.look_detail).performClick()
+        screen.pronta(R.string.look_detail)
         command(R.string.look_heal).performClick()
         label(R.string.look_brush_size).assertExists()
     }
@@ -120,24 +112,7 @@ class HealingEditorTest {
         }
         AivTheme(darkTheme = false) {
             CompositionLocalProvider(LocalPadLook provides PadLook()) {
-                Box(Modifier.fillMaxSize()) {
-                    AdvancedEditorScreen(
-                        uri = file.toUri(),
-                        busy = false,
-                        marked = false,
-                        marking = false,
-                        hasMark = false,
-                        onMark = {},
-                        onMarkSetup = {},
-                        resize = Resize.NONE,
-                        saved = Resize.NONE,
-                        resizing = false,
-                        onResize = {},
-                        onResizeDefault = {},
-                        onSave = { look, _ -> onSave(look) },
-                        onBack = {},
-                    )
-                }
+                Editore(uri = file.toUri(), resize = Resize.NONE, onSave = { look, _ -> onSave(look) })
             }
         }
     }

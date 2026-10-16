@@ -16,7 +16,6 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -52,12 +51,10 @@ class OmbraGrigliaTest {
 
     private val app: Context get() = ApplicationProvider.getApplicationContext()
 
+    /** I veli della casa si segnano come visti prima di montarla: vedi [onboardingGiaVisto]. */
     @Before
-    fun onboardingGiaVisto() {
-        runBlocking {
-            Hint.COLUMNS.remember(app)
-            Hint.BIN_EMPTY.remember(app)
-        }
+    fun veliVisti() {
+        onboardingGiaVisto()
     }
 
     @Test
