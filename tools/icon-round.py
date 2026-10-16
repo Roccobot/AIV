@@ -262,7 +262,15 @@ def tangenti_arco(p0, n):
     return tang(t1 + dt), tang(t1)
 
 
-def versi(sotto):
+def chiuso(ps, scala):
+    """Se il giro torna sul proprio punto di partenza, con la tolleranza riportata alla tela.
+
+    Un valore in un posto solo dalla `6.30` (rilievo G27): `versi` usava `CHIUSA` senza la scala e
+    `spigoli` con, e su una tela più grande di 24 i due davano risposte diverse sullo stesso giro."""
+    return len(ps) >= 3 and math.hypot(ps[-1][0] - ps[0][0], ps[-1][1] - ps[0][1]) < CHIUSA * scala
+
+
+def versi(sotto, scala):
     """Per ogni vertice: la tangente con cui ci si arriva e quella con cui si riparte.
 
     ⚠️⚠️ **LE CURVE SMOOTH (`S` E `T`) SONO TANGENTI PER COSTRUZIONE, E TRATTARLE COME LE ALTRE
@@ -300,7 +308,7 @@ def versi(sotto):
             fuori.append(d)
     # ⚠️ Un giro che torna sul proprio punto di partenza ha DUE vertici sullo stesso punto: la
     # chiusura è lunga zero, e senza questa riga lo spigolo vero fra i due sparisce.
-    if len(ps) >= 3 and math.hypot(ps[-1][0] - ps[0][0], ps[-1][1] - ps[0][1]) < CHIUSA:
+    if chiuso(ps, scala):
         dentro[0] = dentro[-1]
         fuori[0] = fuori[1]
     return dentro, fuori
@@ -326,8 +334,8 @@ def spigoli(sotto, scala):
     if len(ps) < 3:
         return []
     verso = 1.0 if area(ps) > 0 else -1.0
-    entra, esce = versi(sotto)
-    doppio = math.hypot(ps[-1][0] - ps[0][0], ps[-1][1] - ps[0][1]) < CHIUSA * scala
+    entra, esce = versi(sotto, scala)
+    doppio = chiuso(ps, scala)
     fuori = []
     for i in range(len(ps)):
         if doppio and i == len(ps) - 1:
@@ -373,10 +381,18 @@ def lavora(percorso, dettaglio):
     """Guarda un file di disegno e torna quanti spigoli esterni vivi ha."""
     albero = ET.fromstring(percorso.read_text(encoding='utf-8'))
     lato = albero.get(f'{{{ANDROID}}}viewportWidth')
-    scala = float(lato) / 24.0 if lato else 1.0
+    tela = float(lato) / 24.0 if lato else 1.0
     vivi = []
-    # ⚠️ Gli elementi non portano il namespace di Android: quello è sugli ATTRIBUTI.
-    for path in albero.iter('path'):
+    for path, sopra in _check.con_gruppi(albero):
+        # ⚠️ Le misure sono in unità della griglia da 24 riportate al TRACCIATO, quindi un gruppo
+        # che scala il disegno le divide per la sua scala (rilievo G25, `6.30`: prima si usava la
+        # sola tela, e su `ic_launcher_foreground`, che scala di 0,65, raggi e tolleranze erano
+        # misurati sul disegno ingrandito).
+        scala = tela
+        for g in sopra:
+            sx = _check.numero(g, 'scaleX')
+            sy = _check.numero(g, 'scaleY')
+            scala /= math.sqrt(abs((1.0 if sx is None else sx) * (1.0 if sy is None else sy))) or 1.0
         d = path.get(f'{{{ANDROID}}}pathData')
         if not d:
             continue

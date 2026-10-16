@@ -6,17 +6,22 @@ This check is restricted to localhost and never uses a production login or stora
 import base64
 import hashlib
 import hmac
+import importlib.util
 import io
 import json
 from pathlib import Path
 import re
-import shutil
 import sys
 import tempfile
 import time
 from urllib.parse import urlparse
 import zipfile
 from playwright.sync_api import sync_playwright, expect
+
+# Il browser come lo cercano tutti gli strumenti (`browser.py`, dalla `6.30`, rilievo H31).
+_spec = importlib.util.spec_from_file_location('browser', Path(__file__).with_name('browser.py'))
+_browser = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_browser)
 
 origin = sys.argv[1].rstrip('/') if len(sys.argv)>1 else 'http://127.0.0.1:8787'
 assert urlparse(origin).hostname in ['127.0.0.1','localhost'], 'Usare solo il Worker di sviluppo locale.'
@@ -26,7 +31,7 @@ def encoded(value):
 body = encoded(json.dumps({'kind':'session','owner':10722164,'username':'Roccobot','exp':time.time()+3600}).encode())
 session = body+'.'+encoded(hmac.new(b'development-test-secret',body.encode(),hashlib.sha256).digest())
 with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
-    browser = pw.chromium.launch(executable_path=shutil.which('chromium'),args=['--no-sandbox'])
+    browser = pw.chromium.launch(executable_path=_browser.percorso(pw),args=['--no-sandbox'])
     errors=[]
     def context():
         ctx = browser.new_context(permissions=['clipboard-read','clipboard-write'])

@@ -3,37 +3,20 @@
 import base64
 import colorsys
 import functools
+import importlib.util
 import http.server
 import json
 from pathlib import Path
 import re
-import shutil
 import tempfile
 import threading
 import zipfile
 
 
-def chromium():
-    """The browser: the one on the PATH, or the one Playwright keeps in a cloud session.
-
-    Without the second place, every check stopped on 'Chromium non disponibile' unless the agent
-    put /opt/pw-browsers on the PATH by hand (the user's choice D1, 2026-10-15)."""
-    found = shutil.which('chromium') or shutil.which('google-chrome')
-    if found:
-        return found
-    cloud = Path('/opt/pw-browsers/chromium')
-    if cloud.is_file():
-        return str(cloud)
-    # The third place, since 6.29 (H31 of the 6.25 review): the browser that `playwright install`
-    # puts in its own folder, which is the one on GitHub's machines. Without it the check could not
-    # run in the workflow of the feedback document, and stopped on 'Chromium non disponibile'.
-    try:
-        from playwright.sync_api import sync_playwright
-        with sync_playwright() as pw:
-            own = pw.chromium.executable_path
-        return own if Path(own).is_file() else None
-    except Exception:
-        return None
+# Il browser come lo cercano tutti gli strumenti (`browser.py`, dalla `6.30`, rilievo H31).
+_spec = importlib.util.spec_from_file_location('browser', Path(__file__).with_name('browser.py'))
+_browser = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_browser)
 
 
 def read_export(path):
@@ -116,7 +99,7 @@ def check_attachment_buttons(path):
     2026-10-09: in the side column of Altro, on a desktop, the two rows ran out of their cards
     and over each other). Two images in Altro, measured at the widths of a desktop and a phone."""
     from playwright.sync_api import sync_playwright
-    browser_path = chromium()
+    browser_path = _browser.percorso()
     if not browser_path:
         raise AssertionError('Chromium non disponibile: tasti degli allegati non verificati.')
     # A 1x1 PNG, enough for a thumbnail with its card and its buttons.
@@ -149,7 +132,7 @@ def check_altro_reaches_last_attachment(path):
     and the page does not move (his screenshot of 2026-10-10: with the page at the top, Altro's end
     was under the bottom edge of the window, so Rinomina and Elimina could not be reached)."""
     from playwright.sync_api import sync_playwright
-    browser_path = chromium()
+    browser_path = _browser.percorso()
     if not browser_path:
         raise AssertionError('Chromium non disponibile: scorrimento di Altro non verificato.')
     pixel = base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==')
@@ -198,7 +181,7 @@ def check_back_button(path):
     2026-10-16: on Android the Back of the phone left the document). On a phone, with real touches,
     because the guard entries are added only during a gesture; then once with a mouse."""
     from playwright.sync_api import sync_playwright, expect
-    browser_path = chromium()
+    browser_path = _browser.percorso()
     if not browser_path:
         raise AssertionError('Chromium non disponibile: tasto Indietro non verificato.')
     before = 'data:text/html,<title>prima</title>'
@@ -306,7 +289,7 @@ def check_scroll_writes(path):
     is fixed, so ten frames of scroll write neither the variable on the root nor the labels of
     the floating buttons."""
     from playwright.sync_api import sync_playwright
-    browser_path = chromium()
+    browser_path = _browser.percorso()
     if not browser_path:
         raise AssertionError('Chromium non disponibile: scorrimento non verificato.')
     folder = Path(path).resolve().parent
@@ -356,7 +339,7 @@ def check_emoji_pieces(path):
     falls in eight pieces: until 6.28 the warning key alone made every opening download 1.3 MB.
     The pieces downloaded at opening are exactly those the page's characters ask for."""
     from playwright.sync_api import sync_playwright
-    browser_path = chromium()
+    browser_path = _browser.percorso()
     if not browser_path:
         raise AssertionError('Chromium non disponibile: carattere delle emoji non verificato.')
     folder = Path(path).resolve().parent
@@ -401,7 +384,7 @@ def check_questions_and_labels(path):
     from playwright.sync_api import sync_playwright, expect
     import subprocess
     import sys
-    browser_path = chromium()
+    browser_path = _browser.percorso()
     if not browser_path:
         raise AssertionError('Chromium non disponibile: blocchi dopo le prove non verificati.')
     folder = Path(path).resolve().parent
@@ -519,7 +502,7 @@ def check_without_tests(path):
     the same generator and template build a throwaway copy with one synthetic test, served
     next to the real assets, and the whole exercise runs on it."""
     from playwright.sync_api import sync_playwright, expect
-    browser = chromium()
+    browser = _browser.percorso()
     if not browser:
         raise AssertionError('Chromium non disponibile: resa non verificata.')
     folder = Path(path).resolve().parent
@@ -586,7 +569,7 @@ def check(path):
     if not data['items']:
         check_without_tests(path)
         return
-    browser = chromium()
+    browser = _browser.percorso()
     if not browser:
         raise AssertionError('Chromium non disponibile: resa non verificata.')
     from playwright.sync_api import sync_playwright, expect

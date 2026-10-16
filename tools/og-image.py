@@ -26,13 +26,16 @@ Uso, dalla radice del repository:
     python3 tools/og-image.py
 """
 import html
-import os
+import importlib.util
 import pathlib
 import re
 import sys
 import tempfile
 
 RADICE = pathlib.Path(__file__).resolve().parent.parent
+_spec = importlib.util.spec_from_file_location('browser', pathlib.Path(__file__).with_name('browser.py'))
+browser = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(browser)
 PAGINA = RADICE / 'publish' / 'index.html'
 SCHERMATA = RADICE / 'publish' / 'schermate' / 'chiara.webp'
 USCITA = RADICE / 'publish' / 'anteprima.jpg'
@@ -49,31 +52,12 @@ ACCENTO = '#43B59E'
 GLIFO = '#EBFFF7'
 
 
-def eseguibile():
-    """Il Chromium del container delle sessioni, cercato per percorso: il ripiego di `avvia`."""
-    radice = os.environ.get('PLAYWRIGHT_BROWSERS_PATH') or '/opt/pw-browsers'
-    if not os.path.isdir(radice):
-        return None
-    for nome in sorted(os.listdir(radice), reverse=True):
-        if not nome.startswith('chromium-'):
-            continue
-        via = os.path.join(radice, nome, 'chrome-linux', 'chrome')
-        if os.path.exists(via):
-            return via
-    return None
-
-
 def avvia(p):
-    """Il browser: quello che Playwright trova da sé (sul Mac, su un runner), poi quello del
-    container. Dalla `6.30` (rilievo G30): prima si cercava solo il secondo, e sul Mac gli
-    strumenti dicevano 'manca Chromium' anche con Playwright installato."""
-    try:
-        return p.chromium.launch(args=['--no-sandbox'])
-    except Exception:
-        via = eseguibile()
-        if not via:
-            sys.exit('manca Chromium: né quello di Playwright né quello sotto PLAYWRIGHT_BROWSERS_PATH')
-        return p.chromium.launch(executable_path=via, args=['--no-sandbox'])
+    """Il browser, cercato come lo cercano tutti gli strumenti (`browser.py`)."""
+    via = browser.percorso(p)
+    if not via:
+        sys.exit('manca Chromium: né quello di Playwright, né quello del container, né uno nel PATH')
+    return p.chromium.launch(executable_path=via, args=['--no-sandbox'])
 
 
 def righe_titolo(titolo):

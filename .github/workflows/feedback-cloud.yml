@@ -3,11 +3,11 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['cloud/feedback/**', 'publish/**', 'tools/feedback-cloud-check.py', 'tools/feedback-check.py', 'tools/feedback-interactive-check.py', 'tools/feedback-build.py', 'tools/feedback-page.html.in', 'tools/feedback-read*.mjs', '.github/workflows/feedback-cloud.yml']
+    paths: ['cloud/feedback/**', 'publish/**', 'tools/browser.py', 'tools/feedback-cloud-check.py', 'tools/feedback-check.py', 'tools/feedback-interactive-check.py', 'tools/feedback-build.py', 'tools/feedback-page.html.in', 'tools/feedback-read*.mjs', '.github/workflows/feedback-cloud.yml']
   # The local checks of the Worker also on a pull request, so a broken Worker is red before the
   # merge; the deploy job below never runs on one.
   pull_request:
-    paths: ['cloud/feedback/**', 'publish/**', 'tools/feedback-cloud-check.py', 'tools/feedback-check.py', 'tools/feedback-interactive-check.py', 'tools/feedback-build.py', 'tools/feedback-page.html.in', 'tools/feedback-read*.mjs', '.github/workflows/feedback-cloud.yml']
+    paths: ['cloud/feedback/**', 'publish/**', 'tools/browser.py', 'tools/feedback-cloud-check.py', 'tools/feedback-check.py', 'tools/feedback-interactive-check.py', 'tools/feedback-build.py', 'tools/feedback-page.html.in', 'tools/feedback-read*.mjs', '.github/workflows/feedback-cloud.yml']
 permissions:
   contents: read
 concurrency:

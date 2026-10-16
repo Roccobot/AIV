@@ -1244,7 +1244,14 @@ esecuzione.
     indulgente, e una libreria misurerebbe la propria indulgenza e non la grammatica.
   - **Le misure di resa vogliono Chromium e avvisano** (l'inchiostro, il margine, la sagoma di
     Material più vicina, la dipendenza dal verso, il costo dell'unione); se Chromium manca lo
-    dichiarano.
+    dichiarano, e dicono perché.
+  - ⚠️ **Ogni gruppo si rende come lo rende Android, annidato e nel suo ordine** (scala e
+    rotazione attorno al perno, poi traslazione), dalla `6.30`: prima i gruppi si sommavano in uno
+    solo e in ordine rovesciato, e l'inchiostro di `ic_launcher_foreground` risultava spostato del
+    6% della tela.
+- **`tools/browser.py`** trova Chromium per tutti gli strumenti che aprono una pagina (le immagini,
+  le icone, i controlli del DF), dalla `6.30`: prima ognuno lo cercava a modo suo, e ognuno
+  mancava una macchina, il Mac o GitHub. Uno strumento nuovo col browser lo usa.
 - **`tools/icon-round.py`**: dice quali spigoli esterni sono ancora vivi, con l'angolo e il raggio
   che spetta a ognuno. Avvisa e non blocca: uno spigolo vivo in un disegno suo può essere voluto.
   - ⚠️⚠️ **Oggi risponde zero, con `ic_tian` dichiarato escluso**: un numero diverso da zero

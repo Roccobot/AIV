@@ -19,8 +19,10 @@ di tacere: è lo stesso patto di `icon-check.py` con le misure di resa.
 Uso:
     python3 tools/feedback-check.py <documento.html>
 """
+import importlib.util
 import json
 import os
+from pathlib import Path
 import re
 import sys
 
@@ -99,24 +101,6 @@ def forma(sezioni, domande, testi, aperto):
     return guai
 
 
-def eseguibile():
-    """Il browser, cercato per percorso quando Playwright ne chiede una build che non c'è.
-
-    ⚠️ L'ambiente ne porta una sola, e scaricarne un'altra è vietato: quindi si guarda che
-    cosa c'è sotto `PLAYWRIGHT_BROWSERS_PATH` invece di lasciar decidere la libreria.
-    """
-    radice = os.environ.get('PLAYWRIGHT_BROWSERS_PATH') or '/opt/pw-browsers'
-    if not os.path.isdir(radice):
-        return None
-    for nome in sorted(os.listdir(radice), reverse=True):
-        if not nome.startswith('chromium-'):
-            continue
-        via = os.path.join(radice, nome, 'chrome-linux', 'chrome')
-        if os.path.exists(via):
-            return via
-    return None
-
-
 def resa(percorso, quante, domande, promemoria):
     """La pagina aperta davvero: che parta, e che disegni quello che i dati portano.
 
@@ -126,7 +110,11 @@ def resa(percorso, quante, domande, promemoria):
         from playwright.sync_api import sync_playwright
     except ImportError:
         return [], False
-    via = eseguibile()
+    # Il browser come lo cercano tutti gli strumenti (`browser.py`, dalla `6.30`).
+    spec = importlib.util.spec_from_file_location('browser', Path(__file__).with_name('browser.py'))
+    browser = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(browser)
+    via = browser.percorso()
     if not via:
         return [], False
 
@@ -194,8 +182,6 @@ def main():
     testo = open(percorso, encoding='utf-8').read()
 
     if 'data-feedback="agent"' in testo:
-        import importlib.util
-        from pathlib import Path
         module_spec = importlib.util.spec_from_file_location('agent_feedback_check', Path(__file__).with_name('feedback-interactive-check.py'))
         module = importlib.util.module_from_spec(module_spec)
         module_spec.loader.exec_module(module)
