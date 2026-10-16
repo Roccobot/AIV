@@ -5,6 +5,7 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -294,6 +295,10 @@ class ImpostazioniTest {
         java.io.RandomAccessFile(file, "rw").use { it.setLength(13_000_000L) }
         try {
             apriIlPannello()
+            // ⚠️ The weight is read on Dispatchers.IO, and the v2 rule's waitForIdle does not wait
+            // for that dispatcher (6.25, red once in eight full benches; with a 300 ms pause in the
+            // read it fails every time).
+            banco.waitUntil(5_000) { banco.onAllNodesWithText("12.40 MB").fetchSemanticsNodes().isNotEmpty() }
             banco.onNodeWithText("12.40 MB").performScrollTo().assertExists()
         } finally {
             file.delete()
