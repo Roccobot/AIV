@@ -76,7 +76,6 @@ class AggiornaTest {
         Updater.offer = Updater.Release(
             version = "99.99",
             url = "http://127.0.0.1:${server.localPort}/AIV-99.99.apk",
-            size = 1,
             sha256 = "00"
         )
         banco.setContent { UpdateDialog() }
