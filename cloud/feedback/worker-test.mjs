@@ -4,6 +4,7 @@ import worker from './worker.mjs';
 class Bucket {
   objects = new Map();
   async head(key) { const value=this.objects.get(key); return value ? {size:value.bytes.length,etag:value.etag,httpEtag:'"'+value.etag+'"'} : null; }
+  async sizes(keys) { const found=new Map(); for (const key of keys) { const value=await this.head(key); if (value) found.set(key,value.size); } return found; }
   async get(key) { const value=this.objects.get(key); return value ? {...await this.head(key),body:new Response(value.bytes).body} : null; }
   async put(key,body,options={}) {
     const existing=await this.head(key), condition=options.onlyIf;
@@ -27,6 +28,9 @@ globalThis.fetch=async url=> {
 try {
   assert.equal((await worker.fetch(request('/api/feedback'),env)).status,401);
   assert.equal((await worker.fetch(request('/feedback'),env)).status,200);
+  // 6.29 (H23): a file with `?v=` never changes, the page itself is asked again every time.
+  assert.equal((await worker.fetch(request('/feedback.css?v=0123456789'),env)).headers.get('Cache-Control'),'public, max-age=31536000, immutable');
+  assert.equal((await worker.fetch(request('/feedback'),env)).headers.get('Cache-Control'),null);
   const config=await (await worker.fetch(request('/feedback-cloud-config.js'),env)).text();
   assert(!config.includes('test-secret') && config.includes('/api/feedback'));
   assert.equal((await worker.fetch(request('/api/feedback'),{...env,SESSION_SECRET:null})).status,503);
@@ -82,6 +86,10 @@ try {
   assert.equal((await put('"empty"')).status,412);
   assert.equal((await put(firstTag,{...draft,notes:'**nuove note**'})).status,200);
   assert.equal((await put(firstTag)).status,412);
+  // 6.29 (H5): containers that are not objects, keys of another shape and a choice past its cap.
+  for (const broken of [{...draft,entries:5},{...draft,decisions:true},{...draft,entries:{x:draft.entries['3.14-03']}},
+    {...draft,decisions:{'d-prova':{choice:'A'.repeat(101),comment:''}}},{...draft,decisions:{prova:{choice:'A1',comment:''}}}])
+    assert.equal((await put(firstTag,broken)).status,400,JSON.stringify(broken).slice(0,80));
   let latest=await worker.fetch(authenticated('/api/feedback'),env);
   let etag=latest.headers.get('ETag');assert.equal((await latest.json()).notes,'**nuove note**');
   const bytes=Buffer.from('Original ZIP/SVG bytes for storage integrity');

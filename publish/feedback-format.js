@@ -1,6 +1,12 @@
 "use strict";
 (() => {
   const editors = [];
+  /* The browser's own editing commands (bold, italic, links, inserted text, new paragraphs) and
+     their state, in one place since 6.29. Both APIs are marked obsolete and their output differs
+     between browsers (<b> or <strong>, inline styles), and there is no complete standard
+     replacement yet: when one of them changes, the field is mended here. */
+  const browserEdit = (command, value) => document.execCommand(command, false, value);
+  const browserState = (command) => document.queryCommandState(command);
   const iconPaths = {
     // Bold: the Arial Bold "B" the button used to set in text (22px, 0.6px stroke), as a
     // path in the 24px box, so it no longer depends on the fonts installed. Glyph from
@@ -578,7 +584,7 @@
   }
   function showPressed(editor, range) {
     for (const kind of ["bold", "italic"]) {
-      editor.box.parentElement.querySelector('[data-format="' + kind + '"]').setAttribute("aria-pressed", String(document.queryCommandState(kind)));
+      editor.box.parentElement.querySelector('[data-format="' + kind + '"]').setAttribute("aria-pressed", String(browserState(kind)));
     }
     const code = !editor.plain && codeAt(editor, range.startContainer);
     editor.box.parentElement.querySelector('[data-format="code"]').setAttribute("aria-pressed", String(Boolean(code)));
@@ -600,8 +606,13 @@
     {symbol: "×", name: "Per", keys: ["KeyX"], shown: ["⌘⇧X"]},
     {symbol: "✅", name: "Spunta", keys: ["KeyK"], shown: ["⌘⇧K"]},
     {symbol: "❌", name: "Croce", keys: ["KeyN"], shown: ["⌘⇧N"]},
-    {symbol: "⚠️", name: "Avviso", keys: ["KeyP"], shown: ["⌘⇧P"]}
+    {symbol: "⚠️", label: "⚠", name: "Avviso", keys: ["KeyP"], shown: ["⌘⇧P"]}
   ];
+  /* `label` is what the key shows, when it differs from what it writes. The warning writes ⚠ with
+     U+FE0F, the selector that asks for the colour form; on the key it goes without, because the
+     emoji font is split into pieces by Unicode range and U+FE0F falls in eight of them: one key
+     made every opening download 1.3 MB, where the glyph lives in one piece of 65 KB. The emoji
+     font draws ⚠ in colour all the same (6.29, H22 of the 6.25 review). */
   /* ⌃⌘⌥ and a key write the shortcut ⌘ and that key, as inline code, then a plain space, so what
      is typed next is plain text (his request of 2026-10-14, choice B1); with ⇧ too they write ⌘⇧
      and the key (his request of the same day). The key is read from its place, because ⌥ changes
@@ -647,7 +658,7 @@
         return;
       }
       if (range.collapsed && !anchor) {
-        document.execCommand("insertText", false, "testo del link");
+        browserEdit("insertText", "testo del link");
         const caret = window.getSelection().getRangeAt(0);
         const label = document.createRange();
         label.setStart(caret.endContainer, caret.endOffset - "testo del link".length);
@@ -655,7 +666,7 @@
         window.getSelection().removeAllRanges();
         window.getSelection().addRange(label);
       }
-      document.execCommand("createLink", false, address);
+      browserEdit("createLink", address);
       links(editor);
     } else if (kind === "code") {
       // Rendered in the editor like bold, italic and links (the user's request, 2026-10-04):
@@ -673,14 +684,14 @@
         // The selection's bold and italic go on the new code: replacing the text emptied its <b>.
         let made = node("code", range.toString() || "codice");
         for (const [command, tag] of [["italic", "em"], ["bold", "strong"]]) {
-          if (!document.queryCommandState(command)) continue;
+          if (!browserState(command)) continue;
           const wrap = node(tag);
           wrap.append(made);
           made = wrap;
         }
         insertNodes(editor, [made]);
       }
-    } else document.execCommand(kind === "bold" ? "bold" : "italic", false);
+    } else browserEdit(kind === "bold" ? "bold" : "italic");
     sync(editor, "format");
     if (window.getSelection().rangeCount) showPressed(editor, window.getSelection().getRangeAt(0));
   }
@@ -773,7 +784,7 @@
       // Both Enter variants use blocks, avoiding a browser-only terminal newline placeholder.
       if (event.inputType === "insertLineBreak") {
         event.preventDefault();
-        document.execCommand("insertParagraph", false);
+        browserEdit("insertParagraph");
       }
     });
     box.addEventListener("input", event => {
@@ -809,7 +820,7 @@
         sync(editor, "insertFromPaste");
         return;
       }
-      document.execCommand("insertText", false, text);
+      browserEdit("insertText", text);
     });
     for (const name of ["copy", "cut"]) {
       box.addEventListener(name, event => {
@@ -830,7 +841,7 @@
       else {
         event.preventDefault();
         box.focus();
-        document.execCommand("insertText", false, event.dataTransfer.getData("text/plain"));
+        browserEdit("insertText", event.dataTransfer.getData("text/plain"));
       }
     });
     box.addEventListener("click", event => {
@@ -852,7 +863,7 @@
         event.preventDefault();
         if (editor.area.disabled) return;
         if (space === "text") {
-          document.execCommand("insertText", false, SPACE_SYMBOL);
+          browserEdit("insertText", SPACE_SYMBOL);
           return;
         }
         editor.before = selectionOf(editor);
@@ -872,7 +883,7 @@
       const symbol = keySymbol(event);
       if (symbol) {
         event.preventDefault();
-        if (!editor.area.disabled) document.execCommand("insertText", false, symbol);
+        if (!editor.area.disabled) browserEdit("insertText", symbol);
         return;
       }
       const kind = {b: "bold", i: "italic", m: "code", k: "link"}[key];
@@ -917,7 +928,7 @@
       field.focus({preventScroll: true});
       selection(editor);
       editor.before = selectionOf(editor);
-      document.execCommand("insertText", false, symbol);
+      browserEdit("insertText", symbol);
       return;
     }
     if (!field) return;
@@ -934,7 +945,7 @@
     for (const entry of SYMBOL_KEYS) {
       // The symbol in a span of its own: the stylesheet fades the emoji, not the key's border.
       const key = node("button");
-      key.append(node("span", entry.symbol));
+      key.append(node("span", entry.label ?? entry.symbol));
       key.type = "button";
       // Four no-break spaces: a tooltip may fold ordinary ones into one.
       key.title = entry.shown.join(" ".repeat(4));

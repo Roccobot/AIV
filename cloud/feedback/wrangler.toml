@@ -4,6 +4,10 @@ compatibility_date = "2025-09-01"
 workers_dev = true
 preview_urls = false
 
+# Since 6.29: the Worker's errors are kept, so a 503 in production can be read afterwards.
+[observability]
+enabled = true
+
 [assets]
 directory = "../../publish"
 binding = "ASSETS"

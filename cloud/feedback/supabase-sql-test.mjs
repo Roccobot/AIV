@@ -26,7 +26,13 @@ await assert.rejects(save(second.revision,{...draft,schema:2}),error=>error.code
 const history=(await db.query('select draft from public.aiv_feedback_history order by saved_at')).rows;
 assert.equal(history.length,2);assert.deepEqual(history[0].draft,draft);
 assert.equal((await db.query('select draft from public.aiv_feedback_drafts')).rows[0].draft.notes,'Riscontro aggiornato');
-await db.exec('reset role');await db.exec(sql);
+// 6.29 (H7): the usage the deploy reads, for the server only, and the index of the round lookup.
+const usage=(await db.query('select public.aiv_feedback_usage() as usage')).rows[0].usage;
+assert.equal(usage.history_rows,2);assert(usage.history_bytes>0 && usage.database_bytes>=usage.history_bytes,JSON.stringify(usage));
+await db.exec('reset role');
+for(const role of ['anon','authenticated']) assert.equal((await db.query("select has_function_privilege($1,'public.aiv_feedback_usage()','EXECUTE') as allowed",[role])).rows[0].allowed,false);
+assert.equal((await db.query("select count(*)::int as count from pg_indexes where indexname='aiv_feedback_history_owner_saved'")).rows[0].count,1);
+await db.exec(sql);
 assert.equal((await db.query('select count(*)::int as count from public.aiv_feedback_history')).rows[0].count,2);
 const bucket=(await db.query('select * from storage.buckets')).rows[0];
 assert.equal(bucket.public,false);assert.equal(bucket.file_size_limit,8388608);

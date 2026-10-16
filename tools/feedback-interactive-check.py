@@ -22,7 +22,18 @@ def chromium():
     if found:
         return found
     cloud = Path('/opt/pw-browsers/chromium')
-    return str(cloud) if cloud.is_file() else None
+    if cloud.is_file():
+        return str(cloud)
+    # The third place, since 6.29 (H31 of the 6.25 review): the browser that `playwright install`
+    # puts in its own folder, which is the one on GitHub's machines. Without it the check could not
+    # run in the workflow of the feedback document, and stopped on 'Chromium non disponibile'.
+    try:
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as pw:
+            own = pw.chromium.executable_path
+        return own if Path(own).is_file() else None
+    except Exception:
+        return None
 
 
 def read_export(path):
@@ -62,7 +73,7 @@ Scheda generata dal controllo e mai pubblicata: serve a esercitare la pagina qua
 
 SYNTHETIC_BLOCKS = '''# Feedback AIV
 
-Documento di sintesi, costruito dal controllo e mai pubblicato.
+Versione **0.01**: documento di sintesi, costruito dal controllo e mai pubblicato.
 
 | Voce | Stato | Commento dell'utente | Azione successiva |
 |---|---|---|---|
@@ -254,6 +265,133 @@ def check_back_button(path):
     print('Indietro: chiude il pannello di Altro, e lasciare la pagina chiede conferma, verificato.')
 
 
+def check_declared_round(path):
+    """The round of the page is the one its source declares, since 6.29 (H34): a source of round
+    0.01 builds a page of round 0.01 whatever versionName says, with the download of that round,
+    and a source whose round is past versionName is refused."""
+    import subprocess
+    import sys
+    root = Path(__file__).resolve().parents[1]
+    with tempfile.TemporaryDirectory() as temporary:
+        source, page = Path(temporary) / 'Feedback.md', Path(temporary) / 'feedback.html'
+        # With one row of 'Aggiornamenti recenti' (6.29, H28 and the owner's K1): request,
+        # feedback and outcome in three labelled parts, the identifier as code.
+        recent = ('## Aggiornamenti recenti\n\n| Funzione | Versione | Stato | Riscontro dell\'utente | Azione successiva |\n'
+                  '|---|---|---|---|---|\n| La prova di sintesi | 0.01-01 | Richiesta del 2026-10-16 | Il tuo A1. | Fatto nella 0.01. |\n\n')
+        source.write_text(SYNTHETIC_BLOCKS.replace('## Prossimi passi', recent + '## Prossimi passi', 1), encoding='utf-8')
+        subprocess.run([sys.executable, str(root / 'tools/feedback-build.py'), '--source', str(source),
+                        '--output', str(page)], check=True, stdout=subprocess.DEVNULL)
+        built = page.read_text(encoding='utf-8')
+        data = json.loads(re.search(r'<script id="feedback-data" type="application/json">(.*?)</script>', built, re.S)[1])
+        assert data['version'] == '0.01', data['version']
+        # 6.29 (H10): of a test the embedded data keep id, version and title, and the steps stay
+        # in the card.
+        assert data['items'] == [{'id': '0.00-01', 'version': '0.00', 'title': 'Prova di sintesi'}], data['items']
+        # 6.29 (H13): the tests have their level of heading, for screen readers only.
+        assert '<h2 id="tests-title" class="sr-only">Prove del giro 0.01</h2>' in built, 'Manca il titolo delle prove.'
+        assert 'releases/download/v0.01/' in built, 'Il tasto di download non punta al giro dichiarato.'
+        sentence = re.sub(r'<[^>]+>', '', re.search(r'<section class="card archive">.*?</section>', built, re.S)[0])
+        assert ('Giro 0.01: La prova di sintesi (0.01-01). Richiesta del 2026-10-16. Riscontro: il tuo A1. '
+                'Esito: fatto nella 0.01.') in sentence, sentence
+        assert '<code>0.01-01</code>' in built, 'L\'identificatore non è scritto come codice.'
+        source.write_text(SYNTHETIC_BLOCKS.replace('Versione **0.01**', 'Versione **999.00**'), encoding='utf-8')
+        refused = subprocess.run([sys.executable, str(root / 'tools/feedback-build.py'), '--source', str(source),
+                                  '--output', str(page)], capture_output=True, text=True)
+        assert refused.returncode != 0 and 'supera versionName' in refused.stderr, refused.stderr
+    print('Giro della pagina: quello dichiarato nella fonte, mai oltre versionName, verificato.')
+
+
+def check_scroll_writes(path):
+    """Scrolling writes only what changes, since 6.29 (H11): on a desktop the offset of the cards
+    is fixed, so ten frames of scroll write neither the variable on the root nor the labels of
+    the floating buttons."""
+    from playwright.sync_api import sync_playwright
+    browser_path = chromium()
+    if not browser_path:
+        raise AssertionError('Chromium non disponibile: scorrimento non verificato.')
+    folder = Path(path).resolve().parent
+    server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), functools.partial(Quiet, directory=str(folder)))
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        with sync_playwright() as pw:
+            engine = pw.chromium.launch(executable_path=browser_path, args=['--no-sandbox'])
+            page = engine.new_page(viewport={'width': 1400, 'height': 800})
+            page.goto(f'http://127.0.0.1:{server.server_port}/{Path(path).name}')
+            page.wait_for_function('typeof refreshNavigation === "function"')
+            page.evaluate('refreshNavigation()')
+            writes = page.evaluate('''async () => {
+                let count = 0;
+                const style = document.documentElement.style, setProperty = style.setProperty.bind(style);
+                style.setProperty = (...args) => { count++; return setProperty(...args); };
+                const buttons = [document.querySelector('#first-empty'), document.querySelector('#floating-save')];
+                for (const button of buttons) {
+                    const setAttribute = button.setAttribute.bind(button);
+                    button.setAttribute = (...args) => { count++; return setAttribute(...args); };
+                }
+                for (let i = 0; i < 10; i++) {
+                    window.scrollBy(0, 40);
+                    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+                }
+                return count;
+            }''')
+            assert writes == 0, f'Scorrendo la pagina ha riscritto {writes} valori uguali.'
+            # 6.29 (H15): typing in a comment leaves the counters as they are, since no number
+            # changes; until 6.28 every key rebuilt them.
+            page.evaluate('window.ratioBefore = document.querySelector("#count-answered")')
+            editor = page.locator('.test .rich-editor').first
+            editor.click()
+            page.keyboard.type('prova')
+            assert page.evaluate('window.ratioBefore === document.querySelector("#count-answered")'), \
+                'Scrivendo un commento i contatori sono stati ricostruiti.'
+            engine.close()
+    finally:
+        server.shutdown()
+        server.server_close()
+    print('Scorrimento e scrittura: nessun valore uguale riscritto, contatori fermi, verificato.')
+
+
+def check_emoji_pieces(path):
+    """The emoji font comes in pieces by Unicode range, and the browser downloads each piece whose
+    range holds a character of the page. Since 6.29 (H22) the keys over Altro show no U+FE0F, which
+    falls in eight pieces: until 6.28 the warning key alone made every opening download 1.3 MB.
+    The pieces downloaded at opening are exactly those the page's characters ask for."""
+    from playwright.sync_api import sync_playwright
+    browser_path = chromium()
+    if not browser_path:
+        raise AssertionError('Chromium non disponibile: carattere delle emoji non verificato.')
+    folder = Path(path).resolve().parent
+    ranges = {}
+    for block in re.findall(r'@font-face\s*{[^}]*"Noto Color Emoji"[^}]*}', (folder / 'feedback.css').read_text(encoding='utf-8')):
+        piece = re.search(r'noto-emoji/([^")]+)', block).group(1)
+        spans = []
+        for part in re.search(r'unicode-range:\s*([^;]+);', block).group(1).split(','):
+            low, _, high = part.strip()[2:].partition('-')
+            spans.append((int(low, 16), int(high or low, 16)))
+        ranges[piece] = spans
+    server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), functools.partial(Quiet, directory=str(folder)))
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        with sync_playwright() as pw:
+            engine = pw.chromium.launch(executable_path=browser_path, args=['--no-sandbox'])
+            page = engine.new_page(viewport={'width': 1400, 'height': 800})
+            pieces = set()
+            page.on('requestfinished', lambda request: pieces.add(request.url.rsplit('/', 1)[-1]) if '/noto-emoji/' in request.url else None)
+            page.goto(f'http://127.0.0.1:{server.server_port}/{Path(path).name}')
+            page.wait_for_load_state('networkidle')
+            row = page.locator('#extra-section > .symbol-keys').text_content()
+            assert '️' not in row, 'Un tasto sopra Altro mostra U+FE0F.'
+            # The drawn text: textContent would add the page's data, which is never drawn.
+            shown = {ord(character) for character in page.evaluate('document.body.innerText')}
+            expected = {piece for piece, spans in ranges.items()
+                        if any(low <= code <= high for code in shown for low, high in spans)}
+            assert pieces == expected, f'Pezzi scaricati {sorted(pieces)}, attesi {sorted(expected)}.'
+            engine.close()
+    finally:
+        server.shutdown()
+        server.server_close()
+    print(f'Emoji: pezzi del carattere scaricati all\'apertura {len(pieces)}, quelli che il testo chiede, verificato.')
+
+
 def check_questions_and_labels(path):
     """The blocks after the tests (the user's rule of 2026-10-08), on a page built from a
     synthetic source with the real generator and template: the questions come after the tests and
@@ -275,7 +413,7 @@ def check_questions_and_labels(path):
             if entry.name != Path(path).name:
                 (stage / entry.name).symlink_to(entry)
         source = stage / 'Feedback.md'
-        source.write_text(SYNTHETIC_BLOCKS)
+        source.write_text(SYNTHETIC_BLOCKS, encoding='utf-8')
         page_copy = stage / Path(path).name
         subprocess.run([sys.executable, str(root / 'tools/feedback-build.py'),
                         '--source', str(source), '--output', str(page_copy)], check=True, stdout=subprocess.DEVNULL)
@@ -406,7 +544,7 @@ def check_without_tests(path):
             if entry.name != Path(path).name:
                 (stage / entry.name).symlink_to(entry)
         source = stage / 'Feedback.md'
-        source.write_text((root / 'docs/Feedback.md').read_text() + SYNTHETIC_TEST)
+        source.write_text((root / 'docs/Feedback.md').read_text(encoding='utf-8') + SYNTHETIC_TEST, encoding='utf-8')
         page_copy = stage / Path(path).name
         import subprocess
         import sys
@@ -416,7 +554,7 @@ def check_without_tests(path):
 
 
 def check(path):
-    text = Path(path).read_text()
+    text = Path(path).read_text(encoding='utf-8')
     match = re.search(r'<script id="feedback-data" type="application/json">(.*?)</script>', text, re.S)
     if not match:
         raise AssertionError('Mancano i dati del documento.')
@@ -424,8 +562,10 @@ def check(path):
     assert data.get('project') == 'AIV' and data.get('version'), 'Progetto o versione mancanti.'
     ids = set()
     for item in data['items']:
-        assert all(item.get(k) for k in ['id', 'version', 'title', 'paragraphs']), 'Voce incompleta.'
-        assert isinstance(item['paragraphs'], list) and all(isinstance(p, str) and p.strip() for p in item['paragraphs']), 'Passi mancanti.'
+        assert all(item.get(k) for k in ['id', 'version', 'title']), 'Voce incompleta.'
+        # The steps are read from the card, where they live since 6.29 (H10).
+        card = re.search(r'<article class="card test" id="' + re.escape(item['id']) + r'".*?</h3>(.*?)<fieldset', text, re.S)
+        assert card and re.search(r'<p>\s*\S', card[1]), 'Passi mancanti.'
         assert item['id'] not in ids, 'Identificatore duplicato.'
         ids.add(item['id'])
     assert isinstance(data.get('labels', []), list), 'labels deve essere una lista.'
@@ -436,6 +576,9 @@ def check(path):
     for question in data.get('questions', []):
         assert re.fullmatch(r'd-[a-z0-9-]+', question.get('id', '')), 'Chiave di domanda non valida.'
         assert question.get('title') and question.get('paragraphs'), 'Domanda incompleta.'
+    check_declared_round(path)
+    check_scroll_writes(path)
+    check_emoji_pieces(path)
     check_questions_and_labels(path)
     check_attachment_buttons(path)
     check_altro_reaches_last_attachment(path)
@@ -952,7 +1095,7 @@ def check(path):
             # mockup's order, the tooltip only the shortcuts, four spaces apart, and a click
             # writes the symbol where the caret is, here a proof card's field and not Altro.
             row = formatting.locator('#extra-section > .symbol-keys button')
-            expect(row).to_have_text(['⌘', '⇧', '⌥', '⌃', '→', '⏎', '×', '✅', '❌', '⚠️'])
+            expect(row).to_have_text(['⌘', '⇧', '⌥', '⌃', '→', '⏎', '×', '✅', '❌', '⚠'])
             gap = ' ' * 4
             assert [row.nth(index).get_attribute('title') for index in range(10)] == [
                 '⌘⇧C', '⌘⇧M' + gap + '⌘⇧S', '⌘⇧O' + gap + '⌘⇧A', '⌘⇧Ì', '⌘⇧Ù', '⌘⇧⏎',
@@ -1529,7 +1672,7 @@ def check(path):
             assert not external, 'SVG fetched an external resource.'
             page.wait_for_function("Array.from(document.querySelectorAll('.test:first-child .image-list img')).every(image => image.complete && image.naturalWidth > 0)")
             bad_svg = Path(temporary) / 'invalid.svg'
-            bad_svg.write_text('<html>not an SVG</html>')
+            bad_svg.write_text('<html>not an SVG</html>', encoding='utf-8')
             first.locator('.images').set_input_files(str(bad_svg))
             expect(page.locator('#action-message')).to_contain_text('SVG non è valido')
             expect(first.locator('.image-list img')).to_have_count(3)
@@ -1544,6 +1687,27 @@ def check(path):
             expect(notes_card.locator('img')).to_have_count(1)
             notes_card.dispatch_event('drop', {'dataTransfer': transfer})
             expect(notes_card.locator('img')).to_have_count(2)
+            # 6.29 (H14): a pasted JPEG and a pasted GIF stay as they are, each with a name of its
+            # own; until 6.28 both became a PNG called clipboard.png.
+            for count, kind in [(3, 'jpeg'), (4, 'gif')]:
+                notes_card.locator('.rich-editor').first.evaluate('''async (box, kind) => {
+                    let file;
+                    if (kind === 'jpeg') {
+                        const canvas = document.createElement('canvas'); canvas.width = 4; canvas.height = 4;
+                        canvas.getContext('2d').fillRect(0, 0, 4, 4);
+                        file = new File([await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'))], 'image.jpg', {type: 'image/jpeg'});
+                    } else file = new File([Uint8Array.from(atob('R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=='), c => c.charCodeAt(0))], 'image.gif', {type: 'image/gif'});
+                    const data = new DataTransfer(); data.items.add(file);
+                    box.focus();
+                    box.dispatchEvent(new ClipboardEvent('paste', {bubbles: true, cancelable: true, clipboardData: data}));
+                }''', kind)
+                expect(notes_card.locator('img')).to_have_count(count)
+            pasted = page.evaluate('draft.extra.images.slice(-2).map(image => [image.name, image.type])')
+            assert pasted == [['appunti-1.jpg', 'image/jpeg'], ['appunti-2.gif', 'image/gif']], pasted
+            # Out again, so the counts further down stay the ones they were written for.
+            for count in [3, 2]:
+                notes_card.locator('.image-list figure').last.get_by_role('button', name='Elimina', exact=True).click()
+                expect(notes_card.locator('img')).to_have_count(count)
             notes_card.locator('.images').set_input_files({'name': 'notes.zip', 'mimeType': 'application/x-zip-compressed', 'buffer': archive.read_bytes()})
             expect(notes_card.locator('.zip-download')).to_have_count(1)
             zip_transfer = page.evaluate_handle('''bytes => {
@@ -1676,7 +1840,7 @@ def check(path):
             old_json = Path(temporary) / 'old.json'
             old_draft = to_legacy(exported, exported_files)
             old_draft['entries']['3.13-01'] = {'status': 'Tutto OK', 'comment': 'Prova chiusa', 'images': []}
-            old_json.write_text(json.dumps(old_draft))
+            old_json.write_text(json.dumps(old_draft), encoding='utf-8')
             second.locator('#import').set_input_files(str(old_json))
             # The import says how many answers belong to tests no longer on the page.
             expect(second.locator('#action-message')).to_contain_text('1 sono di prove chiuse')

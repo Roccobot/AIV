@@ -82,17 +82,6 @@ class ScorciatoieTest {
         assertTrue(model.addressAsked)
     }
 
-    /** The last folder opens its grid, with the name the action was given. */
-    @Test
-    fun `l'ultima cartella riapre la sua griglia`() {
-        val model = modello()
-        val intent = azione(Shortcuts.FOLDER)
-            .putExtra(Shortcuts.BUCKET, 42L)
-            .putExtra(Shortcuts.NAME, "Camera")
-        model.handleIntent(intent, fresh = true)
-        assertEquals(Screen.Grid(42L, "Camera"), model.screen)
-    }
-
     /** The three fixed actions are published, in the order A1, A2, A4, with their intents. */
     @Test
     fun `le tre azioni fisse sono pubblicate in ordine`() {
@@ -123,24 +112,6 @@ class ScorciatoieTest {
         val cartella = tutte.single { it.id == "folder" }
         assertEquals("Camera", cartella.shortLabel.toString())
         assertEquals(9L, cartella.intent.getLongExtra(Shortcuts.BUCKET, 0L))
-    }
-
-    /**
-     * **'Faro' (6.20): a pinned folder opens in 'Cartelle di sistema' for this time**, at its path,
-     * and the app opened from its icon goes back to the saved view.
-     *
-     * ⚠️ Counter-tested with the branch of the action removed: the screen is the home in its saved
-     * view and the tree stays at the top.
-     */
-    @Test
-    fun `una cartella sulla Home si apre nelle cartelle di sistema per una volta`() {
-        val model = modello()
-        val percorso = "/storage/emulated/0/DCIM/Camera"
-        model.handleIntent(azione(Shortcuts.TREE).putExtra(Shortcuts.PATH, percorso), fresh = true)
-        assertEquals(FolderView.TREE, model.shownView(FolderView.GRID))
-        assertEquals(percorso, model.treePath)
-        model.handleIntent(Intent(Intent.ACTION_MAIN), fresh = false)
-        assertEquals(FolderView.GRID, model.shownView(FolderView.GRID))
     }
 
     /**

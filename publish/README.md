@@ -1,16 +1,18 @@
 # Pagine AIV
 
-Questa cartella è pubblicata da `.github/workflows/pages.yml`, che lascia fuori i file del
-documento di feedback (`feedback.html`, i suoi script `feedback*.js`, e questo README): quelli
-li serve solo il Worker privato, che usa la stessa cartella come asset. `feedback.css` e le
-favicon restano, perché le usano anche le altre pagine.
+Dalla 6.29 `.github/workflows/pages.yml` pubblica di questa cartella un elenco di file da
+includere: `index.html`, `privacy.html`, `anteprima.jpg`, `schermate/` e `assets/Roboto.ttf`
+con la sua licenza; `tools/site-check.py` ferma la pubblicazione se una pagina cita un file
+locale che l'elenco non ha. Tutto il resto (il documento di feedback coi suoi script, stili e
+icone, e i due mockup) lo serve solo il Worker privato, che usa la cartella come asset.
 
 | Pagina | Scopo | Fonte |
 |---|---|---|
 | [index.html](index.html) | Presentazione e download dell'APK | Pagina scritta direttamente |
+| [privacy.html](privacy.html) | Informativa sulla privacy | Pagina scritta direttamente |
 | [feedback.html](feedback.html) (solo sul Worker) | Prove condivise; risposte e allegati sul cloud privato | [docs/Feedback.md](../docs/Feedback.md), generatore `tools/feedback-build.py` |
-| [tablet.html](tablet.html) | Mockup interattivi da valutare | [docs/Tablet-proposal.md](../docs/Tablet-proposal.md), pagina scritta direttamente |
-| [settings.html](settings.html) | Proposta di riordino delle impostazioni | [docs/Settings-proposal.md](../docs/Settings-proposal.md), generatore `tools/settings-build.py` |
+| [tablet.html](tablet.html) (solo sul Worker) | Mockup interattivi da valutare | [docs/Tablet-proposal.md](../docs/Tablet-proposal.md), pagina scritta direttamente |
+| [settings.html](settings.html) (solo sul Worker) | Proposta di riordino delle impostazioni | [docs/Settings-proposal.md](../docs/Settings-proposal.md), generatore `tools/settings-build.py` |
 
 Gli asset condivisi vivono in `assets/`: favicon SVG e PNG, Roboto e relativa licenza.
 La favicon del documento di feedback e delle sue pagine di supporto (`tablet.html`,

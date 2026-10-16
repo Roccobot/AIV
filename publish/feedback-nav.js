@@ -3,8 +3,13 @@
    The mobile editing state, the sticky strip, moving between cards and the floating
    buttons with their long press. Uses the cards and the Altro overlay of feedback-ui.js. */
 // --- Mobile editing: only Salva while a text field is focused ---
-const isMobileUi = () => window.matchMedia("(max-width: 720px)").matches;
+const isMobileUi = () => MOBILE_UI.matches;
 let editingHoldTimer = null;
+// Whether [element] is a field one writes in: one rule for the three places that ask, since 6.29
+// (H12); until 6.28 a read-only field counted after a save and not on entering or leaving it.
+const isEditingField = (element) => Boolean(element &&
+  (element.matches?.("textarea:not([readonly]), input:not([type=file]):not([readonly]), .rich-editor") ||
+    element.closest?.(".rich-editor")));
 function setEditingMobile(on) {
   if (!isMobileUi()) {
     document.body.classList.remove("editing-mobile");
@@ -16,42 +21,18 @@ function holdEditingAfterSave() {
   clearTimeout(editingHoldTimer);
   setEditingMobile(true);
   editingHoldTimer = setTimeout(() => {
-    const active = document.activeElement;
-    const still =
-      active &&
-      (active.matches("textarea, input:not([type=file]), .rich-editor") ||
-        active.closest?.(".rich-editor"));
-    if (!still) setEditingMobile(false);
+    if (!isEditingField(document.activeElement)) setEditingMobile(false);
   }, 5000);
 }
-document.addEventListener(
-  "focusin",
-  (event) => {
-    const t = event.target;
-    if (!t) return;
-    if (
-      t.matches?.("textarea:not([readonly]), input:not([type=file]):not([readonly]), .rich-editor") ||
-      t.closest?.(".rich-editor")
-    )
-      setEditingMobile(true);
-  },
-  true,
-);
-document.addEventListener(
-  "focusout",
-  () => {
-    clearTimeout(editingHoldTimer);
-    editingHoldTimer = setTimeout(() => {
-      const active = document.activeElement;
-      const still =
-        active &&
-        (active.matches?.("textarea:not([readonly]), input:not([type=file]):not([readonly]), .rich-editor") ||
-          active.closest?.(".rich-editor"));
-      if (!still) setEditingMobile(false);
-    }, 0);
-  },
-  true,
-);
+document.addEventListener("focusin", (event) => {
+  if (isEditingField(event.target)) setEditingMobile(true);
+}, true);
+document.addEventListener("focusout", () => {
+  clearTimeout(editingHoldTimer);
+  editingHoldTimer = setTimeout(() => {
+    if (!isEditingField(document.activeElement)) setEditingMobile(false);
+  }, 0);
+}, true);
 window.feedbackHoldEditingAfterSave = holdEditingAfterSave;
 // Anchor the next card below the actual sticky dashboard, including wrapped mobile text.
 const responseCards = Array.from(document.querySelectorAll(".test, .extra"));
@@ -62,7 +43,7 @@ const dashboard = document.querySelector(".dashboard");
 // On desktop the counts live at the top of Altro, and the page has no fixed strip (the user's
 // request, 2026-10-06: *sparisce del tutto la striscia cloud, e il caricatore con le info va a
 // vivere sopra 'Altro', nello stesso riquadro*). Elsewhere the strip stays where the page has it.
-const desktopUi = window.matchMedia("(min-width: 1100px)");
+const desktopUi = DESKTOP_UI;
 const dashboardHome = document.createComment("dashboard");
 dashboard.before(dashboardHome);
 function placeDashboard() {
@@ -125,6 +106,13 @@ function nextTarget(index) {
   if (window.scrollY >= bottom - 2) return null;
   return card;
 }
+// It runs at every frame of a scroll, so since 6.29 (H11 of the 6.25 review) it writes only what
+// changed: the variable on the root is inherited by the whole page, and rewriting it with the same
+// value made the browser restyle everything at every frame.
+const setIfChanged = (element, name, value) => {
+  if (element.getAttribute(name) !== value) element.setAttribute(name, value);
+};
+let scrollOffset = null;
 function refreshNavigation() {
   refreshDashboardDocked();
   const index = currentCardIndex();
@@ -139,27 +127,25 @@ function refreshNavigation() {
   const floatingSave = document.querySelector("#floating-save");
   if (mobile) {
     firstEmpty.hidden = false;
-    firstEmpty.title = empty
+    setIfChanged(firstEmpty, "title", empty
       ? "Primo riquadro non compilato · tieni premuto per Altro"
-      : "Tieni premuto per Altro";
-    firstEmpty.setAttribute(
-      "aria-label",
-      empty
-        ? "Primo riquadro non compilato. Tieni premuto per aprire Altro"
-        : "Tieni premuto per aprire Altro",
-    );
+      : "Tieni premuto per Altro");
+    setIfChanged(firstEmpty, "aria-label", empty
+      ? "Primo riquadro non compilato. Tieni premuto per aprire Altro"
+      : "Tieni premuto per aprire Altro");
   } else {
     firstEmpty.hidden = !empty || responseCards[index] === empty;
-    firstEmpty.title = "Primo riquadro non compilato";
-    firstEmpty.setAttribute("aria-label", "Primo riquadro non compilato");
+    setIfChanged(firstEmpty, "title", "Primo riquadro non compilato");
+    setIfChanged(firstEmpty, "aria-label", "Primo riquadro non compilato");
   }
-  floatingSave.title = mobile ? "Salva · tieni premuto per Altro" : "Salva le risposte";
-  floatingSave.setAttribute(
-    "aria-label",
-    mobile ? "Salva le risposte. Tieni premuto per aprire Altro" : "Salva le risposte",
-  );
+  setIfChanged(floatingSave, "title", mobile ? "Salva · tieni premuto per Altro" : "Salva le risposte");
+  setIfChanged(floatingSave, "aria-label", mobile ? "Salva le risposte. Tieni premuto per aprire Altro" : "Salva le risposte");
   firstEmpty.disabled = !loaded;
-  document.documentElement.style.setProperty("--feedback-scroll-offset", navigationOffset() + "px");
+  const offset = navigationOffset() + "px";
+  if (offset !== scrollOffset) {
+    scrollOffset = offset;
+    document.documentElement.style.setProperty("--feedback-scroll-offset", offset);
+  }
 }
 function goToCard(card) {
   if (!card) return;

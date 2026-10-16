@@ -18,8 +18,7 @@ const toggleTheme = (function initFeedbackTheme() {
   function onSystemChange() {
     if (override === null) apply();
   }
-  if (mq.addEventListener) mq.addEventListener("change", onSystemChange);
-  else if (mq.addListener) mq.addListener(onSystemChange);
+  mq.addEventListener("change", onSystemChange);
   apply();
   return function toggleTheme() {
     override = effective() === "dark" ? "light" : "dark";
@@ -142,17 +141,23 @@ function refreshCounts() {
     if (status) counters[status]++;
   }
   const done = answeredCount();
-  const counts = document.querySelector("#counts");
-  const ratio = el("span", `${done}/${spec.items.length}`, "count-ratio");
-  ratio.id = "count-answered";
-  ratio.setAttribute("aria-label", `Riscontri: ${done} su ${spec.items.length}`);
-  counts.replaceChildren(
-    ratio,
-    ...spec.outcomes.map((outcome) => countChip(outcome.kind, outcome.label, counters[outcome.label])),
-  );
-  document.querySelector("#progress").value = done;
+  // The counters are rebuilt only when a number changes, since 6.29 (H15 of the 6.25 review):
+  // this runs at every key pressed in a comment, and until 6.28 it rebuilt them every time.
+  const shown = [done, ...outcomes.map((outcome) => counters[outcome])].join(",");
+  if (shown !== countsShown) {
+    countsShown = shown;
+    const ratio = el("span", `${done}/${spec.items.length}`, "count-ratio");
+    ratio.id = "count-answered";
+    ratio.setAttribute("aria-label", `Riscontri: ${done} su ${spec.items.length}`);
+    document.querySelector("#counts").replaceChildren(
+      ratio,
+      ...spec.outcomes.map((outcome) => countChip(outcome.kind, outcome.label, counters[outcome.label])),
+    );
+    document.querySelector("#progress").value = done;
+  }
   refreshNavigation();
 }
+let countsShown = null;
 
 function hydrate() {
   for (const card of document.querySelectorAll(".test")) {
@@ -363,9 +368,6 @@ async function copy() {
     report("Il browser non ha permesso la copia negli appunti: esporta le risposte.", true);
   }
 }
-function copyLabelId(id) {
-  copyText(String(id || "").toLowerCase()).catch(() => {});
-}
 for (const item of spec.labels || []) {
   const card = el("article", undefined, "card label-card");
   card.dataset.id = item.id;
@@ -374,12 +376,9 @@ for (const item of spec.labels || []) {
   dot.hidden = true;
   dot.setAttribute("aria-label", "modificato");
   title.append(dot);
-  const idCopy = el("button", String(item.id).toLowerCase(), "label-id");
-  idCopy.type = "button";
-  idCopy.addEventListener("click", () => {
-    copyLabelId(item.id);
-  });
-  card.append(idCopy, title);
+  // The id is text, like the eyebrow of a test, since 6.29 (H16 of the 6.25 review): until 6.28
+  // it was also a button that copied it as plain text, beside the symbol that copies it as code.
+  card.append(el("p", String(item.id).toLowerCase(), "label-id"), title);
   if (item.a11y) card.append(labelA11yIcon());
   const label = el("label", item.title, "sr-only");
   const field = el("textarea");
@@ -473,9 +472,9 @@ async function attachFiles(card, files) {
       if (!allowedMime.includes(type) || file.size < 1 || file.size > maxFile)
         throw Error("Usa PNG, JPG, WebP, GIF, SVG o ZIP fino a 8 MB ciascuno e 20 MB complessivi.");
       if (type === "image/svg+xml") {
-        const document = new DOMParser().parseFromString(await file.text(), "image/svg+xml");
-        if (document.querySelector("parsererror") || document.documentElement.localName !== "svg" ||
-            document.documentElement.namespaceURI !== "http://www.w3.org/2000/svg")
+        const svg = new DOMParser().parseFromString(await file.text(), "image/svg+xml");
+        if (svg.querySelector("parsererror") || svg.documentElement.localName !== "svg" ||
+            svg.documentElement.namespaceURI !== "http://www.w3.org/2000/svg")
           throw Error("Il file SVG non è valido.");
       }
       if (type === "application/zip") {
@@ -534,7 +533,14 @@ async function decodeClipboardImage(source) {
     image.src = url;
   });
 }
-async function clipboardImageAsPng(event) {
+/*
+ * An image pasted into a card, since 6.29 (H14 of the 6.25 review): a file of a type the page takes
+ * is attached as it is, so a JPEG stays light and a GIF keeps moving; only the other formats are
+ * redrawn as PNG. Each one is named 'appunti-N' with the next number free in its card: until 6.28
+ * all of them were 'clipboard.png', and a click on one wrote into the comment a name that was the
+ * name of every other.
+ */
+async function clipboardImage(event, card) {
   const data = event.clipboardData;
   if (!data) return null;
   const item = Array.from(data.items || []).find(candidate =>
@@ -542,6 +548,10 @@ async function clipboardImageAsPng(event) {
   const source = item?.getAsFile?.() ||
     Array.from(data.files || []).find(file => /^image\//i.test(file.type));
   if (!source) return null;
+  const taken = attachmentEntry(card).images.map(image => /^appunti-(\d+)\./.exec(image.name)?.[1]).filter(Boolean).map(Number);
+  const name = extension => `appunti-${Math.max(0, ...taken) + 1}.${extension}`;
+  const kept = {"image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "image/gif": "gif"}[source.type.toLowerCase()];
+  if (kept) return new File([source], name(kept), {type: source.type.toLowerCase(), lastModified: Date.now()});
   const image = await decodeClipboardImage(source);
   const width = image.width || image.naturalWidth;
   const height = image.height || image.naturalHeight;
@@ -555,7 +565,7 @@ async function clipboardImageAsPng(event) {
   image.close?.();
   const png = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
   if (!png) throw Error("Impossibile convertire l'immagine in PNG.");
-  return new File([png], "clipboard.png", {type: "image/png", lastModified: Date.now()});
+  return new File([png], name("png"), {type: "image/png", lastModified: Date.now()});
 }
 function attachmentCardForPaste(target) {
   const card = target.closest?.(".test, .extra");
@@ -573,7 +583,7 @@ window.feedbackPasteImage = (event, target) => {
     Array.from(data.files || []).some(file => /^image\//i.test(file.type)));
   if (!card || !hasImage) return false;
   event.preventDefault();
-  clipboardImageAsPng(event)
+  clipboardImage(event, card)
     .then(file => attachFiles(card, [file]))
     .catch(error => report(error.message, true));
   return true;
@@ -926,6 +936,9 @@ async function importFile(input) {
       if (raw?.extra) raw.extra.images = attach(raw.extra.images);
     } else raw = JSON.parse(await file.text());
     draft = validate(raw);
+    // An import is a save, and a save alone never sends the round (6.29, H17): a JSON exported
+    // right after 'Invia' would otherwise put a send in the history that nobody made.
+    draft.completed = null;
     revision++;
     hydrate();
     await save();
@@ -1003,7 +1016,7 @@ function controls(disabled) {
 // where no box under the pointer can scroll, so there the event is stopped here.
 (() => {
   const altro = document.querySelector("#extra-section");
-  const wide = window.matchMedia("(min-width: 1100px)");
+  const wide = DESKTOP_UI;
   if (!altro) return;
   const canScroll = (box, dy) =>
     box.scrollHeight > box.clientHeight + 1 &&
@@ -1033,7 +1046,9 @@ function controls(disabled) {
   new MutationObserver(() => {
     for (const child of altro.children) watch.observe(child);
     fit();
-  }).observe(altro, { childList: true, subtree: true });
+    // Only Altro's own children, since 6.29 (H15): their sizes are followed by the ResizeObserver
+    // above, and with `subtree` every letter typed in Altro forced a layout here.
+  }).observe(altro, { childList: true });
   wide.addEventListener("change", fit);
   fit();
   // Altro ends inside the window (the user's note, 2026-10-10, with a screenshot): it is sticky,
@@ -1069,7 +1084,7 @@ function controls(disabled) {
 (() => {
   const columns = document.querySelector(".feedback-columns");
   const altro = document.querySelector("#extra-section");
-  const wide = window.matchMedia("(min-width: 1100px)");
+  const wide = DESKTOP_UI;
   if (!columns || !altro) return;
   // Altro's height follows its position until it is held at the top (--altro-max, above), so the
   // height that counts here is the one it has there: its content, up to the window minus its gaps.

@@ -809,6 +809,11 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   due grafie tornano nella stessa pagina.
 - ⚠️ **Le chiavi delle stringhe non si toccano** (`settings_colour`, `facts_colour_grey`), e le
   altre lingue non c'entrano.
+- ⚠️⚠️ **L'indonesiano si traduce in `values-id`, e la build lo copia anche in `values-in`** (6.29,
+  scelta Q1 dell'utente): Android cerca l'indonesiano col codice vecchio `in`, e fino alla 6.28 un
+  telefono in indonesiano vedeva l'app in inglese. La copia la fa il compito `indonesianIn` di
+  `app/build.gradle.kts`, e `IndonesianoTest` legge una stringa con tutti e due i codici. La
+  cartella `values-in` non si crea a mano: sarebbe una seconda copia da tenere allineata.
 
 ## 🧪 Quando si scrive una prova, e quando no
 
@@ -1103,6 +1108,12 @@ documento, riscontro'.
   posto in cui scriverlo.
 - ⚠️ **Il `versionCode` va fatto salire a ogni versione pubblicata, e nessuno lo controlla**:
   Android rifiuta un aggiornamento che non lo fa salire, e non è legato al `versionName`.
+  - **Dalla `6.29` il workflow ferma il caso più probabile**: un rilancio senza versione nuova, con
+    il tag che esiste già su un altro commit, si ferma e chiede di alzare `versionName` e
+    `versionCode`. Prima sostituiva gli APK pubblicati con quelli del commit nuovo, sotto lo stesso
+    numero. Il rilancio sullo stesso commit resta possibile (rilievo G6 della revisione Setaccio).
+  - **E dalla `6.29` i permessi sono per job**: scrive solo `publish`, e nessun checkout lascia il
+    token su disco, perché nessun workflow di questo repo spinge con git (rilievo G5).
 - **Come si pubblica**: `release.yml` in `workflow_dispatch` con l'ingresso `publish` acceso taglia
   il tag dal `versionName`, costruisce gli APK firmati (e dalla `5.70` l'AAB di AIV Play) e crea la
   release. Senza `publish` costruisce e

@@ -54,11 +54,11 @@ def main():
         )
     (FOLDER / 'OFL.txt').write_bytes(fetch(LICENSE_URL))
     block = f'{BEGIN}: Noto Color Emoji {version} from Google Fonts, written by tools/feedback-emoji.py */\n' + '\n'.join(blocks) + '\n' + END
-    text = STYLESHEET.read_text()
+    text = STYLESHEET.read_text(encoding='utf-8')
     if text.count(BEGIN) != 1 or text.count(END) != 1:
         sys.exit('publish/feedback.css needs one noto-emoji block, between its two markers.')
     start, end = text.index(BEGIN), text.index(END) + len(END)
-    STYLESHEET.write_text(text[:start] + block + text[end:])
+    STYLESHEET.write_text(text[:start] + block + text[end:], encoding='utf-8')
     print(f'Noto Color Emoji {version}: {len(faces)} parti in {FOLDER}.')
 
 

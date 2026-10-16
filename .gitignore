@@ -16,5 +16,7 @@ captures/
 __pycache__/
 # Tooling and local secrets of the private feedback service.
 cloud/feedback/node_modules/
+# Miniflare, lanciato dalla radice, scrive qui la sua cache coi dati di rete dell'ambiente (6.29).
+/node_modules/
 cloud/feedback/.wrangler/
 cloud/feedback/.dev.vars*

@@ -108,6 +108,11 @@ precedenti, ma non costituiscono una copia indipendente dal progetto.
   database. Lo spazio di revisione si aggiunge alla bozza corrente; non viene cancellato
   automaticamente. Il recupero delle revisioni si effettua dal database, non dall'editor.
   Le revisioni nello stesso progetto non sostituiscono un backup indipendente.
+- Dalla 6.29 ogni deploy misura database e allegati (`supabase-usage.mjs`) e lo scrive nel
+  riepilogo della run, con un avviso oltre metà del limite gratuito (250 MB di database, 512 MB
+  di allegati): è la soglia della potatura scelta dal proprietario. La misura del database
+  richiede la funzione `aiv_feedback_usage`, che arriva rilanciando `supabase-setup.sql`; senza,
+  la run dice di rilanciarlo e misura i soli allegati.
 - Nessuna misurazione di latenza o prova di accesso su un servizio pubblico è dichiarata
   finché il proprietario non ha configurato i campi necessari e il deploy è verificato.
 

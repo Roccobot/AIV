@@ -1,4 +1,5 @@
 // Server-only adapter. The browser never receives Supabase credentials or endpoints.
+const LIST_PAGE = 1000;
 export class SupabaseStore {
   constructor(env) {
     this.url = new URL(env.SUPABASE_URL);
@@ -44,13 +45,68 @@ export class SupabaseStore {
     if (!/^[a-f0-9-]{36}$/.test(row.revision)) throw Error('Versione cloud non valida.');
     return {httpEtag:'"'+row.revision+'"',etag:row.revision,body:JSON.stringify(row.draft)};
   }
+  /*
+   * Only the revision of the draft, since 6.29 (H2 of the 6.25 review): the page asks every 15
+   * seconds whether the draft changed, and until 6.28 every ask brought the whole draft from the
+   * database to the Worker, which threw it away.
+   */
+  async revision() {
+    const response = await this.request('/rest/v1/aiv_feedback_drafts?owner_id=eq.'+this.owner+'&select=revision&limit=1');
+    const rows = await response.json();
+    if (!Array.isArray(rows) || rows.length > 1) throw Error('Documento cloud non valido.');
+    const revision = rows[0]?.revision;
+    if (!revision) return null;
+    if (!/^[a-f0-9-]{36}$/.test(revision)) throw Error('Versione cloud non valida.');
+    return {httpEtag:'"'+revision+'"',etag:revision};
+  }
   async head(key) {
-    if (key === this.prefix+'current.json') return this.current();
+    if (key === this.prefix+'current.json') return this.revision();
     const response = await this.request('/storage/v1/object/info/aiv-feedback/'+this.path(key),{},['missing']);
     if (!response) return null;
     const info = await response.json();
     if (!Number.isInteger(info.size) || info.size < 1) throw Error('Allegato cloud incompleto.');
     return {size:info.size};
+  }
+  /*
+   * The sizes of the attachments [keys] that are stored, since 6.29 (H1 of the 6.25 review): one
+   * listing of the owner's files folder, a page of a thousand at a time, in place of one request per
+   * attachment. Workers Free allows 50 outgoing requests per request, so a draft with 50
+   * attachments could no longer be saved. The listing (`POST /storage/v1/object/list`, body read in
+   * the storage sources) answers names relative to the prefix and the size in `metadata.size`;
+   * whatever it does not confirm is asked one by one, as before, so a listing that answered in
+   * another shape would cost the old requests and never a refused draft.
+   */
+  /** The owner's attachments as {key, size}, a page of LIST_PAGE at a time. */
+  async *attachments() {
+    const folder = this.prefix+'files';
+    for (let offset = 0; ; offset += LIST_PAGE) {
+      const response = await this.request('/storage/v1/object/list/aiv-feedback',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({prefix:folder,limit:LIST_PAGE,offset,sortBy:{column:'name',order:'asc'}})
+      });
+      const page = await response.json();
+      if (!Array.isArray(page)) return;
+      for (const item of page) {
+        const size = item?.metadata?.size;
+        if (typeof item?.name === 'string' && Number.isInteger(size) && size > 0) yield {key:folder+'/'+item.name,size};
+      }
+      if (page.length < LIST_PAGE) return;
+    }
+  }
+  async sizes(keys) {
+    const wanted = new Set(keys), found = new Map();
+    try {
+      for await (const {key,size} of this.attachments()) {
+        if (wanted.has(key)) found.set(key,size);
+        if (found.size === wanted.size) break;
+      }
+    } catch { /* The single checks below answer for whatever the listing did not confirm. */ }
+    for (const key of wanted) {
+      if (found.has(key)) continue;
+      const stored = await this.head(key);
+      if (stored) found.set(key,stored.size);
+    }
+    return found;
   }
   async get(key) {
     if (key === this.prefix+'current.json') return this.current();

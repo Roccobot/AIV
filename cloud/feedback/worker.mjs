@@ -53,13 +53,18 @@ function draftFiles(draft) {
 }
 function validDraft(draft) {
   if (!draft || draft.schema !== 1 || draft.project !== 'AIV' || typeof draft.version !== 'string' || !draft.entries || !draft.decisions || !draft.extra) return false;
-  if (Array.isArray(draft.entries) || Array.isArray(draft.decisions)) return false;
+  // Plain objects with keys of a known shape and bounded fields, since 6.29 (H5): until 6.28
+  // `entries: 5` passed, because Object.values(5) is empty, and a choice had no length cap.
+  const record = value => value && typeof value === 'object' && !Array.isArray(value);
+  if (!record(draft.entries) || !record(draft.decisions) || !record(draft.extra)) return false;
+  if (!Object.keys(draft.entries).every(id => /^[0-9]+\.[0-9]+-[0-9]+$/.test(id))) return false;
+  if (!Object.keys(draft.decisions).every(id => /^d-[a-z0-9-]+$/.test(id))) return false;
   for (const field of ['version','installed','device','notes']) if (typeof draft[field] !== 'string' || draft[field].length > 100000) return false;
   if (draft.tablet !== undefined && (typeof draft.tablet !== 'string' || draft.tablet.length > 100000)) return false;
   for (const entry of Object.values(draft.entries)) {
     if (!entry || !['','Tutto OK','Accettabile','Non approvato'].includes(entry.status) || typeof entry.comment !== 'string' || entry.comment.length > 100000 || !Array.isArray(entry.images) || entry.images.length > 30) return false;
   }
-  for (const entry of Object.values(draft.decisions)) if (!entry || typeof entry.choice !== 'string' || typeof entry.comment !== 'string' || entry.comment.length > 100000) return false;
+  for (const entry of Object.values(draft.decisions)) if (!entry || typeof entry.choice !== 'string' || entry.choice.length > 100 || typeof entry.comment !== 'string' || entry.comment.length > 100000) return false;
   if (draft.labels !== undefined) {
     if (!draft.labels || typeof draft.labels !== 'object' || Array.isArray(draft.labels) || Object.keys(draft.labels).length > 200) return false;
     for (const [id, entry] of Object.entries(draft.labels)) {
@@ -75,7 +80,15 @@ async function handle(request, env) {
   const ready = env.SESSION_SECRET && env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET && env.OWNER_ID
     && (env.FEEDBACK || env.SUPABASE_URL && env.SUPABASE_SECRET_KEY);
   if (path === '/feedback-cloud-config.js') return new Response('window.feedbackCloudConfig = '+JSON.stringify({endpoint:'/api/feedback',files:'/api/files/',login:'/auth/login',logout:'/auth/logout',account:'/auth/me'})+';', {headers:{'Content-Type':'application/javascript','Cache-Control':'no-store'}});
-  if (!path.startsWith('/auth/') && !path.startsWith('/api/')) return env.ASSETS.fetch(request);
+  if (!path.startsWith('/auth/') && !path.startsWith('/api/')) {
+    const asset = await env.ASSETS.fetch(request);
+    // Since 6.29 (H23 of the 6.25 review): a `?v=` is the start of the file's own hash, so that
+    // address never changes content. Until 6.28 every opening asked for some twenty files again.
+    if (!url.searchParams.has('v') || !asset.ok) return asset;
+    const immutable = new Response(asset.body,asset);
+    immutable.headers.set('Cache-Control','public, max-age=31536000, immutable');
+    return immutable;
+  }
   if (!ready) return json({error:'Servizio cloud non configurato.'},503);
   const store = env.FEEDBACK || new SupabaseStore(env);
   if (path === '/auth/login' && request.method === 'GET') {
@@ -110,7 +123,8 @@ async function handle(request, env) {
   if (path === '/auth/logout' && request.method === 'POST') return new Response(null,{status:204,headers:{'Set-Cookie':cookie(SESSION,'',0),'Cache-Control':'no-store'}});
   if (path === '/api/feedback') {
     if (['GET','HEAD'].includes(request.method)) {
-      const object = await store.get(root(env)+'current.json');
+      // A HEAD asks only for the revision, since 6.29: see SupabaseStore.revision.
+      const object = request.method === 'HEAD' ? await store.head(root(env)+'current.json') : await store.get(root(env)+'current.json');
       if (!object) return json({draft:null},200,{ETag:'"empty"'});
       const headers = {'Content-Type':'application/json','Cache-Control':'no-store',ETag:object.httpEtag};
       return new Response(request.method === 'HEAD' ? null : object.body,{headers});
@@ -123,11 +137,11 @@ async function handle(request, env) {
       let draft;
       try { draft = JSON.parse(text); } catch { return json({error:'JSON non valido.'},400); }
       if (!validDraft(draft)) return json({error:'Documento non valido.'},400);
-      // A draft references only fully uploaded immutable files belonging to this owner.
-      for (const file of draftFiles(draft)) {
-        const stored = await store.head(root(env)+'files/'+file.storageKey);
-        if (!stored || stored.size !== file.size) return json({error:'Allegato non ancora salvato.'},400);
-      }
+      // A draft references only fully uploaded immutable files belonging to this owner. Since 6.29
+      // the keys are checked once each and together (`sizes`): see SupabaseStore.sizes.
+      const files = draftFiles(draft), keys = [...new Set(files.map(file => root(env)+'files/'+file.storageKey))];
+      const sizes = await store.sizes(keys);
+      if (files.some(file => sizes.get(root(env)+'files/'+file.storageKey) !== file.size)) return json({error:'Allegato non ancora salvato.'},400);
       const match = request.headers.get('If-Match');
       if (!match) return json({error:'Versione del documento obbligatoria.'},428);
       // Compression may weaken an HTTP ETag without changing the database revision.
@@ -162,7 +176,12 @@ export default {
   async fetch(request,env) {
     let response;
     try { response = await handle(request,env); }
-    catch { response = json({error:'Servizio cloud temporaneamente non disponibile. Le modifiche non sono state confermate.'},503); }
+    catch (error) {
+      // Since 6.29 (H4 of the 6.25 review) the log keeps name, message, status and code, and
+      // nothing of the draft: until 6.28 a 503 in production left no trace at all.
+      console.error(JSON.stringify({name:error?.name,message:error?.message,status:error?.status,code:error?.code}));
+      response = json({error:'Servizio cloud temporaneamente non disponibile. Le modifiche non sono state confermate.'},503);
+    }
     const protectedResponse = new Response(response.body,response);
     // Every answered call of the page renews a session that is in use; logout clears it instead.
     const path = new URL(request.url).pathname;

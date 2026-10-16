@@ -3,6 +3,14 @@
   const config = window.feedbackCloudConfig;
   if (!config) return;
   const uploads = new Map();
+  /*
+   * The attachments already verified, by storage key, since 6.29 (H3 of the 6.25 review). The key
+   * is the hash of the content, so an attachment never changes: a reload of the draft takes the
+   * ones it has from here, and asks the Worker only for the new ones. Until 6.28 every reload,
+   * that is every save on the other device, downloaded them all again, up to 20 MB, and with
+   * `no-store` even the browser's cache was skipped.
+   */
+  const verified = new Map();
   const files = draft => [...Object.values(draft.entries),draft.extra || {images:[]}].flatMap(entry => entry.images);
   // Strings are immutable: copy the mutable containers without duplicating attachment payloads.
   const snapshot = draft => ({...draft,
@@ -35,17 +43,26 @@
     const loadedEtag = revisionTag(response);
     const draft = await response.json();
     if (draft.draft === null) { etag = loadedEtag; return null; }
+    const kept = new Map();
     await parallel(files(draft),async file => {
       if (!/^[a-f0-9]{64}$/.test(file.storageKey)) throw Error('Riferimento allegato non valido.');
-      const response = await request(config.files+file.storageKey);
-      const bytes = await response.arrayBuffer();
-      const digest = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),byte => byte.toString(16).padStart(2,'0')).join('');
-      if (digest !== file.storageKey || bytes.byteLength !== file.size) throw Error('Allegato cloud incompleto.');
-      // The original bytes as a file; the page never turns them into text.
-      file.blob = new Blob([bytes],{type:file.type});
-      uploads.set(file.blob,Promise.resolve(file.storageKey));
+      let blob = verified.get(file.storageKey);
+      if (!blob || blob.size !== file.size) {
+        // The Worker answers attachments as private and immutable: the browser's cache may serve them.
+        const response = await request(config.files+file.storageKey,{cache:'default'});
+        const bytes = await response.arrayBuffer();
+        const digest = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),byte => byte.toString(16).padStart(2,'0')).join('');
+        if (digest !== file.storageKey || bytes.byteLength !== file.size) throw Error('Allegato cloud incompleto.');
+        // The original bytes as a file; the page never turns them into text.
+        blob = new Blob([bytes],{type:file.type});
+      }
+      kept.set(file.storageKey,blob);
+      file.blob = blob;
+      uploads.set(blob,Promise.resolve(file.storageKey));
       delete file.storageKey;
     });
+    verified.clear();
+    for (const [key,blob] of kept) verified.set(key,blob);
     const clean = validate(draft);
     etag = loadedEtag;
     return clean;
@@ -57,6 +74,7 @@
         const bytes = await file.blob.arrayBuffer();
         const digest = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),byte => byte.toString(16).padStart(2,'0')).join('');
         await request(config.files+digest,{method:'PUT',headers:{'Content-Type':'application/octet-stream'},body:bytes});
+        verified.set(digest,file.blob);
         return digest;
       })();
       uploads.set(file.blob,pending);
@@ -119,11 +137,13 @@
     logo.hidden = !connected;
     username.hidden = !connected;
     username.textContent = accountUsername;
+    // ⚠️ Emptied as well as hidden: the hidden text is still in the chip's text, and a reader of
+    // the chip (or the cloud check) would find 'Accedi' while signed in.
     login.textContent = connected ? '' : 'Accedi con GitHub';
     login.hidden = connected;
     logout.hidden = !connected;
   };
-  request(config.account || '/auth/me').then(response => response.json()).then(account => {
+  request(config.account).then(response => response.json()).then(account => {
     syncAccount(account.authenticated === true,account.username);
   }).catch(() => { /* The document load reports cloud errors separately. */ });
   login.addEventListener('click',event => {
@@ -131,6 +151,8 @@
   });
   window.feedbackRemote = {
     load,save,hasUpdates,snapshot,
+    // The cloud revision the page holds: a save starts from it (the safety copy keeps it).
+    revision: () => etag,
     account: syncAccount,
     failed: error => {
       if (error.status === 401) {

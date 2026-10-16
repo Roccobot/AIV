@@ -23,8 +23,18 @@ def option(name, default):
     return default
 
 
-md = option('--source', ROOT / 'docs/Feedback.md').read_text()
-version = re.search(r'versionName\s*=\s*"([^"]+)"', (ROOT / 'app/build.gradle.kts').read_text()).group(1)
+md = option('--source', ROOT / 'docs/Feedback.md').read_text(encoding='utf-8')
+# The round of the page is the one the source declares on its first line, `Versione **x.yy**`, since
+# 6.29 (H34 of the 6.25 review); versionName only bounds it. Until 6.28 the round came from
+# versionName, so between the version bump and its release the page could not be rebuilt (a touch to
+# its CSS or JS changes the `?v=`) without moving it to a round whose APK did not exist yet.
+app_version = re.search(r'versionName\s*=\s*"([^"]+)"', (ROOT / 'app/build.gradle.kts').read_text(encoding='utf-8')).group(1)
+declared = re.search(r'^Versione \*\*(\d+\.\d+)\*\*', md, re.M)
+if not declared:
+    raise SystemExit('docs/Feedback.md deve dire il suo giro nella prima riga: Versione **x.yy**')
+version = declared[1]
+if tuple(int(x) for x in version.split('.')) > tuple(int(x) for x in app_version.split('.')):
+    raise SystemExit(f'Il giro {version} di docs/Feedback.md supera versionName {app_version}.')
 identifiers = re.findall(r'^\| (\d+\.\d+-\d+) \|', md, re.M)
 items = []
 def inline_md(text):
@@ -191,7 +201,7 @@ def italian_strings():
 
 
 if '--approve-labels' in sys.argv:
-    current, approved = italian_strings(), json.loads(APPROVED.read_text())
+    current, approved = italian_strings(), json.loads(APPROVED.read_text(encoding='utf-8'))
     for key in sorted(label_keys):
         if key not in current:
             raise SystemExit(f'Etichetta {key}: la chiave non esiste in values-it/strings.xml')
@@ -200,14 +210,18 @@ if '--approve-labels' in sys.argv:
     APPROVED.write_text(json.dumps(dict(sorted(approved.items())), ensure_ascii=False, indent=1) + '\n')
     sys.exit(0)
 if '--source' not in sys.argv:
-    approved = json.loads(APPROVED.read_text())
+    approved = json.loads(APPROVED.read_text(encoding='utf-8'))
     unsubmitted = [key for key, text in italian_strings().items()
                    if approved.get(key) != text and key not in label_keys]
     if unsubmitted:
         raise SystemExit('Testi italiani nuovi o cambiati senza etichetta nel DF (' + str(len(unsubmitted)) +
                          '): ' + ', '.join(sorted(unsubmitted)) +
                          '. Mettili in "Etichette testuali" (docs/Feedback-maintenance.md).')
-data = dict(project=PROJECT, version=version, items=items, questions=questions, labels=labels,
+# The steps of a test live in its card and not in the embedded data, since 6.29 (H10 of the 6.25
+# review): no script of the page reads them, and they were a fifth of the page.
+data = dict(project=PROJECT, version=version,
+            items=[{key: item[key] for key in ('id', 'version', 'title')} for item in items],
+            questions=questions, labels=labels,
             outcomes=[dict(label=label, kind=kind) for label, kind in OUTCOMES])
 # A cumulative document (the user's rule of 2026-10-12: with the exception the new version is
 # released and the document goes on at once) names the round it continues on a line of its own,
@@ -232,26 +246,39 @@ next_steps_html = '<section class=\"card next-steps\"><h2>Prossimi passi</h2><ul
 next_steps_html += ''.join('<li>' + inline_md(step) + '</li>' for step in next_steps)
 next_steps_html += '</ul></section>'
 # The "Aggiornamenti recenti" card is built from the table in docs/Feedback.md, so the closed
-# results live in one place. One sentence per round, newest first, e.g.
-# "Giro 3.42: rail tablet 3.42-01 OK."; an empty table leaves the card out.
+# results live in one place. One paragraph per round, newest first, and each row in three labelled
+# parts since 6.29 (H28 of the 6.25 review, the owner's choice K1): 'Richiesta' from `Stato`,
+# 'Riscontro' from the owner's column, 'Esito' from `Azione successiva`. Until 6.28 the sentence
+# glued feature, identifier and `Stato` with spaces, as in "velo del Feed 6.20-01 Giro della 6.10",
+# and the outcome stayed out. An empty table leaves the card out.
 concluded = []
 concluded_match = re.search(r'^## Aggiornamenti recenti\n(.*?)(?=^## |\Z)', md, re.M | re.S)
 if concluded_match:
     for line in concluded_match[1].splitlines():
         cells = [c.strip() for c in line.strip().strip('|').split('|')]
-        if len(cells) < 3 or not re.fullmatch(r'\d+\.\d+-\d+', cells[1]):
+        if len(cells) < 5 or not re.fullmatch(r'\d+\.\d+-\d+', cells[1]):
             continue
-        concluded.append((cells[1], cells[0], cells[2]))
+        concluded.append(cells[:5])
+def part(label, text):
+    """One labelled part; a cell that begins with the label's own word reads on from it,
+    'Richiesta del 2026-10-15' and not 'Richiesta: richiesta del 2026-10-15'."""
+    text = text.rstrip('.')
+    if not text:
+        return ''
+    if text.lower().startswith(label.lower() + ' '):
+        return f'{label}{text[len(label):]}.'
+    return f'{label}: {text[:1].lower() + text[1:] if text[:1].isupper() and not text[1:2].isupper() else text}.'
 rounds = {}
-for identifier, feature, status in concluded:
-    rounds.setdefault(identifier.rsplit('-', 1)[0], []).append(
-        (feature[:1].lower() + feature[1:]) + ' ' + identifier + ' ' + status)
+for feature, identifier, request, feedback, outcome in concluded:
+    parts = [f'**{feature.rstrip(".")}** (`{identifier}`).', part('Richiesta', request),
+             part('Riscontro', feedback), part('Esito', outcome)]
+    rounds.setdefault(identifier.rsplit('-', 1)[0], []).append(' '.join(p for p in parts if p))
 concluded_html = ''
 if rounds:
     ordered = sorted(rounds, key=lambda v: tuple(int(x) for x in v.split('.')), reverse=True)
-    sentence = ' '.join('Giro ' + v + ': ' + ', '.join(rounds[v]) + '.' for v in ordered)
-    concluded_html = ('<section class="card archive"><h2>Aggiornamenti recenti</h2><p>'
-                      + inline_md(sentence) + '</p></section>')
+    concluded_html = ('<section class="card archive"><h2>Aggiornamenti recenti</h2>'
+                      + ''.join('<p>' + inline_md('Giro ' + v + ': ' + ' '.join(rounds[v])) + '</p>' for v in ordered)
+                      + '</section>')
 esc = html.escape
 cards = []
 for index, item in enumerate(items, 1):
@@ -283,7 +310,7 @@ if questions:
     parts.append('</section>')
     questions_html = ''.join(parts)
 
-tpl = (Path(__file__).resolve().parent / 'feedback-page.html.in').read_text()
+tpl = (Path(__file__).resolve().parent / 'feedback-page.html.in').read_text(encoding='utf-8')
 page = (tpl
     .replace('__TOTAL__', str(len(items)))
     .replace('__VERSION__', version)
@@ -306,9 +333,9 @@ if '__HASH__' in page:
     raise SystemExit('Un segnaposto __HASH__ del modello non è stato sostituito.')
 output = option('--output', ROOT / 'publish/feedback.html')
 if '--check' in sys.argv:
-    if not output.exists() or output.read_text() != page:
+    if not output.exists() or output.read_text(encoding='utf-8') != page:
         sys.exit('Il documento HTML non corrisponde a docs/Feedback.md: esegui tools/feedback-build.py.')
     print(f'Documento HTML allineato alle {len(items)} prove, {len(questions)} domande, {len(labels)} etichette e alla versione {version}')
 else:
-    output.write_text(page)
+    output.write_text(page, encoding='utf-8')
     print('Creato ' + str(output))

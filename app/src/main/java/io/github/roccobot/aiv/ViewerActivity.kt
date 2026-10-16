@@ -54,6 +54,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -69,6 +70,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -893,16 +896,28 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 Shortcuts.FEED -> viewOnce = FolderView.FEED
                 Shortcuts.SEARCH -> openSearch()
                 Shortcuts.ADDRESS -> addressAsked = true
+                /*
+                 * ⚠️⚠️ **THE TWO ACTIONS CHECK WHAT THEY ARE ASKED, SINCE 6.29** (findings C29 and
+                 * E22 of the 6.25 review): the activity is exported, so any app installed could
+                 * send them, open a hidden folder (and put its name on the home screen as the
+                 * fourth action) or any path in 'Cartelle di sistema'. Our own shortcuts never ask
+                 * for either, so refusing them costs nothing.
+                 */
                 Shortcuts.FOLDER -> {
                     val name = intent.getStringExtra(Shortcuts.NAME)
                     val bucket = intent.getLongExtra(Shortcuts.BUCKET, 0L)
-                    if (name != null) openGrid(bucket, name)
+                    if (name != null) viewModelScope.launch {
+                        val selection = snapshotFlow { settings }.filterNotNull().first().folderSelection
+                        val known = Folder.buckets(getApplication()).firstOrNull { it.id == bucket }
+                        if (known != null && selection.visible(known.path)) openGrid(bucket, name)
+                    }
                 }
                 // ⚠️ 'Faro' (6.20): the folder opens where it was pinned from, 'Cartelle di
-                // sistema', for this time; AIV Play has no such view and pins nothing.
+                // sistema', for this time; AIV Play has no such view and pins nothing. Only a path
+                // inside one of the phone's storages, since 6.29 (see above).
                 Shortcuts.TREE -> {
                     val path = intent.getStringExtra(Shortcuts.PATH)
-                    if (path != null && FolderView.TREE in Store.views) {
+                    if (path != null && FolderView.TREE in Store.views && insideRoots(path)) {
                         viewOnce = FolderView.TREE
                         treeTo(path)
                     }
@@ -2469,6 +2484,20 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * apre mai quella vista non deve pagarlo all'avvio dell'app.
      */
     private val treeRoots: List<Tree.Root> by lazy { Tree.roots(getApplication()) }
+
+    /**
+     * Se [path] è una delle memorie del telefono o una cartella al suo interno, dalla `6.29`.
+     *
+     * ⚠️ **Si confrontano i percorsi canonici**, cioè senza `..` e senza collegamenti: un percorso
+     * come `/storage/emulated/0/../../data` comincia con la memoria ma porta altrove.
+     */
+    internal fun insideRoots(path: String): Boolean {
+        val asked = runCatching { File(path).canonicalPath }.getOrNull() ?: return false
+        return treeRoots.any { root ->
+            val base = runCatching { root.file.canonicalPath }.getOrNull() ?: return@any false
+            asked == base || asked.startsWith("$base/")
+        }
+    }
 
     /**
      * Una fotografia toccata nella vista delle cartelle di sistema.

@@ -48,7 +48,10 @@ Non occorre una sessione Claude autenticata per aggiornare questo documento.
 - Le versioni dei file nei link (`?v=`) le calcola `feedback-build.py` dal contenuto di
   ogni file: dopo una modifica a CSS o JS si rigenera la pagina, e `--check` lo ricorda.
 
-La versione delle prove si ricava da `versionName` in `app/build.gradle.kts`.
+Il giro della pagina è quello della prima riga di `docs/Feedback.md`, `Versione **x.yy**`, dalla
+6.29; `versionName` in `app/build.gradle.kts` fa da tetto, e un giro oltre di lei ferma il
+generatore. Fino alla 6.28 il giro veniva da `versionName`, quindi fra il cambio di versione e la
+release la pagina non si poteva rigenerare senza spostarla su un APK che non esisteva ancora.
 Una modifica al documento non produce una nuova versione Android.
 Le proposte tablet e impostazioni rimangono nei rispettivi file e pagine, collegati dal
 documento. Il vecchio artefatto Claude è un riferimento storico per le sue voci ancora
@@ -246,9 +249,15 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
     versione di Google Fonts: `tools/feedback-emoji.py` la scarica in `publish/assets/noto-emoji/`
     e riscrive il blocco fra i marcatori `noto-emoji` di `feedback.css`. Si rilancia per
     aggiornarla. Le parti vivono nel repo perché la pagina accetta font solo dal suo indirizzo;
-    il browser scarica solo quelle con i caratteri che la pagina mostra (1,4 MB all'apertura,
-    misurati il 2026-10-13). Sono COLRv1, e Safari, che non lo legge, salta il font e usa le emoji di
-    sistema.
+    il browser scarica solo quelle con i caratteri che la pagina mostra. Sono COLRv1, e Safari, che
+    non lo legge, salta il font e usa le emoji di sistema.
+    - ⚠️ **Il selettore `U+fe0f`, che chiede la forma a colori, è in otto parti su undici**: un solo
+      `⚠️` mostrato nella pagina le fa scaricare tutte. Fino alla 6.28 bastava il tasto dell'avviso
+      sopra Altro, e all'apertura partivano 1.318 KB (1,4 MB nella misura del 2026-10-13); dalla
+      6.29 il tasto mostra `⚠` senza selettore e scrive ancora `⚠️`, e all'apertura parte una
+      parte sola, 63 KB, e la schermata del tasto è uguale al byte (misure del 2026-10-16, H22 della
+      revisione Setaccio). Un simbolo nuovo nell'interfaccia si scrive senza `U+fe0f`, e la prova
+      interattiva controlla che le parti scaricate siano quelle che il testo chiede.
   Su viewport stretti (≤ 720px) i controlli stanno nell'angolo in basso a destra,
   dentro la cornice del testo, così la barra di selezione di sistema (Taglia/Copia/Incolla),
   che compare sopra il cursore, non li copre. Su desktop restano in riga sopra il campo.
@@ -386,6 +395,10 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
 - Allegati mediante selettore e trascinamento nelle verifiche e in Altro:
   PNG, JPG, WebP, GIF, SVG e ZIP. Originali interi, nomi conservati, ZIP scaricabili.
   Limiti attuali: 8 MB per file, 20 MB totali, 30 allegati per riquadro.
+- **Un'immagine incollata resta com'è, dalla 6.29**: PNG, JPEG, WebP e GIF entrano così come
+  sono negli appunti, gli altri formati diventano PNG; ognuna si chiama `appunti-N` col primo
+  numero libero del riquadro. Fino alla 6.28 diventavano tutte un PNG chiamato `clipboard.png`.
+  Lo presidia `tools/feedback-interactive-check.py`.
 - ⚠️ **Un allegato si rinomina e si cita** (richiesta dell'utente, 2026-10-05):
   - `Rinomina` cambia il solo `name`, dentro la scheda: il campo contiene il nome senza
     estensione, l'estensione resta accanto e non si modifica, `Invio` o l'uscita dal campo

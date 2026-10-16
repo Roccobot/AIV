@@ -12,17 +12,20 @@ let restoredCopy = false;
       remoteReady = true;
       remote.account(true);
       saved.textContent = existing ? "Risposte ripristinate dal cloud." : "Nessuna risposta nel cloud: puoi iniziare.";
-      // The browser's copy that never reached the cloud, if newer than the cloud's (R2).
+      // The browser's copy that never reached the cloud (R2): offered while the cloud is still at
+      // the revision the copy started from (6.29, see backupStore); a copy written before 6.29 has
+      // no revision, and keeps the comparison of the two times.
       const copy = await readBackup();
-      if (copy && !copy.arrived && copy.draft?.version === spec.version &&
-          Date.parse(copy.at) > Date.parse(existing?.updated ?? 0)) {
+      const current = copy?.from ? copy.from === remote.revision()
+        : Date.parse(copy?.at) > Date.parse(existing?.updated ?? 0);
+      if (copy && !copy.arrived && copy.draft?.version === spec.version && current) {
         const when = new Date(copy.at).toLocaleString("it-IT");
         if (window.confirm("In questo browser ci sono risposte del " + when + " che non sono arrivate al cloud. Le ripristino?")) {
           draft = validate(copy.draft);
           restoredCopy = true;
           saved.textContent = "Risposte ripristinate da questo browser: le salvo nel cloud.";
         } else {
-          await writeBackup({ ...copy, arrived: true });
+          await markBackupArrived(copy);
         }
       }
     } else {
