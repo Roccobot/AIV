@@ -352,17 +352,20 @@ fun PadArrange(
                         .semantics {
                             // ⚠️ Con un lettore di schermo non si trascina: queste due azioni
                             // sono l'unica via al riordino, come nell'elenco dei campi della
-                            // scheda Info.
-                            customActions = listOf(
-                                CustomAccessibilityAction(prima) {
+                            // scheda Info. Si offre solo quella che sposta davvero: la prima
+                            // cella non va più indietro, l'ultima non va più avanti, e
+                            // un'azione che non fa niente sarebbe annunciata come disponibile.
+                            val qui = order.indexOf(chiave)
+                            customActions = buildList {
+                                if (qui > 0) add(CustomAccessibilityAction(prima) {
                                     val i = order.indexOf(chiave)
                                     onOrder(order.moved(i, i - 1)); true
-                                },
-                                CustomAccessibilityAction(dopo) {
+                                })
+                                if (qui < order.lastIndex) add(CustomAccessibilityAction(dopo) {
                                     val i = order.indexOf(chiave)
                                     onOrder(order.moved(i, i + 1)); true
-                                }
-                            )
+                                })
+                            }
                         },
                     contentAlignment = Alignment.Center
                 ) {
@@ -1055,10 +1058,11 @@ private const val VIA_MS = 100
  * È la croce di Material, [Glyphs.Material.Close] (`Rules.md` § '🖌️ Come entra un disegno').
  * Lo zoom è una frazione e non una misura: il glifo dell'app può non essere quadrato (il
  * marchio), e una misura lo schiaccerebbe. Chi entra parte piccolo e chi esce finisce piccolo,
- * quindi a metà strada i due simboli hanno la stessa misura.
+ * quindi a metà strada i due simboli hanno la stessa misura. Lo zoom lo legge anche lo scambio
+ * dei simboli nella pillola a scomparsa, che deve muoversi come il FAB.
  */
 private val CHIUDI_LATO = 20.dp
-private const val GLIFO_ZOOM = 0.35f
+internal const val GLIFO_ZOOM = 0.35f
 
 /** Lo smusso dell'alone del tocco su una cella. */
 private val PAD_CORNER = 10.dp

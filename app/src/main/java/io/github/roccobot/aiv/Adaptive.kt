@@ -163,12 +163,33 @@ fun editorBeside(): Boolean {
     return Adaptive.editorBeside(larga, alta, LocalConfiguration.current.smallestScreenWidthDp)
 }
 
+/**
+ * La larghezza della finestra in dp: la sola lettura per le soglie di [Adaptive], e per ogni
+ * schermata che le confronta.
+ *
+ * ⚠️ **Un posto solo, perché la fonte possa cambiare in un punto**: viene da
+ * `Configuration.screenWidthDp`, che con `targetSdk` 35 comprende le barre di sistema da Android
+ * 15 e le esclude fino ad Android 14. Lint propone `LocalWindowInfo.containerSize`, la finestra
+ * vera, che l'editor e la griglia leggono già da sé; il passaggio cambia le decisioni vicino alle
+ * soglie sulle versioni vecchie, quindi è una scelta a parte.
+ */
+@Composable
+fun windowWidthDp(): Int = LocalConfiguration.current.screenWidthDp
+
+/** L'altezza della finestra in dp, dalla stessa fonte di [windowWidthDp]. */
+@Composable
+fun windowHeightDp(): Int = LocalConfiguration.current.screenHeightDp
+
 /** La forma dello schermo in questo momento: vedi [Adaptive.shape]. */
 @Composable
-fun screenShape(): Adaptive.Shape {
-    val conf = LocalConfiguration.current
-    return Adaptive.shape(conf.screenWidthDp, conf.screenHeightDp, conf.smallestScreenWidthDp)
-}
+fun screenShape(): Adaptive.Shape =
+    Adaptive.shape(windowWidthDp(), windowHeightDp(), LocalConfiguration.current.smallestScreenWidthDp)
+
+/** Se l'app è a tutto schermo in questo momento: vedi [Adaptive.immersive]. */
+@Composable
+fun immersiveNow(viewer: Boolean): Boolean = Adaptive.immersive(
+    windowWidthDp(), windowHeightDp(), LocalConfiguration.current.smallestScreenWidthDp, viewer = viewer
+)
 
 /**
  * Lo spazio di sistema che una schermata lascia libero, fermo mentre le barre compaiono.
@@ -194,10 +215,7 @@ fun steadyDrawing(
      */
     viewer: Boolean = false
 ): WindowInsets {
-    val conf = LocalConfiguration.current
-    val full = Adaptive.immersive(
-        conf.screenWidthDp, conf.screenHeightDp, conf.smallestScreenWidthDp, viewer = viewer
-    )
+    val full = immersiveNow(viewer)
     // Fuori dal tutto schermo il visualizzatore tiene `safeDrawing`: là le barre restano, e la
     // misura che le conta non si muove.
     if (viewer) return if (full) WindowInsets.displayCutout.union(WindowInsets.ime) else WindowInsets.safeDrawing

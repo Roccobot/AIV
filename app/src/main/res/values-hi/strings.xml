@@ -21,7 +21,6 @@
     <string name="menu_convert">निर्यात करें और बदलें</string>
     <string name="convert_format">प्रारूप</string>
     <string name="convert_webp_lossless">WebP दोषरहित</string>
-    <string name="convert_quality">गुणवत्ता</string>
     <string name="convert_quality_at">गुणवत्ता\u0020\u0020\u0020%1$d%%</string>
     <string name="convert_percent">%1$d%%</string>
     <string name="convert_pixels">%1$d x %2$d</string>
@@ -203,7 +202,6 @@
     <string name="show_folder_desc">फ़ोल्डर ग्रिड और सूची दृश्य में फ़ोल्डरों के बीच फिर सामान्य रूप से दिखेगा।</string>
     <string name="hide_folder_do">छिपाएँ</string>
     <string name="settings_hidden">छिपे फ़ोल्डर</string>
-    <string name="settings_hidden_desc">किसी फ़ोल्डर को देर तक दबाने से वह छिप जाता है। ये सूची में नहीं दिखते, पर फ़ोन में ज्यों के त्यों हैं।</string>
     <string name="settings_hidden_show">दिखाएँ</string>
     <string name="search_hint">फ़ाइल के नाम में खोजें</string>
     <string name="search_clear">साफ़ करें</string>
@@ -368,7 +366,6 @@
     <string name="settings_facts_down">नीचे ले जाएँ</string>
     <string name="settings_group_look">रूप</string>
     <string name="settings_group_viewer">प्रदर्शक</string>
-    <string name="settings_group_input">नियंत्रण और संकेतक</string>
     <string name="settings_group_files">फ़ाइल प्रबंधन</string>
     <string name="settings_group_browse">फ़ाइलें और फ़ोल्डर</string>
     <string name="settings_group_start">शुरुआत</string>
@@ -391,10 +388,6 @@
     <string name="settings_thumbs_gen_title">थंबनेल बन रहे हैं</string>
     <string name="settings_thumbs_gen_done">थंबनेल सफलतापूर्वक बन गए।</string>
     <string name="settings_hidden_none">कोई छिपा फ़ोल्डर नहीं</string>
-    <plurals name="settings_hidden_count">
-        <item quantity="one">%1$d फ़ोल्डर</item>
-        <item quantity="other">%1$d फ़ोल्डर</item>
-    </plurals>
     <plurals name="settings_facts_count">
         <item quantity="one">%1$d जानकारी दिख रही है</item>
         <item quantity="other">%1$d जानकारियाँ दिख रही हैं</item>

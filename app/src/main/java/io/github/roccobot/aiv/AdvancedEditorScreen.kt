@@ -142,6 +142,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -1472,6 +1473,28 @@ private fun LookStage(
      * `Canvas`), ma una richiesta vive in una coroutine, dove quel numero non si legge.
      */
     var stage by remember(picture) { mutableStateOf(Size.Zero) }
+
+    /*
+     * Il lato lungo dell'immagine sul palco, per il tasto 'Spessore' del modulo Disegno: lo stesso
+     * conto del disegno ([viewport]), fatto fuori dal disegno.
+     * ⚠️ **Scritto dentro il disegno, uno stato fa ridisegnare un altro disegno**: durante una
+     * pinza ogni fotogramma del palco ne invalidava uno del tasto, che seguiva con un fotogramma
+     * di ritardo. Il flusso legge gli stessi stati e scrive solo quando il numero cambia.
+     */
+    val viewLongTo by rememberUpdatedState(onViewLong)
+    val drawPenNow by rememberUpdatedState(drawPen)
+    val airNow by rememberUpdatedState(airPx)
+    LaunchedEffect(picture) {
+        snapshotFlow {
+            if (drawPenNow() == null || stage.width <= 0f || stage.height <= 0f) {
+                null
+            } else {
+                val vista = viewport(stage, shownNow, scale, shift, airNow, framedNow)
+                max(vista.width(), vista.height())
+            }
+        }.collect { lungo -> if (lungo != null) viewLongTo(lungo) }
+    }
+
     /**
      * Sale di uno ogni volta che la vista si ferma, ed è il via alla richiesta del pezzo.
      *
@@ -1588,8 +1611,10 @@ private fun LookStage(
          * shader chiede a un altro.
          * ⚠️ **Nella lente si vogliono i pixel interi**: là si guarda fra quali pixel passa il
          * bordo del taglio, e il filtro lineare li mescolerebbe.
+         * ⚠️ `setFilterMode` e le sue costanti sono dell'API 33: l'editor completo si apre solo da
+         * lì ([advancedEditorAvailable]), e il controllo lo dice a chi usasse il palco altrove.
          */
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             image.setFilterMode(
                 if (nitido) BitmapShader.FILTER_MODE_NEAREST else BitmapShader.FILTER_MODE_LINEAR
             )
@@ -2634,7 +2659,6 @@ if (brushTouching && touching != null && radius * 2f < brushCmPx * 0.58f) {
          */
         val penura = drawPen()
         if (penura != null) {
-            onViewLong(max(view.width(), view.height()))
             if (inkSizing() && visto.width() > 0f && visto.height() > 0f) {
                 val tratto = (penura.width * max(view.width(), view.height())).coerceAtLeast(1f)
                 val largo = max(SAMPLE_LONG.toPx(), tratto * 4f)
@@ -4741,7 +4765,8 @@ private fun Comandi(
                 gaze.aiming = false
                 gaze.liquifying = !gaze.liquifying
             },
-            enabled = ready && !busy && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+            // Nessun controllo di versione: l'editor completo esiste solo da Android 13.
+            enabled = ready && !busy
         ) {
             Icon(
                 Glyphs.Liquify,
@@ -4815,6 +4840,8 @@ private fun DrawMenu(
     onPick: (Int?) -> Unit
 ) {
     val context = LocalContext.current
+    // Le frasi degli avvisi da `LocalResources`, come nella griglia: il perché è là.
+    val res = LocalResources.current
     val (i, prima) = held
     val segno = prima.marks.getOrNull(i) ?: return
     /** Sposta la scelta su [j] tenendo la modalità, perché l'elemento è lo stesso. */
@@ -4842,7 +4869,7 @@ private fun DrawMenu(
             onHold = {
                 state.close()
                 gaze.styleClip = null
-                Notices.say(context.getString(R.string.draw_style_cleared))
+                Notices.say(res.getString(R.string.draw_style_cleared))
             },
             holdLabel = R.string.draw_paste_clear
         ) {
@@ -5302,8 +5329,8 @@ private class Placed {
 /** I quattro tasti sopra la tavolozza, disegnati invece che scritti (`ArtKey`). */
 internal enum class KeyKind { STROKE, FILL, DASH, WIDTH }
 
-/** Quanto colore tengono le strisce che non si staccherebbero: il 38% di un tasto spento. */
-private const val OFF_SWATCHES = 0.38f
+/** Quanto colore tengono le strisce che non si staccherebbero: quanto un tasto spento. */
+private const val OFF_SWATCHES = OFF_INK
 
 /** Quanto il modulo aspetta fermo prima che una modifica all'elemento scelto entri nella storia. */
 private const val RESTYLE_SETTLE_MS = 400L
@@ -5371,7 +5398,7 @@ private fun ArtKey(
     Box(
         modifier
             .height(FilterChipDefaults.Height)
-            .alpha(if (enabled) 1f else 0.38f)
+            .alpha(if (enabled) 1f else OFF_INK)
             .clip(forma)
             .background(if (selected) schema.secondaryContainer else Color.Transparent)
             .then(if (selected) Modifier else Modifier.border(1.dp, schema.outlineVariant, forma))
@@ -6537,7 +6564,7 @@ private fun LookKnob(
             },
             style = MaterialTheme.typography.labelMedium,
             textAlign = TextAlign.End,
-            color = if (abs(value) < 0.0005f) MaterialTheme.colorScheme.onSurfaceVariant
+            color = if (abs(value) < DIAL_REST) MaterialTheme.colorScheme.onSurfaceVariant
             else MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .width(KNOB_VALUE)
@@ -6580,7 +6607,7 @@ private fun LookDial(
     val rail = MaterialTheme.colorScheme.surfaceVariant
     val mark = MaterialTheme.colorScheme.outline
     val face = MaterialTheme.colorScheme.surfaceContainerHigh
-    val faded = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+    val faded = MaterialTheme.colorScheme.onSurface.copy(alpha = OFF_INK)
     /*
      * ⚠️ **Il valore si legge vivo**: il corpo di un `pointerInput` si ricostruisce solo quando
      * cambiano le sue chiavi. Serve a sapere dov'è il tondo quando il dito scende: con un valore
@@ -7148,7 +7175,7 @@ private fun TextKey(
     Box(
         modifier
             .height(FilterChipDefaults.Height)
-            .alpha(if (enabled) 1f else 0.38f)
+            .alpha(if (enabled) 1f else OFF_INK)
             .clip(forma)
             .background(if (selected) schema.secondaryContainer else Color.Transparent)
             .then(if (selected) Modifier else Modifier.border(1.dp, schema.outlineVariant, forma))

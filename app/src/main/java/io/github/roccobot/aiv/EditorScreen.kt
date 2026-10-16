@@ -2,7 +2,6 @@ package io.github.roccobot.aiv
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.graphics.drawable.Drawable
 import android.content.pm.ActivityInfo
 import android.net.Uri
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -50,7 +48,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.produceState
@@ -75,7 +72,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -914,7 +910,7 @@ private fun EditorSheet(
  *
  * ⚠️ **Disattivato si vede disattivato** (voce `originale-completo` dell'utente): `Surface` con
  * `enabled = false` non risponde al tocco ma non cambia colore. I valori sono quelli dello stato
- * disattivato del `FilterChip` (`FilterChipTokens` di material3): testo e icona a [CHIP_OFF_INK],
+ * disattivato del `FilterChip` (`FilterChipTokens` di material3): testo e icona a [OFF_INK],
  * fondo del gettone scelto e filetto degli altri a [CHIP_OFF_FILL]. Vale anche durante un
  * salvataggio e prima che l'anteprima arrivi.
  */
@@ -956,7 +952,7 @@ internal fun SheetChip(
             else -> scheme.onSurface.copy(alpha = CHIP_OFF_FILL)
         },
         contentColor = when {
-            !enabled -> scheme.onSurface.copy(alpha = CHIP_OFF_INK)
+            !enabled -> scheme.onSurface.copy(alpha = OFF_INK)
             selected -> scheme.onSecondaryContainer
             else -> scheme.onSurfaceVariant
         },
@@ -1170,11 +1166,10 @@ private val CHIP_EDGE = 1.dp
 private val CHIP_PAD = 6.dp
 
 /**
- * Le due opacità di un gettone disattivato ([SheetChip]): quelle di Material
- * (`FilterChipTokens.DisabledLabelTextOpacity` e `FlatDisabledSelectedContainerOpacity`), come
- * per tutti gli altri comandi disattivati dell'app.
+ * Il fondo del gettone scelto e il filetto degli altri, quando [SheetChip] è disattivato:
+ * l'opacità di Material (`FilterChipTokens.FlatDisabledSelectedContainerOpacity`). Il testo e
+ * l'icona prendono [OFF_INK], come tutti gli altri comandi disattivati dell'app.
  */
-private const val CHIP_OFF_INK = 0.38f
 private const val CHIP_OFF_FILL = 0.12f
 
 /**
@@ -1349,7 +1344,6 @@ private fun CropStage(
     keep: Float?,
     onCrop: (ImageEdit.Crop) -> Unit
 ) {
-    val dim = Color.Black.copy(alpha = VEIL)
     val line = Color.White
     var held by remember { mutableStateOf(Grab.NONE) }
     // Il valore più recente senza rifare il gesto: `rememberUpdatedState` serve a questo, dentro
@@ -1919,7 +1913,7 @@ fun EditorPicker(
         text = {
             // [Modifier.lowered] limita la larghezza; il tetto sull'altezza fa scorrere l'elenco
             // senza spingere i tasti fuori schermo (mockup `help`).
-            val pickMaxH = (LocalConfiguration.current.screenHeightDp * 0.75f).dp
+            val pickMaxH = (windowHeightDp() * 0.75f).dp
             Column(
                 modifier = Modifier
                     .heightIn(max = pickMaxH)

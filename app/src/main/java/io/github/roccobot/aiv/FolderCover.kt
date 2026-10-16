@@ -317,14 +317,6 @@ fun CoverInvite(name: String, onCancel: () -> Unit, modifier: Modifier = Modifie
  */
 fun Folder.Bucket.coverIn(covers: Map<Long, Uri>): Uri? = covers[id] ?: cover
 
-/**
- * Che cosa si chiede al selettore di sistema quando si sceglie una copertina.
- *
- * Il tipo generico e non un elenco di suffissi: quali immagini sa aprire lo dice il fornitore, e
- * un file illeggibile lo segnala comunque la decodifica.
- */
-internal const val COVER_MIME = "image/*"
-
 /** La cartella delle copertine scelte, dentro `filesDir`. */
 private const val COVER_DIR = "covers"
 

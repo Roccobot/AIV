@@ -11,7 +11,6 @@ import org.w3c.dom.Element
 import org.w3c.dom.Node
 import org.xml.sax.InputSource
 import java.io.ByteArrayInputStream
-import java.io.File
 import java.io.StringReader
 import java.io.StringWriter
 import java.util.zip.GZIPInputStream

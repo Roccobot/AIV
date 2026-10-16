@@ -112,7 +112,6 @@ import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalDensity
@@ -121,6 +120,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
@@ -318,7 +318,7 @@ fun ViewerScreen(
      * `rememberSaveable(sideDefaultOpen)` riparte al cambio di fascia: ruotando in verticale il
      * pannello torna chiuso.
      */
-    val widthDp = LocalConfiguration.current.screenWidthDp
+    val widthDp = windowWidthDp()
     val sideAvailable = Adaptive.sideAvailable(widthDp)
     val sideDefaultOpen = Adaptive.sideDefaultOpen(widthDp)
     var sideOpen by rememberSaveable(sideDefaultOpen) { mutableStateOf(sideDefaultOpen) }
@@ -436,7 +436,7 @@ fun ViewerScreen(
                 val ok = context.contentResolver.openOutputStream(target)?.use { out ->
                     ImageActions.copyOriginalTo(context, from, out)
                 } ?: false
-                Notices.say(context.getString(
+                Notices.say(res.getString(
                     if (ok) R.string.toast_saved else R.string.toast_save_failed
                 ))
             }
@@ -499,7 +499,7 @@ fun ViewerScreen(
                             val ok = ImageActions.saveToFolder(
                                 context, picture, from, chosen.toUri(), name, suffix
                             )
-                            Notices.say(context.getString(
+                            Notices.say(res.getString(
                                 if (ok) R.string.toast_saved else R.string.toast_save_failed
                             ))
                             if (ok) noteDownload(context, picture, from, suffix)
@@ -508,7 +508,7 @@ fun ViewerScreen(
                         scope.launch {
                             val ok =
                                 ImageActions.saveToDownloads(context, picture, from, name, suffix)
-                            Notices.say(context.getString(
+                            Notices.say(res.getString(
                                 if (ok) R.string.toast_saved else R.string.toast_save_failed
                             ))
                             if (ok) noteDownload(context, picture, from, suffix)
@@ -651,14 +651,14 @@ fun ViewerScreen(
             share = { picture ->
                 scope.launch {
                     if (!ImageActions.share(context, picture, source)) {
-                        Notices.say(context.getString(R.string.toast_copy_failed))
+                        Notices.say(res.getString(R.string.toast_copy_failed))
                     }
                 }
             },
             copy = { picture ->
                 scope.launch {
                     Notices.say(
-                        context.getString(
+                        res.getString(
                             if (ImageActions.copyImage(context, picture)) R.string.toast_image_copied
                             else R.string.toast_copy_failed
                         )
@@ -726,7 +726,7 @@ fun ViewerScreen(
      * ⚠️ L'attesa vale per l'anteprima e per l'immagine, non per un filmato né per un errore: là
      * la barra non compare, e aspettarla lascerebbe la schermata vuota per sempre.
      */
-    val wideView = LocalConfiguration.current.let { it.screenWidthDp > it.screenHeightDp }
+    val wideView = windowWidthDp() > windowHeightDp()
     val spaceReady = !info.visible ||
         (info.height > 0f && (!wideView || info.pieces.isNotEmpty()))
     LaunchedEffect(reserveTarget, spaceReady) {
@@ -1643,10 +1643,10 @@ private fun BoxScope.KnobBadge(knob: Knob) {
  * ⚠️ Scritti qui e non presi da `PlayerView`, che è una `View` e si prende i tocchi: con lei la
  * strisciata per cambiare pagina non arriverebbe mai. Spariscono mentre il filmato va, e
  * tornano toccando; in pausa restano. La barra si trascina ([ValueSlider]) per saltare avanti,
- * e accanto c'è il tempo.
+ * e accanto c'è il tempo. Interno per `SemanticheTest`.
  */
 @Composable
-private fun BoxScope.ClipKeys(
+internal fun BoxScope.ClipKeys(
     playing: Boolean,
     onPlayPause: () -> Unit,
     position: Long,
@@ -1683,7 +1683,8 @@ private fun BoxScope.ClipKeys(
                 .size(CLIP_KEY)
                 .clip(CircleShape)
                 .background(CLIP_INK)
-                .clickable(onClick = onPlayPause),
+                // Il ruolo, o un lettore di schermo dice 'Riproduci' senza dire che è un tasto.
+                .clickable(role = Role.Button, onClick = onPlayPause),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -2299,7 +2300,7 @@ private fun ImageCanvas(
          * allo stato dell'immagine precedente, fermo al suo ultimo valore, e le vicine non si
          * spegnerebbero più.
          */
-        val dragging by remember(image, settings) { derivedStateOf { travel != 0f } }
+        val dragging by remember(image) { derivedStateOf { travel != 0f } }
 
         /**
          * La lettura a pezzi dell'immagine, quando serve e si può.
@@ -2316,8 +2317,13 @@ private fun ImageCanvas(
             awaitDispose { opened?.close() }
         }
 
-        /** Il pezzo a piena risoluzione disegnato sopra la figura, quando c'è. */
-        var sharp by remember(image, settings) { mutableStateOf<SharpTile?>(null) }
+        /**
+         * Il pezzo a piena risoluzione disegnato sopra la figura, quando c'è.
+         *
+         * La chiave è la sola `image`, come per [travel]: con `settings` un'impostazione scritta
+         * mentre si guarda toglieva il pezzo nitido finché non ci si muoveva.
+         */
+        var sharp by remember(image) { mutableStateOf<SharpTile?>(null) }
 
         /*
          * Il pezzo nitido si legge quando il dito si ferma: a ogni fotogramma di una pinza si
@@ -2393,8 +2399,10 @@ private fun ImageCanvas(
          * ⚠️ Si annulla appena un dito torna giù: chi appoggia il dito su un'immagine che
          * scivola vuole fermarla, e due scrittori sullo stesso `offset` darebbero uno strappo.
          * L'annullamento è in [zoomAround] e [animateTo], i due punti da cui `offset` cambia.
+         * La chiave è la sola `image`: con `settings` un'impostazione scritta mentre la figura
+         * scivola ne perdeva il riferimento, e [stopGlide] non poteva più fermarla.
          */
-        var gliding by remember(image, settings) { mutableStateOf<Job?>(null) }
+        var gliding by remember(image) { mutableStateOf<Job?>(null) }
 
         fun stopGlide() {
             gliding?.cancel()
@@ -2542,10 +2550,21 @@ private fun ImageCanvas(
          */
         val swipeAllowed by rememberUpdatedState(atRest && folder?.seriesOrNull != null)
 
+        /*
+         * Le chiavi dei due rilevatori: i valori della composizione che le loro funzioni leggono
+         * (la misura della vista, il riposo, il 100%, il tetto dello zoom e le due vicine), e non
+         * `settings` intero, per la ragione di [travel]: un'impostazione scritta mentre si guarda
+         * (`clipboardOpened`, scritta subito dopo un'apertura dagli appunti) azzerava il gesto in
+         * corso, e una pinza si interrompeva a metà.
+         */
+        val gestureKeys = arrayOf(
+            image, viewWidth, viewHeight, place, oneToOne, settings.zoomMax, nextUri, prevUri
+        )
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .pointerInput(image, settings) {
+                .pointerInput(*gestureKeys) {
                     // ⚠️ Un rilevatore solo per panoramica, pinza e strisciata: nascono tutte
                     // da un dito che si muove, e su due modificatori si contendono il gesto.
                     // Vedi [detectPanZoomOrSwipe].
@@ -2580,7 +2599,7 @@ private fun ImageCanvas(
                         }
                     )
                 }
-                .pointerInput(image, settings) {
+                .pointerInput(*gestureKeys) {
                     detectViewerGestures(
                         // Anche questo vibra (vedi [withHaptics]): il rilevatore è scritto qui
                         // e non è `combinedClickable`, quindi la vibrazione si chiama a mano.

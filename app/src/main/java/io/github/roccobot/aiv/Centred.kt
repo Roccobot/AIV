@@ -8,7 +8,6 @@ import android.view.ViewTreeObserver
 import android.view.WindowManager
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -131,7 +130,7 @@ fun loweredWindow(onOutside: (() -> Unit)?) =
  * bordi.
  */
 @Composable
-fun lowWindow(): Boolean = LocalConfiguration.current.screenHeightDp < LOW_WINDOW.value
+fun lowWindow(): Boolean = windowHeightDp() < LOW_WINDOW.value
 
 /**
  * Le proprietà di una finestra che copre lo schermo **intero**, barre di sistema comprese.

@@ -5,7 +5,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -23,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
@@ -48,6 +48,8 @@ fun StyleSettings(
     scroll: ScrollState
 ) {
     val context = LocalContext.current
+    // Le frasi degli avvisi da `LocalResources`, come nella griglia: il perché è là.
+    val res = LocalResources.current
     var house by remember { mutableStateOf(Presets.house(context)) }
     var mine by remember { mutableStateOf(Presets.mine(context)) }
     var renaming by remember { mutableStateOf<Preset?>(null) }
@@ -68,8 +70,8 @@ fun StyleSettings(
         val dove = Presets.remove(context, p)
         rileggi()
         Notices.offer(
-            text = context.getString(R.string.look_preset_gone),
-            action = context.getString(R.string.pick_undo)
+            text = res.getString(R.string.look_preset_gone),
+            action = res.getString(R.string.pick_undo)
         ) {
             Presets.restore(context, p, dove)
             rileggi()
@@ -94,7 +96,7 @@ fun StyleSettings(
                     } != null
                 }.getOrDefault(false)
             }
-            Notices.say(context.getString(if (fatto) riuscito else R.string.toast_save_failed))
+            Notices.say(res.getString(if (fatto) riuscito else R.string.toast_save_failed))
         }
     }
     val esporta = rememberLauncherForActivityResult(scrittura) { dove ->
@@ -124,7 +126,7 @@ fun StyleSettings(
             }
             rileggi()
             Notices.say(
-                context.getString(
+                res.getString(
                     when (esito) {
                         Presets.Loaded.BOOK -> R.string.settings_styles_loaded
                         Presets.Loaded.ONE -> R.string.settings_style_loaded
@@ -170,11 +172,11 @@ fun StyleSettings(
             }
         ) { p, _ ->
             StyleRow(
-            preset = p,
-            onRename = { renaming = p },
-            onExport = { mandaFuori(p) },
-            onRemove = { togli(p) }
-        )
+                preset = p,
+                onRename = { renaming = p },
+                onExport = { mandaFuori(p) },
+                onRemove = { togli(p) }
+            )
         }
     }
 

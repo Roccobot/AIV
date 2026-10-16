@@ -59,7 +59,6 @@ object Updater {
     data class Release(
         val version: String,
         val url: String,
-        val size: Long,
         /** Lo SHA-256 che GitHub dichiara per l'asset, in esadecimale minuscolo. */
         val sha256: String
     )
@@ -108,7 +107,6 @@ object Updater {
             return Release(
                 version = version,
                 url = asset.optString("browser_download_url").ifEmpty { return null },
-                size = asset.optLong("size"),
                 sha256 = digest.removePrefix("sha256:").lowercase()
             )
         }

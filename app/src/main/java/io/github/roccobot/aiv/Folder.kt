@@ -241,7 +241,7 @@ object Folder {
      * 'Mostra nascoste' non conta: è un prestito e non una scelta.
      * Una query sola, come [buckets], con lo stesso filtro e lo stesso ordine; il confronto con
      * le nascoste si fa una volta per cartella, non per riga.
-     * Una riga senza percorso entra, come in `Bucket.isHidden`: una miniatura in più costa meno
+     * Una riga senza percorso entra, come in [FolderSelection.visible]: una miniatura in più costa meno
      * di una cartella visibile lasciata fuori.
      * Dalla più recente, perché sono le immagini che si aprono per prime: se la generazione si
      * ferma a metà, quello che è fatto è quello che serve di più.
@@ -1080,20 +1080,6 @@ internal fun hiddenName(entry: String): String = entry.substringAfterLast('/').i
  * leggerebbe come un nome qualunque.
  */
 internal fun hiddenShown(entry: String): String = if (entry.startsWith('/')) entry else "/$entry"
-
-/**
- * Se questa cartella è fra quelle che l'utente ha escluso.
- *
- * Una cartella senza percorso non si nasconde mai: il provider può non servire la colonna, e
- * meglio mostrarne una di troppo che nasconderne una a caso.
- * È qui perché la usano due chiamanti: una cartella esclusa non compare nemmeno fra le
- * destinazioni di una copia (vedi `destinations`), e una seconda copia del confronto potrebbe
- * divergere sul separatore o sulla radice del volume.
- */
-internal fun Folder.Bucket.isHidden(hidden: Set<String>): Boolean {
-    val own = path ?: return false
-    return hiddenIn(hidden, own)
-}
 
 /** Un punto in cui andare a capo prima di ogni maiuscola che segue una minuscola. */
 internal fun camelBreak(name: String): String =

@@ -59,13 +59,6 @@ interface Animated : Closeable {
      * pila rifatta da capo: è la natura del formato.
      */
     fun seek(target: Int)
-
-    /**
-     * Quanto dura tutta l'animazione, in millisecondi: la somma dei ritardi, perché nessuno dei due
-     * formati la dichiara.
-     */
-    val duration: Int
-        get() = (0 until frameCount).sumOf { delayOf(it) }
 }
 
 /**

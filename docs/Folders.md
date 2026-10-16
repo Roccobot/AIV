@@ -819,7 +819,8 @@ contrasto come da norme*. Dalla `6.20`, solo in AIV GitHub, perché AIV Play non
 - ⚠️ **La conferma dice 'nessun file sarà eliminato'** (sua istruzione). Scartato *nulla è
   cancellato*: dice la stessa cosa, ma fa pensare proprio a quello che non succede.
 - ⚠️⚠️ **Una cartella nascosta non è una destinazione** (sua istruzione): il filtro è
-  `Folder.Bucket.isHidden`, in `Folder.kt`, uno per le due schermate che fanno la domanda.
+  `FolderSelection.visible`, in `FolderSelection.kt`, uno per le due schermate che fanno la
+  domanda (la casa e le destinazioni).
   - ⚠️⚠️ **Durante il minuto di prestito anche le destinazioni la mostrano** (suo riscontro): il
     prestito si accende per entrare in una cartella nascosta, e copiarci dentro è quello che si
     vuole fare mentre dura. Arriva con `LocalPeek`, che non è statico perché cambia due volte per

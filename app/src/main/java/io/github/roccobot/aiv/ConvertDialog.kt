@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -64,6 +65,8 @@ fun ConvertDialog(
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
+    // Le frasi degli avvisi da `LocalResources`, come nella griglia: il perché è là.
+    val res = LocalResources.current
     val scope = rememberCoroutineScope()
 
     var target by remember { mutableStateOf(Convert.Target.JPEG) }
@@ -108,7 +111,7 @@ fun ConvertDialog(
                 size = size,
                 destination = destination
             )
-            Notices.say(context.getString(
+            Notices.say(res.getString(
                 if (ok) R.string.toast_saved else R.string.toast_save_failed
             ))
             if (ok) onSaved()

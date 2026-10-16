@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -392,6 +393,8 @@ internal object Backups {
 @Composable
 internal fun ColumnScope.BackupPage() {
     val context = LocalContext.current
+    // Le frasi degli avvisi da `LocalResources`, come nella griglia: il perché è là.
+    val res = LocalResources.current
     // Gli stili sono dell'editor completo: dove quello non c'è, la loro casella non c'è.
     val offered = remember { BackupGroup.entries.filter { it != BackupGroup.STYLES || advancedEditorAvailable() } }
     var chosen by rememberSaveable(stateSaver = GROUPS) { mutableStateOf(offered.toSet() - BackupGroup.BIN) }
@@ -420,7 +423,7 @@ internal fun ColumnScope.BackupPage() {
         val aperto = runCatching { esporta.launch(Backup.fileName(System.currentTimeMillis())) }
         if (aperto.isFailure) {
             Backups.drop()
-            Notices.say(context.getString(R.string.toast_save_failed))
+            Notices.say(res.getString(R.string.toast_save_failed))
         }
     }
 
@@ -461,7 +464,7 @@ internal fun ColumnScope.BackupPage() {
         Button(
             onClick = {
                 val aperto = runCatching { importa.launch(arrayOf(ANY_FILE)) }
-                if (aperto.isFailure) Notices.say(context.getString(R.string.backup_load_failed))
+                if (aperto.isFailure) Notices.say(res.getString(R.string.backup_load_failed))
             },
             enabled = busy == null && scelte.isNotEmpty(),
             modifier = Modifier.weight(1f)

@@ -1,6 +1,8 @@
 package io.github.roccobot.aiv
 
+import java.io.ByteArrayInputStream
 import java.io.InputStream
+import java.io.SequenceInputStream
 
 /*
  * Come un'immagine tiene i suoi colori, e quanti fotogrammi ha.
@@ -56,7 +58,9 @@ fun coloursOf(input: InputStream): Colours? = runCatching {
     when {
         got >= 8 && head.startsWith(PNG_SIGNATURE) -> pngColours(head, got, input)
         got >= 13 && head.startsWith(GIF_SIGNATURE) -> gifColours(head)
-        got >= 4 && head[0] == 0xFF.toByte() && head[1] == 0xD8.toByte() -> jpegColours(input)
+        // Il SOF si cerca dall'inizio: la testa è già letta, quindi si rimette davanti al seguito.
+        got >= 4 && head[0] == 0xFF.toByte() && head[1] == 0xD8.toByte() ->
+            jpegColours(SequenceInputStream(ByteArrayInputStream(head, 0, got), input))
         got >= 16 && head.startsWith(RIFF_SIGNATURE) &&
             String(head, 8, 4, Charsets.US_ASCII) == "WEBP" -> webpColours(head, got, input)
         got >= 12 && Avif.looksLike(head) -> Avif.colours(avifHead(head, got, input))
@@ -253,6 +257,10 @@ private fun gifTransparent(head: ByteArray, valid: Int, input: InputStream): Boo
  * Il JPEG non ha trasparenza né tavolozza: resta da sapere se ha un componente (grigio) o tre
  * (colore), e con quanti bit. Lo dice il SOF, che si cerca di segmento in segmento come in
  * [encodingOf].
+ * ⚠️ **Quattro componenti (CMYK o YCCK, i file pronti per la stampa) non hanno una risposta**:
+ * [Colours.Model] non ha una voce per il CMYK, e dirli RGB a 24 bit sarebbe una risposta
+ * inventata, peggio di nessuna, come per l'HEIC. Lo stesso per un numero di componenti che il
+ * formato non prevede.
  */
 private fun jpegColours(input: InputStream): Colours? {
     val two = ByteArray(2)
@@ -274,7 +282,11 @@ private fun jpegColours(input: InputStream): Colours? {
         if (input.readFully(body, length) < length) return null
         val bits = if (body.isNotEmpty()) (body[0].toInt() and 0xFF).takeIf { it > 0 } else null
         val components = if (body.size > 5) body[5].toInt() and 0xFF else 0
-        val model = if (components == 1) Colours.Model.GREY else Colours.Model.RGB
+        val model = when (components) {
+            1 -> Colours.Model.GREY
+            3 -> Colours.Model.RGB
+            else -> return null
+        }
         return Colours(model, bits, null, false)
     }
 }

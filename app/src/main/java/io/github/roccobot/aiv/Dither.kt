@@ -150,7 +150,7 @@ internal class GrainedRamp(private val stops: List<Pair<Float, Float>>, private 
                 val alta = ceil(to - from).toInt()
                 if (alta != altaMaschera) {
                     altaMaschera = alta
-                    maschera = rampMask(stops, peak, alta, 0f)
+                    maschera = rampMask(stops, peak, alta)
                 }
                 val m = maschera
                 if (m != null) {
@@ -234,16 +234,13 @@ private fun attach(grain: android.graphics.Shader, ramp: android.graphics.Shader
  * @param stops le tappe della rampa, come le riceve il pennello: posizione e quanto di [peak].
  * @param peak quanto copre la tinta nel suo punto più forte.
  * @param height quanto è alto in pixel il rettangolo da coprire.
- * @param top dove comincia quel rettangolo nello spazio del disegno: uno shader nasce ancorato
- *   all'origine del nodo, e la fascia comincia sopra di lei.
  * @return la maschera pronta da mettere in un paint colorato, o `null` se non c'è niente da
- *   coprire (altezza zero) o se la memoria non basta.
+ *   coprire (altezza zero) o se la memoria non basta. Nasce ancorata all'origine: dove comincia
+ *   il rettangolo lo dice chi la stende, con la matrice locale.
  */
-internal fun rampMask(stops: List<Pair<Float, Float>>, peak: Float, height: Int, top: Float): Shader? {
+internal fun rampMask(stops: List<Pair<Float, Float>>, peak: Float, height: Int): Shader? {
     val mappa = rampBitmap(stops, peak, height) ?: return null
-    return BitmapShader(mappa, TileMode.REPEAT, TileMode.CLAMP).apply {
-        if (top != 0f) setLocalMatrix(Matrix().apply { setTranslate(0f, top) })
-    }
+    return BitmapShader(mappa, TileMode.REPEAT, TileMode.CLAMP)
 }
 
 /**

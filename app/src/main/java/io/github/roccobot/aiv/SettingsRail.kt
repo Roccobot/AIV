@@ -54,6 +54,9 @@ internal fun SettingsIndexRail(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+                // Le voci sono una scelta sola: senza, un lettore di schermo legge testi
+                // toccabili, e la pagina aperta si distingue solo dal colore.
+                .oneOf()
         ) {
             for (page in SETTINGS_INDEX) {
                 val chosen = page == selected
@@ -74,6 +77,7 @@ internal fun SettingsIndexRail(
                             else MaterialTheme.colorScheme.surface
                         )
                         .clickable { onPick(page) }
+                        .picked(chosen)
                         .padding(horizontal = 12.dp, vertical = 12.dp)
                 )
             }
@@ -129,9 +133,6 @@ internal val Page.titleRes: Int
         Page.FOLDERS -> R.string.settings_group_browse
         Page.VIEWER -> R.string.settings_group_viewer
         Page.INFO -> R.string.settings_page_info
-        // Non è nell'indice, ma una pila vecchia può ancora nominarla: il titolo è quello della
-        // pagina che oggi contiene quelle voci.
-        Page.NAV -> R.string.settings_group_viewer
         Page.CONTROLS -> R.string.settings_page_controls
         Page.EDITING -> R.string.settings_page_editing
         Page.FACTS -> R.string.settings_facts

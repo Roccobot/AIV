@@ -23,6 +23,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -61,7 +62,8 @@ fun AddressDialog(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    var typed by remember { mutableStateOf("") }
+    // Salvato: girando il telefono quello che si è scritto resta nel campo.
+    var typed by rememberSaveable { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var problem by remember { mutableStateOf<Int?>(null) }
 

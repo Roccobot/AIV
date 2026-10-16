@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,7 +25,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
@@ -95,6 +93,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
@@ -275,6 +274,8 @@ fun FolderScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    // Le frasi degli avvisi da `LocalResources`, come nella griglia: il perché è là.
+    val res = LocalResources.current
     var granted by remember { mutableStateOf(Folder.granted(context)) }
 
     /**
@@ -533,7 +534,7 @@ fun FolderScreen(
                 )
                 .nestedScroll(paging)
                 // Il margine laterale permette due colonne di copertine su uno schermo da 360dp:
-                // il conto è in `FOLDER_CELL`.
+                // il conto è in `SCREEN_PAD`.
                 .padding(SCREEN_PAD)
         ) {
             if (home) {
@@ -831,7 +832,7 @@ fun FolderScreen(
         // In [FileWork], come ogni lavoro sui file: il perché è là.
         FileWork.scope.launch {
             val out = work()
-            if (kind.speaks(out)) Notices.say(outcomeText(context.resources, out, kind), NOTICE_LONG_MS)
+            if (kind.speaks(out)) Notices.say(outcomeText(res, out, kind), NOTICE_LONG_MS)
             onFeedChanged()
         }
     }
@@ -855,7 +856,7 @@ fun FolderScreen(
                     scope.launch {
                         val nata = FileTree.makeFolder(java.io.File(dove), name)
                         if (nata != null) onTreePath(nata.absolutePath)
-                        else Notices.say(context.getString(R.string.folder_create_fail), NOTICE_LONG_MS)
+                        else Notices.say(res.getString(R.string.folder_create_fail), NOTICE_LONG_MS)
                     }
                 }
             }
@@ -1123,7 +1124,9 @@ private fun Hub(
     modifier: Modifier = Modifier
 ) {
     val menu = rememberMenuState()
-    var asking by remember { mutableStateOf(false) }
+    // Salvata e non ricordata: girando il telefono la finestra dell'indirizzo resta aperta, come
+    // quella aperta dall'azione del launcher (`addressAsked` del modello).
+    var asking by rememberSaveable { mutableStateOf(false) }
 
     val picker = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia()
@@ -1419,7 +1422,8 @@ fun HomePill(
     onSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var asking by remember { mutableStateOf(false) }
+    // Salvata e non ricordata, come nell'altro FAB della casa: il perché è là.
+    var asking by rememberSaveable { mutableStateOf(false) }
     val picker = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia()
     ) { picked -> picked?.let(onOpen) }
@@ -1884,8 +1888,7 @@ internal fun Covers(
     LazyVerticalGrid(
         state = state,
         // ⚠️ **Colonne fisse e non adattive**: il numero lo sceglie l'utente, e un minimo in dp
-        // farebbe valere la scelta solo sugli schermi larghi. `FOLDER_CELL` dice a quante
-        // colonne una copertina smette di servire.
+        // farebbe valere la scelta solo sugli schermi larghi.
         // Il numero scelto vale sul lato corto, come nella griglia delle immagini: [spread]
         // aggiunge colonne quando la finestra è larga, e il perché è sulla funzione.
         columns = GridCells.Fixed(spread(columns, LocalWindowInfo.current)),
@@ -2436,20 +2439,6 @@ private fun Cover(uri: Uri?) {
     )
 }
 
-/**
- * Il lato per cui una copertina è disegnata, e il metro del numero di colonne che l'utente
- * sceglie.
- *
- * Il conto: le colonne che ci stanno sono `(spazio + distacco) / (minimo + distacco)`. Su uno
- * schermo da 360dp, tolti i 12 di margine per lato, restano 336: `(336 + 12) / (150 + 12)` fa
- * 2,1, quindi **due**, il valore di fabbrica dell'impostazione. A tre colonne una copertina
- * misura 104dp, a quattro 78dp.
- * ⚠️ **Due e non tre come le immagini**: sotto la copertina ci sono un nome e un conto, e su
- * tre colonne un nome vero (`WhatsApp Images`) si riduce a una sigla. Le miniature di una
- * cartella non hanno didascalia, e misurano 108dp.
- */
-private val FOLDER_CELL = 150.dp
-
 /** Il distacco fra le copertine: più largo di quello delle foto, perché qui separa schede. */
 private val FOLDER_GAP = 12.dp
 
@@ -2457,8 +2446,12 @@ private val FOLDER_GAP = 12.dp
  * Il margine della schermata, uguale sui quattro lati.
  *
  * ⚠️ **Il valore laterale non è estetico**: è quello che permette **due** colonne di
- * copertine su uno schermo da 360dp, e il conto è in [FOLDER_CELL]. Allargarlo stringe le
- * copertine.
+ * copertine larghe a sufficienza su uno schermo da 360dp, il valore di fabbrica
+ * dell'impostazione: tolti i due margini e [FOLDER_GAP] fra l'una e l'altra, ognuna misura
+ * `(360 - 2 * 12 - 12) / 2` dp. Allargarlo stringe le copertine.
+ * ⚠️ **Due e non tre come le immagini**: sotto la copertina ci sono un nome e un conto, e su
+ * tre colonne un nome vero (`WhatsApp Images`) si riduce a una sigla. Le miniature di una
+ * cartella non hanno didascalia.
  */
 private val SCREEN_PAD = 12.dp
 

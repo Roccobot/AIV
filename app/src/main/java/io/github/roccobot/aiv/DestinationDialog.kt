@@ -38,13 +38,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
@@ -119,13 +120,17 @@ fun DestinationDialog(
         value = withContext(Dispatchers.IO) { FileTree.roots(context) }
     }
     val scope = rememberCoroutineScope()
+    // Le frasi degli avvisi da `LocalResources`, come nella griglia: il perché è là.
+    val res = LocalResources.current
 
     /**
      * Dove si sta guardando, e `null` all'elenco delle memorie: sui telefoni con la scheda le
      * radici sono due, e serve un livello sopra per passare dall'una all'altra. Con una memoria
      * sola si entra dritti dentro, appena le radici sono lette.
      */
-    var here by remember { mutableStateOf<File?>(null) }
+    // Salvata per percorso, come la scelta di essere nell'albero (`sfoglia`): girando il telefono
+    // si resta nella cartella in cui si è, invece di tornare alla radice.
+    var here by rememberSaveable(stateSaver = FILE_BY_PATH) { mutableStateOf<File?>(null) }
     LaunchedEffect(roots) {
         if (here == null) roots?.singleOrNull()?.let { here = it }
     }
@@ -161,9 +166,7 @@ fun DestinationDialog(
     // Sul tablet, da 600 dp, il foglio non supera [Adaptive.destinationMaxWidth] ed è centrato,
     // come nel mockup di Copia o sposta; sul telefono è a tutto schermo. I dialoghi corti usano
     // [Centred] con [Adaptive.dialogMaxWidth].
-    val destMaxW = Adaptive.destinationMaxWidth(
-        LocalConfiguration.current.screenWidthDp
-    )
+    val destMaxW = Adaptive.destinationMaxWidth(windowWidthDp())
     Dialog(
         onDismissRequest = onDismiss,
         // [fullWindow]: qui c'è un elenco da scorrere e un `safeDrawingPadding()`, e il perché
@@ -310,7 +313,7 @@ fun DestinationDialog(
                     scope.launch {
                         val made = FileTree.makeFolder(parent, name)
                         if (made != null) here = made
-                        else Notices.say(context.getString(R.string.folder_create_fail), NOTICE_LONG_MS)
+                        else Notices.say(res.getString(R.string.folder_create_fail), NOTICE_LONG_MS)
                     }
                 }
             )
@@ -593,3 +596,12 @@ internal fun NewFolderDialog(onDismiss: () -> Unit, onCreate: (String) -> Unit) 
         }
     )
 }
+
+/**
+ * Una cartella salvata col suo percorso: un `File` il `Bundle` non lo sa scrivere, una stringa sì.
+ * Interno per `RotazioneTest`.
+ */
+internal val FILE_BY_PATH = Saver<File?, String>(
+    save = { it?.absolutePath },
+    restore = { File(it) }
+)

@@ -2420,11 +2420,7 @@ class ViewerActivity : ComponentActivity() {
              * visualizzatore) è in [Adaptive.immersive]; qui si dice quale schermata è visibile.
              * Con le barre nascoste `safeDrawing` non le conta più, e lo spazio torna da sé.
              */
-            val conf = LocalConfiguration.current
-            val immersivo = Adaptive.immersive(
-                conf.screenWidthDp, conf.screenHeightDp, conf.smallestScreenWidthDp,
-                viewer = model.screen == Screen.Viewer
-            )
+            val immersivo = immersiveNow(viewer = model.screen == Screen.Viewer)
             LaunchedEffect(immersivo) {
                 val barre = WindowCompat.getInsetsController(window, window.decorView)
                 if (immersivo) {
@@ -2829,7 +2825,7 @@ private fun Stage(
             val view = model.shownView(settings.folderView)
             val climbing = view == FolderView.TREE && model.treeClimbing
             BackHandler(enabled = climbing) { model.treeUp() }
-            val widthDp = LocalConfiguration.current.screenWidthDp
+            val widthDp = windowWidthDp()
             /*
              * Due colonne da 600 dp (`3.32`, mockup `folders` e `grid`): elenco a lato e
              * contenuto accanto. Non nella scelta d'avvio, non in 'Cartelle di sistema', che ha
@@ -3071,7 +3067,7 @@ private fun Stage(
             // niente da mostrare: l'indicatore di attesa e il messaggio sono due cose diverse,
             // e confonderle darebbe un'attesa senza fine.
             val lookup = model.folder
-            val widthDp = LocalConfiguration.current.screenWidthDp
+            val widthDp = windowWidthDp()
             val shape = screenShape()
             val dualGrid = Adaptive.sideAvailable(widthDp) &&
                 settings.folderView != FolderView.TREE
@@ -3213,7 +3209,7 @@ private fun Stage(
             // La stessa `GridScreen` della cartella, con due parametri in più (perché non è una
             // schermata a sé: vedi la nota su `query` là dentro).
             val lookup = model.folder
-            val widthDp = LocalConfiguration.current.screenWidthDp
+            val widthDp = windowWidthDp()
             /*
              * Due colonne da 600 dp (`3.34`, mockup `search`): elenco delle cartelle a lato e
              * risultati accanto, come per la griglia. Non in 'Cartelle di sistema'.
@@ -3331,7 +3327,7 @@ private fun Stage(
             // dentro (eliminazione definitiva, ripristino al posto della rinomina, il FAB anche
             // senza selezione). Il cestino si sfoglia come una cartella (richiesta dell'utente).
             val lookup = model.folder
-            val widthDp = LocalConfiguration.current.screenWidthDp
+            val widthDp = windowWidthDp()
             val listed = lookup?.seriesOrNull?.items
             val highlight = if (model.gridVisited) model.series?.index else null
             val detailUri = listed?.let { list ->

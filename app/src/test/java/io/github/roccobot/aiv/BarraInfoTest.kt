@@ -1,6 +1,10 @@
 package io.github.roccobot.aiv
 
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import android.view.View
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalView
@@ -49,15 +53,24 @@ class BarraInfoTest {
     @get:Rule
     val banco = createComposeRule()
 
-    /** A tall picture, so on both screens the height is what limits it. */
-    private fun immagine() = LoadedImage(
-        bitmap = ImageBitmap(900, 2000).also {
-            Canvas(it).drawRect(Rect(0f, 0f, 900f, 2000f), Paint().apply { color = Color.Red })
+    /**
+     * A tall picture, so on both screens the height is what limits it; with [larga] a wide one,
+     * for the pinch, which needs room to grow.
+     */
+    private fun immagine(larga: Boolean = false): LoadedImage {
+        val w = if (larga) 2000 else 900
+        val h = if (larga) 900 else 2000
+        return immagine(w, h)
+    }
+
+    private fun immagine(w: Int, h: Int) = LoadedImage(
+        bitmap = ImageBitmap(w, h).also {
+            Canvas(it).drawRect(Rect(0f, 0f, w.toFloat(), h.toFloat()), Paint().apply { color = Color.Red })
         },
         mimeType = "image/jpeg",
         byteSize = 2_100_000,
-        pixelWidth = 900,
-        pixelHeight = 2000,
+        pixelWidth = w,
+        pixelHeight = h,
         sampled = false,
         displayName = NOME
     )
@@ -315,6 +328,79 @@ class BarraInfoTest {
         banco.waitForIdle()
         val figura = figura()
         assertTrue("L'immagine ingrandita è scivolata sotto la barra: $figura", figura.top <= 1f)
+    }
+
+    /**
+     * **Un'impostazione scritta durante una pinza non la interrompe** (rilievo C41).
+     *
+     * ⚠️ I due rilevatori dei gesti avevano `settings` fra le chiavi: un'impostazione scritta
+     * mentre si guarda (`clipboardOpened`, dopo un'apertura dagli appunti) li faceva ripartire, e
+     * il resto della pinza si perdeva. Qui si scrive una preferenza che non c'entra a metà pinza.
+     * ⚠️ **L'immagine è larga**: la larghezza la limita, e l'altezza ha spazio per crescere senza
+     * uscire dallo schermo, quindi si misura quella.
+     */
+    @Test
+    @Config(qualifiers = "w360dp-h740dp")
+    fun `un'impostazione scritta durante una pinza non la interrompe`() {
+        var impostazioni by mutableStateOf(Settings())
+        // Fuori dalla composizione: un'immagine nuova a ogni ricomposizione sarebbe un'altra
+        // immagine, e il gesto ripartirebbe per quella ragione.
+        val stato = ViewerState.Ready(immagine(larga = true))
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                ViewerScreen(
+                    state = stato,
+                    settings = impostazioni,
+                    source = null,
+                    folder = null,
+                    onStep = {},
+                    onSettings = {},
+                    onRetry = {},
+                    onClipStarted = {},
+                    onFileChanged = {},
+                    onFileAdded = {},
+                    onEdit = {},
+                    onEditWith = {},
+                    onInfoBar = { _, _ -> },
+                    inBin = false
+                )
+            }
+        }
+        banco.waitForIdle()
+        // Il velo del doppio tocco, se c'è, prende i tocchi: il primo lo chiude.
+        if (banco.onAllNodesWithText("Quick zoom", substring = true).fetchSemanticsNodes().isNotEmpty()) {
+            banco.onNodeWithText("Quick zoom", substring = true).performClick()
+            banco.waitUntil(5_000) {
+                banco.onAllNodesWithText("Quick zoom", substring = true).fetchSemanticsNodes().isEmpty()
+            }
+        }
+        val riposo = figura().height
+
+        banco.onRoot().performTouchInput {
+            down(0, center - Offset(0f, 40f))
+            down(1, center + Offset(0f, 40f))
+            for (i in 1..5) {
+                moveTo(0, center - Offset(0f, 40f + 4f * i))
+                moveTo(1, center + Offset(0f, 40f + 4f * i))
+            }
+        }
+        banco.waitForIdle()
+        val meta = figura().height
+        assertTrue("La prima metà della pinza non ha ingrandito: $riposo -> $meta", meta > riposo + 10f)
+
+        impostazioni =impostazioni.copy(zoomInMenu = !impostazioni.zoomInMenu)
+        banco.waitForIdle()
+        banco.onRoot().performTouchInput {
+            for (i in 1..5) {
+                moveTo(0, center - Offset(0f, 60f + 4f * i))
+                moveTo(1, center + Offset(0f, 60f + 4f * i))
+            }
+            up(0)
+            up(1)
+        }
+        banco.waitForIdle()
+        val fine = figura().height
+        assertTrue("La pinza si è interrotta all'impostazione scritta: $meta -> $fine", fine > meta + 10f)
     }
 
     private companion object {

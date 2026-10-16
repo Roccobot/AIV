@@ -44,7 +44,6 @@
     <string name="settings_bin_sweep_desc">Com a reciclagem ativa, cada ficheiro lá dentro é apagado assim que alcança o tempo que escolheu. Não é um esvaziamento, que apagaria tudo de uma vez: cada ficheiro sai por conta própria, no seu prazo. As cópias de segurança guardadas antes de uma alteração ficam de fora.</string>
     <string name="settings_clipboard_desc">Ao abrir a aplicação pelo ícone, um endereço na área de transferência que aponte diretamente para uma imagem abre essa imagem. O Android mostra um aviso de cada vez que uma aplicação lê a área de transferência: deixar isto desligado é nunca o ver.</string>
     <string name="settings_start_folder_desc">Ao abrir a aplicação aparece diretamente o conteúdo da pasta escolhida, em vez da lista de pastas.</string>
-    <string name="settings_hidden_desc">Um toque longo numa pasta oculta-a. Estas não aparecem mais na lista, mas estão intactas no telemóvel.</string>
     <string name="settings_facts">Informações de um ficheiro</string>
     <string name="settings_facts_desc">Que dados vê ao abrir Info num ficheiro, e em que ordem. Nome, pixels e tamanho estão sempre lá; um dado que o ficheiro não tem não ocupa nenhuma linha.</string>
 

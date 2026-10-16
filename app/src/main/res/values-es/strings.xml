@@ -21,7 +21,6 @@
     <string name="menu_convert">Exportar y convertir</string>
     <string name="convert_format">Formato</string>
     <string name="convert_webp_lossless">WebP sin pérdida</string>
-    <string name="convert_quality">Calidad</string>
     <string name="convert_quality_at">Calidad\u0020\u0020\u0020%1$d%%</string>
     <string name="convert_percent">%1$d%%</string>
     <string name="convert_pixels">%1$d x %2$d</string>
@@ -203,7 +202,6 @@
     <string name="show_folder_desc">La carpeta volverá a verse con normalidad entre las carpetas en la vista de cuadrícula y de lista.</string>
     <string name="hide_folder_do">Ocultar</string>
     <string name="settings_hidden">Carpetas ocultas</string>
-    <string name="settings_hidden_desc">Una pulsación larga sobre una carpeta la oculta. Estas ya no aparecen en la lista, pero siguen intactas en el teléfono.</string>
     <string name="settings_hidden_show">Mostrar</string>
     <string name="search_hint">Buscar en el nombre del archivo</string>
     <string name="search_clear">Borrar</string>
@@ -383,7 +381,6 @@
     <string name="settings_facts_down">Bajar</string>
     <string name="settings_group_look">Apariencia</string>
     <string name="settings_group_viewer">Visor</string>
-    <string name="settings_group_input">Controles e indicadores</string>
     <string name="settings_group_files">Gestión de archivos</string>
     <string name="settings_group_browse">Archivos y carpetas</string>
     <string name="settings_group_start">Inicio</string>
@@ -406,11 +403,6 @@
     <string name="settings_thumbs_gen_title">Generación de miniaturas</string>
     <string name="settings_thumbs_gen_done">Miniaturas generadas correctamente.</string>
     <string name="settings_hidden_none">Ninguna carpeta oculta</string>
-    <plurals name="settings_hidden_count">
-        <item quantity="one">%1$d carpeta</item>
-        <item quantity="many">%1$d carpetas</item>
-        <item quantity="other">%1$d carpetas</item>
-    </plurals>
     <plurals name="settings_facts_count">
         <item quantity="one">%1$d dato visible</item>
         <item quantity="many">%1$d datos visibles</item>
