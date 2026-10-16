@@ -2,7 +2,6 @@
 <!-- ko. Tradotto da AIV: la fonte di verità resta values/strings.xml, e ogni chiave nuova va aggiunta anche qui. -->
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
-    <string name="app_short_name">AIV</string>
     <string name="no_image">보여줄 것이 없습니다</string>
     <string name="open_failed">이 파일을 열 수 없습니다</string>
     <string name="open_cleartext">암호화되지 않은 주소(http)입니다. Android가 차단하며 https로도 응답하지 않습니다</string>
@@ -21,9 +20,6 @@
     <string name="save_name_date">날짜</string>
     <string name="menu_convert">내보내기 및 변환</string>
     <string name="convert_format">형식</string>
-    <string name="convert_jpeg">JPEG</string>
-    <string name="convert_png">PNG</string>
-    <string name="convert_webp">WebP</string>
     <string name="convert_webp_lossless">WebP 무손실</string>
     <string name="convert_quality">품질</string>
     <string name="convert_quality_at">품질\u0020\u0020\u0020%1$d%%</string>
@@ -35,7 +31,7 @@
     <string name="convert_elsewhere">다른 형식</string>
     <string name="convert_elsewhere_desc">안드로이드가 쓸 수 있는 형식은 위의 것뿐입니다. 나머지는 이 서비스들이 브라우저에서 열리니, 이미지는 거기에서 휴대전화 저장소를 통해 고르세요.</string>
     <string name="convert_clean">정리하기</string>
-    <string name="convert_clean_why">헤더, 메타데이터, 주석, 스크립트, C2PA, 편집기 잔여물을 제거합니다. 모두 가장 무거운 데이터(파일의 최대 99%)이며 좀처럼 쓰이지 않습니다.</string>
+    <string name="convert_clean_why" formatted="false">헤더, 메타데이터, 주석, 스크립트, C2PA, 편집기 잔여물을 제거합니다. 모두 가장 무거운 데이터(파일의 최대 99%)이며 좀처럼 쓰이지 않습니다.</string>
     <string name="convert_clean_keeps">이미지 내용은 바꾸지 않습니다(경로, 도형, 선, 그림, 텍스트 등). 그림은 100% 그대로 남습니다.</string>
     <string name="convert_clean_c2pa">⚠️ 주의: 누가 파일을 만들었는지 알려 주는 C2PA 출처도 사라집니다. 필요하면 사본을 보관하세요.</string>
     <string name="clean_now">정리하기</string>
@@ -45,11 +41,8 @@
     <string name="clean_not_svg">이 파일은 읽을 수 있는 SVG가 아닙니다.</string>
     <string name="convert_open">열기</string>
     <string name="convert_export">내보내기</string>
-    <string name="convert_ezgif">EzGif</string>
     <string name="convert_ezgif_why">거의 모든 형식에서, 거의 모든 형식으로 변환합니다. 움직이는 GIF도 됩니다.</string>
-    <string name="convert_squoosh">Squoosh</string>
     <string name="convert_squoosh_why">구글이 만들었고 브라우저에서 동작합니다. 이미지는 어디에도 올라가지 않습니다.</string>
-    <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">형식 목록이 가장 깁니다. AVIF와 TIFF도 있습니다.</string>
     <string name="toast_image_copied">이미지를 복사했습니다</string>
     <string name="toast_name_copied">파일 이름을 복사했습니다</string>
@@ -165,7 +158,7 @@
     <string name="settings_info_position">위치</string>
     <string name="settings_zoom_menu">뷰어 메뉴의 확대</string>
     <string name="settings_zoom_menu_desc">\'화면에 맞추기\'와 \'100%\'를 뷰어의 컨텍스트 메뉴에 추가합니다.</string>
-    <string name="hint_zoom_tap">빠른 확대: 이미지를 두 번 누르면 화면에 맞추고, 다시 두 번 누르면 실제 픽셀로 봅니다. 계속 누르면 맞춤과 100%를 오갑니다.</string>
+    <string name="hint_zoom_tap" formatted="false">빠른 확대: 이미지를 두 번 누르면 화면에 맞추고, 다시 두 번 누르면 실제 픽셀로 봅니다. 계속 누르면 맞춤과 100%를 오갑니다.</string>
     <string name="hint_ext_warn">⚠️ 확장자를 바꾸는 것은 형식을 변환하는 것과 다릅니다. 변환에는 \'내보내기 및 변환\'이 있습니다.\n\n⚠️ 이미지나 동영상에 미디어 파일이 아닌 확장자를 주면 그 항목은 격자 보기와 목록 보기에서 사라집니다.</string>
     <string name="settings_anim_counter">프레임 카운터</string>
     <string name="settings_anim_counter_desc">움직이는 이미지의 제어 막대에 표시됩니다.</string>
@@ -185,9 +178,9 @@
     <string name="folders_permission_media">폴더 목록을 보려면 이미지와 동영상 접근 권한이 필요합니다.</string>
     <string name="folders_none">보여줄 것이 있는 폴더가 없습니다.</string>
     <string name="folders_tablet_pick">탐색 표시줄에서 폴더를 선택하세요</string>
-    <string name="folders_rail_search">Search in folders</string>
-    <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move the folder list</string>
+    <string name="folders_rail_search">폴더에서 검색</string>
+    <string name="folders_rail_search_in">%1$s에서 검색</string>
+    <string name="folders_rail_move">폴더 목록 이동</string>
     <string name="hub_open">더 보기</string>
     <string name="hub_view_list">목록 보기</string>
     <string name="hub_view_grid">격자 보기</string>
@@ -273,8 +266,6 @@
     <string name="facts_duration">길이</string>
     <string name="facts_colour_grey">회색조</string>
     <string name="facts_colour_indexed">인덱스 색상</string>
-    <string name="facts_colour_rgb">RGB</string>
-    <string name="facts_colour_rgba">RGBA</string>
     <string name="facts_colour_bits">%1$s %2$d비트</string>
     <string name="facts_colour_channel">%1$d비트/채널</string>
     <string name="facts_colour_alpha">투명도 있음</string>
@@ -465,7 +456,6 @@
     <string name="look_vibrance">생동감</string>
     <string name="look_filter">흑백 필터</string>
     <string name="look_bw">흑백</string>
-    <string name="look_mix">HSL</string>
     <string name="look_hue">색조</string>
     <string name="look_lum">광도</string>
     <string name="look_band_red">빨강</string>
@@ -490,7 +480,6 @@
     <string name="look_grain_lift">밝은 부분</string>
     <string name="look_vignette_feather">페더</string>
     <string name="look_tone">곡선</string>
-    <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">톤 곡선</string>
     <string name="look_target">타깃</string>
     <string name="look_auto">자동</string>
@@ -736,8 +725,8 @@
     <string name="folder_add">폴더 추가</string>
     <string name="folder_authorize">폴더 허용</string>
     <string name="folder_authorize_title">표시할 폴더에 추가</string>
-    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
-    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_list_remove_title">이 폴더를 목록에서 제거할까요?</string>
+    <string name="folder_list_remove_do">제거</string>
     <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">허용 취소</string>
     <string name="folder_remove_desc">이 폴더를 허용 목록에서 제거할까요? 그리드 및 목록 모드에서 내용이 사라집니다.</string>

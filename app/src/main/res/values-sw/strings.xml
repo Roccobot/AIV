@@ -2,7 +2,6 @@
 <!-- sw. Tradotto da AIV: la fonte di verità resta values/strings.xml, e ogni chiave nuova va aggiunta anche qui. -->
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
-    <string name="app_short_name">AIV</string>
     <string name="no_image">Hakuna cha kuonyesha</string>
     <string name="open_failed">Haikuwezekana kufungua faili hili</string>
     <string name="open_cleartext">Anwani isiyosimbwa (http): Android inaizuia, na kwa https haijibu</string>
@@ -21,9 +20,6 @@
     <string name="save_name_date">Tarehe</string>
     <string name="menu_convert">Hamisha na kubadilisha</string>
     <string name="convert_format">Muundo</string>
-    <string name="convert_jpeg">JPEG</string>
-    <string name="convert_png">PNG</string>
-    <string name="convert_webp">WebP</string>
     <string name="convert_webp_lossless">WebP bila hasara</string>
     <string name="convert_quality">Ubora</string>
     <string name="convert_quality_at">Ubora\u0020\u0020\u0020%1$d%%</string>
@@ -35,7 +31,7 @@
     <string name="convert_elsewhere">Miundo mingine</string>
     <string name="convert_elsewhere_desc">Android inaweza kuandika miundo iliyo hapo juu pekee. Kwa mingine kuna huduma hizi, zinazofunguka katika kivinjari: picha huchaguliwa huko, kutoka kwenye hifadhi ya simu.</string>
     <string name="convert_clean">Safisha</string>
-    <string name="convert_clean_why">Huondoa vichwa, metadata, maoni, skripti, C2PA na masalia ya vihariri, ambayo ni data nzito zaidi (hadi 99% ya faili) na hayahitajiki mara nyingi.</string>
+    <string name="convert_clean_why" formatted="false">Huondoa vichwa, metadata, maoni, skripti, C2PA na masalia ya vihariri, ambayo ni data nzito zaidi (hadi 99% ya faili) na hayahitajiki mara nyingi.</string>
     <string name="convert_clean_keeps">Haibadilishi yaliyomo kwenye picha (njia, maumbo, mistari, michoro, maandishi…): mchoro unasalia salama kwa 100%.</string>
     <string name="convert_clean_c2pa">⚠️ TAHADHARI: chimbuko la C2PA pia linaondoka, sehemu inayosema ni nani aliyetengeneza faili. Weka nakala kama unaihitaji.</string>
     <string name="clean_now">Safisha</string>
@@ -45,11 +41,8 @@
     <string name="clean_not_svg">Faili hii si SVG inayoweza kusomwa.</string>
     <string name="convert_open">Fungua</string>
     <string name="convert_export">Hamisha</string>
-    <string name="convert_ezgif">EzGif</string>
     <string name="convert_ezgif_why">Hubadilisha kutoka na kwenda karibu kila kitu, pamoja na GIF zinazosogea.</string>
-    <string name="convert_squoosh">Squoosh</string>
     <string name="convert_squoosh_why">Ya Google, hufanya kazi ndani ya kivinjari: picha haipakiwi popote.</string>
-    <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">Orodha ndefu zaidi ya miundo, pamoja na AVIF na TIFF.</string>
     <string name="toast_image_copied">Picha imenakiliwa</string>
     <string name="toast_name_copied">Jina la faili limenakiliwa</string>
@@ -165,7 +158,7 @@
     <string name="settings_info_position">Mahali</string>
     <string name="settings_zoom_menu">Ukuzaji katika menyu ya kitazamaji</string>
     <string name="settings_zoom_menu_desc">Huongeza \'Iingie kwenye skrini\' na \'100%\' kwenye menyu ya muktadha ya kitazamaji.</string>
-    <string name="hint_zoom_tap">Kukuza haraka: gusa mara mbili picha ili itoshee skrini, gusa mara mbili tena kwa pikseli halisi. Endelea kugusa ili kubadilisha kati ya iliyotosheshwa na 100%.</string>
+    <string name="hint_zoom_tap" formatted="false">Kukuza haraka: gusa mara mbili picha ili itoshee skrini, gusa mara mbili tena kwa pikseli halisi. Endelea kugusa ili kubadilisha kati ya iliyotosheshwa na 100%.</string>
     <string name="hint_ext_warn">⚠️ Kubadilisha kiambishi cha faili si sawa na kubadilisha muundo: kwa hilo kuna \'Hamisha na kubadilisha\'.\n\n⚠️ Ukimpa picha au video kiambishi ambacho si cha faili ya media, kipengee kitatoweka katika mwonekano wa gridi na wa orodha.</string>
     <string name="settings_anim_counter">Kihesabu fremu</string>
     <string name="settings_anim_counter_desc">Huonekana kwenye upau wa vidhibiti vya picha zinazosonga.</string>
@@ -185,9 +178,9 @@
     <string name="folders_permission_media">Kuorodhesha folda kunahitaji ufikiaji wa picha na video.</string>
     <string name="folders_none">Hakuna folda yenye kitu cha kuonyesha.</string>
     <string name="folders_tablet_pick">Chagua folda kutoka kwenye upau wa urambazaji</string>
-    <string name="folders_rail_search">Search in folders</string>
-    <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move the folder list</string>
+    <string name="folders_rail_search">Tafuta kwenye folda</string>
+    <string name="folders_rail_search_in">Tafuta kwenye %1$s</string>
+    <string name="folders_rail_move">Hamisha orodha ya folda</string>
     <string name="hub_open">Zaidi</string>
     <string name="hub_view_list">Mwonekano wa orodha</string>
     <string name="hub_view_grid">Mwonekano wa gridi</string>
@@ -276,8 +269,6 @@
     <string name="facts_duration">Muda</string>
     <string name="facts_colour_grey">Kijivu</string>
     <string name="facts_colour_indexed">Rangi zilizoorodheshwa</string>
-    <string name="facts_colour_rgb">RGB</string>
-    <string name="facts_colour_rgba">RGBA</string>
     <string name="facts_colour_bits">%1$s biti %2$d</string>
     <string name="facts_colour_channel">biti %1$d/mkondo</string>
     <string name="facts_colour_alpha">yenye uwazi</string>
@@ -482,7 +473,6 @@
     <string name="look_vibrance">Uchangamfu</string>
     <string name="look_filter">Kichujio cha B/W</string>
     <string name="look_bw">Nyeusi na nyeupe</string>
-    <string name="look_mix">HSL</string>
     <string name="look_hue">Toni</string>
     <string name="look_lum">Uangavu</string>
     <string name="look_band_red">Nyekundu</string>
@@ -507,7 +497,6 @@
     <string name="look_grain_lift">Sehemu angavu</string>
     <string name="look_vignette_feather">Ulainishaji</string>
     <string name="look_tone">Mkunjo</string>
-    <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Mkunjo wa toni</string>
     <string name="look_target">Lengwa</string>
     <string name="look_auto">Otomatiki</string>
@@ -754,8 +743,8 @@
     <string name="folder_add">Ongeza folda</string>
     <string name="folder_authorize">Ruhusu folda</string>
     <string name="folder_authorize_title">Ongeza kwenye folda zinazoonyeshwa</string>
-    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
-    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_list_remove_title">Kweli uondoe folda hii kwenye orodha?</string>
+    <string name="folder_list_remove_do">Ondoa</string>
     <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">Ondoa ruhusa</string>
     <string name="folder_remove_desc">Uondoe folda hii kwenye orodha iliyoruhusiwa? Maudhui yake yatatoweka katika hali za gridi na orodha.</string>

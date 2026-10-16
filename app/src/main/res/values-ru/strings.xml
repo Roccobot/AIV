@@ -2,7 +2,6 @@
 <!-- ru. Tradotto da AIV: la fonte di verità resta values/strings.xml, e ogni chiave nuova va aggiunta anche qui. -->
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
-    <string name="app_short_name">AIV</string>
     <string name="no_image">Нечего показать</string>
     <string name="open_failed">Не удалось открыть этот файл</string>
     <string name="open_cleartext">Адрес без шифрования (http): Android его блокирует, а по https он не отвечает</string>
@@ -21,9 +20,6 @@
     <string name="save_name_date">Дата</string>
     <string name="menu_convert">Экспортировать и преобразовать</string>
     <string name="convert_format">Формат</string>
-    <string name="convert_jpeg">JPEG</string>
-    <string name="convert_png">PNG</string>
-    <string name="convert_webp">WebP</string>
     <string name="convert_webp_lossless">WebP без потерь</string>
     <string name="convert_quality">Качество</string>
     <string name="convert_quality_at">Качество\u0020\u0020\u0020%1$d%%</string>
@@ -35,7 +31,7 @@
     <string name="convert_elsewhere">Другие форматы</string>
     <string name="convert_elsewhere_desc">Android умеет записывать только форматы выше. Для остальных есть эти сервисы, они открываются в браузере: изображение выбирается там, из памяти телефона.</string>
     <string name="convert_clean">Очистить</string>
-    <string name="convert_clean_why">Убирает заголовки, метаданные, комментарии, скрипты, C2PA и остатки редакторов, то есть самые тяжёлые данные (до 99% файла), которые нужны редко.</string>
+    <string name="convert_clean_why" formatted="false">Убирает заголовки, метаданные, комментарии, скрипты, C2PA и остатки редакторов, то есть самые тяжёлые данные (до 99% файла), которые нужны редко.</string>
     <string name="convert_clean_keeps">Содержимое изображения не меняется (контуры, формы, линии, рисунки, текст…): иллюстрация остаётся нетронутой на 100%.</string>
     <string name="convert_clean_c2pa">⚠️ ВНИМАНИЕ: уходит и происхождение C2PA, то есть часть, которая говорит, кто сделал файл. Сохраните копию, если она нужна.</string>
     <string name="clean_now">Очистить</string>
@@ -45,11 +41,8 @@
     <string name="clean_not_svg">Этот файл не является читаемым SVG.</string>
     <string name="convert_open">Открыть</string>
     <string name="convert_export">Экспортировать</string>
-    <string name="convert_ezgif">EzGif</string>
     <string name="convert_ezgif_why">Преобразует почти из всего и почти во всё, включая анимированные GIF.</string>
-    <string name="convert_squoosh">Squoosh</string>
     <string name="convert_squoosh_why">От Google, работает в браузере: изображение никуда не загружается.</string>
-    <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">Самый длинный список форматов, включая AVIF и TIFF.</string>
     <string name="toast_image_copied">Изображение скопировано</string>
     <string name="toast_name_copied">Имя файла скопировано</string>
@@ -165,7 +158,7 @@
     <string name="settings_info_position">Положение</string>
     <string name="settings_zoom_menu">Масштаб в меню просмотра</string>
     <string name="settings_zoom_menu_desc">Добавляет \'Вписать в экран\' и \'100%\' в контекстное меню просмотра.</string>
-    <string name="hint_zoom_tap">Быстрый зум: двойное касание подгоняет изображение под экран, ещё одно показывает реальные пиксели. Продолжайте касаться, чтобы переключаться между подогнанным и 100%.</string>
+    <string name="hint_zoom_tap" formatted="false">Быстрый зум: двойное касание подгоняет изображение под экран, ещё одно показывает реальные пиксели. Продолжайте касаться, чтобы переключаться между подогнанным и 100%.</string>
     <string name="hint_ext_warn">⚠️ Смена расширения файла не то же самое, что переход из одного формата в другой: для этого есть \'Экспортировать и преобразовать\'.\n\n⚠️ Если задать изображению или видео расширение, не относящееся к медиафайлам, элемент исчезнет из вида сеткой и списком.</string>
     <string name="settings_anim_counter">Счётчик кадров</string>
     <string name="settings_anim_counter_desc">Показывается на панели управления анимированных изображений.</string>
@@ -185,9 +178,9 @@
     <string name="folders_permission_media">Для списка папок нужен доступ к изображениям и видео.</string>
     <string name="folders_none">Ни в одной папке нет ничего для показа.</string>
     <string name="folders_tablet_pick">Выберите папку на панели навигации</string>
-    <string name="folders_rail_search">Search in folders</string>
-    <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move the folder list</string>
+    <string name="folders_rail_search">Поиск в папках</string>
+    <string name="folders_rail_search_in">Поиск в %1$s</string>
+    <string name="folders_rail_move">Переместить список папок</string>
     <string name="hub_open">Ещё</string>
     <string name="hub_view_list">Вид списком</string>
     <string name="hub_view_grid">Вид сеткой</string>
@@ -282,8 +275,6 @@
     <string name="facts_duration">Длительность</string>
     <string name="facts_colour_grey">Оттенки серого</string>
     <string name="facts_colour_indexed">Индексированный цвет</string>
-    <string name="facts_colour_rgb">RGB</string>
-    <string name="facts_colour_rgba">RGBA</string>
     <string name="facts_colour_bits">%1$s %2$d бит</string>
     <string name="facts_colour_channel">%1$d бит/канал</string>
     <string name="facts_colour_alpha">с прозрачностью</string>
@@ -516,7 +507,6 @@
     <string name="look_vibrance">Красочность</string>
     <string name="look_filter">Фильтр Ч/Б</string>
     <string name="look_bw">Чёрно-белое</string>
-    <string name="look_mix">HSL</string>
     <string name="look_hue">Оттенок</string>
     <string name="look_lum">Яркость</string>
     <string name="look_band_red">Красный</string>
@@ -541,7 +531,6 @@
     <string name="look_grain_lift">Света</string>
     <string name="look_vignette_feather">Растушёвка</string>
     <string name="look_tone">Кривая</string>
-    <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Тоновая кривая</string>
     <string name="look_target">Точечно</string>
     <string name="look_auto">Авто</string>
@@ -790,8 +779,8 @@
     <string name="folder_add">Добавить папку</string>
     <string name="folder_authorize">Разрешить папку</string>
     <string name="folder_authorize_title">Добавить к отображаемым папкам</string>
-    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
-    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_list_remove_title">Удалить эту папку из списка?</string>
+    <string name="folder_list_remove_do">Удалить</string>
     <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">Отменить разрешение</string>
     <string name="folder_remove_desc">Удалить эту папку из списка разрешённых? Её содержимое исчезнет из режимов сетки и списка.</string>

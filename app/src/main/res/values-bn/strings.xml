@@ -2,7 +2,6 @@
 <!-- bn. Tradotto da AIV: la fonte di verità resta values/strings.xml, e ogni chiave nuova va aggiunta anche qui. -->
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
-    <string name="app_short_name">AIV</string>
     <string name="no_image">দেখানোর মতো কিছু নেই</string>
     <string name="open_failed">এই ফাইলটি খোলা যায়নি</string>
     <string name="open_cleartext">এনক্রিপশনহীন ঠিকানা (http): Android এটি আটকায়, আর https-এও সাড়া মেলেনি</string>
@@ -21,9 +20,6 @@
     <string name="save_name_date">তারিখ</string>
     <string name="menu_convert">রপ্তানি ও রূপান্তর</string>
     <string name="convert_format">বিন্যাস</string>
-    <string name="convert_jpeg">JPEG</string>
-    <string name="convert_png">PNG</string>
-    <string name="convert_webp">WebP</string>
     <string name="convert_webp_lossless">WebP ক্ষতিহীন</string>
     <string name="convert_quality">গুণমান</string>
     <string name="convert_quality_at">গুণমান\u0020\u0020\u0020%1$d%%</string>
@@ -35,7 +31,7 @@
     <string name="convert_elsewhere">অন্যান্য বিন্যাস</string>
     <string name="convert_elsewhere_desc">অ্যান্ড্রয়েড কেবল উপরের বিন্যাসগুলিই লিখতে পারে। বাকিগুলির জন্য এই পরিষেবাগুলি আছে, যেগুলি ব্রাউজারে খোলে: ছবিটি সেখানেই, ফোনের মেমরি থেকে বেছে নিন।</string>
     <string name="convert_clean">পরিষ্কার</string>
-    <string name="convert_clean_why">হেডার, মেটাডেটা, মন্তব্য, স্ক্রিপ্ট, C2PA এবং সম্পাদকের অবশিষ্টাংশ সরিয়ে দেয়, যেগুলো সবচেয়ে ভারী তথ্য (ফাইলের 99% পর্যন্ত) এবং খুব কমই দরকার হয়।</string>
+    <string name="convert_clean_why" formatted="false">হেডার, মেটাডেটা, মন্তব্য, স্ক্রিপ্ট, C2PA এবং সম্পাদকের অবশিষ্টাংশ সরিয়ে দেয়, যেগুলো সবচেয়ে ভারী তথ্য (ফাইলের 99% পর্যন্ত) এবং খুব কমই দরকার হয়।</string>
     <string name="convert_clean_keeps">ছবির বিষয়বস্তু বদলায় না (পাথ, আকৃতি, রেখা, অঙ্কন, লেখা…): অলংকরণ 100% অক্ষত থাকে।</string>
     <string name="convert_clean_c2pa">⚠️ সতর্কতা: C2PA উৎসও চলে যায়, অর্থাৎ যে অংশটি বলে ফাইলটি কে বানিয়েছে। দরকার হলে একটি অনুলিপি রাখুন।</string>
     <string name="clean_now">পরিষ্কার করুন</string>
@@ -45,11 +41,8 @@
     <string name="clean_not_svg">এই ফাইলটি পড়ার যোগ্য SVG নয়।</string>
     <string name="convert_open">খুলুন</string>
     <string name="convert_export">রপ্তানি করুন</string>
-    <string name="convert_ezgif">EzGif</string>
     <string name="convert_ezgif_why">প্রায় সবকিছু থেকে ও সবকিছুতে রূপান্তর করে, অ্যানিমেটেড GIF সহ।</string>
-    <string name="convert_squoosh">Squoosh</string>
     <string name="convert_squoosh_why">গুগলের, ব্রাউজারেই কাজ করে: ছবি কোথাও আপলোড হয় না।</string>
-    <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">বিন্যাসের দীর্ঘতম তালিকা, AVIF ও TIFF সহ।</string>
     <string name="toast_image_copied">ছবি অনুলিপি হয়েছে</string>
     <string name="toast_name_copied">ফাইলের নাম অনুলিপি হয়েছে</string>
@@ -165,7 +158,7 @@
     <string name="settings_info_position">অবস্থান</string>
     <string name="settings_zoom_menu">ভিউয়ার মেনুতে জুম</string>
     <string name="settings_zoom_menu_desc">\'পর্দায় মেলান\' এবং \'100%\' দর্শকের প্রাসঙ্গিক মেনুতে যোগ করে।</string>
-    <string name="hint_zoom_tap">দ্রুত জুম: ছবিতে দুবার ট্যাপ করলে সেটি ভিউয়ে মানানসই হবে, আবার দুবার ট্যাপ করলে আসল পিক্সেল দেখাবে. ট্যাপ করতে থাকলে মানানসই আর 100% এর মধ্যে বদলাতে থাকবে.</string>
+    <string name="hint_zoom_tap" formatted="false">দ্রুত জুম: ছবিতে দুবার ট্যাপ করলে সেটি ভিউয়ে মানানসই হবে, আবার দুবার ট্যাপ করলে আসল পিক্সেল দেখাবে. ট্যাপ করতে থাকলে মানানসই আর 100% এর মধ্যে বদলাতে থাকবে.</string>
     <string name="hint_ext_warn">⚠️ ফাইলের এক্সটেনশন বদলানো এক ফরম্যাট থেকে অন্যটিতে রূপান্তরের সমান নয়: তার জন্য \'রপ্তানি ও রূপান্তর\' আছে।\n\n⚠️ কোনো ছবি বা ভিডিওকে মিডিয়া ফাইলের নয় এমন এক্সটেনশন দিলে সেটি গ্রিড ও তালিকা দৃশ্য থেকে হারিয়ে যাবে।</string>
     <string name="settings_anim_counter">ফ্রেম কাউন্টার</string>
     <string name="settings_anim_counter_desc">চলমান ছবির নিয়ন্ত্রণ বারে দেখা যায়।</string>
@@ -185,9 +178,9 @@
     <string name="folders_permission_media">ফোল্ডারের তালিকার জন্য ছবি ও ভিডিওতে প্রবেশাধিকার দরকার।</string>
     <string name="folders_none">কোনো ফোল্ডারে দেখানোর মতো কিছু নেই।</string>
     <string name="folders_tablet_pick">নেভিগেশন বার থেকে একটি ফোল্ডার বেছে নিন</string>
-    <string name="folders_rail_search">Search in folders</string>
-    <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move the folder list</string>
+    <string name="folders_rail_search">ফোল্ডারে খুঁজুন</string>
+    <string name="folders_rail_search_in">%1$s-এ খুঁজুন</string>
+    <string name="folders_rail_move">ফোল্ডারের তালিকা স্থানান্তর করুন</string>
     <string name="hub_open">আরও</string>
     <string name="hub_view_list">তালিকা দৃশ্য</string>
     <string name="hub_view_grid">গ্রিড দৃশ্য</string>
@@ -276,8 +269,6 @@
     <string name="facts_duration">স্থিতিকাল</string>
     <string name="facts_colour_grey">ধূসর স্কেল</string>
     <string name="facts_colour_indexed">সূচিবদ্ধ রঙ</string>
-    <string name="facts_colour_rgb">RGB</string>
-    <string name="facts_colour_rgba">RGBA</string>
     <string name="facts_colour_bits">%1$s %2$d বিট</string>
     <string name="facts_colour_channel">%1$d বিট/চ্যানেল</string>
     <string name="facts_colour_alpha">স্বচ্ছতা সহ</string>
@@ -482,7 +473,6 @@
     <string name="look_vibrance">প্রাণবন্ততা</string>
     <string name="look_filter">B/W ফিল্টার</string>
     <string name="look_bw">সাদা-কালো</string>
-    <string name="look_mix">HSL</string>
     <string name="look_hue">বর্ণ</string>
     <string name="look_lum">উজ্জ্বলতা</string>
     <string name="look_band_red">লাল</string>
@@ -507,7 +497,6 @@
     <string name="look_grain_lift">হাইলাইট</string>
     <string name="look_vignette_feather">ফেদার</string>
     <string name="look_tone">কার্ভ</string>
-    <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">টোন কার্ভ</string>
     <string name="look_target">টার্গেটেড</string>
     <string name="look_auto">স্বয়ংক্রিয়</string>
@@ -754,8 +743,8 @@
     <string name="folder_add">ফোল্ডার যোগ করুন</string>
     <string name="folder_authorize">ফোল্ডার অনুমোদন করুন</string>
     <string name="folder_authorize_title">প্রদর্শিত ফোল্ডারে যোগ করুন</string>
-    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
-    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_list_remove_title">এই ফোল্ডারটি তালিকা থেকে সরাবেন?</string>
+    <string name="folder_list_remove_do">সরান</string>
     <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">অনুমোদন সরান</string>
     <string name="folder_remove_desc">এই ফোল্ডারটি অনুমোদিত তালিকা থেকে সরাবেন? এর বিষয়বস্তু গ্রিড ও তালিকা মোড থেকে অদৃশ্য হবে।</string>

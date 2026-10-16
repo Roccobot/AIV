@@ -2,7 +2,6 @@
 <!-- mr. Tradotto da AIV: la fonte di verità resta values/strings.xml, e ogni chiave nuova va aggiunta anche qui. -->
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
-    <string name="app_short_name">AIV</string>
     <string name="no_image">दाखवण्यासाठी काहीही नाही</string>
     <string name="open_failed">ही संचिका उघडता आली नाही</string>
     <string name="open_cleartext">कूटबद्ध नसलेला पत्ता (http): Android तो अडवतो, आणि https वरही उत्तर मिळत नाही</string>
@@ -21,9 +20,6 @@
     <string name="save_name_date">दिनांक</string>
     <string name="menu_convert">निर्यात आणि रूपांतर</string>
     <string name="convert_format">स्वरूप</string>
-    <string name="convert_jpeg">JPEG</string>
-    <string name="convert_png">PNG</string>
-    <string name="convert_webp">WebP</string>
     <string name="convert_webp_lossless">WebP हानिरहित</string>
     <string name="convert_quality">दर्जा</string>
     <string name="convert_quality_at">दर्जा\u0020\u0020\u0020%1$d%%</string>
@@ -35,7 +31,7 @@
     <string name="convert_elsewhere">इतर स्वरूपे</string>
     <string name="convert_elsewhere_desc">अँड्रॉइड फक्त वरील स्वरूपेच लिहू शकते. बाकीच्यांसाठी या सेवा आहेत, ज्या ब्राउझरमध्ये उघडतात: प्रतिमा तिथेच, फोनच्या स्मृतीतून निवडा.</string>
     <string name="convert_clean">स्वच्छ करा</string>
-    <string name="convert_clean_why">हेडर, मेटाडेटा, टिप्पण्या, स्क्रिप्ट, C2PA आणि संपादकांचे अवशेष काढून टाकते; हा सर्वात जड डेटा असतो (फाइलच्या 99% पर्यंत) आणि क्वचितच लागतो.</string>
+    <string name="convert_clean_why" formatted="false">हेडर, मेटाडेटा, टिप्पण्या, स्क्रिप्ट, C2PA आणि संपादकांचे अवशेष काढून टाकते; हा सर्वात जड डेटा असतो (फाइलच्या 99% पर्यंत) आणि क्वचितच लागतो.</string>
     <string name="convert_clean_keeps">प्रतिमेतील आशय बदलत नाही (मार्ग, आकार, रेषा, रेखाटने, मजकूर…): चित्र 100% अखंड राहते.</string>
     <string name="convert_clean_c2pa">⚠️ इशारा: C2PA उगमही निघून जातो, म्हणजे फाइल कोणी बनवली हे सांगणारा भाग. गरज असेल तर एक प्रत ठेवा.</string>
     <string name="clean_now">स्वच्छ करा</string>
@@ -45,11 +41,8 @@
     <string name="clean_not_svg">ही फाइल वाचनीय SVG नाही.</string>
     <string name="convert_open">उघडा</string>
     <string name="convert_export">निर्यात करा</string>
-    <string name="convert_ezgif">EzGif</string>
     <string name="convert_ezgif_why">जवळपास कशातूनही आणि कशातही रूपांतर करते, सजीव GIF सह.</string>
-    <string name="convert_squoosh">Squoosh</string>
     <string name="convert_squoosh_why">गुगलचे, ब्राउझरमध्येच चालते: प्रतिमा कुठेही चढवली जात नाही.</string>
-    <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">स्वरूपांची सर्वात मोठी यादी, AVIF आणि TIFF सह.</string>
     <string name="toast_image_copied">प्रतिमेची प्रत झाली</string>
     <string name="toast_name_copied">फाइलचे नाव कॉपी झाले</string>
@@ -165,7 +158,7 @@
     <string name="settings_info_position">स्थान</string>
     <string name="settings_zoom_menu">व्ह्यूअर मेनूमध्ये झूम</string>
     <string name="settings_zoom_menu_desc">\'पडद्यात बसवा\' आणि \'100%\' दर्शकाच्या संदर्भ मेनूमध्ये जोडते.</string>
-    <string name="hint_zoom_tap">जलद झूम: प्रतिमेवर दोनदा टॅप केल्यास ती दृश्यात बसते, पुन्हा दोनदा टॅप केल्यास खरे पिक्सेल दिसतात. टॅप करत राहिल्यास बसवलेली आणि 100% यांमध्ये बदलत राहते.</string>
+    <string name="hint_zoom_tap" formatted="false">जलद झूम: प्रतिमेवर दोनदा टॅप केल्यास ती दृश्यात बसते, पुन्हा दोनदा टॅप केल्यास खरे पिक्सेल दिसतात. टॅप करत राहिल्यास बसवलेली आणि 100% यांमध्ये बदलत राहते.</string>
     <string name="hint_ext_warn">⚠️ फाइलचे एक्स्टेंशन बदलणे म्हणजे एका स्वरूपातून दुसऱ्यात रूपांतर करणे नाही: त्यासाठी \'निर्यात आणि रूपांतर\' आहे.\n\n⚠️ चित्राला किंवा चित्रफितीला माध्यम फाइलचे नसलेले एक्स्टेंशन दिल्यास ती जाळी आणि यादी दृश्यातून नाहीशी होईल.</string>
     <string name="settings_anim_counter">फ्रेम काउंटर</string>
     <string name="settings_anim_counter_desc">हलत्या प्रतिमांच्या नियंत्रण पट्टीत दिसतो.</string>
@@ -185,9 +178,9 @@
     <string name="folders_permission_media">फोल्डरची यादी करण्यासाठी प्रतिमा आणि व्हिडिओंची परवानगी हवी.</string>
     <string name="folders_none">कोणत्याही संचिकासंचात दाखवण्यासारखे काही नाही.</string>
     <string name="folders_tablet_pick">नेव्हिगेशन बारमधून एक फोल्डर निवडा</string>
-    <string name="folders_rail_search">Search in folders</string>
-    <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move the folder list</string>
+    <string name="folders_rail_search">फोल्डरमध्ये शोधा</string>
+    <string name="folders_rail_search_in">%1$s मध्ये शोधा</string>
+    <string name="folders_rail_move">फोल्डरची यादी हलवा</string>
     <string name="hub_open">अधिक</string>
     <string name="hub_view_list">यादी रूप</string>
     <string name="hub_view_grid">जाळी रूप</string>
@@ -276,8 +269,6 @@
     <string name="facts_duration">कालावधी</string>
     <string name="facts_colour_grey">करड्या छटा</string>
     <string name="facts_colour_indexed">अनुक्रमित रंग</string>
-    <string name="facts_colour_rgb">RGB</string>
-    <string name="facts_colour_rgba">RGBA</string>
     <string name="facts_colour_bits">%1$s %2$d बिट</string>
     <string name="facts_colour_channel">%1$d बिट/वाहिनी</string>
     <string name="facts_colour_alpha">पारदर्शकतेसह</string>
@@ -482,7 +473,6 @@
     <string name="look_vibrance">सजीवता</string>
     <string name="look_filter">B/W फिल्टर</string>
     <string name="look_bw">कृष्णधवल</string>
-    <string name="look_mix">HSL</string>
     <string name="look_hue">छटा</string>
     <string name="look_lum">तेजस्विता</string>
     <string name="look_band_red">लाल</string>
@@ -507,7 +497,6 @@
     <string name="look_grain_lift">हायलाइट</string>
     <string name="look_vignette_feather">फेदर</string>
     <string name="look_tone">कर्व्ह</string>
-    <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">टोन कर्व्ह</string>
     <string name="look_target">लक्ष्यित</string>
     <string name="look_auto">स्वयं</string>
@@ -754,8 +743,8 @@
     <string name="folder_add">फोल्डर जोडा</string>
     <string name="folder_authorize">फोल्डरला परवानगी द्या</string>
     <string name="folder_authorize_title">दाखवलेल्या फोल्डरमध्ये जोडा</string>
-    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
-    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_list_remove_title">हा फोल्डर खरोखर यादीतून काढायचा?</string>
+    <string name="folder_list_remove_do">काढा</string>
     <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">परवानगी काढा</string>
     <string name="folder_remove_desc">हा फोल्डर परवानगीच्या यादीतून काढायचा? त्यातील सामग्री ग्रिड आणि यादी मोडमधून अदृश्य होईल.</string>

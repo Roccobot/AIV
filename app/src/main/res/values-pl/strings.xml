@@ -2,7 +2,6 @@
 <!-- pl. Tradotto da AIV: la fonte di verità resta values/strings.xml, e ogni chiave nuova va aggiunta anche qui. -->
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
-    <string name="app_short_name">AIV</string>
     <string name="no_image">Nie ma nic do pokazania</string>
     <string name="open_failed">Nie udało się otworzyć tego pliku</string>
     <string name="open_cleartext">Adres nieszyfrowany (http): Android go blokuje, a przez https nie odpowiada</string>
@@ -21,9 +20,6 @@
     <string name="save_name_date">Data</string>
     <string name="menu_convert">Eksportuj i konwertuj</string>
     <string name="convert_format">Format</string>
-    <string name="convert_jpeg">JPEG</string>
-    <string name="convert_png">PNG</string>
-    <string name="convert_webp">WebP</string>
     <string name="convert_webp_lossless">WebP bezstratny</string>
     <string name="convert_quality">Jakość</string>
     <string name="convert_quality_at">Jakość\u0020\u0020\u0020%1$d%%</string>
@@ -35,7 +31,7 @@
     <string name="convert_elsewhere">Inne formaty</string>
     <string name="convert_elsewhere_desc">Android potrafi zapisać tylko formaty powyżej. Dla pozostałych są te serwisy, które otwierają się w przeglądarce: obraz wybiera się tam, z pamięci telefonu.</string>
     <string name="convert_clean">Wyczyść</string>
-    <string name="convert_clean_why">Usuwa nagłówki, metadane, komentarze, skrypty, C2PA i pozostałości edytorów, czyli najcięższe dane (do 99% pliku), które rzadko są potrzebne.</string>
+    <string name="convert_clean_why" formatted="false">Usuwa nagłówki, metadane, komentarze, skrypty, C2PA i pozostałości edytorów, czyli najcięższe dane (do 99% pliku), które rzadko są potrzebne.</string>
     <string name="convert_clean_keeps">Nie zmienia treści obrazu (ścieżek, kształtów, linii, rysunków, tekstu…): ilustracja pozostaje w 100% nietknięta.</string>
     <string name="convert_clean_c2pa">⚠️ UWAGA: znika też pochodzenie C2PA, czyli część mówiąca, kto zrobił plik. Zachowaj kopię, jeśli jest potrzebna.</string>
     <string name="clean_now">Wyczyść</string>
@@ -45,11 +41,8 @@
     <string name="clean_not_svg">Ten plik nie jest czytelnym SVG.</string>
     <string name="convert_open">Otwórz</string>
     <string name="convert_export">Eksportuj</string>
-    <string name="convert_ezgif">EzGif</string>
     <string name="convert_ezgif_why">Konwertuje z niemal wszystkiego i na niemal wszystko, w tym animowane GIF-y.</string>
-    <string name="convert_squoosh">Squoosh</string>
     <string name="convert_squoosh_why">Od Google, działa w przeglądarce: obraz nigdzie nie jest wysyłany.</string>
-    <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">Najdłuższa lista formatów, w tym AVIF i TIFF.</string>
     <string name="toast_image_copied">Obraz skopiowany</string>
     <string name="toast_name_copied">Nazwa pliku skopiowana</string>
@@ -165,7 +158,7 @@
     <string name="settings_info_position">Pozycja</string>
     <string name="settings_zoom_menu">Powiększenie w menu przeglądarki</string>
     <string name="settings_zoom_menu_desc">Dodaje \'Dopasuj do ekranu\' i \'100%\' do menu kontekstowego przeglądarki.</string>
-    <string name="hint_zoom_tap">Szybkie powiększenie: dwukrotnie dotknij obrazu, aby dopasować go do widoku, jeszcze raz, aby zobaczyć rzeczywiste piksele. Dotykaj dalej, aby przełączać dopasowany i 100%.</string>
+    <string name="hint_zoom_tap" formatted="false">Szybkie powiększenie: dwukrotnie dotknij obrazu, aby dopasować go do widoku, jeszcze raz, aby zobaczyć rzeczywiste piksele. Dotykaj dalej, aby przełączać dopasowany i 100%.</string>
     <string name="hint_ext_warn">⚠️ Zmiana rozszerzenia pliku to nie to samo co konwersja między formatami: do tego służy \'Eksportuj i konwertuj\'.\n\n⚠️ Jeśli nadasz obrazowi lub filmowi rozszerzenie, które nie należy do pliku multimedialnego, element zniknie z widoku siatki i listy.</string>
     <string name="settings_anim_counter">Licznik klatek</string>
     <string name="settings_anim_counter_desc">Pojawia się na pasku sterowania obrazów animowanych.</string>
@@ -185,9 +178,9 @@
     <string name="folders_permission_media">Wypisanie folderów wymaga dostępu do obrazów i filmów.</string>
     <string name="folders_none">Żaden folder nie zawiera niczego do pokazania.</string>
     <string name="folders_tablet_pick">Wybierz folder z paska nawigacji</string>
-    <string name="folders_rail_search">Search in folders</string>
-    <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move the folder list</string>
+    <string name="folders_rail_search">Szukaj w folderach</string>
+    <string name="folders_rail_search_in">Szukaj w %1$s</string>
+    <string name="folders_rail_move">Przesuń listę folderów</string>
     <string name="hub_open">Więcej</string>
     <string name="hub_view_list">Widok listy</string>
     <string name="hub_view_grid">Widok siatki</string>
@@ -282,8 +275,6 @@
     <string name="facts_duration">Czas trwania</string>
     <string name="facts_colour_grey">Skala szarości</string>
     <string name="facts_colour_indexed">Kolor indeksowany</string>
-    <string name="facts_colour_rgb">RGB</string>
-    <string name="facts_colour_rgba">RGBA</string>
     <string name="facts_colour_bits">%1$s %2$d bit</string>
     <string name="facts_colour_channel">%1$d bit/kanał</string>
     <string name="facts_colour_alpha">z przezroczystością</string>
@@ -516,7 +507,6 @@
     <string name="look_vibrance">Jaskrawość</string>
     <string name="look_filter">Filtr cz-b</string>
     <string name="look_bw">Czarno-biały</string>
-    <string name="look_mix">HSL</string>
     <string name="look_hue">Barwa</string>
     <string name="look_lum">Luminancja</string>
     <string name="look_band_red">Czerwony</string>
@@ -541,7 +531,6 @@
     <string name="look_grain_lift">Światła</string>
     <string name="look_vignette_feather">Wtapianie</string>
     <string name="look_tone">Krzywa</string>
-    <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Krzywa tonalna</string>
     <string name="look_target">Celowany</string>
     <string name="look_auto">Auto</string>
@@ -790,8 +779,8 @@
     <string name="folder_add">Dodaj folder</string>
     <string name="folder_authorize">Zezwól na folder</string>
     <string name="folder_authorize_title">Dodaj do wyświetlanych folderów</string>
-    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
-    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_list_remove_title">Na pewno usunąć ten folder z listy?</string>
+    <string name="folder_list_remove_do">Usuń</string>
     <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">Cofnij zezwolenie</string>
     <string name="folder_remove_desc">Usunąć ten folder z listy dozwolonych? Jego zawartość zniknie z trybów siatki i listy.</string>

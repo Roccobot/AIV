@@ -20,7 +20,7 @@
     -->
     <string name="app_name">Astonishing Image Viewer</string>
     <!-- Room under the icon is short: the full name shows up elsewhere. -->
-    <string name="app_short_name">AIV</string>
+    <string name="app_short_name" translatable="false">AIV</string>
 
     <string name="no_image">Nothing to show</string>
     <string name="open_failed">I cannot open this file</string>
@@ -57,9 +57,9 @@
     <string name="save_name_date">Date</string>
     <string name="menu_convert">Export and convert</string>
     <string name="convert_format">Format</string>
-    <string name="convert_jpeg">JPEG</string>
-    <string name="convert_png">PNG</string>
-    <string name="convert_webp">WebP</string>
+    <string name="convert_jpeg" translatable="false">JPEG</string>
+    <string name="convert_png" translatable="false">PNG</string>
+    <string name="convert_webp" translatable="false">WebP</string>
     <string name="convert_webp_lossless">WebP lossless</string>
     <string name="convert_quality">Quality</string>
     <string name="convert_quality_at">Quality\u0020\u0020\u0020%1$d%%</string>
@@ -71,7 +71,7 @@
     <string name="convert_elsewhere">Other formats</string>
     <string name="convert_elsewhere_desc">Android can only write the formats above. For the others there are these services, which open in the browser: pick the image there, from the phone\'s storage.</string>
     <string name="convert_clean">Clean up</string>
-    <string name="convert_clean_why">Removes headers, metadata, comments, scripts, C2PA and editor leftovers, which are the heaviest data (up to 99% of the file) and are rarely needed.</string>
+    <string name="convert_clean_why" formatted="false">Removes headers, metadata, comments, scripts, C2PA and editor leftovers, which are the heaviest data (up to 99% of the file) and are rarely needed.</string>
     <string name="convert_clean_keeps">It does not change the image content (paths, shapes, lines, drawings, text…): the artwork stays 100% intact.</string>
     <string name="convert_clean_c2pa">⚠️ WARNING: the C2PA provenance goes too, the part that says who made the file. Keep a copy if you need it.</string>
     <string name="clean_now">Clean up</string>
@@ -81,11 +81,11 @@
     <string name="clean_not_svg">This file is not a readable SVG.</string>
     <string name="convert_open">Open</string>
     <string name="convert_export">Export</string>
-    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif" translatable="false">EzGif</string>
     <string name="convert_ezgif_why">Converts from and to almost anything, animated GIFs included.</string>
-    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh" translatable="false">Squoosh</string>
     <string name="convert_squoosh_why">By Google, works in the browser: the image is not uploaded anywhere.</string>
-    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert" translatable="false">CloudConvert</string>
     <string name="convert_cloudconvert_why">The longest list of formats, AVIF and TIFF included.</string>
     <!-- ── Modificare una fotografia ── -->
     <!-- The pencil entry in the long press menu, and the title of the built in editor: one
@@ -105,7 +105,7 @@
     <string name="look_vibrance">Vibrance</string>
     <string name="look_filter">B/W filter</string>
     <string name="look_bw">Black and white</string>
-    <string name="look_mix">HSL</string>
+    <string name="look_mix" translatable="false">HSL</string>
     <string name="look_hue">Hue</string>
     <string name="look_lum">Luminance</string>
     <string name="look_band_red">Red</string>
@@ -130,7 +130,7 @@
     <string name="look_grain_lift">Highlights</string>
     <string name="look_vignette_feather">Feather</string>
     <string name="look_tone">Curve</string>
-    <string name="look_tone_rgb">RGB</string>
+    <string name="look_tone_rgb" translatable="false">RGB</string>
     <string name="look_tone_board">Tone curve</string>
     <string name="look_target">Targeted</string>
     <string name="look_corners">Corners</string>
@@ -481,7 +481,7 @@
     <string name="settings_zoom_menu">Zoom in the viewer menu</string>
     <string name="settings_zoom_menu_desc">Adds \'Fit to view\' and \'100%\' to the viewer\'s context menu.</string>
     <!-- The one-off veil shown over the first picture after installing. -->
-    <string name="hint_zoom_tap">Quick zoom: double tap the image to fit it to the view, double tap again for actual pixels. Keep tapping to go round between fitted and 100%.</string>
+    <string name="hint_zoom_tap" formatted="false">Quick zoom: double tap the image to fit it to the view, double tap again for actual pixels. Keep tapping to go round between fitted and 100%.</string>
     <string name="hint_ext_warn">⚠️ Changing a file extension is not the same as switching between formats: for that there is \'Export and convert\'.\n\n⚠️ If you give an image or a video an extension that does not belong to a media file, the item will vanish from the grid and list views.</string>
     <string name="settings_anim_counter">Frame counter</string>
     <string name="settings_anim_counter_desc">Shown in the controls of animated images.</string>
@@ -723,8 +723,8 @@
     <string name="facts_duration">Duration</string>
     <string name="facts_colour_grey">Grayscale</string>
     <string name="facts_colour_indexed">Indexed color</string>
-    <string name="facts_colour_rgb">RGB</string>
-    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_rgb" translatable="false">RGB</string>
+    <string name="facts_colour_rgba" translatable="false">RGBA</string>
     <string name="facts_colour_bits">%1$s %2$d bit</string>
     <string name="facts_colour_channel">%1$d bit/channel</string>
     <string name="facts_colour_alpha">with transparency</string>

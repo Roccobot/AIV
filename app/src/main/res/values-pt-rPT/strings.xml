@@ -125,7 +125,7 @@
     <string name="toast_name_copied">Nome do ficheiro copiado</string>
     <!-- arquivo -> ficheiro, come nel resto di questo file. Le altre due
          stringhe del pulitore non nominano il file e restano quelle di values-pt. -->
-    <string name="convert_clean_why">Remove cabeçalhos, metadados, comentários, scripts, C2PA e restos dos editores, que são os dados mais pesados (até 99% do ficheiro) e raramente servem.</string>
+    <string name="convert_clean_why" formatted="false">Remove cabeçalhos, metadados, comentários, scripts, C2PA e restos dos editores, que são os dados mais pesados (até 99% do ficheiro) e raramente servem.</string>
     <string name="settings_buttons_menu">Menu de um ficheiro</string>
     <!-- pressionado -> premido, lixeira -> reciclagem, arquivo -> ficheiro: as tres
          palavras que ja mudam no resto deste ficheiro. As duas cadeias das setas
@@ -228,4 +228,6 @@
     <string name="hint_feed_newer">Mais recentes</string>
     <string name="hint_feed_older">Menos recentes</string>
     <string name="settings_group_browse">Ficheiros e pastas</string>
+    <string name="folders_rail_search">Procurar nas pastas</string>
+    <string name="folders_rail_search_in">Procurar em %1$s</string>
 </resources>

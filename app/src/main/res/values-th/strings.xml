@@ -2,7 +2,6 @@
 <!-- th. Tradotto da AIV: la fonte di verità resta values/strings.xml, e ogni chiave nuova va aggiunta anche qui. -->
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
-    <string name="app_short_name">AIV</string>
     <string name="no_image">ไม่มีอะไรให้แสดง</string>
     <string name="open_failed">เปิดไฟล์นี้ไม่ได้</string>
     <string name="open_cleartext">ที่อยู่ไม่เข้ารหัส (http): Android บล็อกไว้ และทาง https ก็ไม่ตอบสนอง</string>
@@ -21,9 +20,6 @@
     <string name="save_name_date">วันที่</string>
     <string name="menu_convert">ส่งออกและแปลง</string>
     <string name="convert_format">รูปแบบ</string>
-    <string name="convert_jpeg">JPEG</string>
-    <string name="convert_png">PNG</string>
-    <string name="convert_webp">WebP</string>
     <string name="convert_webp_lossless">WebP ไม่สูญเสีย</string>
     <string name="convert_quality">คุณภาพ</string>
     <string name="convert_quality_at">คุณภาพ\u0020\u0020\u0020%1$d%%</string>
@@ -35,7 +31,7 @@
     <string name="convert_elsewhere">รูปแบบอื่น</string>
     <string name="convert_elsewhere_desc">แอนดรอยด์เขียนได้เฉพาะรูปแบบข้างบนเท่านั้น สำหรับรูปแบบอื่นมีบริการเหล่านี้ ซึ่งเปิดในเบราว์เซอร์ แล้วเลือกภาพจากหน่วยความจำของโทรศัพท์ที่นั่น</string>
     <string name="convert_clean">ล้างข้อมูล</string>
-    <string name="convert_clean_why">ลบส่วนหัว ข้อมูลกำกับ ความคิดเห็น สคริปต์ C2PA และเศษที่โปรแกรมแก้ไขทิ้งไว้ ซึ่งเป็นข้อมูลที่หนักที่สุด (ถึง 99% ของไฟล์) และนานๆ ครั้งจึงจะได้ใช้</string>
+    <string name="convert_clean_why" formatted="false">ลบส่วนหัว ข้อมูลกำกับ ความคิดเห็น สคริปต์ C2PA และเศษที่โปรแกรมแก้ไขทิ้งไว้ ซึ่งเป็นข้อมูลที่หนักที่สุด (ถึง 99% ของไฟล์) และนานๆ ครั้งจึงจะได้ใช้</string>
     <string name="convert_clean_keeps">ไม่เปลี่ยนเนื้อหาของภาพ (เส้นทาง รูปทรง เส้น ภาพวาด ข้อความ…): ภาพประกอบยังคงสมบูรณ์ 100%</string>
     <string name="convert_clean_c2pa">⚠️ คำเตือน: ที่มาแบบ C2PA ก็หายไปด้วย นั่นคือส่วนที่บอกว่าใครสร้างไฟล์ ถ้าจำเป็นให้เก็บสำเนาไว้</string>
     <string name="clean_now">ล้างข้อมูล</string>
@@ -45,11 +41,8 @@
     <string name="clean_not_svg">ไฟล์นี้ไม่ใช่ SVG ที่อ่านได้</string>
     <string name="convert_open">เปิด</string>
     <string name="convert_export">ส่งออก</string>
-    <string name="convert_ezgif">EzGif</string>
     <string name="convert_ezgif_why">แปลงจากและเป็นเกือบทุกอย่าง รวมถึง GIF เคลื่อนไหว</string>
-    <string name="convert_squoosh">Squoosh</string>
     <string name="convert_squoosh_why">ของกูเกิล ทำงานในเบราว์เซอร์ ภาพไม่ถูกอัปโหลดไปที่ใด</string>
-    <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">รายการรูปแบบยาวที่สุด รวมถึง AVIF และ TIFF</string>
     <string name="toast_image_copied">คัดลอกภาพแล้ว</string>
     <string name="toast_name_copied">คัดลอกชื่อไฟล์แล้ว</string>
@@ -165,7 +158,7 @@
     <string name="settings_info_position">ตำแหน่ง</string>
     <string name="settings_zoom_menu">การซูมในเมนูของโปรแกรมดู</string>
     <string name="settings_zoom_menu_desc">เพิ่ม \'พอดีหน้าจอ\' และ \'100%\' ในเมนูบริบทของโปรแกรมดูภาพ</string>
-    <string name="hint_zoom_tap">ซูมเร็ว: แตะสองครั้งที่รูปเพื่อให้พอดีกับหน้าจอ แตะสองครั้งอีกทีเพื่อดูพิกเซลจริง แตะต่อไปเพื่อสลับระหว่างพอดีและ 100%</string>
+    <string name="hint_zoom_tap" formatted="false">ซูมเร็ว: แตะสองครั้งที่รูปเพื่อให้พอดีกับหน้าจอ แตะสองครั้งอีกทีเพื่อดูพิกเซลจริง แตะต่อไปเพื่อสลับระหว่างพอดีและ 100%</string>
     <string name="hint_ext_warn">⚠️ การเปลี่ยนนามสกุลไฟล์ไม่เหมือนการแปลงจากรูปแบบหนึ่งไปอีกรูปแบบ สำหรับสิ่งนั้นมี \'ส่งออกและแปลง\' อยู่แล้ว\n\n⚠️ ถ้าตั้งนามสกุลที่ไม่ใช่ของไฟล์สื่อให้รูปหรือวิดีโอ รายการนั้นจะหายไปจากมุมมองตารางและรายการ</string>
     <string name="settings_anim_counter">ตัวนับเฟรม</string>
     <string name="settings_anim_counter_desc">แสดงในแถบควบคุมของภาพเคลื่อนไหว</string>
@@ -185,9 +178,9 @@
     <string name="folders_permission_media">การแสดงรายการโฟลเดอร์ต้องมีสิทธิ์เข้าถึงรูปภาพและวิดีโอ</string>
     <string name="folders_none">ไม่มีโฟลเดอร์ใดมีอะไรให้แสดง</string>
     <string name="folders_tablet_pick">เลือกโฟลเดอร์จากแถบนำทาง</string>
-    <string name="folders_rail_search">Search in folders</string>
-    <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move the folder list</string>
+    <string name="folders_rail_search">ค้นหาในโฟลเดอร์</string>
+    <string name="folders_rail_search_in">ค้นหาใน %1$s</string>
+    <string name="folders_rail_move">ย้ายรายการโฟลเดอร์</string>
     <string name="hub_open">เพิ่มเติม</string>
     <string name="hub_view_list">มุมมองรายการ</string>
     <string name="hub_view_grid">มุมมองตาราง</string>
@@ -273,8 +266,6 @@
     <string name="facts_duration">ความยาว</string>
     <string name="facts_colour_grey">ระดับสีเทา</string>
     <string name="facts_colour_indexed">สีแบบดัชนี</string>
-    <string name="facts_colour_rgb">RGB</string>
-    <string name="facts_colour_rgba">RGBA</string>
     <string name="facts_colour_bits">%1$s %2$d บิต</string>
     <string name="facts_colour_channel">%1$d บิต/ช่อง</string>
     <string name="facts_colour_alpha">มีความโปร่งใส</string>
@@ -465,7 +456,6 @@
     <string name="look_vibrance">ความสดใส</string>
     <string name="look_filter">ฟิลเตอร์ขาวดำ</string>
     <string name="look_bw">ขาวดำ</string>
-    <string name="look_mix">HSL</string>
     <string name="look_hue">เฉดสี</string>
     <string name="look_lum">ความสว่าง</string>
     <string name="look_band_red">แดง</string>
@@ -490,7 +480,6 @@
     <string name="look_grain_lift">ไฮไลต์</string>
     <string name="look_vignette_feather">ขอบฟุ้ง</string>
     <string name="look_tone">เส้นโค้ง</string>
-    <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">เส้นโค้งโทน</string>
     <string name="look_target">เจาะจง</string>
     <string name="look_auto">อัตโนมัติ</string>
@@ -736,8 +725,8 @@
     <string name="folder_add">เพิ่มโฟลเดอร์</string>
     <string name="folder_authorize">อนุญาตโฟลเดอร์</string>
     <string name="folder_authorize_title">เพิ่มในโฟลเดอร์ที่แสดง</string>
-    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
-    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_list_remove_title">นำโฟลเดอร์นี้ออกจากรายการจริงหรือไม่?</string>
+    <string name="folder_list_remove_do">นำออก</string>
     <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">ถอนการอนุญาต</string>
     <string name="folder_remove_desc">นำโฟลเดอร์นี้ออกจากรายการที่อนุญาตหรือไม่? เนื้อหาจะหายไปจากโหมดตารางและรายการ</string>
