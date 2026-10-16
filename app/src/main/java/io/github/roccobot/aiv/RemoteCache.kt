@@ -101,10 +101,17 @@ object RemoteCache {
      * ⚠️ **La query fa parte della chiave**: su moltissimi siti è lei a dire *quale*
      * immagine è, e troncarla farebbe servire una foto al posto di un'altra.
      */
-    private fun fileFor(context: Context, uri: Uri): File {
-        val digest = MessageDigest.getInstance("SHA-256")
-            .digest(uri.toString().toByteArray())
-            .joinToString("") { "%02x".format(it) }
-        return File(File(context.cacheDir, "remote"), digest)
-    }
+    private fun fileFor(context: Context, uri: Uri): File =
+        File(File(context.cacheDir, "remote"), sha256(uri.toString()))
 }
+
+/**
+ * Il digest SHA-256 di [text], in esadecimale: il nome di un file di cache.
+ *
+ * ⚠️ **Lo usano le due cache su disco**, questa e quella delle miniature (`AvifCache`, dalla
+ * `6.27`): un hash di 32 bit faceva collidere due miniature su cento a diecimila voci.
+ */
+internal fun sha256(text: String): String =
+    MessageDigest.getInstance("SHA-256")
+        .digest(text.toByteArray())
+        .joinToString("") { "%02x".format(it) }
