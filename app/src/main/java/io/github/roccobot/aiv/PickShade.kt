@@ -17,56 +17,48 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.pow
 
 /*
- * The shade over the grid above the selection sheet.
+ * L'ombra sulla griglia sopra la scheda della selezione.
  *
  * Author: Rocco Casadei, a.k.a. Roccobot
  *
- * ⚠️⚠️ **IT EXISTS BECAUSE THE SELECTION IS THE ONE SURFACE THE VEIL CANNOT REACH** (his note E on
- * the 4.45 round: *dovendo lasciare interattiva la griglia non può ricoprirla con il velo. Una
- * soluzione potrebbe essere un'ombra personalizzata solo per coprire quel caso. Dovrebbe essere
- * netta ma graduale abbastanza da essere discreta, e gli indicatori-checkbox dovrebbero ignorarla*).
- * The sheet stays without a veil on purpose, so the grid can still be picked from; the shade only
- * darkens, and takes no touch.
- * ⚠️⚠️ **IT IS DRAWN TWICE, WITH ONE FORMULA**: behind the cells, on the screen's whole column
- * (since 4.48; on the grid, in 4.46, it was boxed in by the grid's margins), where it covers the
- * gaps between them and the margins; and inside every cell, above the picture and below the tick. A
- * single layer over the grid would cover the ticks, which his note keeps on top; a layer inside the
- * cells alone would leave the gaps bright, which his mockup darkens too. Both read the same window
- * position, so the two halves meet without a seam.
- * ⚠️ **The numbers are his mockup's, measured** (1200 x 2670 px, light theme): the shade starts 340
- * px above the sheet, about 120 dp on his phone, and reaches 49% black at the sheet's edge (halved
- * in 4.48, see [SHADE_MAX]), growing
- * faster near the bottom (about a tenth at half height, three tenths at three quarters), which a
- * power of 1.7 fits within a hundredth.
- * ⚠️ **On the dark theme it is white**, like the veil (`veilInk`): his own choice for the veil, that
- * the opposite colour reads as a surface on either theme. A reading of his note, declared on the
- * test item.
+ * ⚠️ **Esiste perché la selezione è l'unica superficie che la Sfocatura dietro i pannelli non può
+ * coprire** (nota E dell'utente sul giro della 4.45): la griglia deve restare toccabile per
+ * scegliere, quindi la scheda resta senza sfocatura. L'ombra scurisce soltanto e non prende tocchi.
+ * ⚠️ **Si disegna due volte, con la stessa formula**: dietro le celle, su tutta la colonna dello
+ * schermo, dove copre gli spazi fra le celle e i margini; e dentro ogni cella, sopra l'immagine e
+ * sotto la spunta. Uno strato solo sopra la griglia coprirebbe le spunte, che la sua nota vuole in
+ * primo piano; uno strato solo dentro le celle lascerebbe chiari gli spazi, che il suo modello
+ * scurisce. Tutte e due leggono la stessa posizione nella finestra, quindi le due metà si uniscono
+ * senza giunta.
+ * I numeri sono misurati sul suo modello (1200 x 2670 px, tema chiaro): l'ombra comincia 340 px
+ * sopra la scheda, circa 120 dp sul suo telefono, e cresce più in fretta in basso (circa un decimo
+ * a metà altezza, tre decimi a tre quarti), cosa che una potenza di 1,7 riproduce entro un
+ * centesimo.
+ * Col tema scuro è bianca, come la sfocatura (`veilInk`): il colore opposto si legge come una
+ * superficie con tutti e due i temi.
  */
 
-/** How tall the shade is above the sheet: 340 px of his phone, at a density of about 2.9. */
+/** Quanto è alta l'ombra sopra la scheda: 340 px del suo telefono, a una densità di circa 2,9. */
 internal val SHADE_TALL = 120.dp
 
-/**
- * How dark the shade is at the sheet's edge: half of his mockup's 49% since 4.48 (his note on
- * `4.46-04`: *l'opacità massima dev'essere la metà di quella che vedo nella 4.46*).
- */
+/** Quanto è scura l'ombra al bordo della scheda: metà del 49% del suo modello (nota su `4.46-04`). */
 internal const val SHADE_MAX = 0.245f
 
-/** The curve of his mockup: the shade at height fraction t below its top is `SHADE_MAX * t^1.7`. */
+/** La curva del suo modello: alla frazione t d'altezza dall'alto l'ombra vale `SHADE_MAX * t^1.7`. */
 private const val SHADE_CURVE = 1.7f
 
-/** Stops enough for a smooth ramp: at 120 dp a step is a few pixels tall, under the eye. */
+/** Tappe sufficienti per una rampa liscia: a 120 dp un passo è alto pochi pixel, sotto la soglia dell'occhio. */
 private const val SHADE_STOPS = 16
 
 /**
- * The shade's colour at full strength for the theme in force: black on light, white on dark.
+ * Il colore dell'ombra a piena forza per il tema in vigore: nero col chiaro, bianco con lo scuro.
  */
 @Composable
 internal fun shadeInk(): Color = if (LocalAivLight.current) Color.Black else Color.White
 
 /**
- * Where the sheet's top edge is in the window, in pixels, or `null` when no sheet covers the bottom.
- * It reads [FootStage], so it follows the sheet's own animation by construction.
+ * Dov'è il bordo alto della scheda nella finestra, in pixel, o `null` se nessuna scheda copre il
+ * fondo. Legge [FootStage], quindi segue per costruzione l'animazione della scheda.
  */
 @Composable
 internal fun sheetTop(): Float? {
@@ -76,10 +68,10 @@ internal fun sheetTop(): Float? {
 }
 
 /**
- * Draws the shade on this node, in its own place: [behind] under its content (the grid, for the
- * gaps) or over it (a cell, under the tick that comes after it).
+ * Disegna l'ombra su questo nodo, al suo posto: sotto il contenuto con [behind] (la griglia, per
+ * gli spazi) o sopra (una cella, sotto la spunta che viene dopo).
  *
- * ⚠️ [top] `null` draws nothing: outside a selection, or before the sheet has a place.
+ * Con [top] `null` non disegna niente: fuori da una selezione, o prima che la scheda abbia un posto.
  */
 @Composable
 internal fun Modifier.pickShade(top: Float?, behind: Boolean): Modifier {
@@ -105,9 +97,9 @@ private data class PickShadeElement(
 }
 
 /**
- * ⚠️⚠️ **IT REDRAWS WHEN IT MOVES, AND THAT IS WHY IT IS A NODE**: a cell of a lazy grid moves on a
- * layer while it scrolls, without being drawn again, so a shade computed once would scroll with the
- * picture. Knowing its place in the window, the node asks for a new drawing when that place changes.
+ * ⚠️ **È un nodo perché deve ridisegnarsi quando si muove**: una cella di una griglia pigra scorre
+ * su uno strato senza essere ridisegnata, quindi un'ombra calcolata una volta scorrerebbe con
+ * l'immagine. Il nodo conosce il suo posto nella finestra e chiede un disegno nuovo quando cambia.
  */
 private class PickShadeNode(
     var top: Float,
@@ -127,20 +119,18 @@ private class PickShadeNode(
     }
 
     /**
-     * ⚠️⚠️ **The ramp is laid with the noise that takes its bands away, since 4.90** (his report of
-     * 2026-10-08: *vedo di nuovo un po' di banding*): over a light photo the shade goes through about
-     * fifty levels in 120 dp, a step every seven pixels. The reckoning lives at the head of
-     * `Dither.kt`. From [top] minus [tall] to [top], in the drawing's own coordinates: clear above,
-     * [SHADE_MAX] at the sheet's edge and below it, where the sheet covers the rest.
+     * La rampa è stesa col rumore che toglie le bande: su un'immagine chiara l'ombra attraversa una
+     * cinquantina di livelli in 120 dp, un gradino ogni sette pixel (il conto è in testa a
+     * `Dither.kt`). Va da [top] meno [tall] a [top]: trasparente sopra, [SHADE_MAX] al bordo della
+     * scheda e sotto, dove la scheda copre il resto.
      */
     private val ramp = GrainedRamp(SHADE_RAMP, SHADE_MAX)
 
     /*
-     * ⚠️⚠️ **The ramp is in the window's coordinates, and the canvas moves under it, since 6.28**
-     * (finding D26 of the 6.25 review): its two ends were in the cell's coordinates, so they
-     * changed with every frame of scrolling and every cell in view built a new gradient each frame
-     * (ten places, ten gradients, measured in `RampeTest`). Moved by the cell's place, the ramp is
-     * the same one, and only where it is read changes.
+     * ⚠️ **La rampa è nelle coordinate della finestra, e la tela si sposta sotto di lei**: con gli
+     * estremi nelle coordinate della cella, ogni cella in vista costruirebbe un gradiente nuovo a
+     * ogni fotogramma di scorrimento. Così la rampa resta la stessa e cambia solo dove la si legge
+     * (rilievo D26, presidiato da `RampeTest`).
      */
     override fun ContentDrawScope.draw() {
         if (!behind) drawContent()
@@ -156,7 +146,7 @@ private class PickShadeNode(
     }
 }
 
-/** The stops of his curve, as fractions of [SHADE_MAX]. */
+/** Le tappe della sua curva, come frazioni di [SHADE_MAX]. */
 private val SHADE_RAMP = List(SHADE_STOPS + 1) { i ->
     val t = i / SHADE_STOPS.toFloat()
     t to t.pow(SHADE_CURVE)
