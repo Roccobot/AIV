@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Che cosa il sistema salva e ripristina, su Android 11 e più vecchi.
 
-     ⚠️⚠️ IL PERCHÉ DI OGNI RIGA STA NEL FILE GEMELLO `data_extraction_rules.xml`, che copre
+     ⚠️⚠️ IL PERCHÉ DI OGNI RIGA È SCRITTO NEL FILE GEMELLO `data_extraction_rules.xml`, che copre
      Android 12 in su: i due si leggono insieme e dicono la stessa cosa.
 
      ⚠️ I DUE FILE SONO SEPARATI PERCHÉ LO CHIEDE ANDROID e non per scelta: da Android 12
