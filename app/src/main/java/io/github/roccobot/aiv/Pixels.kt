@@ -59,9 +59,9 @@ object Pixels {
     }
 
     /**
-     * Il lato lungo del file dietro [uri], letto dall'intestazione e poi ricordato. `null` per tutto
-     * quello che non si apre (un indirizzo di rete, un file sparito, un formato sconosciuto): chi
-     * chiama lo tratta come un caso normale.
+     * Il lato lungo del file dietro [uri], letto dall'intestazione e poi ricordato. `null` per
+     * tutto quello che non si apre (un indirizzo di rete, un file sparito, un formato
+     * sconosciuto): chi chiama lo tratta come un caso normale.
      */
     suspend fun longSideOf(context: Context, uri: Uri): Int? {
         known(uri)?.let { return it }

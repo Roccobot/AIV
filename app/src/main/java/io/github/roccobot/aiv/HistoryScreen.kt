@@ -96,7 +96,7 @@ fun HistoryScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 modifier = Modifier.padding(horizontal = PAGE_SIDE)
             )
 
-            /* Da 600 dp due colonne (mockup `history`): gruppi per data a lato, percorsi al centro. */
+            /* Da 600 dp due colonne (mockup `history`): operazioni a lato, percorsi al centro. */
             dual -> {
                 var chosen by remember(groups) { mutableStateOf(groups.first().at) }
                 val batch = groups.firstOrNull { it.at == chosen } ?: groups.first()

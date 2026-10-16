@@ -83,7 +83,7 @@ fun DestinationDialog(
     @StringRes action: Int,
     onDismiss: () -> Unit,
     onPick: (File) -> Unit,
-    /** Percorsi già in elenco (inclusi o esclusi): hanno l'indicatore e non si aggiungono (`3.27-02`). */
+    /** Percorsi già in elenco (inclusi o esclusi): l'indicatore, e niente nuova aggiunta. */
     alreadyListed: Set<String> = emptySet(),
     /**
      * Le cartelle da cui vengono i file, nella forma di [portablePath]: la destinazione deve essere

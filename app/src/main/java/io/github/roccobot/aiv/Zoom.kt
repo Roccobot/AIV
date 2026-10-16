@@ -45,16 +45,16 @@ class ZoomKeep internal constructor(zoom: Float, centreX: Float, centreY: Float)
     fun scaleFor(rest: Float): Float = zoom * rest
 
     /**
-     * Lo scostamento che rimette al centro il punto inquadrato. Il segno è meno perché lo scostamento
-     * sposta l'immagine e non lo sguardo.
+     * Lo scostamento che rimette al centro il punto inquadrato. Il segno è meno perché lo
+     * scostamento sposta l'immagine e non lo sguardo.
      */
     fun offsetFor(scale: Float, imageWidth: Float, imageHeight: Float): Offset =
         Offset(-centreX * imageWidth * scale, -centreY * imageHeight * scale)
 
     /**
-     * Prende nota di dove si è arrivati, per la prossima rotazione. Un riposo o una scala a zero non si
-     * scrivono: capitano nel fotogramma in cui la vista è misurata e l'immagine no, e la divisione
-     * darebbe un `NaN` che poi si conserva.
+     * Prende nota di dove si è arrivati, per la prossima rotazione. Un riposo o una scala a zero
+     * non si scrivono: capitano nel fotogramma in cui la vista è misurata e l'immagine no, e la
+     * divisione darebbe un `NaN` che poi si conserva.
      */
     fun record(scale: Float, offset: Offset, rest: Float, imageWidth: Float, imageHeight: Float) {
         if (rest <= 0f || scale <= 0f || imageWidth <= 0f || imageHeight <= 0f) return
