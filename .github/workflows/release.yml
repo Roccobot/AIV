@@ -40,11 +40,11 @@ on:
 # that committed the APK and its page into the website repository, with a
 # separate fine-grained PAT, is gone; the page is served by this repository
 # (`pages.yml`), and its download button reads the release published here.
-permissions:
-  contents: write
-  # Read only, and only for the gate job: it asks the Actions API how `check.yml`
-  # ended on this same commit.
-  actions: read
+# ⚠️⚠️ SINCE 6.29 THE PERMISSIONS ARE PER JOB, and only `publish` may write: before,
+# the block lived here and gave `contents: write` to `build` too, where Gradle runs
+# plugins and libraries of third parties. Every checkout also drops the token
+# (`persist-credentials: false`), since no job of this repository pushes with git.
+permissions: {}
 
 concurrency:
   group: release-${{ github.ref }}
@@ -60,6 +60,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    permissions:
+      contents: read
     outputs:
       version: ${{ steps.ver.outputs.version }}
       tag: ${{ steps.ver.outputs.tag }}
@@ -71,6 +73,8 @@ jobs:
     steps:
       - name: Check out the sources
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       # The four toolchain steps live in a composite action because `check.yml`
       # needs exactly the same ones: see `.github/actions/toolchain`.
@@ -246,6 +250,10 @@ jobs:
     runs-on: ubuntu-latest
     # Up to 30 minutes waiting for check.yml, then a whole bench of its own.
     timeout-minutes: 75
+    permissions:
+      contents: read
+      # It asks the Actions API how `check.yml` ended on this same commit.
+      actions: read
 
     steps:
       - name: Ask check.yml how this commit went
@@ -292,6 +300,8 @@ jobs:
       - name: Check out the sources
         if: steps.ask.outputs.green != 'true'
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Set up the Android toolchain
         if: steps.ask.outputs.green != 'true'
@@ -328,6 +338,9 @@ jobs:
     needs: [build, gate]
     if: github.ref_type == 'tag' || inputs.publish
     runs-on: ubuntu-latest
+    # The only job that writes: it cuts the tag and makes the release.
+    permissions:
+      contents: write
 
     steps:
       - name: Take the APK the build job kept
@@ -377,6 +390,18 @@ jobs:
           apk="${RUNNER_TEMP}/out/${{ needs.build.outputs.apk }}"
           play="${RUNNER_TEMP}/out/${{ needs.build.outputs.apkplay }}"
           aab="${RUNNER_TEMP}/out/${{ needs.build.outputs.aab }}"
+          # ⚠️⚠️ SINCE 6.29 A TAG ON ANOTHER COMMIT STOPS THE RELEASE. Re-publishing is
+          # harmless only for the same commit: a dispatch from a newer `main` that
+          # nobody bumped would put that commit's APKs under the old number, while
+          # the tag and the notes stay on the old commit, and whoever has the version
+          # would never be offered them. A tag that does not exist yet answers
+          # nothing, and the release below creates it.
+          tagged="$(gh api "repos/${GH_REPO}/commits/${TAG}" --jq .sha 2> /dev/null || true)"
+          if [ -n "$tagged" ] && [ "$tagged" != "${GITHUB_SHA}" ]; then
+            echo "${TAG} already points at ${tagged}, not at ${GITHUB_SHA}." >&2
+            echo "Raise versionName and versionCode in app/build.gradle.kts, then release again." >&2
+            exit 1
+          fi
           if gh release view "${TAG}" > /dev/null 2>&1; then
             gh release upload "${TAG}" "$apk" "$play" "$aab" --clobber
           else

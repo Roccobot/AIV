@@ -1103,6 +1103,12 @@ documento, riscontro'.
   posto in cui scriverlo.
 - ⚠️ **Il `versionCode` va fatto salire a ogni versione pubblicata, e nessuno lo controlla**:
   Android rifiuta un aggiornamento che non lo fa salire, e non è legato al `versionName`.
+  - **Dalla `6.29` il workflow ferma il caso più probabile**: un rilancio senza versione nuova, con
+    il tag che esiste già su un altro commit, si ferma e chiede di alzare `versionName` e
+    `versionCode`. Prima sostituiva gli APK pubblicati con quelli del commit nuovo, sotto lo stesso
+    numero. Il rilancio sullo stesso commit resta possibile (rilievo G6 della revisione Setaccio).
+  - **E dalla `6.29` i permessi sono per job**: scrive solo `publish`, e nessun checkout lascia il
+    token su disco, perché nessun workflow di questo repo spinge con git (rilievo G5).
 - **Come si pubblica**: `release.yml` in `workflow_dispatch` con l'ingresso `publish` acceso taglia
   il tag dal `versionName`, costruisce gli APK firmati (e dalla `5.70` l'AAB di AIV Play) e crea la
   release. Senza `publish` costruisce e

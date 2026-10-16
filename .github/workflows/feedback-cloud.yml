@@ -18,6 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version: '24'
@@ -51,12 +53,16 @@ jobs:
             sleep 1
           done
           /tmp/aiv-cloud-tests/bin/python tools/feedback-cloud-check.py
+  # ⚠️ Since 6.29 only the default branch goes to production: 'Run workflow' lets anyone pick a
+  # branch, and the job hands that branch the real secrets.
   deploy:
     needs: check
-    if: github.event_name != 'pull_request' && (github.event_name == 'workflow_dispatch' || (vars.CLOUDFLARE_ACCOUNT_ID != '' && vars.FEEDBACK_GITHUB_CLIENT_ID != ''))
+    if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'workflow_dispatch' || (vars.CLOUDFLARE_ACCOUNT_ID != '' && vars.FEEDBACK_GITHUB_CLIENT_ID != ''))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version: '24'
