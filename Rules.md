@@ -815,6 +815,26 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   `app/build.gradle.kts`, e `IndonesianoTest` legge una stringa con tutti e due i codici. La
   cartella `values-in` non si crea a mano: sarebbe una seconda copia da tenere allineata.
 
+## 💬 I commenti del codice: il perché di oggi, in italiano
+
+- ⚠️⚠️ **In questo repo i commenti del codice sono in italiano** (scelta H1 dell'utente, 2026-10-16,
+  sul rilievo G7 della revisione Setaccio): è una **deroga dichiarata** alla regola universale dei
+  commenti in inglese (`rules/Roccobot.md` § '🧑‍💻 Codice e artefatti generati'). Nel codice la
+  quasi totalità era già italiana; la 6.30 traduce il resto.
+- **Un commento dice il perché di oggi**: il vincolo, la misura, la trappola, la scelta dell'utente
+  con la sua chiave (*scelta B1 dell'utente, 6.10*), la prova che presidia il punto. **Non è un
+  diario delle versioni**: come era il codice prima, in quale versione è cambiato e chi l'ha
+  chiesto con quali parole vivono nella storia git e nei messaggi di commit. Un commento che
+  racconta il passato invecchia, ed è la causa dei 24 commenti rimasti indietro trovati nella
+  revisione (rilievo D3).
+- **Un KDoc precede la dichiarazione che descrive**, e la regola che vale per più file vive qui o nei
+  `docs/`, col rimando: il commento non la ricopia.
+- **Valgono le regole dei caratteri** (accenti veri, apici dritti, niente trattini lunghi, niente
+  metafore mortuarie, niente `stare` per dire dov'è una cosa), e le stringhe restano come sono:
+  un commento dentro un programma AGSL è testo del programma, e si cambia solo col codice.
+- La 6.30 li ha sfoltiti tutti, provando con un verificatore che il codice, stringhe comprese,
+  restasse identico byte per byte.
+
 ## 🧪 Quando si scrive una prova, e quando no
 
 - ⚠️⚠️ **Il paletto di AIV sulla regola del nucleo** (un difetto arrivato all'utente torna con la
