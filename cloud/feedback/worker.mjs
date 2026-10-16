@@ -110,7 +110,8 @@ async function handle(request, env) {
   if (path === '/auth/logout' && request.method === 'POST') return new Response(null,{status:204,headers:{'Set-Cookie':cookie(SESSION,'',0),'Cache-Control':'no-store'}});
   if (path === '/api/feedback') {
     if (['GET','HEAD'].includes(request.method)) {
-      const object = await store.get(root(env)+'current.json');
+      // A HEAD asks only for the revision, since 6.29: see SupabaseStore.revision.
+      const object = request.method === 'HEAD' ? await store.head(root(env)+'current.json') : await store.get(root(env)+'current.json');
       if (!object) return json({draft:null},200,{ETag:'"empty"'});
       const headers = {'Content-Type':'application/json','Cache-Control':'no-store',ETag:object.httpEtag};
       return new Response(request.method === 'HEAD' ? null : object.body,{headers});

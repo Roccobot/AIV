@@ -45,8 +45,22 @@ export class SupabaseStore {
     if (!/^[a-f0-9-]{36}$/.test(row.revision)) throw Error('Versione cloud non valida.');
     return {httpEtag:'"'+row.revision+'"',etag:row.revision,body:JSON.stringify(row.draft)};
   }
+  /*
+   * Only the revision of the draft, since 6.29 (H2 of the 6.25 review): the page asks every 15
+   * seconds whether the draft changed, and until 6.28 every ask brought the whole draft from the
+   * database to the Worker, which threw it away.
+   */
+  async revision() {
+    const response = await this.request('/rest/v1/aiv_feedback_drafts?owner_id=eq.'+this.owner+'&select=revision&limit=1');
+    const rows = await response.json();
+    if (!Array.isArray(rows) || rows.length > 1) throw Error('Documento cloud non valido.');
+    const revision = rows[0]?.revision;
+    if (!revision) return null;
+    if (!/^[a-f0-9-]{36}$/.test(revision)) throw Error('Versione cloud non valida.');
+    return {httpEtag:'"'+revision+'"',etag:revision};
+  }
   async head(key) {
-    if (key === this.prefix+'current.json') return this.current();
+    if (key === this.prefix+'current.json') return this.revision();
     const response = await this.request('/storage/v1/object/info/aiv-feedback/'+this.path(key),{},['missing']);
     if (!response) return null;
     const info = await response.json();

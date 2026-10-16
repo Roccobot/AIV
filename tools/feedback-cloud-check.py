@@ -205,6 +205,13 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     assert third.evaluate('fetch("/api/feedback").then(response=>response.json()).then(draft=>draft.notes)')=='Modifica senza connessione'
     third.remove_listener('dialog',accept)
     assert 'confirm' in offers, offers
+    # 6.29 (H3): the other device's save reloads the draft, and the attachments it already has,
+    # here the two it uploaded itself, are not downloaded again.
+    downloads=[]
+    second.on('request',lambda request:downloads.append(request.url) if request.method=='GET' and '/api/files/' in request.url else None)
+    second.evaluate('window.dispatchEvent(new Event("focus"))')
+    expect(altro_editor(second)).to_have_text('Modifica senza connessione')
+    assert downloads==[], downloads
     third_context.close()
     second_context.close()
     anonymous_context=browser.new_context()

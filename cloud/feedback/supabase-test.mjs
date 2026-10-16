@@ -25,6 +25,11 @@ try {
   let latest=await worker.fetch(request('/api/feedback'),env);
   assert.equal((await latest.json()).notes,concurrent[0].status===200 ? 'Dal telefono' : 'Dal computer');
   const currentTag=latest.headers.get('ETag');
+  // 6.29 (H2): the check of the page every 15 seconds asks the database for the revision only.
+  let asked=fixture.calls.length;
+  const probe=await worker.fetch(request('/api/feedback',{method:'HEAD'}),env);
+  assert.equal(probe.headers.get('ETag'),currentTag);
+  assert.deepEqual(fixture.calls.slice(asked).map(call=>call.select),['revision']);
   assert.equal((await put(firstTag)).status,412);
   assert.equal((await put('W/'+firstTag)).status,412);
   const files=[{name:'originale.svg',type:'image/svg+xml',bytes:Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><text>Originale</text></svg>')},

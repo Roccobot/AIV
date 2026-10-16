@@ -16,12 +16,13 @@ export async function testServer(port = 0) {
     };
     if (request.headers.apikey !== 'development-supabase-test-key') return reply({error:'Unauthorized'},401);
     const url = new URL(request.url,'http://localhost');
-    calls.push({path:url.pathname,method:request.method,authorization:request.headers.authorization});
+    calls.push({path:url.pathname,select:url.searchParams.get('select'),method:request.method,authorization:request.headers.authorization});
     try {
       if (url.pathname === '/storage/v1/bucket/aiv-feedback') return reply((await db.query('select * from storage.buckets where id=$1',['aiv-feedback'])).rows[0]);
       if (url.pathname === '/rest/v1/aiv_feedback_drafts') {
         const owner = (url.searchParams.get('owner_id') || '').replace(/^eq\./,'');
-        return reply((await db.query('select draft,revision from public.aiv_feedback_drafts where owner_id=$1',[owner])).rows);
+        const columns=url.searchParams.get('select')==='revision' ? 'revision' : 'draft,revision';
+        return reply((await db.query('select '+columns+' from public.aiv_feedback_drafts where owner_id=$1',[owner])).rows);
       }
       if (url.pathname === '/rest/v1/aiv_feedback_history') {
         const owner=(url.searchParams.get('owner_id') || '').replace(/^eq\./,'');
