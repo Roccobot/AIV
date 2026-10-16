@@ -9,30 +9,13 @@ import java.nio.ByteBuffer
 /**
  * Le GIF animate, lette dal decodificatore di Glide.
  *
- * ⚠️⚠️ **PERCHÉ UNA DIPENDENZA E NON CODICE NOSTRO, deciso il 2026-09-01 dopo aver messo a
- * confronto cinque strade**: `com.github.bumptech.glide:gifdecoder` sono **18.072 byte** di
- * archivio, **zero librerie native**, nessuna dipendenza transitiva nuova (chiede
- * `annotation 1.7.1` e `kotlin-stdlib 2.2.10`, che il progetto ha già più recenti), e
- * licenza **BSD a due clausole**. Scriverlo in casa avrebbe voluto dire 650-900 righe fra
- * decodificatore LZW e compositore coi quattro metodi di disposal, cioè esattamente questo
- * codice riscritto e da collaudare daccapo.
- * ⚠️ **La via di fuga è dichiarata e vale la pena saperla**: sono 7 classi BSD. Il giorno
- * che la dipendenza desse noia, i sorgenti si copiano nel repo dietro l'interfaccia
- * [Animated] e **nessun chiamante cambia**. È una scelta reversibile in tutte e due le
- * direzioni.
- *
- * ⚠️⚠️ **LE STRADE SCARTATE, coi motivi misurati, perché nessuno le riapra**:
- * - `android.graphics.Movie`: non conta i fotogrammi, salta al **millisecondo** e non
- *   all'indice, e **non vede affatto** i fotogrammi con ritardo 0 (letto in `GIFMovie.cpp`
- *   di AOSP: la somma cumulativa non avanza, quindi `setTime` non li seleziona mai).
- *   Deprecata da API 28.
- * - `ImageDecoder` e `AnimatedImageDrawable`: verificato con `javap` che tutta la loro
- *   superficie è `start`, `stop`, `isRunning`, `setRepeatCount` e i callback di inizio e
- *   fine. Sanno riprodurre, non sanno contare né cercare.
- * - koral `android-gif-drawable`: fa tutto, ma porta **4 file `.so`**, cioè esattamente
- *   quello che la `1.12` ha buttato fuori per tornare da 37 a 4,7 MB.
- * - Fresco: 413 KB di archivio più un megabyte di `.so`, e un secondo caricatore di
- *   immagini accanto a Coil.
+ * Perché questa dipendenza: `com.github.bumptech.glide:gifdecoder` pesa circa 18 KB, non ha
+ * librerie native né dipendenze transitive nuove, ed è sotto licenza BSD a due clausole. Sono 7
+ * classi: se un giorno desse problemi, i sorgenti si copiano nel repo dietro [Animated] e nessun
+ * chiamante cambia.
+ * Le alternative non bastano: `android.graphics.Movie` non conta i fotogrammi e non vede quelli
+ * con ritardo 0; `ImageDecoder` e `AnimatedImageDrawable` sanno riprodurre ma non contare né
+ * cercare; `android-gif-drawable` e Fresco aggiungono librerie native (`.so`).
  */
 class AnimatedGif private constructor(
     private val decoder: GifDecoder,
@@ -42,28 +25,20 @@ class AnimatedGif private constructor(
     /**
      * Le ultime due tele consegnate da [current], la più vecchia in testa.
      *
-     * ⚠️⚠️ **DUE TELE CHE SI ALTERNANO, DALLA `6.28`** (rilievo C13 della revisione della 6.25):
-     * il decodificatore non restituisce mai al serbatoio il fotogramma che consegna, quindi fino
-     * ad allora ogni fotogramma creava una tela nuova (dieci fotogrammi, dieci tele, misurato in
-     * `TeleGifTest`). Prima di comporre il fotogramma nuovo, torna al serbatoio la tela di due giri
-     * fa: quella del giro prima è ancora in mostra, e riscriverla vorrebbe dire strapparla mentre
-     * si disegna.
+     * ⚠️ **Due tele che si alternano**: il decodificatore non restituisce al serbatoio il
+     * fotogramma che consegna, quindi lo fa il lettore. Prima di comporre il fotogramma nuovo torna
+     * al serbatoio la tela di due giri fa: quella del giro prima è ancora in mostra, e riscriverla
+     * la strapperebbe mentre si disegna. Rilievo C13, presidiato da `TeleGifTest`.
      */
     private val handed = ArrayDeque<Bitmap>(2)
 
     /**
-     * Se [close] è già passato di qui.
+     * Se [close] è già stato chiamato.
      *
-     * ⚠️⚠️ **ESISTE PERCHÉ UN DECODIFICATORE CHIUSO NON DICE DI ESSERLO, LO DIMOSTRA
-     * ANDANDO IN ERRORE**: `GifDecoder.clear()` azzera l'intestazione, e da lì
-     * `frameCount`, `getDelay` e `advance` cadono su un riferimento nullo. Con un lettore in
-     * mano a un ciclo di riproduzione, quell'errore arriva dentro una coroutine e chiude
-     * l'app. È successo nella `1.13`, per una chiusura sbagliata in [rememberAnimation] che
-     * adesso non c'è più: questa bandierina è la rete sotto quella correzione, perché
-     * chiudere due volte o usare un lettore chiuso deve costare un fotogramma mancante, non
-     * l'applicazione.
-     * ⚠️ **Non rende [AnimatedWebp] e questo lettore diversi: li rende uguali.** L'altro
-     * regge già la stessa sequenza da sé, perché la sua chiusura butta soltanto la tela.
+     * ⚠️ **Un decodificatore chiuso va in errore invece di dirlo**: `GifDecoder.clear()` azzera
+     * l'intestazione, e da lì `frameCount`, `getDelay` e `advance` cadono su un riferimento nullo,
+     * dentro una coroutine che chiude l'app. Con questa bandierina chiudere due volte o usare un
+     * lettore chiuso costa un fotogramma mancante; [AnimatedWebp] si comporta già così da sé.
      */
     private var closed = false
 
@@ -73,10 +48,9 @@ class AnimatedGif private constructor(
     override val index: Int get() = if (closed) 0 else decoder.currentFrameIndex
 
     /**
-     * ⚠️ `getNetscapeLoopCount` è il numero **scritto nel file**, e vale 0 per 'per sempre':
-     * è già la convenzione di [Animated], quindi non si traduce. Quando l'estensione
-     * NETSCAPE manca del tutto il decodificatore risponde con la sua costante di 'non
-     * dichiarato', e per un visualizzatore quel caso si legge come 'una volta sola'.
+     * `getNetscapeLoopCount` è il numero scritto nel file, con 0 per 'per sempre' come in
+     * [Animated]. Senza l'estensione NETSCAPE il decodificatore risponde con un valore negativo,
+     * che qui vale 'una volta sola'.
      */
     override val loopCount: Int
         get() = decoder.netscapeLoopCount.let { if (it < 0) 1 else it }
@@ -85,15 +59,11 @@ class AnimatedGif private constructor(
         if (closed) 0 else runCatching { decoder.getDelay(index) }.getOrDefault(0).coerceAtLeast(0)
 
     /**
-     * ⚠️⚠️ **`getNextFrame` NON è 'il prossimo': è IL CORRENTE, ed è il nome più
-     * ingannevole di questa API.** Il decodificatore tiene un indice, `advance()` lo sposta e
-     * `getNextFrame()` compone e restituisce il fotogramma **a quell'indice**. Chiamandolo
-     * due volte di fila senza `advance()` si riottiene lo stesso fotogramma, non il seguente.
-     * Chi legge questo file senza la nota scriverebbe un ciclo che salta un fotogramma su
-     * due.
-     * ⚠️ **Il Bitmap appartiene al lettore e verrà RIUSATO due giri dopo** ([handed]): chi lo
-     * vuole tenere (l'esportazione, una cache) ne fa una copia. Qui si restituisce l'originale,
-     * perché disegnarlo e basta è il caso normale e copiare a ogni fotogramma sarebbe uno spreco.
+     * ⚠️ **`getNextFrame` non è il prossimo: è il corrente.** `advance()` sposta l'indice e
+     * `getNextFrame()` compone il fotogramma a quell'indice; chiamato due volte senza `advance()`
+     * restituisce lo stesso fotogramma.
+     * ⚠️ **Il Bitmap appartiene al lettore ed è riusato due giri dopo** ([handed]): chi lo vuole
+     * tenere (l'esportazione, una cache) ne fa una copia.
      */
     override fun current(): Bitmap? {
         if (closed) return null
@@ -109,14 +79,10 @@ class AnimatedGif private constructor(
     }
 
     /**
-     * ⚠️⚠️ **`resetFrameIndex` DA SOLO NON BASTA, ed è un difetto di contratto trovato
-     * scrivendo il passo indietro**: quel metodo riporta l'indice a **-1**, cioè a 'prima
-     * del primo', mentre [AnimatedWebp] dopo `rewind` è già sul fotogramma **0**. Due
-     * lettori che rispondono in modo diverso alla stessa chiamata avrebbero fatto sbagliare
-     * di uno ogni salto all'indietro, e solo sulle GIF. L'`advance` qui sotto è quello che
-     * pareggia i due: dopo questa funzione l'indice è **0** in tutti e due i lettori.
-     * ⚠️ **Privata dalla 1.21**: l'unico che la chiama è [seek], perché riavvolgere senza poi
-     * ricomporre la pila è precisamente l'errore che ha prodotto la scia.
+     * ⚠️ **`resetFrameIndex` da solo non basta**: riporta l'indice a -1, mentre [AnimatedWebp]
+     * dopo il riavvolgimento è sul fotogramma 0. L'`advance` qui sotto pareggia i due lettori, o
+     * ogni salto all'indietro sbaglierebbe di uno sulle sole GIF.
+     * È privata perché la chiama solo [seek]: riavvolgere senza ricomporre la pila lascia la scia.
      */
     private fun rewind() {
         if (closed) return
@@ -127,17 +93,12 @@ class AnimatedGif private constructor(
     }
 
     /**
-     * ⚠️⚠️ **OGNI PASSO CHIEDE ANCHE IL FOTOGRAMMA, e quel `nextFrame` apparentemente inutile
-     * è tutta la correzione**: è la lettura a comporre la toppa sulla tela, non `advance()`.
-     * Saltando con soli `advance()` la tela non viene toccata, e il fotogramma d'arrivo si
-     * posa sopra quello che c'era: da lì la scia. Il valore restituito si butta apposta,
-     * perché quello che serve è **l'effetto** sulla tela interna del decodificatore.
-     * ⚠️ **All'indietro si riavvolge**, perché la pila si può solo rifare da capo: dopo
-     * `rewind()` l'indice è 0 e la tela viene ripulita dal decodificatore stesso, che a
-     * fotogramma zero non ha nessun precedente da conservare.
-     * ⚠️ **Il ciclo conta i PASSI e non confronta gli indici**: `advance()` gira in tondo
-     * dopo l'ultimo fotogramma, quindi un `while (index != target)` su un file con un solo
-     * fotogramma, o su un indice che il decodificatore rifiuta di muovere, non finirebbe mai.
+     * ⚠️ **Ogni passo chiede anche il fotogramma**: è la lettura a comporre la toppa sulla tela,
+     * non `advance()`. Con i soli `advance()` il fotogramma d'arrivo si posa sopra quello che
+     * c'era, e resta la scia. Il valore restituito non serve: serve l'effetto sulla tela interna.
+     * All'indietro si riavvolge, perché la pila si può solo rifare da capo.
+     * ⚠️ **Il ciclo conta i passi e non confronta gli indici**: `advance()` ricomincia dopo
+     * l'ultimo fotogramma, e un `while (index != target)` potrebbe non finire mai.
      */
     override fun seek(target: Int) {
         if (closed) return
@@ -147,17 +108,13 @@ class AnimatedGif private constructor(
             val dove = target.coerceIn(0, quanti - 1)
             if (dove < decoder.currentFrameIndex) {
                 rewind()
-                // ⚠️⚠️ **ANCHE IL FOTOGRAMMA ZERO VA CHIESTO, e dimenticarlo lascia il
-                // difetto intero**: è la lettura a fotogramma 0 a ripulire la tela, perché è
-                // il solo indice in cui il decodificatore non ha un precedente da conservare.
-                // Riavvolgendo e ripartendo dal fotogramma 1, la tela vecchia sopravvive e la
-                // scia resta esattamente com'era. Trovato rileggendo questa funzione, non
-                // provandola.
+                // ⚠️ Anche il fotogramma 0 va chiesto: è la sua lettura a ripulire la tela,
+                // perché è il solo indice senza un precedente da conservare. Senza, la scia resta.
                 decoder.nextFrame?.let(pool::release)
             }
             var passi = dove - decoder.currentFrameIndex
             if (passi < 0) passi = 0
-            // ⚠️ Le tele composte di passaggio non le vede nessuno: tornano subito al serbatoio.
+            // Le tele composte di passaggio non le vede nessuno: tornano subito al serbatoio.
             repeat(passi) {
                 decoder.advance()
                 decoder.nextFrame?.let(pool::release)
@@ -179,10 +136,8 @@ class AnimatedGif private constructor(
         /**
          * Apre una GIF già letta in memoria, e `null` se non è leggibile.
          *
-         * ⚠️ **Si controlla lo stato dell'intestazione prima di fidarsi**: su un file
-         * troncato il parser torna comunque un `GifHeader`, ma con uno stato di errore e
-         * zero fotogrammi. Senza questo controllo si andrebbe avanti fino a un'animazione
-         * vuota che nessuno sa spiegare.
+         * Si controlla lo stato dell'intestazione: su un file troncato il parser restituisce
+         * comunque un `GifHeader`, con uno stato di errore e zero fotogrammi.
          */
         fun open(bytes: ByteArray): Animated? = runCatching {
             val buffer = ByteBuffer.wrap(bytes)
@@ -192,9 +147,8 @@ class AnimatedGif private constructor(
             if (header.status != GifDecoder.STATUS_OK || header.numFrames <= 0) return null
             val pool = Pool()
             val decoder = StandardGifDecoder(pool, header, buffer)
-            // ⚠️ ARGB_8888 e non RGB_565: le GIF hanno la trasparenza a chiave, e in 565 il
-            // colore trasparente diventa un colore vero, di solito nero. Il risparmio di
-            // memoria non vale un'immagine sbagliata.
+            // ⚠️ ARGB_8888: le GIF hanno la trasparenza a chiave, e in RGB_565 il colore
+            // trasparente diventa un colore vero, di solito nero.
             decoder.setDefaultBitmapConfig(Bitmap.Config.ARGB_8888)
             decoder.advance()
             AnimatedGif(decoder, pool)
@@ -204,21 +158,14 @@ class AnimatedGif private constructor(
     /**
      * Da dove il decodificatore prende i suoi Bitmap e i suoi vettori.
      *
-     * ⚠️⚠️ **SERVE PERCHÉ L'INTERFACCIA LO PRETENDE, e la sua ragione d'essere è il
-     * RIUSO**: comporre un fotogramma vuol dire allocare una tela grande quanto l'immagine, e
-     * farlo venti volte al secondo darebbe al garbage collector un lavoro che si vede come
-     * scatti.
-     * ⚠️⚠️ **IL DECODIFICATORE NON RESTITUISCE IL FOTOGRAMMA CHE CONSEGNA**, letto nel bytecode di
-     * `gifdecoder` (`StandardGifDecoder.setPixels`) dalla revisione della 6.25: restituisce solo la
-     * tela del fotogramma precedente, che gli serve per i fotogrammi da ripristinare. Fino alla
-     * `6.27` questa nota diceva il contrario, e il serbatoio restava vuoto. Le tele consegnate le
-     * restituisce il lettore ([current], [seek]).
-     * ⚠️ **Al più [SPARE] tele in serbatoio**: le due che si alternano e quella del precedente;
-     * di più sarebbe memoria ferma.
-     * ⚠️⚠️ **Software e non hardware**, ed è ciò che rende possibile l'esportazione: un
-     * `Bitmap` con configurazione `HARDWARE` non si può leggere pixel per pixel né
-     * comprimere su file. Qui non si chiede mai quella configurazione, e la nota sta qui
-     * perché è il punto in cui un domani qualcuno sarebbe tentato di 'ottimizzare'.
+     * Lo pretende l'interfaccia, e serve al riuso: allocare una tela grande quanto l'immagine
+     * venti volte al secondo darebbe al garbage collector un lavoro che si vede come scatti.
+     * ⚠️ **Il decodificatore non restituisce il fotogramma che consegna** (letto nel bytecode di
+     * `StandardGifDecoder.setPixels`): restituisce solo la tela del fotogramma precedente. Le tele
+     * consegnate le restituisce il lettore ([current], [seek]).
+     * Al più [SPARE] tele: le due che si alternano e quella del precedente.
+     * ⚠️ **Tele software, mai `HARDWARE`**: un Bitmap `HARDWARE` non si legge pixel per pixel né
+     * si comprime su file, e l'esportazione ne ha bisogno.
      */
     private class Pool : GifDecoder.BitmapProvider {
 
@@ -230,8 +177,8 @@ class AnimatedGif private constructor(
             }
             if (kept != null) {
                 spare.remove(kept)
-                // ⚠️ Si azzera prima di ridarlo: il decodificatore disegna una toppa sopra
-                // quello che trova, e quello che trova sarebbe il fotogramma di due giri fa.
+                // ⚠️ Si azzera prima di ridarla: il decodificatore disegna una toppa sopra quello
+                // che trova, cioè il fotogramma di due giri fa.
                 kept.eraseColor(0)
                 return kept
             }
