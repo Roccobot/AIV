@@ -372,9 +372,15 @@ sealed interface FileJob {
  * l'ambito del modello, che alla rotazione non muore.
  * ⚠️ **Quindi qui si salvano le sole finestre**: la destinazione di 'Copia' e 'Sposta', la
  * rinomina, la conferma di un'eliminazione definitiva e la scheda delle informazioni.
+ * ⚠️⚠️ **E OLTRE [SAVED_URIS] INDIRIZZI NON SI SALVA NIENTE** (rilievo E7 della revisione della
+ * 6.25): lo stato salvato passa da una transazione del sistema con un tetto di 1 MB, e una
+ * selezione di qualche migliaio di file lo supera quando l'app va in secondo piano, che basta a
+ * chiuderla. Fra una finestra che dopo la rotazione non si riapre e un'app che si chiude, il
+ * male minore è il primo.
  */
 internal val FileJobSaver: Saver<FileJob?, Any> = listSaver(
     save = { job ->
+        if (job != null && job.uris.size > SAVED_URIS) return@listSaver emptyList()
         when (job) {
             null -> emptyList()
             is FileJob.Transfer -> listOf(TRANSFER, job.move) + job.uris
@@ -414,11 +420,21 @@ internal val FileJobSaver: Saver<FileJob?, Any> = listSaver(
  * ⚠️ **Un `Set` il `Bundle` non lo scrive, una lista di `Uri` sì**, perché un `Uri` è
  * `Parcelable`: quindi si passa da una lista e a rientrare è di nuovo un insieme. L'ordine che
  * la lista impone non conta.
+ * ⚠️ **Oltre [SAVED_URIS] indirizzi la selezione non si salva**, per la ragione scritta su
+ * [FileJobSaver]: dopo una rotazione si riparte senza selezione.
  */
 internal val UriSetSaver: Saver<Set<Uri>, Any> = listSaver(
-    save = { it.toList() },
+    save = { if (it.size > SAVED_URIS) emptyList() else it.toList() },
     restore = { it.toSet() }
 )
+
+/**
+ * Quanti indirizzi al massimo entrano nello stato salvato. Un indirizzo del MediaStore occupa
+ * circa 160 byte nel `Parcel`, misurato in `StatoSalvatoTest` (diecimila senza tetto pesano
+ * 1.596.004 byte), quindi 500 restano sotto i 100 KB anche con una finestra aperta che li salva
+ * una seconda volta.
+ */
+internal const val SAVED_URIS = 500
 
 /*
  * ⚠️ **Etichette scritte a mano e non `nomeDellaClasse`**: un nome di classe cambia con una
