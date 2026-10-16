@@ -2190,9 +2190,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             delay(OUTSIDE_PAUSE_MS)
             outsideStamp++
             when {
-                // Il cestino non si rilegge da qui: in AIV GitHub vive nella cartella privata
-                // dell'app, che il MediaStore non guarda.
-                screen == Screen.Bin -> Unit
+                // In AIV GitHub il cestino non si rilegge da qui: vive nella cartella privata
+                // dell'app, che il MediaStore non guarda. In AIV Play è quello del sistema, cioè
+                // righe del MediaStore, e passa dal ramo delle griglie (`CestinoFuoriPlayTest`).
+                screen == Screen.Bin && Store.files -> Unit
                 screen.isGrid() -> if (gridBusy) gridStale = true else reloadGrid()
                 // Mentre si guarda un'immagine si segna soltanto, come in [afterFileAdded].
                 screen == Screen.Viewer || screen is Screen.Editor -> gridStale = true
