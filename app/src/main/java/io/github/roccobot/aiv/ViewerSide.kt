@@ -31,15 +31,13 @@ import androidx.compose.ui.unit.dp
 /**
  * Il pannello laterale delle informazioni nel Visualizzatore, sul tablet.
  *
- * ⚠️⚠️ **NASCE CON LA `3.31`**: il mockup (`publish/tablet.html`, rotta `viewer`) mette
- * l'immagine al centro e le informazioni a lato, richiudibili. Sul telefono resta la
- * bottomsheet di [FactsDialog]; qui la stessa lettura di [factsOf] / [FileFacts] vive in
- * colonna, senza coprire il media.
- * ⚠️ **Chiuso di serie sotto i 1.024 dp** ([Adaptive.sideDefaultOpen]): la soglia e il
- * perché vivono là. ⚠️ **Il lato segue [Hand]**: destri tengono il pannello a sinistra
- * (come il mockup senza classe `left`), mancini a destra (classe `left`, order 2).
- * ⚠️ **Lo scorrimento vive QUI e non dentro [FileFacts]**: è la stessa regola della
- * bottomsheet (vedi KDoc di [FileFacts]): due scorrimenti annidati fanno crash.
+ * Il mockup (`publish/tablet.html`, rotta `viewer`) mette l'immagine al centro e le
+ * informazioni a lato, richiudibili. Sul telefono resta la bottomsheet di [FactsDialog]; qui la
+ * stessa lettura di [factsOf] e [FileFacts] è in colonna, senza coprire il media.
+ * Chiuso di fabbrica sotto i 1.024 dp ([Adaptive.sideDefaultOpen], che ne dà il perché). Il
+ * lato segue [Hand], e lo decide il chiamante: destri a sinistra, mancini a destra.
+ * ⚠️ **Lo scorrimento è qui e non dentro [FileFacts]**, come nella bottomsheet (KDoc di
+ * [FileFacts]): due scorrimenti annidati mandano in crash l'app.
  */
 @Composable
 fun ViewerFactsSide(
