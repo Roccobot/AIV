@@ -885,6 +885,44 @@ internal object Warp {
     private val geometryOrder by lazy { indices(CELLS) }
     private val liquifyOrder by lazy { indices(Liquify.CELLS) }
 
+    /** I vertici deformati e la griglia da cui leggono, cioè tutto quello che [draw] e [back] usano. */
+    internal class Mesh(
+        val plan: WarpPlan,
+        val dest: RectF,
+        val liquify: Liquify,
+        val verts: FloatArray,
+        val tex: FloatArray
+    )
+
+    /*
+     * ⚠️⚠️ **L'ultima maglia resta da parte, dalla `6.28`** (rilievi A25 e A26 della revisione
+     * della 6.25): Correggi e il Disegno riportano al file un punto per volta, sedici per ogni
+     * poligono di una pennellata, e il palco disegna immagine, disegno e selezione con la stessa
+     * maglia nello stesso fotogramma. Ogni chiamata costruiva da capo i 16.641 vertici di
+     * Fluidifica, con lo stesso piano, lo stesso riquadro e le stesse pennellate (sedici punti,
+     * sedici maglie, misurato in `MagliaTest`).
+     * ⚠️ **Un posto solo e non una tabella**, perché le chiamate che si ripetono arrivano di fila;
+     * il posto contiene una maglia che non cambia più e si sostituisce intero, quindi un
+     * salvataggio su un altro thread legge l'una o l'altra, mai metà di ciascuna.
+     */
+    @Volatile
+    private var lastMesh: Mesh? = null
+
+    internal fun mesh(plan: WarpPlan, dest: RectF, liquify: Liquify): Mesh {
+        lastMesh?.let { if (it.plan == plan && it.dest == dest && it.liquify == liquify) return it }
+        DrawWork.meshes++
+        val cells = if (liquify.idle) CELLS else Liquify.CELLS
+        val verts = points(plan, dest, cells)
+        if (!liquify.idle) {
+            var at = 0
+            for (j in 0..cells) for (i in 0..cells) {
+                verts[at++] += liquify.dx(i, j) * dest.width()
+                verts[at++] += liquify.dy(i, j) * dest.height()
+            }
+        }
+        return Mesh(plan, RectF(dest), liquify, verts, grid(dest, cells)).also { lastMesh = it }
+    }
+
     /**
      * Disegna dentro [dest] quello che [paint] sa dipingere, deformato da [plan].
      *
@@ -905,25 +943,15 @@ internal object Warp {
         paint: Paint,
         liquify: Liquify = Liquify.NONE
     ) {
-        val cells = if (liquify.idle) CELLS else Liquify.CELLS
-        val verts = points(plan, dest, cells)
-        if (!liquify.idle) {
-            var at = 0
-            for (j in 0..cells) {
-                for (i in 0..cells) {
-                    verts[at++] += liquify.dx(i, j) * dest.width()
-                    verts[at++] += liquify.dy(i, j) * dest.height()
-                }
-            }
-        }
-        val texs = grid(dest, cells)
+        val maglia = mesh(plan, dest, liquify)
+        val verts = maglia.verts
         val order = if (liquify.idle) geometryOrder else liquifyOrder
         canvas.drawVertices(
             Canvas.VertexMode.TRIANGLES,
             verts.size,
             verts,
             0,
-            texs,
+            maglia.tex,
             0,
             null,
             0,
@@ -967,13 +995,9 @@ internal object Warp {
     fun back(plan: WarpPlan, dest: RectF, liquify: Liquify, x: Float, y: Float): FloatArray {
         if (liquify.idle) return plan.back(x, y)
         val cells = Liquify.CELLS
-        val verts = points(plan, dest, cells)
-        var at = 0
-        for (j in 0..cells) for (i in 0..cells) {
-            verts[at++] += liquify.dx(i, j) * dest.width()
-            verts[at++] += liquify.dy(i, j) * dest.height()
-        }
-        val tex = grid(dest, cells)
+        val maglia = mesh(plan, dest, liquify)
+        val verts = maglia.verts
+        val tex = maglia.tex
         val row = cells + 1
         for (j in 0 until cells) for (i in 0 until cells) {
             val a = j * row + i

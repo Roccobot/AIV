@@ -250,18 +250,20 @@ internal class GrainedRamp(private val stops: List<Pair<Float, Float>>, private 
 
 /**
  * Il conto del lavoro di disegno che uno scorrimento può rifare, dalla `6.28`: quanti programmi del
- * rumore si sono compilati, quante volte si è rifatto il gradiente di una rampa, e quanti effetti
- * del vetro si sono creati (`PhonePill.kt`).
+ * rumore si sono compilati, quante volte si è rifatto il gradiente di una rampa, quanti effetti
+ * del vetro si sono creati (`PhonePill.kt`), e quante maglie deformate ha costruito l'editor
+ * completo (`Geometry.kt`).
  *
  * ⚠️ **È la misura della sua scelta B1** (2026-10-16: le prestazioni si misurano contando le
  * ricostruzioni per fotogramma sul banco, e si corregge solo il lavoro rifatto identico). La
- * leggono `RampeTest` e `VetroTest`, prima e dopo uno scorrimento; costa tre somme e nessuno la
- * mostra.
+ * leggono `RampeTest`, `VetroTest` e `MagliaTest`, prima e dopo il lavoro ripetuto; costa quattro
+ * somme e nessuno la mostra.
  */
 internal object DrawWork {
     var programs = 0
     var gradients = 0
     var glass = 0
+    var meshes = 0
 }
 
 /** Il programma del rumore, oppure `null` sotto Android 13, dove `RuntimeShader` non c'è. */
