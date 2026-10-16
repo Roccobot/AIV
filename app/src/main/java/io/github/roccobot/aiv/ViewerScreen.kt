@@ -2309,7 +2309,7 @@ private fun ImageCanvas(
          * allo stato dell'immagine precedente, fermo al suo ultimo valore, e le vicine non si
          * spegnerebbero più.
          */
-        val dragging by remember(image, settings) { derivedStateOf { travel != 0f } }
+        val dragging by remember(image) { derivedStateOf { travel != 0f } }
 
         /**
          * La lettura a pezzi dell'immagine, quando serve e si può.
@@ -2326,8 +2326,13 @@ private fun ImageCanvas(
             awaitDispose { opened?.close() }
         }
 
-        /** Il pezzo a piena risoluzione disegnato sopra la figura, quando c'è. */
-        var sharp by remember(image, settings) { mutableStateOf<SharpTile?>(null) }
+        /**
+         * Il pezzo a piena risoluzione disegnato sopra la figura, quando c'è.
+         *
+         * La chiave è la sola `image`, come per [travel]: con `settings` un'impostazione scritta
+         * mentre si guarda toglieva il pezzo nitido finché non ci si muoveva.
+         */
+        var sharp by remember(image) { mutableStateOf<SharpTile?>(null) }
 
         /*
          * Il pezzo nitido si legge quando il dito si ferma: a ogni fotogramma di una pinza si
@@ -2403,8 +2408,10 @@ private fun ImageCanvas(
          * ⚠️ Si annulla appena un dito torna giù: chi appoggia il dito su un'immagine che
          * scivola vuole fermarla, e due scrittori sullo stesso `offset` darebbero uno strappo.
          * L'annullamento è in [zoomAround] e [animateTo], i due punti da cui `offset` cambia.
+         * La chiave è la sola `image`: con `settings` un'impostazione scritta mentre la figura
+         * scivola ne perdeva il riferimento, e [stopGlide] non poteva più fermarla.
          */
-        var gliding by remember(image, settings) { mutableStateOf<Job?>(null) }
+        var gliding by remember(image) { mutableStateOf<Job?>(null) }
 
         fun stopGlide() {
             gliding?.cancel()
@@ -2552,10 +2559,21 @@ private fun ImageCanvas(
          */
         val swipeAllowed by rememberUpdatedState(atRest && folder?.seriesOrNull != null)
 
+        /*
+         * Le chiavi dei due rilevatori: i valori della composizione che le loro funzioni leggono
+         * (la misura della vista, il riposo, il 100%, il tetto dello zoom e le due vicine), e non
+         * `settings` intero, per la ragione di [travel]: un'impostazione scritta mentre si guarda
+         * (`clipboardOpened`, scritta subito dopo un'apertura dagli appunti) azzerava il gesto in
+         * corso, e una pinza si interrompeva a metà.
+         */
+        val gestureKeys = arrayOf(
+            image, viewWidth, viewHeight, place, oneToOne, settings.zoomMax, nextUri, prevUri
+        )
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .pointerInput(image, settings) {
+                .pointerInput(*gestureKeys) {
                     // ⚠️ Un rilevatore solo per panoramica, pinza e strisciata: nascono tutte
                     // da un dito che si muove, e su due modificatori si contendono il gesto.
                     // Vedi [detectPanZoomOrSwipe].
@@ -2590,7 +2608,7 @@ private fun ImageCanvas(
                         }
                     )
                 }
-                .pointerInput(image, settings) {
+                .pointerInput(*gestureKeys) {
                     detectViewerGestures(
                         // Anche questo vibra (vedi [withHaptics]): il rilevatore è scritto qui
                         // e non è `combinedClickable`, quindi la vibrazione si chiama a mano.
