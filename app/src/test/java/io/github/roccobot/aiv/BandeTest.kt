@@ -250,8 +250,8 @@ class BandeTest {
      * ⚠️⚠️ **PERCHÉ NON SI MONTA `frontWash` COM'È**: là il ramo lo sceglie la versione di Android,
      * e il banco gira su una piattaforma recente, quindi passerebbe sempre dallo shader. Montare
      * una seconda piattaforma finta costerebbe duecento megabyte a ogni corsa in CI. Le due righe
-     * che posano la maschera sono ricopiate qui, e sono le uniche: la rampa, il rumore e il modo di
-     * ancorarla vengono tutte da [rampMask].
+     * che posano la maschera sono ricopiate qui, e sono le uniche: la rampa e il rumore vengono da
+     * [rampMask].
      * ⚠️ **Che cosa NON vede**: se sul telefono la strada venga presa davvero, che è un `if` sulla
      * versione di sistema, e se il rimedio basti a far sparire le bande dai suoi occhi.
      */
@@ -272,7 +272,7 @@ class BandeTest {
                          */
                         .drawBehind {
                             val maschera =
-                                rampMask(PROVE_STOPS, PICCO, size.height.toInt(), 0f) ?: return@drawBehind
+                                rampMask(PROVE_STOPS, PICCO, size.height.toInt()) ?: return@drawBehind
                             costruita = true
                             val pittura = Paint().apply {
                                 color = TINTA
