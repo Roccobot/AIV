@@ -404,7 +404,7 @@ object ImageEdit {
              * la cosa che si decide guardando il risultato.
              */
             posed = if (look.spin == Spin.STILL) full
-            else full.spunBy(look.spin.turns, look.spin.mirror)
+            else full.spunBy(look.spin.turns, look.spin.mirror, strict = true)
             /*
              * ⚠️⚠️ **DUE PASSATE E NON UNA, DALLA `2.29`, E L'ORDINE È LA SPECIFICA**: prima il
              * colore, che gira sulla scheda grafica a tessere, e poi la geometria, che è una maglia
@@ -427,7 +427,7 @@ object ImageEdit {
             drawn = Draw.onto(shaded, look.drawing, look.spin)
             warped = if (look.geo.idle) drawn else Warp.render(drawn, look.geo)
                 ?: return@withContext Result.Failed(R.string.look_failed)
-            done = if (look.crop.whole) warped else warped.cutTo(look.crop)
+            done = if (look.crop.whole) warped else warped.cutTo(look.crop, strict = true)
             // ⚠️ Il ridimensionamento viene prima della firma, e il perché vive nell'altra via
             // (la filigrana è larga una frazione del lato di quello che si scrive, quindi
             // disegnarla prima vorrebbe dire ridisegnarla due volte).
@@ -605,13 +605,13 @@ object ImageEdit {
             full = ImageSource.pixels(context, uri, 0)
                 ?: return Result.Failed(R.string.edit_too_big)
 
-            turned = full.spunBy(turns, mirror)
+            turned = full.spunBy(turns, mirror, strict = true)
             if (turned !== full) {
                 full.recycle()
                 full = null
             }
 
-            cut = turned.cutTo(crop)
+            cut = turned.cutTo(crop, strict = true)
             /*
              * ⚠️⚠️ **SI RIDIMENSIONA PRIMA DI FIRMARE, DALLA `2.70`, E L'ORDINE È MISURATO**:
              * la filigrana è larga una frazione del lato **dell'immagine che si scrive**, quindi
@@ -841,10 +841,15 @@ object ImageEdit {
  * - ⚠️ **Torna `this` quando non c'è niente da girare**, e chi ricicla la copia se ne accorge
  *   confrontando l'identità (`!==`), come fa il salvataggio: senza quel confronto si
  *   riciclerebbe la mappa che si sta ancora usando.
+ * - ⚠️⚠️ **[strict] TOGLIE LA RETE, E I DUE SALVATAGGI LO ACCENDONO** (rilievo B15 della
+ *   revisione della 6.25): con la rete, un errore di memoria nel salvataggio scriveva il file
+ *   **dritto**, anche sopra l'originale, e l'avviso diceva 'salvato'. Senza, l'errore arriva al
+ *   `catch` del salvataggio, che risponde 'troppo grande' e non tocca il file. La rete resta per
+ *   le anteprime, dove l'alternativa è un'app che si chiude.
  */
-internal fun Bitmap.spunBy(turns: Int, mirror: Boolean): Bitmap =
+internal fun Bitmap.spunBy(turns: Int, mirror: Boolean, strict: Boolean = false): Bitmap =
     if (turns.mod(4) == 0 && !mirror) this
-    else runCatching {
+    else netted(strict) {
         Bitmap.createBitmap(
             this, 0, 0, width, height,
             /*
@@ -862,7 +867,14 @@ internal fun Bitmap.spunBy(turns: Int, mirror: Boolean): Bitmap =
             },
             true
         )
-    }.getOrDefault(this)
+    } ?: this
+
+/**
+ * [make], con la rete di [spunBy] e [cutTo] quando [strict] è spento: un errore torna `null`, e
+ * chi chiama ripiega sulla mappa che aveva.
+ */
+private inline fun netted(strict: Boolean, make: () -> Bitmap): Bitmap? =
+    if (strict) make() else runCatching(make).getOrNull()
 
 /**
  * Questa mappa di pixel ritagliata sulle frazioni di [crop], oppure lei stessa.
@@ -876,14 +888,16 @@ internal fun Bitmap.spunBy(turns: Int, mirror: Boolean): Bitmap =
  * - ⚠️ **Il conto è quello di prima, carattere per carattere**: si tronca (`toInt`) e si stringe
  *   dentro i bordi, il minimo di larghezza e altezza è **uno** perché un ritaglio di zero pixel
  *   non è un'immagine, e l'origine può arrivare al più all'ultimo pixel.
+ * - ⚠️ **[strict] come in [spunBy]**: con la rete, un salvataggio senza memoria scriveva
+ *   l'immagine intera al posto del ritaglio.
  */
-internal fun Bitmap.cutTo(crop: ImageEdit.Crop): Bitmap {
+internal fun Bitmap.cutTo(crop: ImageEdit.Crop, strict: Boolean = false): Bitmap {
     if (crop.whole) return this
-    return runCatching {
+    return netted(strict) {
         val x = (crop.left * width).toInt().coerceIn(0, width - 1)
         val y = (crop.top * height).toInt().coerceIn(0, height - 1)
         val w = ((crop.right - crop.left) * width).toInt().coerceIn(1, width - x)
         val h = ((crop.bottom - crop.top) * height).toInt().coerceIn(1, height - y)
         Bitmap.createBitmap(this, x, y, w, h)
-    }.getOrDefault(this)
+    } ?: this
 }

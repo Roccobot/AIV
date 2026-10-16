@@ -172,21 +172,29 @@ object Convert {
         destination: Uri
     ): Boolean = withContext(Dispatchers.IO + NonCancellable) {
         val whole = source?.let { full(context, it) } ?: fallback ?: return@withContext false
-        val scaled = if (size == Size.FULL) whole else runCatching {
-            Bitmap.createScaledBitmap(
+        var scaled: Bitmap? = null
+        var flat: Bitmap? = null
+        // ⚠️⚠️ **Senza memoria per ridurre o appiattire, la conversione non riesce, dalla
+        // `6.26`** (rilievo B15 della revisione della 6.25): prima la riduzione al 50% scriveva
+        // il file a misura piena, e l'appiattimento lo scriveva con la trasparenza nera, tutti e
+        // due con l'avviso 'salvato'.
+        try {
+            scaled = if (size == Size.FULL) whole else Bitmap.createScaledBitmap(
                 whole, size.applyTo(whole.width), size.applyTo(whole.height), true
             )
-        }.getOrDefault(whole)
-        val flat = if (target.keepsAlpha) scaled else flatten(scaled)
-        val done = runCatching {
-            context.contentResolver.openOutputStream(destination)?.use { out ->
-                flat.compress(target.format, target.qualityFor(quality), out)
-            } ?: false
-        }.getOrDefault(false)
-        if (flat !== scaled) flat.recycle()
-        if (scaled !== whole) scaled.recycle()
-        if (whole !== fallback) whole.recycle()
-        done
+            flat = if (target.keepsAlpha) scaled else flatten(scaled)
+            runCatching {
+                context.contentResolver.openOutputStream(destination)?.use { out ->
+                    flat.compress(target.format, target.qualityFor(quality), out)
+                } ?: false
+            }.getOrDefault(false)
+        } catch (_: OutOfMemoryError) {
+            false
+        } finally {
+            if (flat !== scaled) flat?.recycle()
+            if (scaled !== whole) scaled?.recycle()
+            if (whole !== fallback) whole.recycle()
+        }
     }
 
     /**
@@ -207,16 +215,17 @@ object Convert {
     // ⚠️ **Non più privata dalla `1.34`**: la usa anche l'editor interno, che scriveva
     // JPEG senza appiattire e faceva diventare nera la trasparenza. Una seconda copia là
     // sarebbe stata la stessa scelta in due posti.
+    // ⚠️⚠️ **Un errore di memoria passa, dalla `6.26`** (rilievo B15 della revisione della 6.25):
+    // la rete tornava l'immagine con la trasparenza, e il JPEG la scriveva nera, cioè proprio il
+    // difetto che questa funzione toglie. La chiamano solo le scritture, che lo raccolgono.
     internal fun flatten(source: Bitmap): Bitmap {
         if (!source.hasAlpha()) return source
-        return runCatching {
-            val out = Bitmap.createBitmap(source.width, source.height, Bitmap.Config.ARGB_8888)
-            android.graphics.Canvas(out).apply {
-                drawColor(android.graphics.Color.WHITE)
-                drawBitmap(source, 0f, 0f, null)
-            }
-            out
-        }.getOrDefault(source)
+        val out = Bitmap.createBitmap(source.width, source.height, Bitmap.Config.ARGB_8888)
+        android.graphics.Canvas(out).apply {
+            drawColor(android.graphics.Color.WHITE)
+            drawBitmap(source, 0f, 0f, null)
+        }
+        return out
     }
 
     /**
