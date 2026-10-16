@@ -1288,8 +1288,12 @@ private class Naming(val picture: LoadedImage, val hold: Boolean)
 /**
  * Il segnaposto dei pixel nella copia che la riga delle info tiene della foto lasciata: un pixel
  * solo, condiviso. Vedi `shown` in [ViewerScreen].
+ *
+ * ⚠️ **Pigro, e non per stile**: una costante di questo file nasce appena si usa una qualunque sua
+ * funzione (`formatBytes` la chiamano griglia e impostazioni), e creare una tela là vuol dire
+ * pagarla in ogni schermata; nel banco senza grafica nativa andava perfino in errore.
  */
-private val NO_PIXELS = ImageBitmap(1, 1)
+private val NO_PIXELS by lazy { ImageBitmap(1, 1) }
 
 /**
  * Le richieste che il menu del tocco lungo **non esegue da sé**, e che passa a chi lo
