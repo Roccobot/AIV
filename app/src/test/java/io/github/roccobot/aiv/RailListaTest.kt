@@ -297,48 +297,61 @@ class RailListaTest {
             android.Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
         var nascosta = false
-        val cartella = Folder.Bucket(7, "Vacanze", 3, 0, null, "/tmp/Vacanze")
-        banco.setContent {
-            AivTheme(darkTheme = false) {
-                FolderRail(
-                    buckets = listOf(cartella),
-                    selected = null,
-                    selection = FolderSelection(),
-                    peeking = false,
-                    colour = FolderColour.NONE,
-                    tints = emptyMap(),
-                    onPick = {},
-                    onHide = { nascosta = true },
-                    onUnhide = {},
-                    onSelectionChange = {},
-                    onRead = {},
-                    onSearch = {},
-                    onBin = {},
-                    onSettings = {},
-                    width = 280.dp,
-                    liftPx = 0f,
-                    onLift = {},
-                    listIndex = 0,
-                    listOffset = 0,
-                    onListScroll = { _, _ -> },
-                    modifier = Modifier.width(280.dp).height(640.dp)
-                )
+        /*
+         * ⚠️ A parent of its own, with no other folder in it (6.24): the dialog reads the sibling
+         * folders on Dispatchers.IO, and when it finds some it grows by a key while the test is
+         * pressing 'Nascondi'. Under `/tmp` that depended on the machine (1552 entries there in
+         * the 6.24 container), and the press missed the key now and then.
+         */
+        val radice = java.nio.file.Files.createTempDirectory("aiv-rail").toFile()
+        try {
+            val cartella = Folder.Bucket(
+                7, "Vacanze", 3, 0, null, java.io.File(radice, "Vacanze").apply { mkdir() }.path
+            )
+            banco.setContent {
+                AivTheme(darkTheme = false) {
+                    FolderRail(
+                        buckets = listOf(cartella),
+                        selected = null,
+                        selection = FolderSelection(),
+                        peeking = false,
+                        colour = FolderColour.NONE,
+                        tints = emptyMap(),
+                        onPick = {},
+                        onHide = { nascosta = true },
+                        onUnhide = {},
+                        onSelectionChange = {},
+                        onRead = {},
+                        onSearch = {},
+                        onBin = {},
+                        onSettings = {},
+                        width = 280.dp,
+                        liftPx = 0f,
+                        onLift = {},
+                        listIndex = 0,
+                        listOffset = 0,
+                        onListScroll = { _, _ -> },
+                        modifier = Modifier.width(280.dp).height(640.dp)
+                    )
+                }
             }
+            banco.waitForIdle()
+            banco.onNodeWithText("Vacanze").performTouchInput { longClick() }
+            banco.waitForIdle()
+            assertTrue("Il tocco lungo non deve nascondere da solo", !nascosta)
+            // ⚠️ From the `5.80` the column asks the action first, like the phone (his answer `B1`).
+            banco.onNodeWithText(testo(R.string.folder_action_title)).assertExists()
+            banco.onNodeWithText(testo(R.string.hide_folder_do)).performClick()
+            banco.waitForIdle()
+            assertTrue("Scegliere 'Nascondi' non deve nascondere da solo", !nascosta)
+            banco.onNodeWithText(testo(R.string.hide_folder_do)).assertExists()
+            banco.onNodeWithText(testo(R.string.cancel)).assertExists()
+            banco.onNodeWithText(testo(R.string.hide_folder_do)).performClick()
+            banco.waitForIdle()
+            assertTrue("Confermare non ha nascosto la cartella", nascosta)
+        } finally {
+            radice.deleteRecursively()
         }
-        banco.waitForIdle()
-        banco.onNodeWithText("Vacanze").performTouchInput { longClick() }
-        banco.waitForIdle()
-        assertTrue("Il tocco lungo non deve nascondere da solo", !nascosta)
-        // ⚠️ From the `5.80` the column asks the action first, like the phone (his answer `B1`).
-        banco.onNodeWithText(testo(R.string.folder_action_title)).assertExists()
-        banco.onNodeWithText(testo(R.string.hide_folder_do)).performClick()
-        banco.waitForIdle()
-        assertTrue("Scegliere 'Nascondi' non deve nascondere da solo", !nascosta)
-        banco.onNodeWithText(testo(R.string.hide_folder_do)).assertExists()
-        banco.onNodeWithText(testo(R.string.cancel)).assertExists()
-        banco.onNodeWithText(testo(R.string.hide_folder_do)).performClick()
-        banco.waitForIdle()
-        assertTrue("Confermare non ha nascosto la cartella", nascosta)
     }
 
     /**

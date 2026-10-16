@@ -71,7 +71,7 @@ class CartelleDialoghiTest {
             scene.setContent { AivTheme(darkTheme = false) {
                 SystemFolderDialog(parent.path, FolderSelection(), { selected = it }, { dismissed = true })
             } }
-            scene.waitForIdle()
+            hideReady()
             scene.onNodeWithText("Hide").performClick()
             scene.onNodeWithText("Which folders do you want to hide?").assertExists()
             scene.onNodeWithText("Only ${parent.name}").performClick()
@@ -90,7 +90,7 @@ class CartelleDialoghiTest {
             scene.setContent { AivTheme(darkTheme = false) {
                 SystemFolderDialog(parent.path, FolderSelection(), { selected = it }, {})
             } }
-            scene.waitForIdle()
+            hideReady()
             scene.onNodeWithText("Hide").performClick()
             scene.onNodeWithText("Only the subfolders of ${parent.name}").performClick()
             assertTrue(selected!!.visible(parent.path))
@@ -108,8 +108,12 @@ class CartelleDialoghiTest {
             scene.setContent { AivTheme(darkTheme = false) {
                 AuthorizeFolderDialog(parent.path, before, { selected = it }, {})
             } }
-            scene.waitForIdle()
-            scene.onNodeWithText("Add this folder to the authorized list?").assertExists()
+            // ⚠️ The dialog learns that the folder is empty on Dispatchers.IO, and the question only
+            // shows up then: the v2 rule's waitForIdle does not wait for that dispatcher (6.24, red
+            // once on GitHub; with a 300 ms pause in the lookup it fails every time).
+            scene.waitUntil(5_000) {
+                scene.onAllNodesWithText("Add this folder to the authorized list?").fetchSemanticsNodes().isNotEmpty()
+            }
             scene.onNodeWithText("Note: this folder currently has no displayable items. It will appear in grid or list mode when it contains at least one image or video.").assertExists()
             scene.onNodeWithText("Authorize folder").performClick()
             assertTrue(selected!!.visible(parent.path))
@@ -125,7 +129,7 @@ class CartelleDialoghiTest {
             scene.setContent { AivTheme(darkTheme = false) {
                 SystemFolderDialog(parent.path, FolderSelection(), { selected = it }, {})
             } }
-            scene.waitForIdle()
+            hideReady()
             scene.onNodeWithText("Hide").performClick()
             scene.onNodeWithText("${parent.name} and its subfolder").performClick()
             val got = selected!!
@@ -134,6 +138,15 @@ class CartelleDialoghiTest {
             assertTrue(got.excluded.contains(portablePath(parent.path)))
             assertTrue(got.excluded.contains(portablePath(child.path)))
         } finally { parent.deleteRecursively() }
+    }
+
+    /**
+     * Waits until 'Hide' can be pressed: it stays disabled until the dialog has read the subfolders
+     * on Dispatchers.IO, which the v2 rule's waitForIdle does not wait for (6.24: with a 300 ms pause
+     * in that read, the three tests that press it fail every time).
+     */
+    private fun hideReady() = scene.waitUntil(5_000) {
+        scene.onAllNodes(hasText("Hide") and isEnabled()).fetchSemanticsNodes().isNotEmpty()
     }
 
 }
