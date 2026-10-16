@@ -80,23 +80,17 @@
 -->
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2070%2060'%3E%3Cg%20fill='%2343B59E'%20transform='translate(-19,-19)'%3E%3Cpath%20d='M30,19a10,10%200%201,0%200,20a10,10%200%201,0%200,-20z'/%3E%3Cpath%20fill-rule='evenodd'%20d='M58.1311,27.1833L88.1311,71.1833A5,5%200%200%201%2084,79L24,79A5,5%200%200%201%2019.8689,71.1833L49.8689,27.1833A5,5%200%200%201%2058.1311,27.1833ZM56.0424,49.5583L68.0424,66.5583A2.5,2.5%200%200%201%2066,70.5L42,70.5A2.5,2.5%200%200%201%2039.9576,66.5583L51.9576,49.5583A2.5,2.5%200%200%201%2056.0424,49.5583Z'/%3E%3C/g%3E%3C/svg%3E">
 <!--
-  QUESTA PAGINA È LA SORGENTE, e quella che si legge sul sito è la sua COPIA:
-  il workflow di rilascio di Roccobot/AIV la copia in
-  roccobot.github.io/AIV/index.html a ogni tag. Si modifica QUI, mai là, o il
-  tag successivo sovrascrive la modifica.
+  QUESTA PAGINA LA PUBBLICA `pages.yml`, sul Pages di questo repository
+  (roccobot.github.io/AIV/), a ogni push su `main` che tocca `publish/`.
 
-  ⚠️ IL PASSO 13 COPIA TRE COSE, non una: questa pagina, la cartella
-  `publish/schermate/` che le vive accanto e, dalla 2.92, `publish/anteprima.jpg`.
-  Chi aggiunge un'immagine qui deve guardare anche là, o sul sito resta un
-  riquadro rotto.
+  ⚠️ IL SITO È UN ELENCO DI FILE DA INCLUDERE, dalla 6.29: questa pagina,
+  `privacy.html`, `anteprima.jpg`, la cartella `schermate/` e `assets/Roboto.ttf`
+  con la sua licenza. Un file nuovo che la pagina usa va aggiunto all'elenco in
+  `pages.yml`, e se manca `tools/site-check.py` ferma la pubblicazione.
 
-  ⚠️⚠️ NON C'È PIÙ NESSUN SEGNAPOSTO DA SOSTITUIRE, e fino alla 1.36 ce n'erano
-  cinque (__APK__, __VERSION__, __SIZE__, __DATE__, __YEAR__) che il passo 13 di
-  `release.yml` riempiva con `sed`. Adesso versione, nome del file e peso
-  arrivano da UNA chiamata all'API di GitHub al caricamento della pagina, come
-  chiede il brief dei disegni: la pagina non invecchia più fra due tag, e il
-  workflow torna a fare una copia e nient'altro. Chi rimettesse un segnaposto
-  qui dovrebbe rimettere anche il `sed` là.
+  ⚠️⚠️ NESSUN SEGNAPOSTO DA SOSTITUIRE: versione, nome del file e peso arrivano
+  da UNA chiamata all'API di GitHub al caricamento della pagina, quindi la pagina
+  non invecchia fra due release e un rilascio non la ripubblica.
 
   ⚠️⚠️ LE NOTE DI RILASCIO NON CI SONO PIÙ, tolte su richiesta dell'utente il
   2026-09-02 (*presa da GitHub non è abbastanza user friendly*), e con loro il
@@ -495,8 +489,8 @@
          vetrina una funzionalità nuova. In questo modo sono uno per il tema chiaro e
          uno per lo scuro, entrambi language-agnostic perché privi di testo*. Sono
          mockup e non catture fedeli, e va bene così per la stessa ragione.
-         ⚠️ Vivono in `publish/schermate/` e il passo 13 di `release.yml` copia la
-         cartella accanto alla pagina: chi ne aggiunge una deve guardare anche là. -->
+         ⚠️ Vivono in `publish/schermate/`, che `pages.yml` copia intera accanto alla
+         pagina. -->
     <div class="schermata-blocco">
       <picture>
         <source id="schermata-scura" srcset="schermate/scura.webp" media="(prefers-color-scheme: dark)">

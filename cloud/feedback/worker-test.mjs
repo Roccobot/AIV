@@ -28,6 +28,9 @@ globalThis.fetch=async url=> {
 try {
   assert.equal((await worker.fetch(request('/api/feedback'),env)).status,401);
   assert.equal((await worker.fetch(request('/feedback'),env)).status,200);
+  // 6.29 (H23): a file with `?v=` never changes, the page itself is asked again every time.
+  assert.equal((await worker.fetch(request('/feedback.css?v=0123456789'),env)).headers.get('Cache-Control'),'public, max-age=31536000, immutable');
+  assert.equal((await worker.fetch(request('/feedback'),env)).headers.get('Cache-Control'),null);
   const config=await (await worker.fetch(request('/feedback-cloud-config.js'),env)).text();
   assert(!config.includes('test-secret') && config.includes('/api/feedback'));
   assert.equal((await worker.fetch(request('/api/feedback'),{...env,SESSION_SECRET:null})).status,503);

@@ -75,7 +75,15 @@ async function handle(request, env) {
   const ready = env.SESSION_SECRET && env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET && env.OWNER_ID
     && (env.FEEDBACK || env.SUPABASE_URL && env.SUPABASE_SECRET_KEY);
   if (path === '/feedback-cloud-config.js') return new Response('window.feedbackCloudConfig = '+JSON.stringify({endpoint:'/api/feedback',files:'/api/files/',login:'/auth/login',logout:'/auth/logout',account:'/auth/me'})+';', {headers:{'Content-Type':'application/javascript','Cache-Control':'no-store'}});
-  if (!path.startsWith('/auth/') && !path.startsWith('/api/')) return env.ASSETS.fetch(request);
+  if (!path.startsWith('/auth/') && !path.startsWith('/api/')) {
+    const asset = await env.ASSETS.fetch(request);
+    // Since 6.29 (H23 of the 6.25 review): a `?v=` is the start of the file's own hash, so that
+    // address never changes content. Until 6.28 every opening asked for some twenty files again.
+    if (!url.searchParams.has('v') || !asset.ok) return asset;
+    const immutable = new Response(asset.body,asset);
+    immutable.headers.set('Cache-Control','public, max-age=31536000, immutable');
+    return immutable;
+  }
   if (!ready) return json({error:'Servizio cloud non configurato.'},503);
   const store = env.FEEDBACK || new SupabaseStore(env);
   if (path === '/auth/login' && request.method === 'GET') {

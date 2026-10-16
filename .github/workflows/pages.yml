@@ -20,7 +20,7 @@ name: Pages
 on:
   push:
     branches: [main]
-    paths: ['publish/**']
+    paths: ['publish/**', 'tools/site-check.py', '.github/workflows/pages.yml']
   workflow_dispatch:
 
 permissions:
@@ -50,22 +50,21 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v6
 
-      # ⚠️ The feedback document is NOT part of the site since 2026-10-03: its only
-      # address is the private Worker (`cloud/feedback/`), which serves the same
-      # `publish/` folder as assets, so its files have to stay there and are left
-      # out here. The Pages copy kept an old local draft; the owner declared it
-      # disposable, and git history keeps it if it is ever needed. Only the page and
-      # its scripts are removed: `feedback.css` and the `feedback-favicon.*` icons
-      # are shared by the download page and the two mockups, so they stay.
-      # ⚠️ Since 5.70 the two mockups are left out too (tablet and settings proposal,
-      # with their own styles and script): the owner's working material, not meant to be
-      # public (his request, 2026-10-11). The download page no longer links them, and the
-      # Worker still serves them next to the feedback document.
-      - name: Leave the feedback document and the mockups out
+      # ⚠️⚠️ SINCE 6.29 THE SITE IS A LIST OF FILES TO INCLUDE: the download page, the
+      # privacy notice and what they use. `publish/` also holds the feedback document,
+      # whose only address is the private Worker (`cloud/feedback/`, since 2026-10-03),
+      # and the owner's mockups, left out since 5.70 (his request, 2026-10-11). Until
+      # 6.28 the step copied `publish/` and removed a list of names, so 20 files of the
+      # feedback document that no page here uses were public, and a new working file in
+      # `publish/` went public unless somebody remembered the list. `site-check.py`
+      # fails the run if a page names a local file the list forgot.
+      - name: Copy the page, the notice and what they use
         run: |
-          cp -r publish site
-          rm -f site/feedback.html site/feedback*.js site/README.md
-          rm -f site/tablet.html site/tablet.css site/tablet.js site/settings.html site/settings.css
+          mkdir -p site/assets
+          cp publish/index.html publish/privacy.html publish/anteprima.jpg site/
+          cp -r publish/schermate site/
+          cp publish/assets/Roboto.ttf publish/assets/Roboto-license.txt site/assets/
+          python3 tools/site-check.py site
           find site -type f | sort
 
       - name: Upload the page
