@@ -350,6 +350,48 @@ def check_scroll_writes(path):
     print('Scorrimento e scrittura: nessun valore uguale riscritto, contatori fermi, verificato.')
 
 
+def check_emoji_pieces(path):
+    """The emoji font comes in pieces by Unicode range, and the browser downloads each piece whose
+    range holds a character of the page. Since 6.29 (H22) the keys over Altro show no U+FE0F, which
+    falls in eight pieces: until 6.28 the warning key alone made every opening download 1.3 MB.
+    The pieces downloaded at opening are exactly those the page's characters ask for."""
+    from playwright.sync_api import sync_playwright
+    browser_path = chromium()
+    if not browser_path:
+        raise AssertionError('Chromium non disponibile: carattere delle emoji non verificato.')
+    folder = Path(path).resolve().parent
+    ranges = {}
+    for block in re.findall(r'@font-face\s*{[^}]*"Noto Color Emoji"[^}]*}', (folder / 'feedback.css').read_text(encoding='utf-8')):
+        piece = re.search(r'noto-emoji/([^")]+)', block).group(1)
+        spans = []
+        for part in re.search(r'unicode-range:\s*([^;]+);', block).group(1).split(','):
+            low, _, high = part.strip()[2:].partition('-')
+            spans.append((int(low, 16), int(high or low, 16)))
+        ranges[piece] = spans
+    server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), functools.partial(Quiet, directory=str(folder)))
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        with sync_playwright() as pw:
+            engine = pw.chromium.launch(executable_path=browser_path, args=['--no-sandbox'])
+            page = engine.new_page(viewport={'width': 1400, 'height': 800})
+            pieces = set()
+            page.on('requestfinished', lambda request: pieces.add(request.url.rsplit('/', 1)[-1]) if '/noto-emoji/' in request.url else None)
+            page.goto(f'http://127.0.0.1:{server.server_port}/{Path(path).name}')
+            page.wait_for_load_state('networkidle')
+            row = page.locator('#extra-section > .symbol-keys').text_content()
+            assert '️' not in row, 'Un tasto sopra Altro mostra U+FE0F.'
+            # The drawn text: textContent would add the page's data, which is never drawn.
+            shown = {ord(character) for character in page.evaluate('document.body.innerText')}
+            expected = {piece for piece, spans in ranges.items()
+                        if any(low <= code <= high for code in shown for low, high in spans)}
+            assert pieces == expected, f'Pezzi scaricati {sorted(pieces)}, attesi {sorted(expected)}.'
+            engine.close()
+    finally:
+        server.shutdown()
+        server.server_close()
+    print(f'Emoji: pezzi del carattere scaricati all\'apertura {len(pieces)}, quelli che il testo chiede, verificato.')
+
+
 def check_questions_and_labels(path):
     """The blocks after the tests (the user's rule of 2026-10-08), on a page built from a
     synthetic source with the real generator and template: the questions come after the tests and
@@ -536,6 +578,7 @@ def check(path):
         assert question.get('title') and question.get('paragraphs'), 'Domanda incompleta.'
     check_declared_round(path)
     check_scroll_writes(path)
+    check_emoji_pieces(path)
     check_questions_and_labels(path)
     check_attachment_buttons(path)
     check_altro_reaches_last_attachment(path)
@@ -1052,7 +1095,7 @@ def check(path):
             # mockup's order, the tooltip only the shortcuts, four spaces apart, and a click
             # writes the symbol where the caret is, here a proof card's field and not Altro.
             row = formatting.locator('#extra-section > .symbol-keys button')
-            expect(row).to_have_text(['⌘', '⇧', '⌥', '⌃', '→', '⏎', '×', '✅', '❌', '⚠️'])
+            expect(row).to_have_text(['⌘', '⇧', '⌥', '⌃', '→', '⏎', '×', '✅', '❌', '⚠'])
             gap = ' ' * 4
             assert [row.nth(index).get_attribute('title') for index in range(10)] == [
                 '⌘⇧C', '⌘⇧M' + gap + '⌘⇧S', '⌘⇧O' + gap + '⌘⇧A', '⌘⇧Ì', '⌘⇧Ù', '⌘⇧⏎',

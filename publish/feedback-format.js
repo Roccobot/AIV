@@ -606,8 +606,13 @@
     {symbol: "×", name: "Per", keys: ["KeyX"], shown: ["⌘⇧X"]},
     {symbol: "✅", name: "Spunta", keys: ["KeyK"], shown: ["⌘⇧K"]},
     {symbol: "❌", name: "Croce", keys: ["KeyN"], shown: ["⌘⇧N"]},
-    {symbol: "⚠️", name: "Avviso", keys: ["KeyP"], shown: ["⌘⇧P"]}
+    {symbol: "⚠️", label: "⚠", name: "Avviso", keys: ["KeyP"], shown: ["⌘⇧P"]}
   ];
+  /* `label` is what the key shows, when it differs from what it writes. The warning writes ⚠ with
+     U+FE0F, the selector that asks for the colour form; on the key it goes without, because the
+     emoji font is split into pieces by Unicode range and U+FE0F falls in eight of them: one key
+     made every opening download 1.3 MB, where the glyph lives in one piece of 65 KB. The emoji
+     font draws ⚠ in colour all the same (6.29, H22 of the 6.25 review). */
   /* ⌃⌘⌥ and a key write the shortcut ⌘ and that key, as inline code, then a plain space, so what
      is typed next is plain text (his request of 2026-10-14, choice B1); with ⇧ too they write ⌘⇧
      and the key (his request of the same day). The key is read from its place, because ⌥ changes
@@ -940,7 +945,7 @@
     for (const entry of SYMBOL_KEYS) {
       // The symbol in a span of its own: the stylesheet fades the emoji, not the key's border.
       const key = node("button");
-      key.append(node("span", entry.symbol));
+      key.append(node("span", entry.label ?? entry.symbol));
       key.type = "button";
       // Four no-break spaces: a tooltip may fold ordinary ones into one.
       key.title = entry.shown.join(" ".repeat(4));
