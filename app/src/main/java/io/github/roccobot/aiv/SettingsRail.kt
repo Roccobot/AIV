@@ -24,13 +24,11 @@ import androidx.compose.ui.unit.dp
 /**
  * L'indice delle impostazioni a colonna, per il layout tablet.
  *
- * ⚠️⚠️ **NASCE CON LA `3.33`**: il mockup (`publish/tablet.html`, rotta `settings`) tiene
- * l'indice a lato e la pagina scelta nello spazio principale. Sul telefono resta la
- * navigazione a pila a pieno schermo ([SettingsScreen]); da 600 dp in su
- * ([Adaptive.sideAvailable]) indice e pagina restano insieme.
- * ⚠️ **Non riscrive le pagine**: il corpo continua a viverle [SettingsScreen]; qui ci sono
- * solo i titoli per saltare da una all'altra senza tornare alla radice.
- * ⚠️ **Il lato segue [Hand]**, come Cartelle e Visualizzatore.
+ * Segue il mockup (`publish/tablet.html`, rotta `settings`): l'indice a lato e la pagina scelta
+ * nello spazio principale, da 600 dp in su ([Adaptive.sideAvailable]); sul telefono resta la
+ * navigazione a pila a pieno schermo ([SettingsScreen]).
+ * Le pagine le disegna sempre [SettingsScreen]: qui ci sono solo i titoli, per saltare da una
+ * all'altra senza tornare alla radice. Il lato segue [Hand], come Cartelle e Visualizzatore.
  */
 @Composable
 internal fun SettingsIndexRail(
@@ -84,7 +82,7 @@ internal fun SettingsIndexRail(
 }
 
 /**
- * Riga a due colonne per Impostazioni: indice + pagina, allineata al mockup.
+ * Le Impostazioni su due colonne, indice e pagina, come nel mockup.
  */
 @Composable
 internal fun SettingsTabletSplit(
@@ -107,10 +105,8 @@ internal fun SettingsTabletSplit(
 }
 
 /**
- * L'ordine dell'indice tablet: radice, poi le famiglie come nel mockup.
- *
- * ⚠️ **ROOT per prima**: è la "Pagina iniziale" del mockup. Le altre seguono il percorso
- * contenitore -> contenuto (cartelle, visualizzatore, info, pulsanti, file, cestino, avvio).
+ * L'ordine dell'indice tablet: prima la radice, che è la 'Pagina iniziale' del mockup, poi le
+ * famiglie dal contenitore al contenuto.
  */
 internal val SETTINGS_INDEX: List<Page> = listOf(
     Page.ROOT,
@@ -122,8 +118,8 @@ internal val SETTINGS_INDEX: List<Page> = listOf(
     Page.EDITING, Page.STYLES, Page.MARK, Page.SAVING, Page.BIN,
     Page.START,
     Page.THUMBS, Page.BACKUP
-// ⚠️ AIV Play has no bin of its own (`Store.files`), only the system's trash, which has no
-// settings here: so the page is not in the index either.
+// AIV Play non ha un cestino suo (`Store.files`), solo quello di sistema, che qui non ha
+// impostazioni: quindi la pagina non è nemmeno nell'indice.
 ).filter { Store.files || it != Page.BIN }
 
 internal val Page.titleRes: Int
@@ -133,8 +129,8 @@ internal val Page.titleRes: Int
         Page.FOLDERS -> R.string.settings_group_browse
         Page.VIEWER -> R.string.settings_group_viewer
         Page.INFO -> R.string.settings_page_info
-        // ⚠️ Non è nell'indice: una pila vecchia può ancora nominarla, e il titolo è quello
-        // della pagina che adesso contiene quelle voci.
+        // Non è nell'indice, ma una pila vecchia può ancora nominarla: il titolo è quello della
+        // pagina che oggi contiene quelle voci.
         Page.NAV -> R.string.settings_group_viewer
         Page.CONTROLS -> R.string.settings_page_controls
         Page.EDITING -> R.string.settings_page_editing
