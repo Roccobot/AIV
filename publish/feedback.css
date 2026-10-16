@@ -1616,8 +1616,7 @@ button.devices-edit:disabled {
   html :focus-visible,
   .file-button:focus-within,
   .altro-attach:focus-within,
-  .altro-format-cluster > .attachment:focus-within,
-  #labels .label-id:focus-visible {
+  .altro-format-cluster > .attachment:focus-within {
     outline: none;
   }
   /* The three outcomes on one row under their title (the user's request, 2026-10-06): at rest
@@ -1699,34 +1698,17 @@ button.devices-edit:disabled {
   padding-top: 8px;
 }
 #labels .label-id {
-  appearance: none;
-  -webkit-appearance: none;
-  display: block;
   width: fit-content;
   max-width: 100%;
   margin: 0 0 14px;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  min-height: 0;
-  min-width: 0;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   font-size: 12px;
   font-weight: 400;
   letter-spacing: 0;
   line-height: 1.2;
   text-transform: lowercase;
-  text-align: left;
   color: var(--muted);
   opacity: 0.4;
-  cursor: pointer;
-}
-#labels .label-id:hover,
-#labels .label-id:focus-visible {
-  background: transparent;
-  color: var(--muted);
 }
 #labels .label-card h3 {
   margin-top: 0;

@@ -141,17 +141,23 @@ function refreshCounts() {
     if (status) counters[status]++;
   }
   const done = answeredCount();
-  const counts = document.querySelector("#counts");
-  const ratio = el("span", `${done}/${spec.items.length}`, "count-ratio");
-  ratio.id = "count-answered";
-  ratio.setAttribute("aria-label", `Riscontri: ${done} su ${spec.items.length}`);
-  counts.replaceChildren(
-    ratio,
-    ...spec.outcomes.map((outcome) => countChip(outcome.kind, outcome.label, counters[outcome.label])),
-  );
-  document.querySelector("#progress").value = done;
+  // The counters are rebuilt only when a number changes, since 6.29 (H15 of the 6.25 review):
+  // this runs at every key pressed in a comment, and until 6.28 it rebuilt them every time.
+  const shown = [done, ...outcomes.map((outcome) => counters[outcome])].join(",");
+  if (shown !== countsShown) {
+    countsShown = shown;
+    const ratio = el("span", `${done}/${spec.items.length}`, "count-ratio");
+    ratio.id = "count-answered";
+    ratio.setAttribute("aria-label", `Riscontri: ${done} su ${spec.items.length}`);
+    document.querySelector("#counts").replaceChildren(
+      ratio,
+      ...spec.outcomes.map((outcome) => countChip(outcome.kind, outcome.label, counters[outcome.label])),
+    );
+    document.querySelector("#progress").value = done;
+  }
   refreshNavigation();
 }
+let countsShown = null;
 
 function hydrate() {
   for (const card of document.querySelectorAll(".test")) {
@@ -362,9 +368,6 @@ async function copy() {
     report("Il browser non ha permesso la copia negli appunti: esporta le risposte.", true);
   }
 }
-function copyLabelId(id) {
-  copyText(String(id || "").toLowerCase()).catch(() => {});
-}
 for (const item of spec.labels || []) {
   const card = el("article", undefined, "card label-card");
   card.dataset.id = item.id;
@@ -373,12 +376,9 @@ for (const item of spec.labels || []) {
   dot.hidden = true;
   dot.setAttribute("aria-label", "modificato");
   title.append(dot);
-  const idCopy = el("button", String(item.id).toLowerCase(), "label-id");
-  idCopy.type = "button";
-  idCopy.addEventListener("click", () => {
-    copyLabelId(item.id);
-  });
-  card.append(idCopy, title);
+  // The id is text, like the eyebrow of a test, since 6.29 (H16 of the 6.25 review): until 6.28
+  // it was also a button that copied it as plain text, beside the symbol that copies it as code.
+  card.append(el("p", String(item.id).toLowerCase(), "label-id"), title);
   if (item.a11y) card.append(labelA11yIcon());
   const label = el("label", item.title, "sr-only");
   const field = el("textarea");
@@ -1046,7 +1046,9 @@ function controls(disabled) {
   new MutationObserver(() => {
     for (const child of altro.children) watch.observe(child);
     fit();
-  }).observe(altro, { childList: true, subtree: true });
+    // Only Altro's own children, since 6.29 (H15): their sizes are followed by the ResizeObserver
+    // above, and with `subtree` every letter typed in Altro forced a layout here.
+  }).observe(altro, { childList: true });
   wide.addEventListener("change", fit);
   fit();
   // Altro ends inside the window (the user's note, 2026-10-10, with a screenshot): it is sticky,

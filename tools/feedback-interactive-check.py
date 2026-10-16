@@ -335,11 +335,19 @@ def check_scroll_writes(path):
                 return count;
             }''')
             assert writes == 0, f'Scorrendo la pagina ha riscritto {writes} valori uguali.'
+            # 6.29 (H15): typing in a comment leaves the counters as they are, since no number
+            # changes; until 6.28 every key rebuilt them.
+            page.evaluate('window.ratioBefore = document.querySelector("#count-answered")')
+            editor = page.locator('.test .rich-editor').first
+            editor.click()
+            page.keyboard.type('prova')
+            assert page.evaluate('window.ratioBefore === document.querySelector("#count-answered")'), \
+                'Scrivendo un commento i contatori sono stati ricostruiti.'
             engine.close()
     finally:
         server.shutdown()
         server.server_close()
-    print('Scorrimento: nessuna scrittura di valori uguali in dieci fotogrammi, verificato.')
+    print('Scorrimento e scrittura: nessun valore uguale riscritto, contatori fermi, verificato.')
 
 
 def check_questions_and_labels(path):
