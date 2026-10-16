@@ -1,12 +1,16 @@
 package io.github.roccobot.aiv
 
 import android.app.Application
+import android.content.pm.ActivityInfo
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageInfo
 import android.net.Uri
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -79,5 +83,34 @@ class EditorInternoTest {
         assertTrue(Editors.isInternal(Editors.FULL))
         assertFalse(Editors.isInternal("com.esempio/.Editor"))
         assertFalse(Editors.isInternal(""))
+    }
+
+    /**
+     * **Caso 4: il nome di un'app di fuori si legge dal suo componente** (`6.28`, rilievo B13), sia
+     * scelta come editor sia raggiunta condividendo; un'app disinstallata risponde `null`, e la
+     * voce delle impostazioni torna a dire 'nessuna'.
+     *
+     * ⚠️ **L'app finta non risponde a nessuna domanda di modifica né di condivisione**: il nome
+     * arriva dal solo componente, che è la strada nuova. Con quella di prima, che cercava il nome
+     * nell'elenco intero, la stessa prova risponde `null` (controprovata).
+     */
+    @Test
+    fun `il nome di un'app di fuori si legge dal componente`() {
+        val pacchetto = PackageInfo().apply {
+            packageName = "com.esempio.foto"
+            applicationInfo = ApplicationInfo().apply { packageName = "com.esempio.foto" }
+        }
+        shadowOf(app.packageManager).installPackage(pacchetto)
+        shadowOf(app.packageManager).addOrUpdateActivity(
+            ActivityInfo().apply {
+                packageName = "com.esempio.foto"
+                name = "com.esempio.foto.Ritocca"
+                nonLocalizedLabel = "Ritocca"
+                applicationInfo = pacchetto.applicationInfo
+            }
+        )
+        assertEquals("Ritocca", Editors.labelOf(app, "com.esempio.foto/.Ritocca"))
+        assertEquals("Ritocca", Editors.labelOf(app, Editors.SHARED + "com.esempio.foto/.Ritocca"))
+        assertNull(Editors.labelOf(app, "com.esempio.assente/.Editor"))
     }
 }

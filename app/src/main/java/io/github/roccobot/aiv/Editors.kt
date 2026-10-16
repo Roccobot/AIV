@@ -122,16 +122,21 @@ object Editors {
          * testo (raro) e può tenere dentro un archivio in rete. Per questo le due famiglie
          * restano **separate** nel selettore invece di essere mescolate: chi sceglie vede da
          * quale delle due sta pescando.
+         * ⚠️ **Si scarta PRIMA di chiedere nomi e icone, dalla `6.28`** (rilievo B13 della
+         * revisione della 6.25): caricarli per le quaranta voci della condivisione e poi tenerne
+         * tre voleva dire decine di icone lette per niente.
          */
-        val shares = ask(pm, Intent.ACTION_SEND, MIME).toChoices(context, pm, SHARED)
         val talkers = ask(pm, Intent.ACTION_SEND, TEXT)
             .mapNotNull { it.activityInfo?.packageName }
             .toSet()
-        val known = editors.map { it.id.substringAfterLast(':') }.toSet()
-        val others = shares.filterNot {
-            it.id.removePrefix(SHARED).substringBefore('/') in talkers ||
-                it.id.removePrefix(SHARED) in known
-        }
+        val known = editors.map { it.id }.toSet()
+        val others = ask(pm, Intent.ACTION_SEND, MIME)
+            .filterNot { info ->
+                val act = info.activityInfo ?: return@filterNot true
+                act.packageName in talkers ||
+                    ComponentName(act.packageName, act.name).flattenToString() in known
+            }
+            .toChoices(context, pm, SHARED)
         return editors + others
     }
 
@@ -182,7 +187,14 @@ object Editors {
     fun labelOf(context: Context, id: String): String? {
         if (id.isBlank()) return null
         if (isInternal(id)) return context.getString(R.string.editor_internal)
-        return installed(context).firstOrNull { it.id == id }?.label
+        /*
+         * ⚠️ **Si chiede il solo componente salvato, dalla `6.28`** (rilievo B13): fino ad
+         * allora si rifaceva tutto l'elenco, nove domande al sistema e le icone di ogni app, per
+         * trovare un nome. Un'app disinstallata risponde con un'eccezione, cioè `null`.
+         */
+        val component = ComponentName.unflattenFromString(id.removePrefix(SHARED)) ?: return null
+        val pm = context.packageManager
+        return runCatching { pm.getActivityInfo(component, 0).loadLabel(pm).toString() }.getOrNull()
     }
 
     /**

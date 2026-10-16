@@ -2097,11 +2097,12 @@ private fun EditingPage(
         val context = LocalContext.current
         val noEditor = stringResource(R.string.settings_editor_none)
         // ⚠️ Ricordato, e non chiesto a ogni disegno: leggerlo vuol dire interrogare il
-        // `PackageManager`, cioè elencare le app del telefono. La chiave è la scelta, e in più
-        // la frase di ripiego, che cambia quando cambia la lingua.
-        val editorName = remember(settings.editorApp, noEditor) {
-            Editors.labelOf(context, settings.editorApp)
-        } ?: noEditor
+        // `PackageManager`. La chiave è la scelta. ⚠️ Fuori dal thread principale dalla `6.28`
+        // (rilievo B13): finché il sistema non risponde la riga resta vuota, non 'nessuna'.
+        val editorFound by produceState<String?>("", settings.editorApp) {
+            value = withContext(Dispatchers.IO) { Editors.labelOf(context, settings.editorApp) }
+        }
+        val editorName = editorFound ?: noEditor
         EditorChoice(editorLabel, editorDesc, editorName, onChooseEditor)
     }
 
