@@ -2612,6 +2612,25 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         }
 
     /**
+     * Se nel Feed c'è una selezione viva, dalla `6.27` (rilievo D15 della revisione della 6.25).
+     *
+     * ⚠️ **È [gridBusy] per il Feed**: una pagina nuova è una chiave nuova del gesto di selezione,
+     * quindi un trascinamento in corso finiva sotto il dito, e le immagini arrivate in cima
+     * spostavano tutte le altre. La rilettura rimandata si fa quando la selezione si scioglie.
+     */
+    var feedBusy: Boolean = false
+        set(value) {
+            field = value
+            if (!value && feedStale) {
+                feedStale = false
+                if (screen is Screen.Folders) feedArgs?.let { (granted, selection, date) -> readFeed(granted, selection, date) }
+            }
+        }
+
+    /** Il Feed è cambiato fuori mentre c'era una selezione: si rilegge quando finisce. */
+    private var feedStale = false
+
+    /**
      * L'orecchio sul MediaStore, acceso finché il modello vive.
      *
      * ⚠️ **`notifyForDescendants` acceso**: l'indirizzo registrato è quello della collezione,
@@ -2670,8 +2689,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 screen is Screen.Folders -> {
                     bucketsFor?.let { readBuckets(it.first) }
                     // ⚠️ And the Feed, with what it was last read for: a picture arrived from
-                    // outside belongs at the top of the stream.
-                    feedArgs?.let { (granted, selection, date) -> readFeed(granted, selection, date) }
+                    // outside belongs at the top of the stream. Not while something is chosen
+                    // there ([feedBusy]).
+                    if (feedBusy) feedStale = true
+                    else feedArgs?.let { (granted, selection, date) -> readFeed(granted, selection, date) }
                 }
                 else -> Unit
             }
@@ -3790,6 +3811,7 @@ private fun Stage(
                     // that asked for a picture, otherwise the viewer.
                     onFeedOpen = { items, at -> if (!consegna(items, at)) model.openFromTree(items, at) },
                     onFeedChanged = model::rereadFeed,
+                    onFeedBusy = { model.feedBusy = it },
                     // ⚠️ La scorciatoia scrive la STESSA impostazione della riga di pastiglie
                     // nelle preferenze, e non una sua: era la richiesta (*che resta globale per
                     // tutte le cartelle*), ed è la ragione per cui passa da `updateSettings`

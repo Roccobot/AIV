@@ -72,6 +72,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -240,6 +241,8 @@ fun FolderScreen(
      * say (`ViewerViewModel.rereadFeed`), because renaming or moving changes no key of its own.
      */
     onFeedChanged: () -> Unit,
+    /** Whether a selection is alive in the Feed: `ViewerViewModel.feedBusy`. */
+    onFeedBusy: (Boolean) -> Unit = {},
     /**
      * Cambia il numero di colonne, dalla `0.78`: lo scrive la scorciatoia del tocco lungo.
      *
@@ -379,6 +382,11 @@ fun FolderScreen(
     // ⚠️ Leaving the Feed lets the selection go, as leaving a folder does.
     LaunchedEffect(view) { if (view != FolderView.FEED) feedChosen = emptySet() }
     BackHandler(enabled = feedPicking) { feedChosen = emptySet() }
+    // ⚠️ While something is chosen the model puts off reading the Feed from outside (6.27, finding
+    // D15 of the 6.25 review), as it does for a folder's grid: a new page is a new key of the
+    // gesture, and the drag under the finger would end. The reading is paid when the choice ends.
+    LaunchedEffect(feedPicking) { onFeedBusy(feedPicking) }
+    DisposableEffect(Unit) { onDispose { onFeedBusy(false) } }
 
     /**
      * Se si sta battendo il nome di una sottocartella nuova, dalla `1.82`.
