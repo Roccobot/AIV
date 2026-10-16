@@ -242,26 +242,39 @@ next_steps_html = '<section class=\"card next-steps\"><h2>Prossimi passi</h2><ul
 next_steps_html += ''.join('<li>' + inline_md(step) + '</li>' for step in next_steps)
 next_steps_html += '</ul></section>'
 # The "Aggiornamenti recenti" card is built from the table in docs/Feedback.md, so the closed
-# results live in one place. One sentence per round, newest first, e.g.
-# "Giro 3.42: rail tablet 3.42-01 OK."; an empty table leaves the card out.
+# results live in one place. One paragraph per round, newest first, and each row in three labelled
+# parts since 6.29 (H28 of the 6.25 review, the owner's choice K1): 'Richiesta' from `Stato`,
+# 'Riscontro' from the owner's column, 'Esito' from `Azione successiva`. Until 6.28 the sentence
+# glued feature, identifier and `Stato` with spaces, as in "velo del Feed 6.20-01 Giro della 6.10",
+# and the outcome stayed out. An empty table leaves the card out.
 concluded = []
 concluded_match = re.search(r'^## Aggiornamenti recenti\n(.*?)(?=^## |\Z)', md, re.M | re.S)
 if concluded_match:
     for line in concluded_match[1].splitlines():
         cells = [c.strip() for c in line.strip().strip('|').split('|')]
-        if len(cells) < 3 or not re.fullmatch(r'\d+\.\d+-\d+', cells[1]):
+        if len(cells) < 5 or not re.fullmatch(r'\d+\.\d+-\d+', cells[1]):
             continue
-        concluded.append((cells[1], cells[0], cells[2]))
+        concluded.append(cells[:5])
+def part(label, text):
+    """One labelled part; a cell that begins with the label's own word reads on from it,
+    'Richiesta del 2026-10-15' and not 'Richiesta: richiesta del 2026-10-15'."""
+    text = text.rstrip('.')
+    if not text:
+        return ''
+    if text.lower().startswith(label.lower() + ' '):
+        return f'{label}{text[len(label):]}.'
+    return f'{label}: {text[:1].lower() + text[1:] if text[:1].isupper() and not text[1:2].isupper() else text}.'
 rounds = {}
-for identifier, feature, status in concluded:
-    rounds.setdefault(identifier.rsplit('-', 1)[0], []).append(
-        (feature[:1].lower() + feature[1:]) + ' ' + identifier + ' ' + status)
+for feature, identifier, request, feedback, outcome in concluded:
+    parts = [f'**{feature.rstrip(".")}** (`{identifier}`).', part('Richiesta', request),
+             part('Riscontro', feedback), part('Esito', outcome)]
+    rounds.setdefault(identifier.rsplit('-', 1)[0], []).append(' '.join(p for p in parts if p))
 concluded_html = ''
 if rounds:
     ordered = sorted(rounds, key=lambda v: tuple(int(x) for x in v.split('.')), reverse=True)
-    sentence = ' '.join('Giro ' + v + ': ' + ', '.join(rounds[v]) + '.' for v in ordered)
-    concluded_html = ('<section class="card archive"><h2>Aggiornamenti recenti</h2><p>'
-                      + inline_md(sentence) + '</p></section>')
+    concluded_html = ('<section class="card archive"><h2>Aggiornamenti recenti</h2>'
+                      + ''.join('<p>' + inline_md('Giro ' + v + ': ' + ' '.join(rounds[v])) + '</p>' for v in ordered)
+                      + '</section>')
 esc = html.escape
 cards = []
 for index, item in enumerate(items, 1):

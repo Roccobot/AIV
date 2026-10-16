@@ -274,13 +274,21 @@ def check_declared_round(path):
     root = Path(__file__).resolve().parents[1]
     with tempfile.TemporaryDirectory() as temporary:
         source, page = Path(temporary) / 'Feedback.md', Path(temporary) / 'feedback.html'
-        source.write_text(SYNTHETIC_BLOCKS)
+        # With one row of 'Aggiornamenti recenti' (6.29, H28 and the owner's K1): request,
+        # feedback and outcome in three labelled parts, the identifier as code.
+        recent = ('## Aggiornamenti recenti\n\n| Funzione | Versione | Stato | Riscontro dell\'utente | Azione successiva |\n'
+                  '|---|---|---|---|---|\n| La prova di sintesi | 0.01-01 | Richiesta del 2026-10-16 | Il tuo A1. | Fatto nella 0.01. |\n\n')
+        source.write_text(SYNTHETIC_BLOCKS.replace('## Prossimi passi', recent + '## Prossimi passi', 1))
         subprocess.run([sys.executable, str(root / 'tools/feedback-build.py'), '--source', str(source),
                         '--output', str(page)], check=True, stdout=subprocess.DEVNULL)
         built = page.read_text()
         data = json.loads(re.search(r'<script id="feedback-data" type="application/json">(.*?)</script>', built, re.S)[1])
         assert data['version'] == '0.01', data['version']
         assert 'releases/download/v0.01/' in built, 'Il tasto di download non punta al giro dichiarato.'
+        sentence = re.sub(r'<[^>]+>', '', re.search(r'<section class="card archive">.*?</section>', built, re.S)[0])
+        assert ('Giro 0.01: La prova di sintesi (0.01-01). Richiesta del 2026-10-16. Riscontro: il tuo A1. '
+                'Esito: fatto nella 0.01.') in sentence, sentence
+        assert '<code>0.01-01</code>' in built, 'L\'identificatore non è scritto come codice.'
         source.write_text(SYNTHETIC_BLOCKS.replace('Versione **0.01**', 'Versione **999.00**'))
         refused = subprocess.run([sys.executable, str(root / 'tools/feedback-build.py'), '--source', str(source),
                                   '--output', str(page)], capture_output=True, text=True)
