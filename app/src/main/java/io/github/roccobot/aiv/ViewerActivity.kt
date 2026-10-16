@@ -604,7 +604,6 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         }
         viewModelScope.launch { Recents.flow(context).collect { recents = it } }
         viewModelScope.launch { FolderAsk.flow(context).collect { folderAsked = it } }
-        viewModelScope.launch { sweepClipLeftovers(context) }
         // ⚠️ `drop(1)` salta il valore iniziale del contatore: le importazioni precedenti il
         // modello le ha già lette all'avvio.
         viewModelScope.launch { Backups.imported.drop(1).collect { reloadStored() } }
@@ -627,20 +626,6 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         markReady = settings?.markOn == true && logo
         folderTints = FolderTints.all(context)
         folderCovers = FolderCovers.all(context)
-    }
-
-    /**
-     * Cancella i modelli della ricerca per contenuto, funzione tolta nella `1.12`.
-     *
-     * ⚠️ Chi aggiorna da una `1.11` o precedente ha in `filesDir/clip` 86 MB che nessun tasto
-     * cancella più. Costa un `stat` su una cartella che quasi sempre non c'è, quindi non si tiene
-     * una preferenza per ricordare di averlo fatto. Si potrà togliere quando nessuno aggiornerà
-     * più da quelle versioni.
-     */
-    private suspend fun sweepClipLeftovers(context: Context) {
-        withContext(Dispatchers.IO) {
-            runCatching { File(context.filesDir, "clip").deleteRecursively() }
-        }
     }
 
     /**
