@@ -35,28 +35,15 @@ import androidx.compose.ui.unit.dp
 /**
  * Il colore dell'**intestazione** di una cartella: le sedici tinte e la finestra che le mostra.
  *
- * ⚠️⚠️ **NASCE NELLA `1.85` DA UNA SUA RICHIESTA** (riscontro del giro della `1.83`: *il tocco
- * lungo sulla cartella apre un selettore di colore che fa impostare il colore della sfumatura
- * dell'intestazione per cartella, piccolo tocco di personalizzazione: la scelta sarà solo tra 16
- * colori preimpostati, presentati come tondi da toccare in una griglia 4x4*).
- * ⚠️ **Vive fuori dalle impostazioni**, perché non è una preferenza dell'app ma un dato di una
- * cartella: si sceglie guardando quella cartella, e nel pannello sarebbe una riga che chiede *di
- * quale?*. È la stessa clausola con cui `folderView` sta solo nella sua scorciatoia.
+ * Sedici colori preimpostati, come tondi in una griglia 4x4, per richiesta dell'utente.
+ * Vive fuori dalle impostazioni perché è un dato di una cartella e non una preferenza dell'app:
+ * si sceglie guardando quella cartella.
  */
 
 /**
- * Una tinta di cartella: **due colori, uno per tema**.
- *
- * ⚠️⚠️ **DALLA `1.89`, ED È SUA RICHIESTA** (*ognuno dei 16 colori dovrebbe essere in realtà una
- * COPPIA di colori: una per il tema chiaro e una per il tema scuro, fatti in modo che ci sia
- * sempre una differenza minima dal colore di fondo*). Fino alla `1.87` la tinta era un numero
- * solo, e la conseguenza si misura: la menta `C0FFE5` sul fondo chiaro dell'app aveva un
- * contrasto di **1,03**, cioè era invisibile, e il grigio-blu `4E6367` sul fondo scuro stava a
- * **2,09**.
- * ⚠️ **Non rovescia la nota di allora** (*una tinta scelta dall'utente non cambia col tema, o la
- * cartella che ha segnato di rosso sarebbe di un altro rosso la sera*): a non cambiare è la
- * **scelta**, che resta un indice nell'archivio. Quello che cambia col tema è come quel rosso si
- * scrive, esattamente come per ogni altro colore dell'app.
+ * Una tinta di cartella: due colori, uno per tema, perché ognuno stacchi dal fondo del suo tema
+ * (richiesta dell'utente). Nell'archivio resta la scelta, cioè un indice: col tema cambia solo
+ * come quel colore si scrive.
  */
 data class FrontTint(
     /** Il colore sul tema chiaro. */
@@ -69,47 +56,23 @@ data class FrontTint(
  * Le sedici tinte, nell'ordine in cui compaiono nella griglia 4x4: la ruota intera, dal rosso
  * al rosa.
  *
- * ⚠️⚠️ **RIFATTE DA CAPO NELLA `1.91`, ED È SUA ISTRUZIONE** (riscontro del giro della `1.89`,
- * voce `tinte-coppie`: *crea tu una nuova palette di 16 coppie che coprano tutte le tonalità
- * possibili*, perché *al momento ci sono troppi verdi, verdini e azzurrini*). La critica ha un
- * numero, ed è la ragione per cui la tavolozza vecchia non si poteva ritoccare: **sette tinte su
- * sedici** cadevano in 55 gradi di ruota, fra il verde acqua e l'azzurro, perché otto erano sue e
- * la sua scelta partiva dai colori di casa. Le tonalità di allora, ordinate: 11, 33, 64, 80, 127,
- * 155, 156, 173, 176, 205, 210, 210, 261, 284, 309, 343.
+ * Coprono tutta la ruota delle tonalità, su istruzione dell'utente (voce `tinte-coppie`).
  *
- * ⚠️⚠️ **LE TONALITÀ SONO A PASSO UNIFORME IN OkLCh E NON IN HSL**, cioè 22,5 gradi l'una
- * dall'altra su una ruota **percettiva**: lo stesso passo in HSL addensa i verdi e dirada i blu,
- * che è esattamente il difetto da cui questa tavolozza nasce.
+ * ⚠️ **Le tonalità sono a passo uniforme in OkLCh e non in HSL**, 22,5 gradi l'una dall'altra su
+ * una ruota percettiva: lo stesso passo in HSL addensa i verdi e dirada i blu.
+ * I bersagli di luminosità sono misurati sulla tavolozza che l'utente aveva approvato: 0,615 per
+ * il tema chiaro e 0,760 per lo scuro. La croma ha un tetto di 0,17, o ogni tinta arriva al
+ * limite del gamut e la tavolozza diventa fluorescente.
  *
- * ⚠️⚠️ **I DUE BERSAGLI DI LUMINOSITÀ NON SONO SCELTI, SONO MISURATI SULLA TAVOLOZZA CHE LUI
- * AVEVA GIÀ APPROVATO**: 0,615 per il tema chiaro, che è la mediana delle sedici di allora, e
- * 0,760 per quello scuro, che è la fascia delle quattro sue pensate per il fondo scuro
- * (`38BFD3` a 0,742, `FFA726` a 0,797, `4FD9BE` a 0,804). Così cambia la **distribuzione** delle
- * tonalità e non il carattere della tavolozza, che a lui andava bene.
- * - ⚠️ **La croma ha un tetto**, 0,17, che è poco sopra la più satura delle sue (`6C5CE0` a
- *   0,193): senza, ogni tinta va al limite del gamut e la tavolozza viene fluo. Provato, e la
- *   prima stesura dava un rosso `FF3C39` e un magenta `FC01C3`.
+ * Il contrasto è almeno 3 a 1 dal peggiore dei tre fondi del tema (`background`, `surface` e
+ * `surfaceVariant` di `Theme.kt`), la soglia dei componenti non testuali: fra 3,01 e 3,50 col
+ * tema chiaro, fra 5,7 e 6,7 con lo scuro. Sopra una copertina non c'è niente da garantire.
+ * La coppia più vicina dista 0,042 in OkLab: il metro è la distanza percettiva, non lo scarto sui
+ * canali.
  *
- * ⚠️ **La soglia di contrasto resta 3 a 1** dal peggiore dei tre fondi di quel tema
- * (`background`, `surface` e `surfaceVariant` di `Theme.kt`), che è quella dei componenti non
- * testuali: un filetto e una cornice sono grafica. Il conto risulta fra 3,01 e 3,50 sul tema
- * chiaro e fra 5,7 e 6,7 su quello scuro.
- * - ⚠️ **Sopra una copertina non c'è niente da garantire**, e va detto invece di prometterlo: là
- *   sotto c'è un'immagine qualunque, e nessun colore stacca da tutte le immagini.
- *
- * ⚠️⚠️ **E LE SEDICI SONO PIÙ DISTINGUIBILI DI PRIMA, che è la cosa che lui ha chiesto**: la
- * coppia più vicina passa da **0,012 a 0,042** di distanza percettiva in OkLab, cioè tre volte e
- * mezzo. Il caso peggiore di prima erano il grigio-blu `4E6367` e il verde `2E7D4F`, che sul
- * fondo chiaro si leggevano quasi uguali.
- * - ⚠️ **Il metro è la distanza percettiva e non lo scarto sui canali**: due colori possono
- *   distare 32 su 255 e confondersi lo stesso, ed è quello che succedeva a quella coppia.
- *
- * ⚠️⚠️ **CON LORO ESCE IL GRIGIO-BLU, cioè l'unico neutro**, e non è una dimenticanza: sedici
- * tonalità pure sono quello che ha chiesto, e un grigio non è una tonalità. Se una cartella senza
- * carattere ne avesse bisogno, la ruota scende a quindici: è la domanda `d-tinta-neutro`.
- * ⚠️⚠️ **E LE CARTELLE GIÀ TINTE CAMBIANO COLORE**, perché nell'archivio vive l'**indice** e non
- * il colore (vedi `FolderTints`). Non si può evitare rinumerando: i sedici colori sono altri
- * sedici, quindi non esiste una corrispondenza da tenere.
+ * Non c'è un grigio, perché un grigio non è una tonalità (domanda `d-tinta-neutro`).
+ * ⚠️ **Nell'archivio vive l'indice e non il colore** (`FolderTints`): cambiare l'ordine o i
+ * colori cambia il colore delle cartelle già tinte.
  */
 val FRONT_TINTS: List<FrontTint> = listOf(
     FrontTint(Color(0xFFD7534A), Color(0xFFFE8B7F)), // rosso
@@ -133,13 +96,11 @@ val FRONT_TINTS: List<FrontTint> = listOf(
 /**
  * La tinta scelta per una cartella nel tema in vigore, o `null` per quella dell'app.
  *
- * ⚠️ **L'indice fuori elenco vale come 'nessuna scelta'**: l'elenco può accorciarsi, e un numero
- * vecchio nell'archivio non deve far cadere la schermata.
- * ⚠️⚠️ **IL TEMA È QUELLO DELL'APP E NON QUELLO DI SISTEMA**, cioè [LocalAivLight] e non la
- * configurazione: AIV ha una voce sua in 'Aspetto', quindi con 'Chiaro' scelto qui dentro su un
- * telefono in tema scuro i due valori divergono. È il difetto che gli è già arrivato due volte
- * (`Rules.md` § '🌗 Il tema scelto DENTRO l'app non è quello di sistema'), e questa funzione
- * è composabile proprio per non poterlo rifare.
+ * L'indice fuori elenco vale come 'nessuna scelta': l'elenco può accorciarsi, e un numero vecchio
+ * nell'archivio non deve far andare in errore la schermata.
+ * ⚠️ **Il tema è quello dell'app** ([LocalAivLight]), non quello di sistema, ed è per questo che
+ * la funzione è composabile (`Rules.md` § '🌗 Il tema scelto DENTRO l'app non è quello di
+ * sistema').
  */
 @Composable
 fun frontTintOf(index: Int?): Color? {
@@ -150,18 +111,12 @@ fun frontTintOf(index: Int?): Color? {
 /**
  * La finestra che fa scegliere la tinta di questa cartella.
  *
- * ⚠️ **Non è una modale vera**: non raccoglie nessun input scritto, quindi il tocco fuori la
- * chiude, che è il criterio di `Rules.md` § '👆 Che cosa fa il tocco FUORI da una finestra'.
- * ⚠️ **Il tocco sceglie e chiude**, senza un tasto di conferma: la scelta è di un colore fra
- * sedici e si vede subito dietro la finestra, quindi una conferma sarebbe un tocco in più per
- * dire una cosa che l'occhio ha già detto.
- * ⚠️⚠️ **OGNI TONDO È UN BERSAGLIO SOLO con `Role.RadioButton`**, e la sua descrizione parlata è
- * il **codice esadecimale**: un colore non ha un nome che esista in ventotto lingue senza
- * inventarlo, e sedici nomi inventati sarebbero sedici stringhe che nessun traduttore può
- * verificare. Il codice è un dato, e chi usa un lettore di schermo lo riconosce fra i sedici.
- * ⚠️ **Dalla `1.89` il codice è quello della variante in vigore**, non tutti e due: la coppia si
- * vede, e a chi ascolta serve il colore che la cartella avrà adesso. Nessuna variante si ripete
- * dentro un tema, quindi un codice solo distingue ancora i sedici.
+ * Non è una modale vera: non raccoglie input scritto, quindi il tocco fuori la chiude (`Rules.md`
+ * § '👆 Che cosa fa il tocco FUORI da una finestra'). Il tocco su un tondo sceglie e chiude,
+ * senza conferma: il colore si vede subito dietro la finestra.
+ * Ogni tondo è un bersaglio solo con `Role.RadioButton`, e la sua descrizione parlata è il codice
+ * esadecimale della variante del tema in vigore: un nome di colore andrebbe inventato e tradotto
+ * in ventotto lingue.
  *
  * @param current l'indice scelto per questa cartella, o `null`.
  * @param onPick l'indice nuovo, o `null` per tornare alla tinta dell'app.
@@ -190,9 +145,8 @@ fun TintDialog(current: Int?, onPick: (Int?) -> Unit, onDismiss: () -> Unit) {
             }
         },
         /*
-         * ⚠️ **Il ritorno alla tinta dell'app è un tasto e non un diciassettesimo tondo**: un
-         * tondo del colore dell'app starebbe in fila con gli altri sedici e si leggerebbe come
-         * una scelta in più, mentre è il **togliere** una scelta.
+         * Il ritorno alla tinta dell'app è un tasto e non un diciassettesimo tondo: in fila con
+         * gli altri si leggerebbe come una scelta in più, mentre toglie la scelta.
          */
         confirmButton = {
             TextButton(onClick = { onPick(null); onDismiss() }) {
@@ -206,28 +160,15 @@ fun TintDialog(current: Int?, onPick: (Int?) -> Unit, onDismiss: () -> Unit) {
 }
 
 /**
- * Un tondo del selettore, **tagliato in due in orizzontale**.
+ * Un tondo del selettore, tagliato in due in orizzontale (richiesta dell'utente).
  *
- * ⚠️⚠️ **SOPRA IL TEMA CHIARO E SOTTO QUELLO SCURO, SEMPRE, in tutti e due i temi** (*decidi tu
- * quali saranno per il tema scuro e rappresentali insieme tagliando in due in orizzontale i 16
- * tondi*). Mettere sopra la variante **in vigore** sarebbe più utile a chi sceglie, e il prezzo
- * non varrebbe: lo stesso tondo si leggerebbe rovesciato passando da un tema all'altro, quindi
- * la metà di sopra smetterebbe di voler dire qualcosa.
- * ⚠️ **Undici coppie su sedici hanno le due metà diverse**, e le altre cinque no perché quella
- * tinta stacca già da tutti e due i fondi: il taglio si vede dove il colore ha davvero due
- * versioni, e non è una decorazione applicata a tutti.
+ * ⚠️ **Sopra il tema chiaro e sotto quello scuro, con tutti e due i temi**: con la variante in
+ * vigore sopra, lo stesso tondo si leggerebbe rovesciato da un tema all'altro.
  *
- * ⚠️ **La spunta è dentro il tondo e non un contorno in più**: su una tinta chiara un contorno
- * d'accento si confonde con la tinta stessa, e il segno dovrebbe dire 'questa' senza dipendere
- * dal colore che sta segnando.
- * ⚠️ **L'inchiostro della spunta si sceglie dalla LUMINANZA della tinta**, non dal tema: sedici
- * tondi vanno dal grigio scuro alla menta chiarissima, e un segno bianco sparirebbe sulla metà
- * chiara in tutti e due i temi.
- * ⚠️⚠️ **QUINDI LA SPUNTA È DUE MEZZE SPUNTE, dalla `1.89`, e non un inchiostro di compromesso**:
- * sul tondo della menta le due metà sono `009D5C` e `C0FFE5`, cioè una vuole il bianco e l'altra
- * il nero, e un colore solo scelto sulla media sparirebbe su una delle due. Il taglio delle due
- * metà cade dove cade quello del tondo **per costruzione**: il segno è centrato, quindi il suo
- * mezzo è il mezzo del tondo, e nessun numero scritto a mano tiene insieme le due misure.
+ * La spunta è dentro il tondo: su una tinta chiara un contorno d'accento si confonderebbe con la
+ * tinta. Il suo inchiostro si sceglie dalla luminanza di ogni metà, non dal tema, quindi è fatta
+ * di due mezze spunte: le due metà di un tondo possono volere una il bianco e l'altra il nero. Il
+ * taglio della spunta coincide con quello del tondo per costruzione, perché il segno è centrato.
  */
 @Composable
 private fun TintDot(tint: FrontTint, picked: Boolean, onPick: () -> Unit) {
@@ -271,7 +212,7 @@ private fun TintMark(sotto: Color, top: Boolean) {
     )
 }
 
-/** Quanto è largo un tondo: il bersaglio minimo di un tocco, che è quello che serve qui. */
+/** Quanto è largo un tondo: il bersaglio minimo di un tocco. */
 private val TINT_DOT = 48.dp
 
 /** La spunta dentro il tondo. */
@@ -280,14 +221,12 @@ private val TINT_MARK = 24.dp
 /** L'aria fra un tondo e l'altro, in tutte e due le direzioni. */
 private val TINT_GAP = 8.dp
 
-/** Quante colonne ha la griglia: **quattro**, cioè la 4x4 che ha chiesto. */
+/** Quante colonne ha la griglia 4x4. */
 private const val TINT_COLUMNS = 4
 
 /**
  * Sopra quanta luminanza la spunta si scrive in nero.
  *
- * ⚠️ **Mezzo e non la soglia di contrasto WCAG**: qui si sceglie fra due inchiostri opposti, e la
- * luminanza relativa di Compose è già percettiva. Con le sedici tinte in casa il taglio cade dove
- * ci si aspetta, cioè fra il ciano e la menta.
+ * Mezzo, e non la soglia di contrasto WCAG: qui si sceglie fra due inchiostri opposti.
  */
 private const val TINT_DARK_INK = 0.5f
