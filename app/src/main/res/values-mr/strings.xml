@@ -99,7 +99,6 @@
     <string name="front_tint">शीर्षकाचा रंग</string>
     <string name="front_tint_none">पूर्वनिर्धारित रंग</string>
     <string name="folder_cover">मुखपृष्ठ निवडा</string>
-    <string name="folder_cover_auto">पूर्वनिर्धारित मुखपृष्ठ</string>
     <string name="folder_cover_pick">\'%1$s\' चे मुखपृष्ठ निवडा</string>
     <string name="folder_cover_done">मुखपृष्ठ अद्ययावत झाले</string>
     <string name="folder_cover_fail">ही प्रतिमा मुखपृष्ठ म्हणून वापरता येत नाही</string>

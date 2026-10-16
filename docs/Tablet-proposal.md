@@ -7,7 +7,10 @@ porta il pannello informazioni a lato (soglie 600 / 800 / 1024 dp del mockup; ch
 serie sotto i 1.024). Dalla `3.32` Cartelle è a due colonne da 600 dp (elenco a lato,
 contenuto a destra; esclusa la vista ad albero). Dalla `3.33` Impostazioni sono
 indice e pagina affiancati da 600 dp. Dalla `3.34` Ricerca riusa elenco e risultati da 600 dp;
-editor semplice e completo portano gli strumenti a lato da 1.024 dp (sotto restano in basso).
+editor semplice e completo portano gli strumenti a lato da 1.024 dp (sotto restano in basso);
+dalla `6.30` anche in orizzontale su uno schermo col lato minore da 600 dp (scelta D1 sulla voce
+G3 della revisione Setaccio: con Android 16 il sistema ignora il verticale che l'editor chiede
+su quegli schermi, e un tablet piccolo mostrava in orizzontale la disposizione del telefono).
 Dalla `3.35` Cestino ha dettagli a lato da 600 dp; Cronologia gruppi e percorsi; Cartelle di
 sistema cartelle a lato e file a destra; dialoghi rinomina/converti/salva a 520 dp e
 Copia/sposta a 800 dp su tablet. Dalla `3.36` Dimensioni e filigrana mettono anteprima

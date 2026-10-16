@@ -511,9 +511,17 @@ fun FolderScreen(
          * madre (il perché è su [Backdrop]). Fuori dal vetro non registra niente.
          */
         val backdrop = rememberBackdrop()
+        /*
+         * ⚠️ L'ombra sopra la scheda della selezione del Feed, come nella griglia di una cartella
+         * (scelta F1 sulla voce G5 della revisione Setaccio): la scheda non vela le immagini, e
+         * senza l'ombra si staccava meno. Si legge una volta qui, e va alla colonna (prima del
+         * margine, così arriva al vetro) e a ogni cella, come in `GridScreen`.
+         */
+        val feedShade = if (feedPicking) sheetTop() else null
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .pickShade(feedShade, behind = true)
                 .backdropSource(backdrop)
                 /*
                  * ⚠️ **Il gesto si guarda prima di `paging`** (ordine misurato): il `nestedScroll`
@@ -596,6 +604,7 @@ fun FolderScreen(
                             chosen = feedChosen,
                             onChosen = { feedChosen = it },
                             sheetRoom = with(LocalDensity.current) { feedSheet.toDp() },
+                            shade = feedShade,
                             modifier = Modifier.fillMaxSize()
                         ) { at -> onFeedOpen(feed.items, at) }
                     }
@@ -1941,6 +1950,8 @@ private fun FeedGrid(
     onChosen: (Set<Uri>) -> Unit,
     /** Lo spazio del pannello della selezione sotto l'ultima riga, `0.dp` senza selezione. */
     sheetRoom: Dp,
+    /** Il bordo della scheda per l'ombra dentro le celle (`PickShade.kt`), `null` senza selezione. */
+    shade: Float?,
     modifier: Modifier,
     onOpen: (Int) -> Unit
 ) {
@@ -2052,7 +2063,7 @@ private fun FeedGrid(
                     named = false,
                     mark = LastMark.FRAME,
                     room = 0,
-                    shade = null
+                    shade = shade
                 ) {
                     // ⚠️ Il primo ramo è la coda di una pressione lunga, come nella griglia di una
                     // cartella: il tocco della cella scatta al rilascio, comunque sia durata la
@@ -2392,10 +2403,9 @@ private fun folderNameWeight(colour: FolderColour): FontWeight? =
 private val TINT_EDGE = 4.dp
 
 /**
- * Quanto è spessa la cornice: **due punti**, come il bordo d'accento dell'app.
+ * Quanto è spessa la cornice: **due punti**.
  *
- * Lo stesso numero di `Edge.kt`, il bordo delle superfici dell'app: una cornice più grossa
- * intorno a una copertina sembrerebbe un elemento di un'altra famiglia.
+ * Una cornice più grossa intorno a una copertina sembrerebbe un elemento di un'altra famiglia.
  */
 private val TINT_FRAME = 2.dp
 

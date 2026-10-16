@@ -99,7 +99,6 @@
     <string name="front_tint">হেডারের রঙ</string>
     <string name="front_tint_none">ডিফল্ট রঙ</string>
     <string name="folder_cover">কভার বেছে নিন</string>
-    <string name="folder_cover_auto">ডিফল্ট কভার</string>
     <string name="folder_cover_pick">\'%1$s\'-এর কভার বেছে নিন</string>
     <string name="folder_cover_done">কভার আপডেট হয়েছে</string>
     <string name="folder_cover_fail">এই ছবিটি কভার হিসেবে ব্যবহার করা যাবে না</string>

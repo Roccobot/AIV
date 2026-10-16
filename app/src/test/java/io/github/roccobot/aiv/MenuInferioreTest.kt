@@ -87,8 +87,9 @@ class MenuInferioreTest {
      * and a pill drawn right to left would read the same there.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `col lato sinistro la pillola comincia da Impostazioni`() {
+        OmbraArchivio.granted = true
         banco.setContent { Home(PillLook(PhonePill.EXTENDED), Hand.LEFT) }
         banco.waitForIdle()
         val x = { id: Int -> banco.onNodeWithContentDescription(voce(id)).fetchSemanticsNode().positionInRoot.x }
@@ -104,8 +105,9 @@ class MenuInferioreTest {
     @Test
     // ⚠️ A real phone's width: on the bench's default the row is so narrow that seven keys of 44dp
     // fill it anyway, and the test passed with the rule taken out.
-    @Config(shadows = [ArchivioAperto::class], qualifiers = "w411dp-h891dp")
+    @Config(shadows = [OmbraArchivio::class], qualifiers = "w411dp-h891dp")
     fun `con sette voci la pillola estesa mette Cerca al centro`() {
+        OmbraArchivio.granted = true
         // ⚠️ From 6.02 the views are three with the Feed, so seven entries are the home without hidden
         // folders: with them the pill has eight (his choice A1 of 2026-10-14).
         banco.setContent { Home(PillLook(PhonePill.EXTENDED), Hand.RIGHT, hidden = emptySet()) }
@@ -330,8 +332,9 @@ class MenuInferioreTest {
      * ⚠️ **From 6.02 the Feed has the switch's box** (his choice of 2026-10-14): the switch is gone.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `nella home il menu angolare e un 3x3 col Feed e le due viste`() {
+        OmbraArchivio.granted = true
         banco.setContent { Home(PillLook(PhonePill.SLIDE, corner = true), Hand.LEFT) }
         banco.waitForIdle()
         val tondo = banco.onNodeWithContentDescription(voce(R.string.hub_open)).fetchSemanticsNode().boundsInRoot
@@ -370,8 +373,9 @@ class MenuInferioreTest {
      * the top left: the switch, Lista, Cartelle; Mostra, Cerca, Impostazioni; Apri URL, Cestino, ×.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `nella home il menu Start ha Impostazioni sopra la x`() {
+        OmbraArchivio.granted = true
         banco.setContent { Home(PillLook(PhonePill.SLIDE, corner = true), Hand.RIGHT) }
         banco.waitForIdle()
         banco.onNodeWithContentDescription(voce(R.string.hub_open)).performClick()
@@ -477,8 +481,9 @@ class MenuInferioreTest {
      * box of the switch; `4.20-01`, R3: *il menu angolare deve chiudersi dopo ogni interazione*).
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `la casella del Feed apre il Feed e chiude il menu angolare`() {
+        OmbraArchivio.granted = true
         var vista: FolderView? = null
         banco.setContent { Home(PillLook(PhonePill.SLIDE, corner = true), Hand.RIGHT, onView = { vista = it }) }
         banco.waitForIdle()
@@ -524,8 +529,9 @@ class MenuInferioreTest {
      */
     @Test
     // ⚠️ A real phone's width, for the reason written on the test of 'Cerca' in the centre.
-    @Config(shadows = [ArchivioAperto::class], qualifiers = "w411dp-h891dp")
+    @Config(shadows = [OmbraArchivio::class], qualifiers = "w411dp-h891dp")
     fun `aperta la pillola a scomparsa arriva ai due margini di 24dp`() {
+        OmbraArchivio.granted = true
         banco.setContent { Home(PillLook(PhonePill.SLIDE), Hand.RIGHT) }
         banco.waitForIdle()
         val dp = app.resources.displayMetrics.density
@@ -557,8 +563,9 @@ class MenuInferioreTest {
      * is under a pixel; at 360dp they lose more than 4dp.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class], qualifiers = "w360dp-h800dp")
+    @Config(shadows = [OmbraArchivio::class], qualifiers = "w360dp-h800dp")
     fun `aperta la pillola a scomparsa ogni tasto e centrato in altezza sulla x`() {
+        OmbraArchivio.granted = true
         banco.setContent { Home(PillLook(PhonePill.SLIDE), Hand.RIGHT) }
         banco.waitForIdle()
         banco.onNodeWithContentDescription(voce(R.string.hub_open)).performClick()
@@ -606,8 +613,9 @@ class MenuInferioreTest {
      * che il menu sia sempre quadrato*). In 4.34 it was 222 by 206dp in the home.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `il menu Start aperto e quadrato`() {
+        OmbraArchivio.granted = true
         var casa by mutableStateOf(true)
         banco.setContent {
             if (casa) Home(PillLook(PhonePill.SLIDE, corner = true), Hand.RIGHT)
@@ -636,8 +644,9 @@ class MenuInferioreTest {
      * Mostra/Nascondi*). From 4.30 to 4.34 the long press only showed the label.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `il tocco lungo su Mostra apre le cartelle nascoste`() {
+        OmbraArchivio.granted = true
         banco.setContent { Home(PillLook(PhonePill.SLIDE, corner = true), Hand.RIGHT) }
         banco.waitForIdle()
         banco.onNodeWithContentDescription(voce(R.string.hub_open)).performClick()
@@ -655,8 +664,9 @@ class MenuInferioreTest {
      * grid's.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class], qualifiers = "w393dp-h873dp")
+    @Config(shadows = [OmbraArchivio::class], qualifiers = "w393dp-h873dp")
     fun `il fianco del menu Start resta fuori dal bordo delle miniature`() {
+        OmbraArchivio.granted = true
         var casa by mutableStateOf(true)
         banco.setContent {
             if (casa) Home(PillLook(PhonePill.SLIDE, corner = true), Hand.RIGHT)
@@ -782,8 +792,9 @@ class MenuInferioreTest {
 
     /** The same in the home, with enough folders to scroll. */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `nella home il trascinamento che chiude il menu Start scorre anche le cartelle`() {
+        OmbraArchivio.granted = true
         val molte = (1..40).map {
             Folder.Bucket(id = it.toLong(), name = "Cartella $it", pictures = 2, clips = 0, cover = null, path = "/storage/emulated/0/F$it")
         }
@@ -837,8 +848,9 @@ class MenuInferioreTest {
      * shrink even with the defect.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class], qualifiers = "w340dp-h740dp")
+    @Config(shadows = [OmbraArchivio::class], qualifiers = "w340dp-h740dp")
     fun `il tondo ha la stessa misura e lo stesso angolo in home e in cartella`() {
+        OmbraArchivio.granted = true
         var casa by mutableStateOf(true)
         banco.setContent { if (casa) Home(PillLook(PhonePill.SLIDE), Hand.RIGHT) else Griglia(PillLook(PhonePill.SLIDE)) }
         banco.waitForIdle()
@@ -859,8 +871,9 @@ class MenuInferioreTest {
      * the whole width of the mark's canvas, so the mark's centre is the A's.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `nel FAB quadrato il triangolo del marchio e centrato`() {
+        OmbraArchivio.granted = true
         banco.setContent { Home(PillLook(), Hand.RIGHT) }
         banco.waitForIdle()
         val fab = banco.onNodeWithContentDescription(voce(R.string.hub_open)).fetchSemanticsNode().boundsInRoot
@@ -875,8 +888,9 @@ class MenuInferioreTest {
      * kept its own corner: 16dp from the glass in the home, 16 by 20 in a grid.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `il FAB ha il centro sul centro del tondo in home e in cartella`() {
+        OmbraArchivio.granted = true
         var scena by mutableStateOf(0)
         banco.setContent {
             when (scena) {
@@ -907,8 +921,9 @@ class MenuInferioreTest {
      * magari espanso*): the home's three columns, and the copy of the key exactly over the real one.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `al primo avvio il velo mostra il menu Start aperto sul tondo`() {
+        OmbraArchivio.granted = true
         runBlocking { Hint.COLUMNS.forget(app) }
         banco.setContent { Home(PillLook(PhonePill.SLIDE, corner = true), Hand.RIGHT) }
         aspettaIlVelo(banco, app)

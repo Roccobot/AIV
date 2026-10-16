@@ -601,7 +601,6 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         }
         viewModelScope.launch { Recents.flow(context).collect { recents = it } }
         viewModelScope.launch { FolderAsk.flow(context).collect { folderAsked = it } }
-        viewModelScope.launch { sweepClipLeftovers(context) }
         // ⚠️ `drop(1)` salta il valore iniziale del contatore: le importazioni precedenti il
         // modello le ha già lette all'avvio.
         viewModelScope.launch { Backups.imported.drop(1).collect { reloadStored() } }
@@ -624,20 +623,6 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         markReady = settings?.markOn == true && logo
         folderTints = FolderTints.all(context)
         folderCovers = FolderCovers.all(context)
-    }
-
-    /**
-     * Cancella i modelli della ricerca per contenuto, funzione tolta nella `1.12`.
-     *
-     * ⚠️ Chi aggiorna da una `1.11` o precedente ha in `filesDir/clip` 86 MB che nessun tasto
-     * cancella più. Costa un `stat` su una cartella che quasi sempre non c'è, quindi non si tiene
-     * una preferenza per ricordare di averlo fatto. Si potrà togliere quando nessuno aggiornerà
-     * più da quelle versioni.
-     */
-    private suspend fun sweepClipLeftovers(context: Context) {
-        withContext(Dispatchers.IO) {
-            runCatching { File(context.filesDir, "clip").deleteRecursively() }
-        }
     }
 
     /**
@@ -1099,15 +1084,6 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * La copertina scelta a mano per la cartella aperta, o `null` se ha quella predefinita.
-     *
-     * È un dato della cartella, come [tint]. Serve al menu del FAB, che offre di toglierla solo
-     * se c'è.
-     */
-    var cover: Uri? by mutableStateOf(null)
-        private set
-
-    /**
      * Per quale cartella si sta scegliendo una copertina, e come si chiama.
      *
      * ⚠️ È una modalità e non una finestra (scelta a `d-copertina-come`, giro della `1.92`): si
@@ -1167,18 +1143,12 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         applyCover(quale.bucket, source)
     }
 
-    /** Toglie la copertina scelta della cartella aperta: la voce del menu del FAB. */
-    fun clearCover() {
-        (screen as? Screen.Grid)?.bucket?.let { applyCover(it, null) }
-    }
-
     /**
      * Scrive (o toglie) la copertina di [dove], e dice com'è andata.
      *
      * ⚠️ Lo stato si scrive dopo, al contrario di [tintFolder], perché la copia può non riuscire:
      * decodifica l'immagine e la scrive sul disco. L'esito lo dice un avviso, perché la copertina
-     * si vede nella schermata iniziale e non in quella da cui si è scelto. [cover] si aggiorna
-     * solo se la cartella aperta è quella della copertina.
+     * si vede nella schermata iniziale e non in quella da cui si è scelto.
      */
     private fun applyCover(dove: Long, source: Uri?) {
         val context = getApplication<Application>()
@@ -1192,7 +1162,6 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                     return@launch
                 }
             }
-            if ((screen as? Screen.Grid)?.bucket == dove) cover = scelta
             folderCovers = if (scelta == null) {
                 folderCovers - dove
             } else {
@@ -1276,13 +1245,11 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
          * nome nascosto finirebbe nella schermata Home, e una scelta per altri non è una visita.
          */
         if (!peeking && !picking) Shortcuts.lastFolder(context, bucket, name)
-        // ⚠️ Numeri, tinta e copertina si azzerano, o entrando in una cartella si vedrebbero
-        // per un istante quelli di prima (e la voce che toglie la copertina comparirebbe a
-        // vuoto). L'inizio è quello della sequenza scelta: la prima miniatura è l'immagine da
-        // cui parte l'avvio.
+        // ⚠️ Numeri e tinta si azzerano, o entrando in una cartella si vedrebbero per un istante
+        // quelli di prima. L'inizio è quello della sequenza scelta: la prima miniatura è
+        // l'immagine da cui parte l'avvio.
         facts = Folder.Facts()
         tint = null
-        cover = null
         relist { Folder.newestIn(context, bucket).atSequenceStart() }
         // ⚠️ In un lancio a sé: i numeri servono alla fascia in cima, che si vede subito, e non
         // devono aspettare la lista. Dentro [folderJob], come [listJob], perché aprendo due
@@ -1291,11 +1258,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         folderJob = viewModelScope.launch {
             launch { facts = Folder.weigh(context, bucket) }
             launch { tint = FolderTints.of(context, bucket) }
-            launch { cover = FolderCovers.of(context, bucket) }
         }
     }
 
-    /** Le letture dei dati della cartella aperta (numeri, tinta, copertina), annullate insieme. */
+    /** Le letture dei dati della cartella aperta (numeri e tinta), annullate insieme. */
     private var folderJob: Job? = null
 
     /**
@@ -3134,8 +3100,6 @@ private fun Stage(
                 onSearchHere = { model.openSearch(screen.bucket, screen.name) },
                 onCoverPick = { model.startCover() },
                 onCoverAway = { model.coverAway() },
-                onCoverClear = { model.clearCover() },
-                coverSet = model.cover != null,
                 // Serve al mini-onboarding, e solo nella cartella da cui parte la scelta: in
                 // un'altra indicherebbe l'icona sbagliata.
                 coverHere = model.covering?.bucket == screen.bucket,

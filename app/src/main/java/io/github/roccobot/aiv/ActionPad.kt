@@ -431,14 +431,7 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
         val quota = remember { Any() }
         DisposableEffect(quota) { onDispose { FootStage.off(quota) } }
         Surface(
-            /*
-             * Il bordo d'accento ce l'ha anche lei, per decisione dell'utente, anche se non ha la
-             * Sfocatura dietro i pannelli: il bordo dice 'sono una superficie di questa app', la
-             * sfocatura 'mi apro sopra qualcosa'. Solo la cima con i due archi: i fianchi corrono
-             * fuori dallo schermo (vedi `edgedTop`).
-             */
             modifier = Modifier
-                .edgedTop(PANEL_ROUND)
                 .onGloballyPositioned {
                     FootStage.cover(quota, finestra - it.positionInWindow().y.roundToInt())
                 },
@@ -448,7 +441,7 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
              * ⚠️ **Niente ombra né rilievo tonale** (richiesta dell'utente): appoggiata al bordo,
              * dell'ombra resterebbe solo la striscia di sotto, sull'angolo del vetro; il rilievo
              * tonale cambia il colore solo quando il colore è `surface`, e qui non lo è. A
-             * staccare la scheda sono il colore e il bordo d'accento.
+             * staccare la scheda è il colore.
              */
         ) {
             Column(

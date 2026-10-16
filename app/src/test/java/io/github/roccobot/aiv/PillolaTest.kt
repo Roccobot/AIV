@@ -155,8 +155,9 @@ class PillolaTest {
      * place where its label is written as text, so finding the text is finding the tooltip.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `il tocco lungo su un tasto mostra l'etichetta e basta`() {
+        OmbraArchivio.granted = true
         banco.setContent {
             AivTheme(darkTheme = false) {
                 CompositionLocalProvider(LocalPillLook provides PillLook(PhonePill.EXTENDED)) {

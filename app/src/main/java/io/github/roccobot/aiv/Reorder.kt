@@ -176,16 +176,17 @@ fun <T> Reorderable(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
-                        .size(HANDLE)
-                        // Il rientro rimpicciolisce il disegno e lascia intero il bersaglio
-                        // (voce `riordino-scorre`: maniglie più piccole e al 60%).
-                        .padding((HANDLE - HANDLE_GLYPH) / 2)
+                        .size(HANDLE_TOUCH)
                         /*
                          * Mentre una riga è in viaggio le altre manopole si spengono: due dita su
                          * due manopole darebbero due partenze e un conto solo. A riposo la
                          * manopola è al 60% ([HANDLE_INK]), così pesa meno dei nomi accanto.
                          */
                         .alpha(if (da < 0 || preso) HANDLE_INK else GHOST)
+                        /*
+                         * ⚠️ **Il gesto è prima del rientro**, quindi ascolta su tutto il bersaglio
+                         * da [HANDLE_TOUCH]; dopo, ascolterebbe sul solo disegno da 24.
+                         */
                         .pointerInput(at, items.size) {
                             detectDragGestures(
                                 onDragStart = {
@@ -217,6 +218,18 @@ fun <T> Reorderable(
                                 }
                             )
                         }
+                        /*
+                         * Il rientro rimpicciolisce il disegno e lascia intero il bersaglio (voce
+                         * `riordino-scorre`: maniglie più piccole e al 60%). È più largo a sinistra
+                         * perché il disegno resti dov'era quando il bersaglio era [HANDLE]: al
+                         * centro della fascia che la riga gli lascia.
+                         */
+                        .padding(
+                            start = HANDLE_TOUCH - (HANDLE + HANDLE_GLYPH) / 2,
+                            end = (HANDLE - HANDLE_GLYPH) / 2,
+                            top = (HANDLE_TOUCH - HANDLE_GLYPH) / 2,
+                            bottom = (HANDLE_TOUCH - HANDLE_GLYPH) / 2
+                        )
                 )
             }
         }
@@ -232,12 +245,23 @@ fun <T> Reorderable(
 private val ROW = 56.dp
 
 /**
- * La manopola: un bersaglio comodo, non un glifo da 24.
+ * La fascia che la riga lascia alla manopola, in fondo a destra: il disegno è al suo centro.
  *
  * Non è privata perché il rientro della riga in `SettingsScreen` (la pagina dei campi delle
- * info) si ricava da lei: esiste solo per lasciarle posto, e così il numero è uno solo.
+ * info) e in `StyleSettings` si ricava da lei: esiste solo per lasciarle posto, e così il numero
+ * è uno solo.
  */
 internal val HANDLE: Dp = 40.dp
+
+/**
+ * Il bersaglio della manopola: 48 dp, il minimo di Material e di Android (scelta F1 sulla voce G5
+ * della revisione Setaccio).
+ *
+ * Più grande di [HANDLE] e senza spostare il disegno: gli 8 dp in più sono tutti a sinistra, 4 sul
+ * filo d'aria che le righe lasciano fra il testo e la manopola (`HANDLE + 4.dp`) e 4 sul bordo
+ * della riga accanto, che lì perde il tocco.
+ */
+private val HANDLE_TOUCH: Dp = 48.dp
 
 /**
  * Quanto è grande il **disegno** dentro il bersaglio.

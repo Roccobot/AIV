@@ -62,8 +62,9 @@ class EtichetteStartTest {
     @Test
     // ⚠️ A real phone's density: at density 1 the label's ends outside the circle are a pixel or two,
     // and the circle's antialiased rim alone passed the count. German: see above.
-    @Config(shadows = [ArchivioAperto::class], qualifiers = "de-xxhdpi")
+    @Config(shadows = [OmbraArchivio::class], qualifiers = "de-xxhdpi")
     fun `un'etichetta lunga esce intera dal tondo del tasto`() {
+        OmbraArchivio.granted = true
         runBlocking { Hint.COLUMNS.remember(app); Hint.BIN_EMPTY.remember(app) }
         banco.setContent { Home() }
         banco.waitForIdle()
@@ -99,7 +100,7 @@ class EtichetteStartTest {
      * panel's orange, and on the panel it did not read as a key.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `sul velo la copia del tondo e gialla`() = copiaGialla(PillFill.SOLID)
 
     /**
@@ -108,10 +109,11 @@ class EtichetteStartTest {
      * for the real buttons, and on his phone, with the glass, the yellow came out veiled.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `col vetro la copia del tondo resta gialla piena`() = copiaGialla(PillFill.GLASS)
 
     private fun copiaGialla(fill: PillFill) {
+        OmbraArchivio.granted = true
         runBlocking { Hint.COLUMNS.forget(app) }
         banco.setContent { Home(fill) }
         aspettaIlVelo(banco, app)

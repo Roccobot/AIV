@@ -567,9 +567,6 @@ object Glyphs {
         val FormatPaint: ImageVector
             @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_format_paint)
 
-        val HideImageOutlined: ImageVector
-            @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_hide_image_outlined)
-
         val Image: ImageVector
             @Composable get() = ImageVector.vectorResource(R.drawable.ic_m_image)
 

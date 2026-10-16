@@ -256,15 +256,8 @@ fun MenuShell(
                  * sarebbe tagliata dal bordo del buffer, proprio agli angoli.
                  */
                 .then(if (!alzato) Modifier else Modifier.padding(LIFT_ROOM))
-                // L'ombra prima del bordo, che è parte della superficie che si alza: l'ombra li
-                // avvolge tutti e due (vedi `Edge.kt`).
-                .lifted(MENU_ROUND)
-                /*
-                 * Il bordo d'accento, oggi spento (`ACCENT_EDGE` in `Edge.kt`). È un modificatore
-                 * e non il `border` della `Surface`, che disegnerebbe il filo sotto il contenuto:
-                 * così il contorno è sopra tutto.
-                 */
-                .edged(MENU_ROUND),
+                // L'ombra, quando è lei la scelta (vedi `Edge.kt`).
+                .lifted(MENU_ROUND),
             shape = RoundedCornerShape(MENU_ROUND),
             color = MaterialTheme.colorScheme.surfaceContainer
         ) {

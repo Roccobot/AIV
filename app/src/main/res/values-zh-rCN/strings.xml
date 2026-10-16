@@ -99,7 +99,6 @@
     <string name="front_tint">标题栏颜色</string>
     <string name="front_tint_none">默认颜色</string>
     <string name="folder_cover">选择封面</string>
-    <string name="folder_cover_auto">默认封面</string>
     <string name="folder_cover_pick">选择 \'%1$s\' 的封面</string>
     <string name="folder_cover_done">封面已更新</string>
     <string name="folder_cover_fail">这张图片无法用作封面</string>

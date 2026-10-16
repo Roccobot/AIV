@@ -99,7 +99,6 @@
     <string name="front_tint">Cor do cabeçalho</string>
     <string name="front_tint_none">Cor padrão</string>
     <string name="folder_cover">Escolher a capa</string>
-    <string name="folder_cover_auto">Capa padrão</string>
     <string name="folder_cover_pick">Escolha a capa de \'%1$s\'</string>
     <string name="folder_cover_done">Capa atualizada</string>
     <string name="folder_cover_fail">Não é possível usar esta imagem como capa</string>

@@ -141,7 +141,6 @@ import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -253,14 +252,13 @@ fun AdvancedEditorScreen(
      * ⚠️ **La rotazione è bloccata in verticale, come nell'editor semplice** (risposta
      * `d-rotazione`): i cursori vivono in una colonna in fondo, e in orizzontale prenderebbero
      * metà schermo.
-     * ⚠️⚠️ **Tranne sul tablet largo** ([Adaptive.editorBeside]): là gli strumenti sono a lato,
-     * l'orizzontale è previsto, e forzare `PORTRAIT` farebbe sfarfallare il layout.
+     * ⚠️⚠️ **Tranne con gli strumenti a lato** ([Adaptive.editorBeside]: da 1.024 dp, e in
+     * orizzontale su uno schermo grande): là l'orizzontale è previsto, e forzare `PORTRAIT` farebbe
+     * sfarfallare il layout.
      */
     val activity = remember(context) { Knobs.activityOf(context) }
-    val widthDp = with(LocalDensity.current) {
-        LocalWindowInfo.current.containerSize.width.toDp()
-    }.value.toInt()
-    val lockPortrait = !Adaptive.editorBeside(widthDp)
+    val beside = editorBeside()
+    val lockPortrait = !beside
     DisposableEffect(activity, lockPortrait) {
         if (!lockPortrait) return@DisposableEffect onDispose { }
         val prima = activity?.requestedOrientation
@@ -646,17 +644,16 @@ fun AdvancedEditorScreen(
             }
 
             /*
-             * Strumenti a lato sul tablet largo ([Adaptive.editorBeside], dal mockup dell'editor):
-             * sotto la soglia la scheda resta in basso, come sul telefono e nell'editor semplice.
-             * La larghezza è quella della finestra, già letta per il blocco dell'orientamento.
+             * Con gli strumenti a lato ([beside], già letto per il blocco dell'orientamento, dal
+             * mockup dell'editor) la scheda è in una colonna; altrimenti resta in basso, come sul
+             * telefono.
              */
-            val beside = Adaptive.editorBeside(widthDp)
             /*
              * ⚠️ **I comandi seguono la mano** (voce `3.39-01`): con la mano destra sono a destra e
              * il palco a sinistra; con la sinistra i lati si scambiano.
              */
             val panelOnStart = LocalPadLook.current.hand == Hand.LEFT
-            val toolsWidth = Adaptive.editorToolsWidth(widthDp)
+            val toolsWidth = Adaptive.editorToolsWidth(beside)
 
             @Composable
             fun Sheet() {
@@ -4397,7 +4394,7 @@ private fun toneInk(channel: Int): Color = when (channel) {
  */
 @Composable
 private fun LookSheet(
-    /** Se la scheda è a lato del canvas (tablet largo). Vedi [Adaptive.editorBeside]. */
+    /** Se la scheda è a lato del canvas. Vedi [Adaptive.editorBeside]. */
     beside: Boolean = false,
     /** Se a lato, scheda a inizio riga (destri) o in fondo (mancini). */
     panelOnStart: Boolean = true,
@@ -4445,7 +4442,7 @@ private fun LookSheet(
     var mine by remember { mutableStateOf(Presets.mine(context)) }
     /*
      * La superficie è quella dell'editor semplice, con le stesse ragioni misurate su
-     * `EditorSheet`; da 1.024 dp la scheda passa a lato ([editorSheetChrome]).
+     * `EditorSheet`; a lato è una colonna ([editorSheetChrome]).
      */
     val chrome = editorSheetChrome(beside, panelOnStart, toolsWidth)
     Surface(

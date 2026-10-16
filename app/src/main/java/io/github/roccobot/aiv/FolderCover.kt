@@ -63,9 +63,6 @@ object FolderCovers {
             .associate { (dove, file) -> dove to file.toUri() }
     }
 
-    /** La copertina scelta per una cartella, o `null` se non ne ha una. */
-    suspend fun of(context: Context, bucket: Long): Uri? = all(context)[bucket]
-
     /**
      * Copia [source] come copertina di [bucket], e torna il suo indirizzo o `null` se non è
      * riuscita.
@@ -282,8 +279,7 @@ object FolderCovers {
  *
  * ⚠️ **Non passa da [Notices]**: un avviso dice che una cosa è successa e se ne va da sé, questa
  * dice che cosa sta succedendo e resta finché la modalità è attiva.
- * La superficie è quella dell'avviso, bordo d'accento compreso, perché le due righe sembrino
- * della stessa app.
+ * La superficie è quella dell'avviso, perché le due righe sembrino della stessa app.
  * Il nome della cartella va fra apici, come nelle finestre del nascondere e del mostrare: è un
  * dato dentro una frase.
  */
@@ -298,8 +294,7 @@ fun CoverInvite(name: String, onCancel: () -> Unit, modifier: Modifier = Modifie
     ) {
         Snackbar(
             modifier = Modifier
-                .semantics { liveRegion = LiveRegionMode.Polite }
-                .edged(INVITE_ROUND),
+                .semantics { liveRegion = LiveRegionMode.Polite },
             shape = RoundedCornerShape(INVITE_ROUND),
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
             contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -329,17 +324,6 @@ fun Folder.Bucket.coverIn(covers: Map<Long, Uri>): Uri? = covers[id] ?: cover
  * un file illeggibile lo segnala comunque la decodifica.
  */
 internal const val COVER_MIME = "image/*"
-
-/**
- * Se la voce 'Copertina predefinita' compare nel menu del FAB: no.
- *
- * ⚠️ **Spenta e non tolta** (voce `copertina-togli` dell'utente, giro della 1.94): un tocco
- * involontario ripristinava troppo facilmente la copertina predefinita, e una scelta persa non
- * si ritrova. Al suo posto c'è il gesto sull'icona dell'intestazione, che vuole due tocchi.
- * La voce intera, testo e posizione compresi, torna con `true`: chi la riaccende rilegga quella
- * voce, perché il motivo del no vale ancora. Per questo la stringa resta tradotta.
- */
-internal const val COVER_MENU_ROW = false
 
 /** La cartella delle copertine scelte, dentro `filesDir`. */
 private const val COVER_DIR = "covers"

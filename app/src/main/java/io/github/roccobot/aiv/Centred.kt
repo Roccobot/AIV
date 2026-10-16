@@ -78,15 +78,13 @@ fun Modifier.lowered(
      * - il velo e la sfocatura dietro (richiesta dell'utente: dietro qualsiasi pannello), o
      *   l'ombra se è lei la scelta (mai insieme), con [Modifier.veiled] e [DIALOG_LIFT];
      * - il tocco sull'aria uguale al tocco fuori ([OutsideElement], il perché è su [Air]);
-     * - lo spostamento ([LowerElement]);
-     * - il bordo d'accento ([DIALOG_EDGE]).
+     * - lo spostamento ([LowerElement]).
      * ⚠️ **Velo e spostamento sono nodi, non `@Composable`**: un `@Composable` chiamato da qui
      * girerebbe dove la riga è scritta, fuori dal dialogo, e leggerebbe la finestra
      * dell'attività, senza errori. Un nodo si aggancia dove il modificatore arriva, dentro il
      * dialogo.
-     * ⚠️ **Ombra e bordo sono dopo lo spostamento**: [LowerElement] gonfia l'altezza per far
-     * scendere il pannello, e prima di lui girerebbero intorno all'aria. L'ombra è prima del
-     * bordo, perché avvolge tutto il pannello, tratto compreso.
+     * ⚠️ **L'ombra è dopo lo spostamento**: [LowerElement] gonfia l'altezza per far scendere il
+     * pannello, e prima di lui l'ombra girerebbe intorno all'aria.
      * [onOutside] non ha un valore di serie: chi apre una finestra nuova deve dire se è una
      * modale vera.
      */
@@ -97,7 +95,7 @@ fun Modifier.lowered(
      * due colonne usa [Adaptive.dialogBesideMaxWidth]).
      */
     return veiled() then OutsideElement(onOutside, aria) then
-        LowerElement(aria, pinTop = onOutside == null) then DIALOG_LIFT then DIALOG_EDGE then
+        LowerElement(aria, pinTop = onOutside == null) then DIALOG_LIFT then
         Modifier.widthIn(max = maxWidth)
 }
 
@@ -241,17 +239,11 @@ private class OutsideElement(
 }
 
 /**
- * Il bordo dei dialoghi, con la forma che Material dà loro.
+ * L'ombra dei dialoghi, con la forma che Material dà loro.
  *
  * ⚠️ **Il raggio è [PANEL_ROUND]**: un nodo non legge il tema di Material, quindi la forma di un
  * `AlertDialog` si dichiara a mano, una volta. Chi desse ai dialoghi una forma propria cambia
- * quella, o il bordo taglia gli angoli in un altro punto.
- */
-private val DIALOG_EDGE = Modifier.edged(PANEL_ROUND)
-
-/**
- * L'ombra dei dialoghi, con lo stesso raggio di [DIALOG_EDGE] e per la stessa ragione. Il raggio
- * è quello della superficie, senza la correzione del rientro: l'ombra nasce dal contorno.
+ * quella, o l'ombra gira intorno a un contorno diverso dal pannello.
  */
 private val DIALOG_LIFT = Modifier.lifted(PANEL_ROUND)
 

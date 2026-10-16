@@ -232,16 +232,8 @@ fun Sheet(
                         indication = null,
                         onClick = { }
                     )
-                    /*
-                     * Il bordo d'accento su tre lati (richiesta dell'utente): il quarto è
-                     * appoggiato al bordo dello schermo. La riga corre di fuori, e dei fianchi,
-                     * oltre lo schermo, si vedono la cima e i due archi: quindi nessuno dei
-                     * modificatori qui sopra deve ritagliare (il `graphicsLayer` non lo fa, `clip`
-                     * è spento di fabbrica). L'ombra viene prima del bordo, e avvolge anche il
-                     * tratto d'accento. Il perché di bordo e ombra è in testa a `Edge.kt`.
-                     */
-                    .liftedTop(PANEL_ROUND)
-                    .edgedTop(PANEL_ROUND),
+                    // L'ombra delle sole cime: il perché è in testa a `Edge.kt`.
+                    .liftedTop(PANEL_ROUND),
                 shape = RoundedCornerShape(topStart = PANEL_ROUND, topEnd = PANEL_ROUND),
                 color = MaterialTheme.colorScheme.surfaceContainerHigh
             ) {

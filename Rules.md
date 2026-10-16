@@ -422,25 +422,13 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   secondo modo con cui sbagliare. La ragione è sua: un sistema affidabile, in cui un ritocco si
   ragiona una volta per tutti. Chi apre un `Popup` o un `Dialog` scritto in casa chiama
   `WindowVeil()` a mano (lo fanno `MenuShell` e `Sheet`).
-- ⚠️⚠️ **Dalla `4.38` il bordo d'accento è spento: i pannelli sono nudi** (sua scelta del
-  2026-10-06, variante A di un mockup a tre varianti: *implementiamo subito i pannelli nudi (A)
-  spegnendo il contorno, e facendo in modo che lo si possa recuperare in seguito se cambio idea*).
-  Pannelli e schede staccano dallo sfondo col solo colore della superficie, sopra la sfocatura e il
-  velo. **Si riaccende con una riga**, `ACCENT_EDGE` in `Edge.kt`: i modificatori restano chiamati
-  da tutte le superfici e il disegno resta intatto. Il bordo non ha mai occupato spazio, quindi
-  spegnerlo non sposta nessuna misura; lo presidia `BordoTest`. Le note qui sotto descrivono il
-  bordo com'era fino alla `4.37`, e valgono di nuovo se si riaccende.
-- **Il bordo d'accento da 2dp sostituisce l'ombra, e non dipende dall'interruttore della
-  sfocatura** (sua richiesta): è il modo in cui l'app è fatta, non una funzione che si accende.
-  Spessore scartato: 3dp (sua preferenza, dopo un giro). Il come vive in testa a `Edge.kt`.
-  - ⚠️ **Il bordo ha un elenco suo**: la scheda della selezione e il pannello dei comandi
-    dell'editor hanno il bordo e non il velo. Il velo dice 'mi apro sopra qualcosa', il bordo 'sono
-    una superficie di questa app'.
-  - ⚠️ **Il raggio del bordo**: due riquadri stondati concentrici hanno raggi diversi, e
-    l'antialiasing sommato due volte lascia pixel scoperti sull'arco. Il rimedio è mezzo pixel di
-    sconfinamento in fuori, misurato in testa alla costante in `Edge.kt`.
-  - ⚠️ **Sulle schede in fondo la riga va di fuori** (sua prova): i fianchi sono sui bordi dello
-    schermo, quindi a interrompere il tratto è il bordo del vetro.
+- ⚠️⚠️ **I pannelli sono nudi, e il bordo d'accento non c'è più**: spento dalla `4.38` (sua
+  scelta del 2026-10-06, variante A di un mockup a tre varianti: *implementiamo subito i pannelli
+  nudi (A) spegnendo il contorno, e facendo in modo che lo si possa recuperare in seguito se cambio
+  idea*), tolto con tutto il suo codice nella `6.30` (sua scelta C1 sulla voce G2 della revisione
+  Setaccio, 2026-10-16). Pannelli e schede staccano dallo sfondo col solo colore della superficie,
+  sopra la sfocatura e il velo, o con l'ombra quando è lei la scelta. Il bordo non ha mai
+  occupato spazio, quindi toglierlo non ha spostato nessuna misura.
 - ⚠️⚠️ **Il velo lo dipinge l'app** (`AppVeil`, messo in scena da `AivTheme`) e vale il massimo
   delle richieste in scena: due finestre non cambiano il proprio velo nello stesso fotogramma,
   quindi fra un menu e un dialogo c'era sempre un fotogramma con due veli o con nessuno. La
@@ -494,10 +482,11 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
     valore ereditato, e una migrazione rovescerebbe una scelta vera.
   - ⚠️ **I casi della migrazione del velo sono tre** (acceso, spento, mai toccato) e non si
     accorpano, anche se due oggi rispondono lo stesso.
-  - ⚠️ **Il valore di fabbrica vive in due posti** (il campo di `Settings` e la lettura del
-    flusso): cambiarne uno solo dà un'app accesa al primo avvio e spenta dopo il primo salvataggio.
-    Lo presidia il caso 6 di `ProfonditaTest`, che legge un archivio vuoto con
-    `SettingsStore.read` e lo confronta con `Settings()`.
+  - ⚠️ **Il valore di fabbrica vive sul campo di `Settings`, e solo lì** (dalla `6.30`, sua scelta
+    G1): `SettingsStore.read` prende ogni ripiego da un `Settings()`. Il ramo della chiave vecchia
+    del velo ha però una logica sua, e un suo valore diverso darebbe un'app accesa al primo avvio e
+    spenta dopo il primo salvataggio: lo presidia il caso 6 di `ProfonditaTest`, che legge un
+    archivio vuoto con `SettingsStore.read` e lo confronta con `Settings()`.
   - ⚠️ **La sfocatura la esegue il compositore di sistema** (`FLAG_BLUR_BEHIND` più
     `blurBehindRadius`, da Android 12): dove il sistema dice di no non si vede e non costa
     fotogrammi, e l'app lo chiede (`blurs`, in `Veil.kt`). Si paga solo a pannello aperto, e lo
@@ -932,8 +921,9 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
 - ⚠️ **Un oggetto di processo scritto dopo `setContent` non arriva alla composizione a clock
   fermo**: in una prova la riga (per esempio di `Notices`) si mette prima di montare la scena, col
   clock fermo (`autoAdvance = false`), o `waitForIdle` la fa scadere.
-- ⚠️⚠️ **Una prova che fa leggere una cartella al modello monta `OmbraArchivio` o
-  `ArchivioAperto`**, anche se non guarda niente della memoria: `openGrid` legge in sottofondo, la
+- ⚠️⚠️ **Una prova che fa leggere una cartella al modello monta `OmbraArchivio`**, chiuso di serie
+  o aperto con `OmbraArchivio.granted = true` prima di montare la scena (dalla `6.30` le due
+  risposte sono un'ombra sola, scelta I1), anche se non guarda niente della memoria: `openGrid` legge in sottofondo, la
   lettura chiede `Environment.isExternalStorageManager()`, che Robolectric non copre, e senza
   l'ombra fallisce sul suo filo. L'errore non cade nella prova che l'ha causato, ma nella prima
   classe successiva che usa il banco di Compose: sui banchi della `6.20` sono cadute `AggiornaTest`
@@ -1067,8 +1057,8 @@ Travasate dal brief il 2026-10-16 (`Tagliando`), dove vivevano senza una casa du
   giro della `5.40`, nel piano di una funzione per rilascio; `MediaRename.kt`, `Store.renames`):
   il tasto nei due riquadri dei file e il tocco lungo sul nome nella finestra `Info`.
   - **È la stessa rinomina di AIV GitHub**: ordine alfabetico, cancelletti del modello, due fasi
-    con un nome temporaneo (senza il punto davanti, perché un nome nascosto il MediaStore smette
-    di elencarlo), un nome libero se quello voluto è di un file estraneo. Cambia solo chi scrive:
+    con un nome temporaneo (`FileTree.parkingName`, senza il punto davanti: un nome nascosto il
+    MediaStore smette di elencarlo, e dalla `6.30` vale anche per AIV GitHub), un nome libero se quello voluto è di un file estraneo. Cambia solo chi scrive:
     il nome nuovo va nella riga del MediaStore (`DISPLAY_NAME`), e il sistema rinomina il file.
   - **La conferma è la finestra di Android** (`createWriteRequest`, una per tutti i file), come per
     `Elimina`; col no non succede niente e non si dice niente (`FileKind.speaks` tace quando non è

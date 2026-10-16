@@ -63,8 +63,8 @@ import kotlinx.coroutines.launch
  *
  * È dietro un'impostazione a tre scelte, sfocatura, ombra o niente, mai insieme (richiesta
  * dell'utente, 1.81), letta da [LocalAivDepth]: questo file lavora solo in [PanelDepth.BLUR], e
- * negli altri casi non aggiunge niente. L'ombra è in `Edge.kt`, accanto al bordo d'accento,
- * perché è il contorno di una superficie.
+ * negli altri casi non aggiunge niente. L'ombra è in `Edge.kt`, perché è il contorno di una
+ * superficie.
  * ⚠️ **L'unica eccezione è la scheda in fondo**, che si chiede un velo da sé perché la sua
  * finestra non ne ha uno di serie (il parametro [bare], e `SHEET_DIM` in `Sheet.kt`).
  */

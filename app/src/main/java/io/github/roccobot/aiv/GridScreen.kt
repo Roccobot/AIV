@@ -315,15 +315,6 @@ fun GridScreen(
      * cartella; le altre volte col tocco stesso.
      */
     onCoverAway: () -> Unit = {},
-    /** Toglie la copertina scelta: la voce del menu del FAB. Vedi [coverSet]. */
-    onCoverClear: (() -> Unit)? = null,
-    /**
-     * Se questa cartella ha già una copertina scelta a mano.
-     *
-     * Governa la sola voce che la toglie, che senza copertina non si offre (come 'Mostra
-     * nascoste' nell'elenco iniziale).
-     */
-    coverSet: Boolean = false,
     /**
      * Avvisa che la griglia ha una selezione viva, cioè che una rilettura le farebbe danno.
      *
@@ -1827,24 +1818,12 @@ fun GridScreen(
                                 )
                             }
                             /*
-                             * ⚠️ **La voce che toglie la copertina oggi non si vede**:
-                             * [COVER_MENU_ROW] è spenta (scelta dell'utente, dalla `1.95`), e il
-                             * perché è su quella costante. Accesa, compare solo se una copertina
-                             * scelta esiste, fra 'Cerca' (quello che si fa qui) e 'Cestino' (quello
-                             * che porta altrove). A sceglierla è il tocco sull'icona
-                             * dell'intestazione.
+                             * La copertina non ha una voce qui: la sceglie e la toglie il tocco
+                             * sull'icona dell'intestazione, che vuole due tocchi (voce
+                             * `copertina-togli`: una voce del menu la toglieva per sbaglio).
                              */
-                            val togliCopertina = onCoverClear.takeIf { coverSet && COVER_MENU_ROW }
-                            togliCopertina?.let { togli ->
-                                if (onSearchHere != null) HorizontalDivider()
-                                MenuRow(
-                                    text = stringResource(R.string.folder_cover_auto),
-                                    icon = Glyphs.Material.HideImageOutlined,
-                                    onTap = { menu.close(); togli() }
-                                )
-                            }
                             onBin?.let { vaiAlCestino ->
-                                if (onSearchHere != null || togliCopertina != null) HorizontalDivider()
+                                if (onSearchHere != null) HorizontalDivider()
                                 MenuRow(
                                     text = stringResource(R.string.bin_title),
                                     icon = Glyphs.Bin,

@@ -99,7 +99,6 @@
     <string name="front_tint">رنگ سربرگ</string>
     <string name="front_tint_none">رنگ پیش‌فرض</string>
     <string name="folder_cover">انتخاب جلد</string>
-    <string name="folder_cover_auto">جلد پیش‌فرض</string>
     <string name="folder_cover_pick">جلد \'%1$s\' را انتخاب کنید</string>
     <string name="folder_cover_done">جلد به‌روزرسانی شد</string>
     <string name="folder_cover_fail">این تصویر را نمی‌توان به عنوان جلد استفاده کرد</string>

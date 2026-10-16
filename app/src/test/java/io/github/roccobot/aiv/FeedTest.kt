@@ -116,8 +116,9 @@ class FeedTest {
      * the stream** (the series and the position the viewer receives).
      */
     @Test
-    @Config(qualifiers = "it", shadows = [ArchivioAperto::class])
+    @Config(qualifiers = "it", shadows = [OmbraArchivio::class])
     fun `la casa mostra il Feed coi mesi e il tocco apre l'immagine`() {
+        OmbraArchivio.granted = true
         val righe = listOf(riga(1, ms(2026, 10, 2), 0), riga(2, ms(2026, 9, 1), 0))
         val pagina = Feed.order(righe, FeedDate.TAKEN, zone)
         var aperta: Pair<List<Uri>, Int>? = null
@@ -150,8 +151,9 @@ class FeedTest {
      * with the centred veil of the 6.03, where the two words are missing.
      */
     @Test
-    @Config(qualifiers = "it", shadows = [ArchivioAperto::class])
+    @Config(qualifiers = "it", shadows = [OmbraArchivio::class])
     fun `la prima volta il velo del Feed spiega l'ordine`() {
+        OmbraArchivio.granted = true
         val app = ApplicationProvider.getApplicationContext<android.content.Context>()
         runBlocking { Hint.FEED.forget(app) }
         val pagina = Feed.order(listOf(riga(1, ms(2026, 10, 2), 0)), FeedDate.TAKEN, zone)
@@ -199,8 +201,9 @@ class FeedTest {
      * ⚠️ **Counter-tested** with `peeking` out of the keys of the reading: one reading only.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `mostra nascoste chiede una nuova lettura del Feed`() {
+        OmbraArchivio.granted = true
         val app = ApplicationProvider.getApplicationContext<android.content.Context>()
         runBlocking { Hint.FEED.remember(app) }
         val pagina = Feed.order(listOf(riga(1, ms(2026, 10, 2), 0)), FeedDate.TAKEN, zone)
@@ -233,8 +236,9 @@ class FeedTest {
      * which takes the tap as it does on a phone.
      */
     @Test
-    @Config(qualifiers = "it-w393dp-h873dp", shadows = [ArchivioAperto::class])
+    @Config(qualifiers = "it-w393dp-h873dp", shadows = [OmbraArchivio::class])
     fun `il Feed ha la selezione multipla`() {
+        OmbraArchivio.granted = true
         val app = ApplicationProvider.getApplicationContext<android.content.Context>()
         runBlocking { Hint.FEED.remember(app) }
         val righe = listOf(riga(1, ms(2026, 10, 2), 0), riga(2, ms(2026, 9, 1), 0))

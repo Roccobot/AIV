@@ -99,7 +99,6 @@
     <string name="front_tint">Цвет заголовка</string>
     <string name="front_tint_none">Цвет по умолчанию</string>
     <string name="folder_cover">Выбрать обложку</string>
-    <string name="folder_cover_auto">Обложка по умолчанию</string>
     <string name="folder_cover_pick">Выберите обложку для \'%1$s\'</string>
     <string name="folder_cover_done">Обложка обновлена</string>
     <string name="folder_cover_fail">Это изображение нельзя использовать как обложку</string>

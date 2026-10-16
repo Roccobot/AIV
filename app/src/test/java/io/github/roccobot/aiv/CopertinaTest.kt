@@ -10,6 +10,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithText
@@ -92,59 +95,34 @@ class CopertinaTest {
     }
 
     /**
-     * **Senza una copertina scelta, il menu del FAB non offre di toglierla.**
+     * **Il menu del FAB di una cartella ha le sole voci 'Cestino' e 'Impostazioni'.**
      *
-     * ⚠️ **È lo stesso criterio di 'Mostra nascoste'**: una voce che agisce su una cosa che non
-     * c'è è una riga che non fa niente. Le due prove servono insieme, e questa da sola passerebbe
-     * anche con la voce tolta del tutto.
+     * ⚠️⚠️ **LA COPERTINA NON HA VOCI NEL MENU, PER SUA SCELTA**: la voce 'Copertina predefinita'
+     * toglieva per un tocco involontario una scelta che non si ritrova (voce `copertina-togli`),
+     * e a togliere la copertina è il secondo tocco sull'icona. La prova misura il menu intero, così
+     * una voce che rientra, della copertina o d'altro, la fa cadere.
+     * Le voci sono i nodi toccabili che compaiono aprendo il menu: quelli della griglia c'erano
+     * già prima. 'Cerca' manca perché la scena non passa `onSearchHere`.
      */
     @Test
-    fun `senza copertina scelta il menu non offre di toglierla`() {
-        banco.setContent { Scena(coverSet = false) }
+    fun `il menu del FAB non ha voci della copertina`() {
+        banco.setContent { Scena() }
         banco.waitForIdle()
+        val prima = toccabili()
         apriIlMenu()
 
-        assertTrue(
-            "Il menu offre di togliere una copertina che non c'è",
-            banco.onAllNodesWithText(app.getString(R.string.folder_cover_auto))
-                .fetchSemanticsNodes().isEmpty()
-        )
-    }
-
-    /**
-     * **La voce del menu segue [COVER_MENU_ROW], e quando c'è riporta alla copertina
-     * predefinita.**
-     *
-     * ⚠️⚠️ **DALLA `1.95` QUELL'INTERRUTTORE È SPENTO, ED È SUA ISTRUZIONE** (*spegni la
-     * funzionalità del FAB senza eliminarla, in caso cambiassi idea, ma rinomina la voce in
-     * `Copertina predefinita`*): con la voce fuori scena, la prova di prima chiedeva una riga
-     * che l'utente ha tolto, quindi è **la prova** a essere cambiata, e la ragione è questa.
-     * ⚠️⚠️ **MA NON SI È RIDOTTA A 'la voce non c'è'**, che sarebbe una prova contro il giorno in
-     * cui lui cambia idea: misura il **legame** fra l'interruttore e quello che si vede, quindi
-     * regge in tutti e due gli stati, e la seconda metà (il tocco che toglie davvero la
-     * copertina) torna a girare da sé appena la voce rientra.
-     */
-    @Test
-    fun `la voce del menu segue il suo interruttore`() {
-        var tolta = 0
-        banco.setContent { Scena(coverSet = true, onCoverClear = { tolta++ }) }
-        banco.waitForIdle()
-        apriIlMenu()
-
-        val voce = app.getString(R.string.folder_cover_auto)
-        val inScena = banco.onAllNodesWithText(voce).fetchSemanticsNodes().isNotEmpty()
         assertEquals(
-            "La voce del menu non segue COVER_MENU_ROW",
-            COVER_MENU_ROW,
-            inScena
+            "Il menu del FAB ha voci diverse da 'Cestino' e 'Impostazioni'",
+            setOf(app.getString(R.string.bin_title), app.getString(R.string.hub_settings)),
+            toccabili() - prima
         )
-        if (!inScena) return
-
-        banco.onNodeWithText(voce).performClick()
-        banco.waitForIdle()
-
-        assertEquals("La voce non ha tolto la copertina", 1, tolta)
     }
+
+    /** I testi dei nodi che si possono toccare, uniti ai figli come li legge un lettore di schermo. */
+    private fun toccabili(): Set<String> =
+        banco.onAllNodes(hasClickAction()).fetchSemanticsNodes()
+            .mapNotNull { nodo -> nodo.config.getOrNull(SemanticsProperties.Text)?.joinToString(" ") }
+            .toSet()
 
     /**
      * **La fascia dell'invito nomina la cartella, e il suo tasto lascia perdere.**
@@ -320,8 +298,6 @@ class CopertinaTest {
     @Composable
     private fun Scena(
         onCoverPick: () -> Unit = {},
-        onCoverClear: () -> Unit = {},
-        coverSet: Boolean = false,
         onCoverAway: () -> Unit = {},
         coverHere: Boolean = false
     ) {
@@ -335,16 +311,13 @@ class CopertinaTest {
                     onBack = {},
                     onChanged = {},
                     onSearch = {},
-                    // ⚠️ Il menu del FAB c'è solo se ha almeno una voce da mostrare, e la voce
-                    // della copertina non basta a farlo comparire: senza uno di questi due il
-                    // FAB non si disegna affatto, e le due prove sul menu misurerebbero un
+                    // ⚠️ Il menu del FAB c'è solo se ha almeno una voce da mostrare: senza uno di
+                    // questi due il FAB non si disegna affatto, e la prova sul menu misurerebbe un
                     // pulsante che non c'è.
                     onBin = {},
                     onSettings = {},
                     onCoverPick = onCoverPick,
                     onCoverAway = onCoverAway,
-                    onCoverClear = onCoverClear,
-                    coverSet = coverSet,
                     coverHere = coverHere
                 )
             }

@@ -99,7 +99,6 @@
     <string name="front_tint">Kleur van de koptekst</string>
     <string name="front_tint_none">Standaardkleur</string>
     <string name="folder_cover">Omslag kiezen</string>
-    <string name="folder_cover_auto">Standaardomslag</string>
     <string name="folder_cover_pick">Kies de omslag van \'%1$s\'</string>
     <string name="folder_cover_done">Omslag bijgewerkt</string>
     <string name="folder_cover_fail">Deze afbeelding kan niet als omslag worden gebruikt</string>

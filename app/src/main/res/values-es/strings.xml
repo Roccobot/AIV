@@ -99,7 +99,6 @@
     <string name="front_tint">Color del encabezado</string>
     <string name="front_tint_none">Color predeterminado</string>
     <string name="folder_cover">Elegir la portada</string>
-    <string name="folder_cover_auto">Portada predeterminada</string>
     <string name="folder_cover_pick">Elige la portada de \'%1$s\'</string>
     <string name="folder_cover_done">Portada actualizada</string>
     <string name="folder_cover_fail">Esta imagen no se puede usar como portada</string>

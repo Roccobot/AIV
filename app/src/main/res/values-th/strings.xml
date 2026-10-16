@@ -99,7 +99,6 @@
     <string name="front_tint">สีของส่วนหัว</string>
     <string name="front_tint_none">สีเริ่มต้น</string>
     <string name="folder_cover">เลือกภาพปก</string>
-    <string name="folder_cover_auto">ภาพปกเริ่มต้น</string>
     <string name="folder_cover_pick">เลือกภาพปกของ \'%1$s\'</string>
     <string name="folder_cover_done">อัปเดตภาพปกแล้ว</string>
     <string name="folder_cover_fail">ใช้ภาพนี้เป็นภาพปกไม่ได้</string>
