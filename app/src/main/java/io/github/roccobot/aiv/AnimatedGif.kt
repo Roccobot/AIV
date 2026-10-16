@@ -35,8 +35,21 @@ import java.nio.ByteBuffer
  *   immagini accanto a Coil.
  */
 class AnimatedGif private constructor(
-    private val decoder: GifDecoder
+    private val decoder: GifDecoder,
+    private val pool: Pool
 ) : Animated {
+
+    /**
+     * Le ultime due tele consegnate da [current], la più vecchia in testa.
+     *
+     * ⚠️⚠️ **DUE TELE CHE SI ALTERNANO, DALLA `6.28`** (rilievo C13 della revisione della 6.25):
+     * il decodificatore non restituisce mai al serbatoio il fotogramma che consegna, quindi fino
+     * ad allora ogni fotogramma creava una tela nuova (dieci fotogrammi, dieci tele, misurato in
+     * `TeleGifTest`). Prima di comporre il fotogramma nuovo, torna al serbatoio la tela di due giri
+     * fa: quella del giro prima è ancora in mostra, e riscriverla vorrebbe dire strapparla mentre
+     * si disegna.
+     */
+    private val handed = ArrayDeque<Bitmap>(2)
 
     /**
      * Se [close] è già passato di qui.
@@ -78,12 +91,17 @@ class AnimatedGif private constructor(
      * due volte di fila senza `advance()` si riottiene lo stesso fotogramma, non il seguente.
      * Chi legge questo file senza la nota scriverebbe un ciclo che salta un fotogramma su
      * due.
-     * ⚠️ **Il Bitmap appartiene al decodificatore e verrà RIUSATO**: chi lo vuole tenere
-     * (l'esportazione, una cache) ne fa una copia. Qui si restituisce l'originale, perché
-     * disegnarlo e basta è il caso normale e copiare a ogni fotogramma sarebbe uno spreco.
+     * ⚠️ **Il Bitmap appartiene al lettore e verrà RIUSATO due giri dopo** ([handed]): chi lo
+     * vuole tenere (l'esportazione, una cache) ne fa una copia. Qui si restituisce l'originale,
+     * perché disegnarlo e basta è il caso normale e copiare a ogni fotogramma sarebbe uno spreco.
      */
-    override fun current(): Bitmap? =
-        if (closed) null else runCatching { decoder.nextFrame }.getOrNull()
+    override fun current(): Bitmap? {
+        if (closed) return null
+        if (handed.size == 2) pool.release(handed.removeFirst())
+        val frame = runCatching { decoder.nextFrame }.getOrNull() ?: return null
+        handed.addLast(frame)
+        return frame
+    }
 
     override fun advance() {
         if (closed) return
@@ -135,13 +153,14 @@ class AnimatedGif private constructor(
                 // Riavvolgendo e ripartendo dal fotogramma 1, la tela vecchia sopravvive e la
                 // scia resta esattamente com'era. Trovato rileggendo questa funzione, non
                 // provandola.
-                decoder.nextFrame
+                decoder.nextFrame?.let(pool::release)
             }
             var passi = dove - decoder.currentFrameIndex
             if (passi < 0) passi = 0
+            // ⚠️ Le tele composte di passaggio non le vede nessuno: tornano subito al serbatoio.
             repeat(passi) {
                 decoder.advance()
-                decoder.nextFrame
+                decoder.nextFrame?.let(pool::release)
             }
         }
     }
@@ -153,6 +172,9 @@ class AnimatedGif private constructor(
     }
 
     companion object {
+
+        /** Quante tele tiene al più il serbatoio: vedi [Pool]. */
+        private const val SPARE = 3
 
         /**
          * Apre una GIF già letta in memoria, e `null` se non è leggibile.
@@ -168,13 +190,14 @@ class AnimatedGif private constructor(
             val header = parser.parseHeader()
             parser.clear()
             if (header.status != GifDecoder.STATUS_OK || header.numFrames <= 0) return null
-            val decoder = StandardGifDecoder(Pool(), header, buffer)
+            val pool = Pool()
+            val decoder = StandardGifDecoder(pool, header, buffer)
             // ⚠️ ARGB_8888 e non RGB_565: le GIF hanno la trasparenza a chiave, e in 565 il
             // colore trasparente diventa un colore vero, di solito nero. Il risparmio di
             // memoria non vale un'immagine sbagliata.
             decoder.setDefaultBitmapConfig(Bitmap.Config.ARGB_8888)
             decoder.advance()
-            AnimatedGif(decoder)
+            AnimatedGif(decoder, pool)
         }.getOrNull()
     }
 
@@ -184,9 +207,14 @@ class AnimatedGif private constructor(
      * ⚠️⚠️ **SERVE PERCHÉ L'INTERFACCIA LO PRETENDE, e la sua ragione d'essere è il
      * RIUSO**: comporre un fotogramma vuol dire allocare una tela grande quanto l'immagine, e
      * farlo venti volte al secondo darebbe al garbage collector un lavoro che si vede come
-     * scatti. Con un serbatoio di uno, la tela si alloca una volta e si riscrive.
-     * ⚠️ **Un solo Bitmap in serbatoio e non un magazzino**: il decodificatore ne chiede uno
-     * per volta e restituisce il precedente, quindi tenerne di più sarebbe memoria ferma.
+     * scatti.
+     * ⚠️⚠️ **IL DECODIFICATORE NON RESTITUISCE IL FOTOGRAMMA CHE CONSEGNA**, letto nel bytecode di
+     * `gifdecoder` (`StandardGifDecoder.setPixels`) dalla revisione della 6.25: restituisce solo la
+     * tela del fotogramma precedente, che gli serve per i fotogrammi da ripristinare. Fino alla
+     * `6.27` questa nota diceva il contrario, e il serbatoio restava vuoto. Le tele consegnate le
+     * restituisce il lettore ([current], [seek]).
+     * ⚠️ **Al più [SPARE] tele in serbatoio**: le due che si alternano e quella del precedente;
+     * di più sarebbe memoria ferma.
      * ⚠️⚠️ **Software e non hardware**, ed è ciò che rende possibile l'esportazione: un
      * `Bitmap` con configurazione `HARDWARE` non si può leggere pixel per pixel né
      * comprimere su file. Qui non si chiede mai quella configurazione, e la nota sta qui
@@ -194,24 +222,27 @@ class AnimatedGif private constructor(
      */
     private class Pool : GifDecoder.BitmapProvider {
 
-        private var spare: Bitmap? = null
+        private val spare = ArrayDeque<Bitmap>(SPARE)
 
         override fun obtain(width: Int, height: Int, config: Bitmap.Config): Bitmap {
-            val kept = spare
-            if (kept != null && !kept.isRecycled &&
-                kept.width == width && kept.height == height && kept.config == config
-            ) {
-                spare = null
+            val kept = spare.firstOrNull {
+                !it.isRecycled && it.width == width && it.height == height && it.config == config
+            }
+            if (kept != null) {
+                spare.remove(kept)
                 // ⚠️ Si azzera prima di ridarlo: il decodificatore disegna una toppa sopra
                 // quello che trova, e quello che trova sarebbe il fotogramma di due giri fa.
                 kept.eraseColor(0)
                 return kept
             }
+            DrawWork.canvases++
             return Bitmap.createBitmap(width, height, config)
         }
 
         override fun release(bitmap: Bitmap) {
-            spare = bitmap
+            if (spare.any { it === bitmap }) return
+            if (spare.size == SPARE) spare.removeFirst()
+            spare.addLast(bitmap)
         }
 
         override fun obtainByteArray(size: Int): ByteArray = ByteArray(size)

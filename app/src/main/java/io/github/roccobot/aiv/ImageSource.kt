@@ -10,6 +10,7 @@ import android.util.Size
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import kotlin.math.max
+import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
@@ -434,24 +435,29 @@ object ImageSource {
         ImageDecoder.decodeBitmap(
             ImageDecoder.createSource(context.contentResolver, uri)
         ) { decoder, info, _ ->
+            /*
+             * ⚠️⚠️ **Il lato lungo arriva esattamente a [box], dalla `6.28`** (rilievo A4 della
+             * revisione della 6.25): il campionamento a potenze di due lasciava il lato fra [box] e
+             * quasi il doppio, cioè un'anteprima dell'editor fino a 3.199 pixel, e ogni lavoro per
+             * pixel dell'editor costava fino a quattro volte quanto dicono commenti e specifica.
+             * `ImageDecoder` scala a qualunque misura.
+             */
             if (box > 0) {
-                val long = max(info.size.width, info.size.height)
-                if (long > box) decoder.setTargetSampleSize(sampleFor(long, box))
+                val wide = info.size.width
+                val high = info.size.height
+                val long = max(wide, high)
+                if (long > box) {
+                    val k = box.toFloat() / long
+                    decoder.setTargetSize(
+                        (wide * k).roundToInt().coerceAtLeast(1),
+                        (high * k).roundToInt().coerceAtLeast(1)
+                    )
+                }
             }
             decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
             decoder.isMutableRequired = false
         }
     }.getOrNull() ?: rescue(context, uri, box)
-
-    /**
-     * Il campionamento per portare un lato lungo dentro un riquadro: una potenza di due, come
-     * `ImageDecoder` vuole.
-     */
-    private fun sampleFor(long: Int, box: Int): Int {
-        var step = 1
-        while (long / (step * 2) >= box) step *= 2
-        return step
-    }
 
     fun rescue(context: Context, uri: Uri, box: Int): Bitmap? {
         val bytes = try {

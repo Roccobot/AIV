@@ -377,10 +377,26 @@ internal fun sharpAsk(
  * due copie delle stesse tre righe darebbero un rattoppo al posto giusto sul palco e al posto
  * sbagliato dentro la lente. Con loro qui, il banco può misurarli senza un file vero.
  *
- * @property area lo stesso rettangolo in coordinate **viste**, cioè in pixel del file: serve a
- * riconoscere il pezzo che si ha già in mano.
+ * @property ask la richiesta da cui il pezzo è nato, con [healing] e [blurs] le correzioni e i
+ * vetri che porta già dipinti: servono a riconoscere il pezzo che si ha già in mano ([serves]).
  */
-internal class SharpPiece(val pixels: Bitmap, val area: Rect, val at: RectF) {
+internal class SharpPiece(
+    val pixels: Bitmap,
+    val ask: Sharpening.Read,
+    val at: RectF,
+    val healing: Healing.Plan = Healing.Plan.NONE,
+    val blurs: Drawing = Drawing()
+) {
+
+    /**
+     * Se questo pezzo è già la risposta a [next] con [healing] e [blurs].
+     *
+     * ⚠️⚠️ **È IL CONFRONTO CHE MANCAVA FINO ALLA `6.28`** (rilievo A2 della revisione della 6.25,
+     * voce C4 del rapporto): il palco chiede il pezzo alla fine di ogni gesto, anche un tocco secco
+     * che non ha mosso la vista, e ogni richiesta rileggeva dal file la stessa regione.
+     */
+    fun serves(next: Sharpening.Read, healing: Healing.Plan, blurs: Drawing): Boolean =
+        next == ask && healing == this.healing && blurs == this.blurs
 
     /**
      * Dove disegnare il pezzo, dato [view], cioè dove l'immagine **intera** è disegnata adesso.

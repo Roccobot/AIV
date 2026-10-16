@@ -3,8 +3,10 @@ package io.github.roccobot.aiv
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.graphics.RectF
+import androidx.compose.ui.geometry.Offset
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -200,9 +202,39 @@ class TasselloTest {
         }
         return SharpPiece(
             pixels = pixels,
-            area = Rect(1200, 1600, 3600, 3200),
+            ask = Sharpening.Read(Rect(1200, 1600, 3600, 3200), 1),
             at = RectF(0.2f, 0.4f, 0.6f, 0.8f)
         )
+    }
+
+    /**
+     * **Caso 9: il pezzo in mano risponde a una richiesta uguale, e a nessun'altra** (`6.28`, voce
+     * C4 del rapporto della revisione Setaccio).
+     *
+     * ⚠️ **Le richieste uguali si costruiscono da capo**, come le costruisce il palco alla fine di
+     * ogni gesto: un confronto per identità darebbe sempre falso, e il pezzo si rileggerebbe lo
+     * stesso. ⚠️ Una correzione o un vetro nuovi lo rendono vecchio anche a vista ferma.
+     */
+    @Test
+    fun `il pezzo in mano risponde alla stessa richiesta`() {
+        val tenuto = pezzo()
+        val uguale = Sharpening.Read(Rect(1200, 1600, 3600, 3200), 1)
+        assertTrue(tenuto.serves(uguale, Healing.Plan.NONE, Drawing()))
+        assertFalse(tenuto.serves(Sharpening.Read(Rect(1200, 1600, 3600, 3200), 2), Healing.Plan.NONE, Drawing()))
+        assertFalse(tenuto.serves(Sharpening.Read(Rect(1300, 1600, 3700, 3200), 1), Healing.Plan.NONE, Drawing()))
+        val vetro = Drawing(
+            listOf(
+                Mark(
+                    pen = Pen.PILL,
+                    points = listOf(Offset(0.1f, 0.1f), Offset(0.3f, 0.3f)),
+                    ink = 0xFFFFFFFF.toInt(),
+                    width = 0.01f,
+                    dashed = false,
+                    fill = null
+                )
+            )
+        )
+        assertFalse(tenuto.serves(uguale, Healing.Plan.NONE, vetro))
     }
 
     /**

@@ -81,8 +81,9 @@ class AnimatedWebp private constructor(
     /**
      * La tela su cui i fotogrammi si posano uno sopra l'altro.
      *
-     * ⚠️ **Una sola, riusata**: allocarne una per fotogramma vorrebbe dire una tela grande
-     * quanto l'immagine venti volte al secondo. Vedi la stessa scelta in `AnimatedGif.Pool`.
+     * ⚠️ **Una sola, riusata, e non è quella che si consegna** ([outputs]): allocarne una per
+     * fotogramma vorrebbe dire una tela grande quanto l'immagine venti volte al secondo. Vedi la
+     * stessa scelta in `AnimatedGif.Pool`.
      * ⚠️ **E allocata alla PRIMA richiesta, non all'apertura**: chi apre il file può
      * scoprire subito dopo che i fotogrammi sono uno solo e richiudere (vedi
      * `Animations.open`), e con una tela allocata nel costruttore avrebbe pagato
@@ -93,15 +94,45 @@ class AnimatedWebp private constructor(
     /** Quale fotogramma la tela sta mostrando adesso, e -1 se è vuota. */
     private var drawn: Int = -1
 
+    /**
+     * Le due tele che si consegnano a turno, e quale delle due è in mostra.
+     *
+     * ⚠️⚠️ **DUE TELE D'USCITA, DALLA `6.28`** (rilievo C14 della revisione della 6.25): fino ad
+     * allora si consegnava la tela della pila stessa, e il fotogramma dopo la riscriveva su
+     * `Dispatchers.Default` mentre il disegno poteva starla leggendo, durante una pizzicata che
+     * ridisegna a ogni quadro. La pila si compone su [canvasBitmap], che nessuno vede, e si copia
+     * nella tela che non è in mostra (misurato in `TeleWebpTest`).
+     */
+    private val outputs = arrayOfNulls<Bitmap>(2)
+    private var shown = -1
+
+    /**
+     * La tela riusata in cui si decodifica una toppa, grande quanto l'immagine.
+     *
+     * ⚠️ **Dalla `6.28`** (rilievo C14): fino ad allora ogni toppa era una tela nuova, decodificata
+     * e poi riciclata, cioè un'allocazione per fotogramma che il serbatoio della GIF evita.
+     */
+    private var patch: Bitmap? = null
+
     override fun current(): Bitmap? = runCatching {
         val tela = canvasBitmap
-            ?: Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).also {
+            ?: newCanvas().also {
                 canvasBitmap = it
                 drawn = -1
             }
-        if (drawn != index) compose(tela)
-        tela
+        if (drawn == index && shown >= 0) return@runCatching outputs[shown]
+        compose(tela)
+        val next = if (shown == 0) 1 else 0
+        val out = outputs[next] ?: newCanvas().also { outputs[next] = it }
+        Canvas(out).drawBitmap(tela, 0f, 0f, COPY)
+        shown = next
+        out
     }.getOrNull()
+
+    private fun newCanvas(): Bitmap {
+        DrawWork.canvases++
+        return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    }
 
     override fun advance() {
         index = if (index + 1 >= frames.size) 0 else index + 1
@@ -118,9 +149,17 @@ class AnimatedWebp private constructor(
         index = target.coerceIn(0, frames.size - 1)
     }
 
+    /**
+     * ⚠️ **Le due tele d'uscita NON si riciclano**: una può essere ancora in mano al disegno, e
+     * riciclarla là vorrebbe dire andare in errore. Se ne occupa il raccoglitore.
+     */
     override fun close() {
         canvasBitmap?.takeIf { !it.isRecycled }?.recycle()
         canvasBitmap = null
+        patch?.takeIf { !it.isRecycled }?.recycle()
+        patch = null
+        outputs.fill(null)
+        shown = -1
     }
 
     /**
@@ -161,7 +200,7 @@ class AnimatedWebp private constructor(
                 )
             }
             canvas.drawBitmap(piece, frame.x.toFloat(), frame.y.toFloat(), null)
-            piece.recycle()
+            if (piece !== patch) piece.recycle()
         }
         drawn = index
     }
@@ -183,7 +222,15 @@ class AnimatedWebp private constructor(
         val body = bytes.copyOfRange(frame.at, frame.at + frame.size)
         val alpha = body.size >= 4 && String(body, 0, 4, Charsets.US_ASCII) == "ALPH"
         val out = if (alpha) wrapWithAlpha(body, frame) else wrap(body)
-        BitmapFactory.decodeByteArray(out, 0, out.size)
+        val riuso = patch ?: newCanvas().also { patch = it }
+        val opzioni = BitmapFactory.Options().apply {
+            inMutable = true
+            inBitmap = riuso
+        }
+        // ⚠️ Se il sistema rifiuta la tela riusata (una configurazione diversa), si decodifica in
+        // una tela nuova: un'allocazione in più, non un fotogramma mancante.
+        runCatching { BitmapFactory.decodeByteArray(out, 0, out.size, opzioni) }.getOrNull()
+            ?: BitmapFactory.decodeByteArray(out, 0, out.size).also { DrawWork.canvases++ }
     }.getOrNull()
 
     /** `RIFF` + lunghezza + `WEBP` + i dati: il file WebP più piccolo che esista. */
@@ -218,6 +265,11 @@ class AnimatedWebp private constructor(
         /** Il pennello che vuota un riquadro invece di dipingerlo. */
         private val CLEAR = Paint().apply {
             xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+        }
+
+        /** Il pennello che copia la pila in una tela d'uscita, trasparenza compresa. */
+        private val COPY = Paint().apply {
+            xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC)
         }
 
         /**

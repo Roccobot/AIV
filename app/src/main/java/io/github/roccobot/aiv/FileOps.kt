@@ -59,7 +59,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.withContext
 
 /**
- * L'ambito dei lavori sui file (copia, sposta, cestino, rinomina, eliminazione), dalla `6.27`.
+ * L'ambito dei lavori sui file (copia, sposta, cestino, rinomina, eliminazione), dalla `6.27`; dalla
+ * `6.28` anche l'importazione e l'esportazione degli stili.
  *
  * ⚠️⚠️ **VIVE QUANTO IL PROCESSO, NON QUANTO LA SCHERMATA** (rilievo E10 della revisione della
  * 6.25): fino alla `6.26` i quattro posti che lanciano un lavoro usavano l'ambito della loro

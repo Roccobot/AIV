@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
+import android.util.LruCache
 import java.io.File
 
 /**
@@ -160,13 +161,29 @@ object AvifCache {
     /** La cartella in cui vivono le miniature, che esista o no. */
     private fun dirOf(context: Context) = File(context.cacheDir, DIR)
 
-    /** Quando il file è stato scritto l'ultima volta, e `null` se non si sa. */
+    /**
+     * Quando il file è stato scritto l'ultima volta, e `null` se non si sa.
+     *
+     * ⚠️⚠️ **IL PERCORSO SI RICORDA, DALLA `6.28`** (rilievo C10 della revisione della 6.25): ogni
+     * miniatura che manca nella memoria di Coil chiedeva il percorso al MediaStore, cioè una
+     * domanda a un altro processo per riquadro anche per i JPEG, che su disco non hanno mai niente
+     * (misurato in `PercorsoMiniaturaTest`). La data invece si legge sempre dal file, quindi una
+     * riscrittura cambia la chiave come prima; un percorso ricordato che non porta più a un file
+     * (una rinomina, uno spostamento) si richiede.
+     */
     private fun stamp(context: Context, uri: Uri): Long? {
-        FileTree.fileOf(context, uri)?.let { file ->
-            return file.lastModified().takeIf { it > 0L }
-        }
-        return null
+        val chiave = uri.toString()
+        val noto = paths.get(chiave)?.let(::File)?.takeIf { it.isFile }
+        val file = noto ?: FileTree.fileOf(context, uri)?.also { paths.put(chiave, it.absolutePath) }
+            ?: run {
+                paths.remove(chiave)
+                return null
+            }
+        return file.lastModified().takeIf { it > 0L }
     }
+
+    /** I percorsi già chiesti al MediaStore, per indirizzo: vedi [stamp]. */
+    private val paths = LruCache<String, String>(PATHS)
 
     /**
      * Butta le miniature più vecchie quando la cartella supera il tetto.
@@ -190,6 +207,9 @@ object AvifCache {
     private const val QUALITY = 88
     private const val KEEP = 30_000
     private const val PRUNE_EVERY = 100
+
+    /** Quanti percorsi si ricordano: qualche griglia piena, poche decine di kilobyte. */
+    private const val PATHS = 2048
 
     /** Quante miniature si sono scritte in questo processo, per [PRUNE_EVERY]. */
     private val writes = java.util.concurrent.atomic.AtomicInteger()

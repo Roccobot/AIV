@@ -57,6 +57,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -316,8 +317,17 @@ fun Modifier.buttonFill(backdrop: Backdrop?, colour: Color, shape: Shape): Modif
             // shows (answer B3: *due colori memorizzabili*).
             val base = tune.colourFor(light)?.let { Color(it).copy(alpha = colour.alpha) } ?: colour
             val tint = base.copy(alpha = (base.alpha * ink).coerceIn(0f, 1f))
-            val radiusDp = tune.radius.dp
+            val radiusPx = with(LocalDensity.current) { tune.radius.dp.toPx() }
             val saturation = tune.intensity / 100f
+            /*
+             * ⚠️ **The effect is built once per pair of sliders, since 6.28** (finding F38 of the
+             * 6.25 review): it was built inside the drawing, which runs at every frame in which
+             * the content under the glass moves, so a scroll built one per frame (ten places, ten
+             * effects, measured in `VetroTest`). The recording still follows the content.
+             */
+            val effect = remember(radiusPx, saturation) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) glassEffect(radiusPx, saturation) else null
+            }
             /*
              * ⚠️⚠️ **'SCOSTAMENTO' HAS NO SIGN, SINCE 4.25, AND IT IS HIS CHOICE** (answer C2): it
              * moves the glass away from the page, so it darkens on the light theme and lightens on
@@ -339,15 +349,15 @@ fun Modifier.buttonFill(backdrop: Backdrop?, colour: Color, shape: Shape): Modif
                             is Outline.Generic -> addPath(outline.path)
                         }
                     }
-                    if (backdrop != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    if (backdrop != null && effect != null) {
                         /*
                          * ⚠️ **The recording is wider than the pill by twice the radius**, and
                          * drawn back shifted by the same amount: the blur reads the neighbours of
                          * every pixel, and at the pill's edge those would be transparent, which
                          * draws a dark rim the DF's glass does not have.
                          */
-                        val edge = (radiusDp.toPx() * 2).roundToInt()
-                        blurred.renderEffect = glassEffect(radiusDp.toPx(), saturation)
+                        val edge = (radiusPx * 2).roundToInt()
+                        blurred.renderEffect = effect
                         blurred.topLeft = IntOffset(-edge, -edge)
                         blurred.record(
                             size = IntSize(size.width.roundToInt() + edge * 2, size.height.roundToInt() + edge * 2)
@@ -382,6 +392,7 @@ fun Modifier.buttonFill(backdrop: Backdrop?, colour: Color, shape: Shape): Modif
 /** The blur plus the saturation, in that order, as the DF's `backdrop-filter` writes them. */
 @RequiresApi(Build.VERSION_CODES.S)
 private fun glassEffect(radius: Float, saturation: Float): androidx.compose.ui.graphics.RenderEffect {
+    DrawWork.glass++
     // ⚠️ A radius of zero is no blur at all, and `createBlurEffect` refuses it.
     val colour = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(saturation) })
     return if (radius <= 0f) {

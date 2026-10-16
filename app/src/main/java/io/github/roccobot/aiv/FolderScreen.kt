@@ -234,6 +234,7 @@ fun FolderScreen(
      * something the stream depends on has changed (`ViewerViewModel.readFeed`).
      */
     onFeedRead: (Boolean) -> Unit,
+    onFeedLeft: () -> Unit = {},
     /** A picture touched in the Feed: the stream and the position. */
     onFeedOpen: (List<Uri>, Int) -> Unit,
     /**
@@ -433,8 +434,10 @@ fun FolderScreen(
     // ⚠️ The Feed is read only when it is on screen: a home in the grid does not pay for a query on
     // every picture of the phone. Folders, date and 'Mostra nascoste' are keys because they change
     // the stream (the last one from 6.03, his request).
+    // ⚠️ And leaving it says so (since 6.28, finding D16): the model stops reading it again at every
+    // news from the disk.
     LaunchedEffect(granted, view, forStart, selection, feedDate, peeking) {
-        if (view == FolderView.FEED && !forStart) onFeedRead(granted)
+        if (view == FolderView.FEED && !forStart) onFeedRead(granted) else onFeedLeft()
     }
 
     // ⚠️ Il filtro sta QUI e non dentro `Folder.buckets`, che resta un elenco puro: le
@@ -2402,6 +2405,9 @@ private fun FeedGrid(
         )
     }
     LaunchedEffect(dragAt != null, page) {
+        // ⚠️ The cell of the last round, since 6.28 (finding D7): as in the grid, the selection is
+        // built again only when the finger reaches another cell.
+        var last = -1
         while (dragAt != null) {
             withFrameNanos { }
             val at = dragAt ?: break
@@ -2415,6 +2421,8 @@ private fun FeedGrid(
             }
             if (push != 0f) state.scrollBy(push.coerceIn(-1f, 1f) * speedPx)
             val hit = state.feedIndexAt(at, keys) ?: continue
+            if (hit == last) continue
+            last = hit
             choose(feedSpan(page.items, dragBase, from, hit, dragOff))
         }
     }

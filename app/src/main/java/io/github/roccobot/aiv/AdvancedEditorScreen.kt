@@ -1789,25 +1789,29 @@ private fun LookStage(
             sharp = null
             return@LaunchedEffect
         }
-        // Lo stesso pezzo che si ha già in mano: un gesto può finire dove era cominciato, e
-        // rileggerlo costerebbe una decodifica per niente.
-        // Applied patches can change while the viewport remains still.
+        /*
+         * Lo stesso pezzo che si ha già in mano: un gesto può finire dove era cominciato, e
+         * rileggerlo costerebbe una decodifica per niente. ⚠️ Fino alla `6.28` questa riga c'era e
+         * il confronto no (rilievo A2 della revisione della 6.25): ogni tocco rileggeva la regione.
+         * Le correzioni e i vetri fanno parte del confronto, perché cambiano a vista ferma.
+         */
+        val healing = look.healing
+        if (sharp?.serves(ask, healing, sfocature) == true) return@LaunchedEffect
         val tile = source.tile(ask.area, ask.sample) ?: return@LaunchedEffect
         val pezzo = RectF(
-            ask.area.left.toFloat()/source.width, ask.area.top.toFloat()/source.height,
-            ask.area.right.toFloat()/source.width, ask.area.bottom.toFloat()/source.height)
-        // ⚠️ The blur goes on the piece too (4.80), or zooming in would show the hidden area sharp.
-        val pixels = Draw.blurAreas(Healing.render(tile, look.healing, pezzo), sfocature, mine = true, at = pezzo)
-        sharp = SharpPiece(
-            pixels = pixels,
-            area = ask.area,
-            at = RectF(
-                ask.area.left.toFloat() / source.width,
-                ask.area.top.toFloat() / source.height,
-                ask.area.right.toFloat() / source.width,
-                ask.area.bottom.toFloat() / source.height
-            )
+            ask.area.left.toFloat() / source.width, ask.area.top.toFloat() / source.height,
+            ask.area.right.toFloat() / source.width, ask.area.bottom.toFloat() / source.height
         )
+        /*
+         * ⚠️ La sfocatura va anche sul pezzo (`4.80`), o ingrandendo si vedrebbe nitida la parte
+         * nascosta. ⚠️ **Fuori dal thread principale dalla `6.28`**: il corpo di questo effetto gira
+         * sul dispatcher della composizione, e la copia e la sfocatura di un pezzo grande quanto lo
+         * schermo bloccavano l'interfaccia.
+         */
+        val pixels = withContext(Dispatchers.Default) {
+            Draw.blurAreas(Healing.render(tile, healing, pezzo), sfocature, mine = true, at = pezzo)
+        }
+        sharp = SharpPiece(pixels = pixels, ask = ask, at = pezzo, healing = healing, blurs = sfocature)
     }
 
     /**
@@ -2710,8 +2714,9 @@ private fun LookStage(
                     // ⚠️ **Il via al pezzo nitido è qui e non dentro i rami**: la vista è ferma
                     // quando il gesto è finito, qualunque dei quattro fosse, e un gesto che non
                     // l'ha mossa affatto costa soltanto una richiesta che si riconosce già
-                    // soddisfatta.
-                    resting++
+                    // soddisfatta (`SharpPiece.serves`). ⚠️ Con la corsa del doppio tocco appena
+                    // partita la vista sta per cambiare, e il via lo dà lei quando finisce.
+                    if (ride?.isActive != true) resting++
                 }
             }
     ) {

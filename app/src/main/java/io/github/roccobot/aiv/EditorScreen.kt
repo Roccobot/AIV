@@ -58,6 +58,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -2401,8 +2402,12 @@ fun EditorPicker(
 ) {
     val context = LocalContext.current
     // ⚠️ Chiesto una volta sola: l'elenco viene dal `PackageManager`, cioè da una scansione
-    // delle app installate, e questa finestra si ridisegna a ogni tocco.
-    val others = remember { Editors.installed(context) }
+    // delle app installate, e questa finestra si ridisegna a ogni tocco. ⚠️ Fuori dal thread
+    // principale dalla `6.28` (rilievo B13): l'editor interno è in cima da subito, gli altri
+    // arrivano appena il sistema ha risposto.
+    val others by produceState(emptyList<Editors.Choice>()) {
+        value = withContext(Dispatchers.IO) { Editors.installed(context) }
+    }
     /*
      * ⚠️⚠️ **DUE FAMIGLIE SEPARATE E NON UN ELENCO SOLO, dalla 1.11**: le prime si dichiarano
      * editor ad Android e riscrivono la fotografia dov'è; le seconde ricevono una copia per

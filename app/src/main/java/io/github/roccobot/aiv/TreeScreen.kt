@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -464,21 +465,23 @@ private fun Spots(
     // soli media non è la sua posizione fra le righe, che comprendono anche le cartelle.
     val reels = remember(spots) { spots.filter { it.media } }
     val addresses = remember(reels) { reels.map { Uri.fromFile(it.file) } }
+    /*
+     * ⚠️ **L'indirizzo di ogni riga, una volta per elenco, dalla `6.28`** (rilievo D32 della
+     * revisione della 6.25): ogni riga cercava la propria posizione scorrendo tutto l'elenco e
+     * ricostruiva gli indirizzi delle due vicine, a ogni composizione, cioè un lavoro grande quanto
+     * la cartella per ogni riga disegnata. La posizione la dà `itemsIndexed`.
+     */
+    val rowUris = remember(spots) { spots.map { if (it.media) Uri.fromFile(it.file) else null } }
 
     LazyColumn(
         modifier = modifier,
         state = scroll,
         contentPadding = PaddingValues(bottom = BELOW_FAB)
     ) {
-        items(items = spots, key = { it.path }) { spot ->
-            val uri = if (spot.media) Uri.fromFile(spot.file) else null
+        itemsIndexed(items = spots, key = { _, it -> it.path }) { index, spot ->
+            val uri = rowUris.getOrNull(index)
             val selected = uri != null && uri in chosen
-            val index = spots.indexOf(spot)
-            fun mediaSelected(at: Int): Boolean {
-                if (at !in spots.indices) return false
-                val u = spots[at].takeIf { it.media }?.file?.let(Uri::fromFile) ?: return false
-                return u in chosen
-            }
+            fun mediaSelected(at: Int): Boolean = rowUris.getOrNull(at)?.let { it in chosen } == true
             // ⚠️ **Solo primo e ultimo del blocco** (giro 3.25-3.30, `3.27-01`): la
             // selezione consecutiva deve leggere come un unico rettangolo arrotondato.
             val roundTop = selected && !mediaSelected(index - 1)

@@ -183,7 +183,7 @@ half4 main(float2 p) {
  */
 internal class GrainedRamp(private val stops: List<Pair<Float, Float>>, private val peak: Float) {
     private val pittura = Paint()
-    private val grana: android.graphics.Shader? = grainShader()
+    private val grana: android.graphics.Shader? = grainShader().also { if (it != null) DrawWork.programs++ }
     private var maschera: android.graphics.Shader? = null
     private var altaMaschera = -1
     private var fatta: Rampa? = null
@@ -211,6 +211,7 @@ internal class GrainedRamp(private val stops: List<Pair<Float, Float>>, private 
         val rampa = Rampa(ink, from, to, right - left)
         if (rampa != fatta) {
             fatta = rampa
+            DrawWork.gradients++
             val pennello = Brush.verticalGradient(
                 colorStops = stops.map { (at, quanto) -> at to ink.copy(alpha = ink.alpha * quanto * peak) }
                     .toTypedArray(),
@@ -245,6 +246,25 @@ internal class GrainedRamp(private val stops: List<Pair<Float, Float>>, private 
         pittura.alpha = alpha * (if (grana == null && maschera != null) ink.alpha else 1f)
         scope.drawIntoCanvas { it.drawRect(left, top, right, bottom, pittura) }
     }
+}
+
+/**
+ * Il conto del lavoro di disegno che uno scorrimento può rifare, dalla `6.28`: quanti programmi del
+ * rumore si sono compilati, quante volte si è rifatto il gradiente di una rampa, quanti effetti
+ * del vetro si sono creati (`PhonePill.kt`), e quante maglie deformate ha costruito l'editor
+ * completo (`Geometry.kt`).
+ *
+ * ⚠️ **È la misura della sua scelta B1** (2026-10-16: le prestazioni si misurano contando le
+ * ricostruzioni per fotogramma sul banco, e si corregge solo il lavoro rifatto identico). La
+ * leggono `RampeTest`, `VetroTest` e `MagliaTest`, prima e dopo il lavoro ripetuto; costa quattro
+ * somme e nessuno la mostra.
+ */
+internal object DrawWork {
+    var programs = 0
+    var gradients = 0
+    var glass = 0
+    var meshes = 0
+    var canvases = 0
 }
 
 /** Il programma del rumore, oppure `null` sotto Android 13, dove `RuntimeShader` non c'è. */
