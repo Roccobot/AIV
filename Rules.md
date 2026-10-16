@@ -899,8 +899,9 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
 - ⚠️ **Un oggetto di processo scritto dopo `setContent` non arriva alla composizione a clock
   fermo**: in una prova la riga (per esempio di `Notices`) si mette prima di montare la scena, col
   clock fermo (`autoAdvance = false`), o `waitForIdle` la fa scadere.
-- ⚠️⚠️ **Una prova che fa leggere una cartella al modello monta `OmbraArchivio` o
-  `ArchivioAperto`**, anche se non guarda niente della memoria: `openGrid` legge in sottofondo, la
+- ⚠️⚠️ **Una prova che fa leggere una cartella al modello monta `OmbraArchivio`**, chiuso di serie
+  o aperto con `OmbraArchivio.granted = true` prima di montare la scena (dalla `6.30` le due
+  risposte sono un'ombra sola, scelta I1), anche se non guarda niente della memoria: `openGrid` legge in sottofondo, la
   lettura chiede `Environment.isExternalStorageManager()`, che Robolectric non copre, e senza
   l'ombra fallisce sul suo filo. L'errore non cade nella prova che l'ha causato, ma nella prima
   classe successiva che usa il banco di Compose: sui banchi della `6.20` sono cadute `AggiornaTest`

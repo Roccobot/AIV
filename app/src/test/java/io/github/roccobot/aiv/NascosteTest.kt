@@ -44,8 +44,14 @@ import org.robolectric.annotation.Config
  * chiede di fare.
  */
 @RunWith(AndroidJUnit4::class)
-@Config(shadows = [ArchivioAperto::class])
+@Config(shadows = [OmbraArchivio::class])
 class NascosteTest {
+
+    /** Il permesso sui file concesso: vedi [OmbraArchivio.granted]. */
+    @Before
+    fun archivioAperto() {
+        OmbraArchivio.granted = true
+    }
 
     @get:Rule
     val banco = createComposeRule()

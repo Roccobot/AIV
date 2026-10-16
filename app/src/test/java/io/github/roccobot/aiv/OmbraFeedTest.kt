@@ -43,8 +43,14 @@ import org.robolectric.annotation.GraphicsMode
  */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(shadows = [ArchivioAperto::class], qualifiers = "it-w393dp-h873dp")
+@Config(shadows = [OmbraArchivio::class], qualifiers = "it-w393dp-h873dp")
 class OmbraFeedTest {
+
+    /** Il permesso sui file concesso: vedi [OmbraArchivio.granted]. */
+    @Before
+    fun archivioAperto() {
+        OmbraArchivio.granted = true
+    }
 
     @get:Rule
     val banco = createComposeRule()

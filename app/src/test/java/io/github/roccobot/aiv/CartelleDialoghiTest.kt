@@ -19,8 +19,9 @@ class CartelleDialoghiTest {
     @get:Rule val scene = createComposeRule()
 
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `la schermata mostra solo autorizzate e non offre il prestito`() {
+        OmbraArchivio.granted = true
         runBlocking { Hint.COLUMNS.remember(ApplicationProvider.getApplicationContext()) }
         fun bucket(name: String) = Folder.Bucket(name.hashCode().toLong(), name, 1, 0, null, "/sdcard/$name")
         val selection = FolderSelection(FolderMode.INCLUDED, hidden = setOf("Private"), included = setOf("Camera"))
@@ -37,8 +38,9 @@ class CartelleDialoghiTest {
     }
 
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `il prestito della sola cartella non segna i discendenti`() {
+        OmbraArchivio.granted = true
         runBlocking { Hint.COLUMNS.remember(ApplicationProvider.getApplicationContext()) }
         fun bucket(name: String, path: String) = Folder.Bucket(name.hashCode().toLong(), name, 1, 0, null, path)
         scene.setContent { AivTheme(darkTheme = false) {

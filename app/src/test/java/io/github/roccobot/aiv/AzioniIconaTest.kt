@@ -32,12 +32,19 @@ import org.robolectric.shadows.ShadowEnvironment
  * `AzioniIconaPlayTest`): la cartella deve esistere e la selezione mostrarla, il percorso deve
  * essere dentro una memoria del telefono. Fino alla `6.28` le due prove vivevano in
  * `ScorciatoieTest` con un numero e un percorso inventati, che il controllo ora rifiuta; là
- * l'archivio è chiuso di proposito (`OmbraArchivio`), e senza archivio il banco non ha né cartelle
- * né memorie. Qui è aperto (`ArchivioAperto`), e un fornitore finto serve la cartella 42 `Camera`.
+ * l'archivio è chiuso di proposito (`OmbraArchivio` di serie), e senza archivio il banco non ha né
+ * cartelle né memorie. Qui è aperto (`OmbraArchivio.granted`), e un fornitore finto serve la
+ * cartella 42 `Camera`.
  */
 @RunWith(AndroidJUnit4::class)
-@Config(shadows = [ArchivioAperto::class])
+@Config(shadows = [OmbraArchivio::class])
 class AzioniIconaTest {
+
+    /** Il permesso sui file concesso: vedi [OmbraArchivio.granted]. */
+    @Before
+    fun archivioAperto() {
+        OmbraArchivio.granted = true
+    }
 
     /** I modelli costruiti dalle prove, chiusi alla fine di ognuna (`ModelliChiusi`). */
     @get:Rule

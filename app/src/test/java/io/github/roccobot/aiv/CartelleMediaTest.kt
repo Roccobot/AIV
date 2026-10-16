@@ -17,8 +17,14 @@ import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowContentResolver
 
 @RunWith(AndroidJUnit4::class)
-@Config(shadows = [ArchivioAperto::class])
+@Config(shadows = [OmbraArchivio::class])
 class CartelleMediaTest {
+
+    /** Il permesso sui file concesso: vedi [OmbraArchivio.granted]. */
+    @Before
+    fun archivioAperto() {
+        OmbraArchivio.granted = true
+    }
     private val app = ApplicationProvider.getApplicationContext<android.content.Context>()
 
     @Before fun provider() {
