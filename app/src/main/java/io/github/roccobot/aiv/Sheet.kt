@@ -54,7 +54,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -110,7 +109,7 @@ fun Sheet(
      * Sul tablet, da 600 dp, la scheda non supera [Adaptive.sheetMaxWidth] ed è centrata in basso
      * (mockup `help`, `.dialog-preview`); sul telefono è a tutta larghezza.
      */
-    val sheetMax = Adaptive.sheetMaxWidth(LocalConfiguration.current.screenWidthDp)
+    val sheetMax = Adaptive.sheetMaxWidth(windowWidthDp())
 
     Dialog(
         onDismissRequest = chiudi,

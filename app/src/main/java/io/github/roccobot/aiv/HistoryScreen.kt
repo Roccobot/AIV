@@ -3,7 +3,6 @@ package io.github.roccobot.aiv
 import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
@@ -62,7 +61,7 @@ fun HistoryScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
         value = History.batches(context)
     }
 
-    val widthDp = LocalConfiguration.current.screenWidthDp
+    val widthDp = windowWidthDp()
     val dual = Adaptive.sideAvailable(widthDp)
 
     Column(modifier = modifier.fillMaxSize().safeDrawingPadding()) {

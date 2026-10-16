@@ -32,7 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -213,7 +212,7 @@ fun ResizeDialog(
 
     // Da 1.024 dp parametri e risultato sono affiancati (mockup `resize`), e la finestra si
     // allarga a [Adaptive.dialogBesideMaxWidth]; sotto restano in colonna.
-    val widthDp = LocalConfiguration.current.screenWidthDp
+    val widthDp = windowWidthDp()
     val beside = Adaptive.previewBeside(widthDp)
     val dialogW = if (beside) Adaptive.dialogBesideMaxWidth else Adaptive.dialogMaxWidth
     val previewOnStart = LocalPadLook.current.hand == Hand.RIGHT

@@ -53,7 +53,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -166,7 +165,7 @@ fun MarkPage(settings: Settings, onChange: (Settings) -> Unit) {
      * Da 1.024 dp i parametri sono accanto al riquadro (mockup `resize`), dal lato che segue
      * [Hand]; sotto restano in colonna.
      */
-    val widthDp = LocalConfiguration.current.screenWidthDp
+    val widthDp = windowWidthDp()
     val beside = Adaptive.previewBeside(widthDp)
     val previewOnStart = LocalPadLook.current.hand == Hand.RIGHT
 

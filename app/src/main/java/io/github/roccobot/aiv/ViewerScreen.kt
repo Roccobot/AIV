@@ -121,7 +121,6 @@ import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalDensity
@@ -327,7 +326,7 @@ fun ViewerScreen(
      * `rememberSaveable(sideDefaultOpen)` riparte al cambio di fascia: ruotando in verticale il
      * pannello torna chiuso.
      */
-    val widthDp = LocalConfiguration.current.screenWidthDp
+    val widthDp = windowWidthDp()
     val sideAvailable = Adaptive.sideAvailable(widthDp)
     val sideDefaultOpen = Adaptive.sideDefaultOpen(widthDp)
     var sideOpen by rememberSaveable(sideDefaultOpen) { mutableStateOf(sideDefaultOpen) }
@@ -735,7 +734,7 @@ fun ViewerScreen(
      * ⚠️ L'attesa vale per l'anteprima e per l'immagine, non per un filmato né per un errore: là
      * la barra non compare, e aspettarla lascerebbe la schermata vuota per sempre.
      */
-    val wideView = LocalConfiguration.current.let { it.screenWidthDp > it.screenHeightDp }
+    val wideView = windowWidthDp() > windowHeightDp()
     val spaceReady = !info.visible ||
         (info.height > 0f && (!wideView || info.pieces.isNotEmpty()))
     LaunchedEffect(reserveTarget, spaceReady) {

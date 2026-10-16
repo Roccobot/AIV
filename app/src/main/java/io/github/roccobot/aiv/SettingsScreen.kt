@@ -230,7 +230,7 @@ fun SettingsScreen(
      * Il salto dall'indice svuota la pila e apre la pagina, così sul tablet si cambia sezione
      * senza risalire; Indietro dentro la pagina usa la pila come sul telefono.
      */
-    val widthDp = LocalConfiguration.current.screenWidthDp
+    val widthDp = windowWidthDp()
     val dual = Adaptive.sideAvailable(widthDp)
     fun jump(target: Page) {
         if (query.isNotBlank()) {

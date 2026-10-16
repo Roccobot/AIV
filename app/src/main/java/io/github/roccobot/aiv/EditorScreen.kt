@@ -77,7 +77,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -1928,7 +1927,7 @@ fun EditorPicker(
         text = {
             // [Modifier.lowered] limita la larghezza; il tetto sull'altezza fa scorrere l'elenco
             // senza spingere i tasti fuori schermo (mockup `help`).
-            val pickMaxH = (LocalConfiguration.current.screenHeightDp * 0.75f).dp
+            val pickMaxH = (windowHeightDp() * 0.75f).dp
             Column(
                 modifier = Modifier
                     .heightIn(max = pickMaxH)

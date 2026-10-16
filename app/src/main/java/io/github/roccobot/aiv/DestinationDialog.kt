@@ -47,7 +47,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -165,9 +164,7 @@ fun DestinationDialog(
     // Sul tablet, da 600 dp, il foglio non supera [Adaptive.destinationMaxWidth] ed è centrato,
     // come nel mockup di Copia o sposta; sul telefono è a tutto schermo. I dialoghi corti usano
     // [Centred] con [Adaptive.dialogMaxWidth].
-    val destMaxW = Adaptive.destinationMaxWidth(
-        LocalConfiguration.current.screenWidthDp
-    )
+    val destMaxW = Adaptive.destinationMaxWidth(windowWidthDp())
     Dialog(
         onDismissRequest = onDismiss,
         // [fullWindow]: qui c'è un elenco da scorrere e un `safeDrawingPadding()`, e il perché

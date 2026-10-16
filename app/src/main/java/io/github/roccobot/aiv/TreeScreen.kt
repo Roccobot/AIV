@@ -54,7 +54,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
@@ -217,7 +216,7 @@ fun TreeList(
                      * Da 600 dp due colonne (modello `system` dell'utente): le cartelle a lato e
                      * i file nello spazio principale. Sul telefono un elenco solo.
                      */
-                    val widthDp = LocalConfiguration.current.screenWidthDp
+                    val widthDp = windowWidthDp()
                     val dual = Adaptive.sideAvailable(widthDp)
                     val all = spots!!
                     if (dual) {
