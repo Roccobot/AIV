@@ -1544,6 +1544,27 @@ def check(path):
             expect(notes_card.locator('img')).to_have_count(1)
             notes_card.dispatch_event('drop', {'dataTransfer': transfer})
             expect(notes_card.locator('img')).to_have_count(2)
+            # 6.29 (H14): a pasted JPEG and a pasted GIF stay as they are, each with a name of its
+            # own; until 6.28 both became a PNG called clipboard.png.
+            for count, kind in [(3, 'jpeg'), (4, 'gif')]:
+                notes_card.locator('.rich-editor').first.evaluate('''async (box, kind) => {
+                    let file;
+                    if (kind === 'jpeg') {
+                        const canvas = document.createElement('canvas'); canvas.width = 4; canvas.height = 4;
+                        canvas.getContext('2d').fillRect(0, 0, 4, 4);
+                        file = new File([await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'))], 'image.jpg', {type: 'image/jpeg'});
+                    } else file = new File([Uint8Array.from(atob('R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=='), c => c.charCodeAt(0))], 'image.gif', {type: 'image/gif'});
+                    const data = new DataTransfer(); data.items.add(file);
+                    box.focus();
+                    box.dispatchEvent(new ClipboardEvent('paste', {bubbles: true, cancelable: true, clipboardData: data}));
+                }''', kind)
+                expect(notes_card.locator('img')).to_have_count(count)
+            pasted = page.evaluate('draft.extra.images.slice(-2).map(image => [image.name, image.type])')
+            assert pasted == [['appunti-1.jpg', 'image/jpeg'], ['appunti-2.gif', 'image/gif']], pasted
+            # Out again, so the counts further down stay the ones they were written for.
+            for count in [3, 2]:
+                notes_card.locator('.image-list figure').last.get_by_role('button', name='Elimina', exact=True).click()
+                expect(notes_card.locator('img')).to_have_count(count)
             notes_card.locator('.images').set_input_files({'name': 'notes.zip', 'mimeType': 'application/x-zip-compressed', 'buffer': archive.read_bytes()})
             expect(notes_card.locator('.zip-download')).to_have_count(1)
             zip_transfer = page.evaluate_handle('''bytes => {

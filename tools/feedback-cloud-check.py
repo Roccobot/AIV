@@ -91,13 +91,16 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     expect(first.locator('#saved')).to_contain_text('Salvato nel cloud')
     legacy=Path(temporary)/'legacy.json'
     legacy.write_text(json.dumps({'schema':1,'project':'AIV','version':'3.24','installed':'3.24',
-                                 'device':'Telefono precedente','notes':'','entries':{},'decisions':{},'extra':{'images':[]}}))
+                                 'device':'Telefono precedente','notes':'','entries':{},'decisions':{},'extra':{'images':[]},
+                                 'completed':'2026-10-01T10:00:00.000Z'}))
     with first.expect_file_chooser() as chooser:
         first.locator('#extra-section .file-button').click()
     chooser.value.set_files(str(legacy))
     expect(first.locator('#device')).to_have_value('Telefono precedente')
     expect(first.locator('#tablet')).to_have_value('')
     expect(first.locator('#saved')).to_contain_text('Salvato nel cloud')
+    # 6.29 (H17): a JSON exported after 'Invia' does not bring the send with it.
+    assert first.evaluate('fetch("/api/feedback").then(response=>response.json()).then(draft=>draft.completed)') is None
     # The devices change in a modal since 2026-10-06: OK writes both.
     first.locator('#devices-edit').click()
     first.locator('#device').fill('Telefono di prova, Android 13')

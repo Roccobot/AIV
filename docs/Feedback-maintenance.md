@@ -386,6 +386,10 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
 - Allegati mediante selettore e trascinamento nelle verifiche e in Altro:
   PNG, JPG, WebP, GIF, SVG e ZIP. Originali interi, nomi conservati, ZIP scaricabili.
   Limiti attuali: 8 MB per file, 20 MB totali, 30 allegati per riquadro.
+- **Un'immagine incollata resta com'è, dalla 6.29**: PNG, JPEG, WebP e GIF entrano così come
+  sono negli appunti, gli altri formati diventano PNG; ognuna si chiama `appunti-N` col primo
+  numero libero del riquadro. Fino alla 6.28 diventavano tutte un PNG chiamato `clipboard.png`.
+  Lo presidia `tools/feedback-interactive-check.py`.
 - ⚠️ **Un allegato si rinomina e si cita** (richiesta dell'utente, 2026-10-05):
   - `Rinomina` cambia il solo `name`, dentro la scheda: il campo contiene il nome senza
     estensione, l'estensione resta accanto e non si modifica, `Invio` o l'uscita dal campo

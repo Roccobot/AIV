@@ -534,7 +534,14 @@ async function decodeClipboardImage(source) {
     image.src = url;
   });
 }
-async function clipboardImageAsPng(event) {
+/*
+ * An image pasted into a card, since 6.29 (H14 of the 6.25 review): a file of a type the page takes
+ * is attached as it is, so a JPEG stays light and a GIF keeps moving; only the other formats are
+ * redrawn as PNG. Each one is named 'appunti-N' with the next number free in its card: until 6.28
+ * all of them were 'clipboard.png', and a click on one wrote into the comment a name that was the
+ * name of every other.
+ */
+async function clipboardImage(event, card) {
   const data = event.clipboardData;
   if (!data) return null;
   const item = Array.from(data.items || []).find(candidate =>
@@ -542,6 +549,10 @@ async function clipboardImageAsPng(event) {
   const source = item?.getAsFile?.() ||
     Array.from(data.files || []).find(file => /^image\//i.test(file.type));
   if (!source) return null;
+  const taken = attachmentEntry(card).images.map(image => /^appunti-(\d+)\./.exec(image.name)?.[1]).filter(Boolean).map(Number);
+  const name = extension => `appunti-${Math.max(0, ...taken) + 1}.${extension}`;
+  const kept = {"image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "image/gif": "gif"}[source.type.toLowerCase()];
+  if (kept) return new File([source], name(kept), {type: source.type.toLowerCase(), lastModified: Date.now()});
   const image = await decodeClipboardImage(source);
   const width = image.width || image.naturalWidth;
   const height = image.height || image.naturalHeight;
@@ -555,7 +566,7 @@ async function clipboardImageAsPng(event) {
   image.close?.();
   const png = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
   if (!png) throw Error("Impossibile convertire l'immagine in PNG.");
-  return new File([png], "clipboard.png", {type: "image/png", lastModified: Date.now()});
+  return new File([png], name("png"), {type: "image/png", lastModified: Date.now()});
 }
 function attachmentCardForPaste(target) {
   const card = target.closest?.(".test, .extra");
@@ -573,7 +584,7 @@ window.feedbackPasteImage = (event, target) => {
     Array.from(data.files || []).some(file => /^image\//i.test(file.type)));
   if (!card || !hasImage) return false;
   event.preventDefault();
-  clipboardImageAsPng(event)
+  clipboardImage(event, card)
     .then(file => attachFiles(card, [file]))
     .catch(error => report(error.message, true));
   return true;
@@ -926,6 +937,9 @@ async function importFile(input) {
       if (raw?.extra) raw.extra.images = attach(raw.extra.images);
     } else raw = JSON.parse(await file.text());
     draft = validate(raw);
+    // An import is a save, and a save alone never sends the round (6.29, H17): a JSON exported
+    // right after 'Invia' would otherwise put a send in the history that nobody made.
+    draft.completed = null;
     revision++;
     hydrate();
     await save();
