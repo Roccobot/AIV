@@ -506,7 +506,6 @@ private class SystemThumbnailFetcher(
          * ⚠️ **I filmati e i JPEG non cambiano strada**: quelli non portano trasparenza, e
          * per loro la miniatura di sistema resta la cosa giusta.
          */
-        if (seeThrough(options.context, uri)) return@withContext null
 
         /*
          * ⚠️⚠️ **IL BMP NON SI CHIEDE AL SISTEMA, DALLA 1.45, PERCHÉ LO RESTITUIVA A METÀ**
@@ -527,7 +526,6 @@ private class SystemThumbnailFetcher(
          * nuova è sua e più recente: *dato che il supporto è gratis, cerchiamo di far sì che
          * anche l'anteprima sia creata correttamente*.
          */
-        if (isBmp(options.context, uri)) return@withContext null
 
         /*
          * ⚠️⚠️ **HEIC/HEIF NON SI CHIEDONO AL SISTEMA, DALLA `3.40`** (flash colori in
@@ -536,8 +534,11 @@ private class SystemThumbnailFetcher(
          * e a fine animazione di pagina i neutri saltavano al vivido. Tirarsi indietro manda
          * la richiesta alla decodifica Coil (stesso percorso colore della foto piena), e
          * [KeepingDecoderFactory] tiene il risultato su disco dalla prima volta.
+         *
+         * ⚠️ **Le tre prove qui sopra, in quest'ordine, vivono in [declines] dalla `6.28`**, che
+         * chiede il tipo al MediaStore una volta sola invece di tre (rilievo D22).
          */
-        if (isHeic(options.context, uri)) return@withContext null
+        if (declines(options.context, uri)) return@withContext null
 
         // ⚠️⚠️ L'ANNULLAMENTO È VERO, ed è metà della fluidità: scorrendo in fretta Coil
         // annulla le richieste dei riquadri usciti dallo schermo, e senza questo aggancio
@@ -999,12 +1000,7 @@ private class SvgThumbnailFactory : Decoder.Factory {
  * decodificatore, che sta più avanti nel registro. Toglierli dall'elenco renderebbe la
  * risposta di questa funzione una mezza verità da tenere a mente.
  */
-private fun seeThrough(context: Context, uri: AndroidUri): Boolean {
-    val mime = if (uri.scheme?.lowercase() == "content") {
-        runCatching { context.contentResolver.getType(uri) }.getOrNull()?.lowercase()
-    } else {
-        null
-    }
+private fun seeThrough(context: Context, uri: AndroidUri, mime: String?): Boolean {
     val forma = when {
         mime != null -> SEE_THROUGH_MIME[mime]
         else -> {
@@ -1136,11 +1132,8 @@ private fun fourcc(testa: ByteArray, cerca: String): Boolean? {
  * quello che si vuole comunque; un file chiamato `.bmp` che non lo è la decodifica normale lo
  * apre uguale.
  */
-private fun isBmp(context: Context, uri: AndroidUri): Boolean {
-    if (uri.scheme?.lowercase() == "content") {
-        val mime = runCatching { context.contentResolver.getType(uri) }.getOrNull()?.lowercase()
-        if (mime != null) return mime == "image/bmp"
-    }
+private fun isBmp(uri: AndroidUri, mime: String?): Boolean {
+    if (mime != null) return mime == "image/bmp"
     return uri.lastPathSegment?.lowercase()?.endsWith(".bmp") == true
 }
 
@@ -1150,16 +1143,31 @@ private fun isBmp(context: Context, uri: AndroidUri): Boolean {
  * ⚠️ **Il MIME puo mancare** su `file://` e su certi provider: l'estensione copre quel caso.
  * HEIF e HEIC condividono il contenitore; entrambi passano da [ImageDecoder] con ICC.
  */
-private fun isHeic(context: Context, uri: AndroidUri): Boolean {
-    if (uri.scheme?.lowercase() == "content") {
-        val mime = runCatching { context.contentResolver.getType(uri) }.getOrNull()?.lowercase()
-        if (mime != null) {
-            return mime == "image/heic" || mime == "image/heif" || mime == "image/heic-sequence" ||
-                mime == "image/heif-sequence"
-        }
+private fun isHeic(uri: AndroidUri, mime: String?): Boolean {
+    if (mime != null) {
+        return mime == "image/heic" || mime == "image/heif" || mime == "image/heic-sequence" ||
+            mime == "image/heif-sequence"
     }
     val name = uri.lastPathSegment?.lowercase() ?: return false
     return name.endsWith(".heic") || name.endsWith(".heif")
+}
+
+/**
+ * Se la miniatura di [uri] va fatta in casa invece di chiederla al sistema: trasparenza vera
+ * ([seeThrough]), BMP ([isBmp]) o HEIC ([isHeic]), in quest'ordine.
+ *
+ * ⚠️ **Il tipo si chiede al provider UNA volta, dalla `6.28`** (rilievo D22 della revisione della
+ * 6.25): ognuna delle tre prove lo chiedeva per conto suo, cioè tre domande al processo del
+ * MediaStore per ogni riquadro che entra in vista (misurato in `TipoMiniaturaTest`). Su un
+ * `file://` il tipo non lo dichiara nessuno, e le tre prove guardano il nome.
+ */
+internal fun declines(context: Context, uri: AndroidUri): Boolean {
+    val mime = if (uri.scheme?.lowercase() == "content") {
+        runCatching { context.contentResolver.getType(uri) }.getOrNull()?.lowercase()
+    } else {
+        null
+    }
+    return seeThrough(context, uri, mime) || isBmp(uri, mime) || isHeic(uri, mime)
 }
 
 /** Quanto si legge in testa a un file per sapere se dichiara l'alfa. Vedi [declaresAlpha]. */
