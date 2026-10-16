@@ -3,11 +3,11 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['cloud/feedback/**', 'publish/**', 'tools/feedback-cloud-check.py', 'tools/feedback-read*.mjs', '.github/workflows/feedback-cloud.yml']
+    paths: ['cloud/feedback/**', 'publish/**', 'tools/feedback-cloud-check.py', 'tools/feedback-check.py', 'tools/feedback-interactive-check.py', 'tools/feedback-build.py', 'tools/feedback-page.html.in', 'tools/feedback-read*.mjs', '.github/workflows/feedback-cloud.yml']
   # The local checks of the Worker also on a pull request, so a broken Worker is red before the
   # merge; the deploy job below never runs on one.
   pull_request:
-    paths: ['cloud/feedback/**', 'publish/**', 'tools/feedback-cloud-check.py', 'tools/feedback-read*.mjs', '.github/workflows/feedback-cloud.yml']
+    paths: ['cloud/feedback/**', 'publish/**', 'tools/feedback-cloud-check.py', 'tools/feedback-check.py', 'tools/feedback-interactive-check.py', 'tools/feedback-build.py', 'tools/feedback-page.html.in', 'tools/feedback-read*.mjs', '.github/workflows/feedback-cloud.yml']
 permissions:
   contents: read
 concurrency:
@@ -53,6 +53,13 @@ jobs:
             sleep 1
           done
           /tmp/aiv-cloud-tests/bin/python tools/feedback-cloud-check.py
+      # Since 6.29 (H33 of the 6.25 review) the check of the page is part of the gate of its
+      # deploy: before, it ran only when whoever published remembered step 4 of the guide.
+      # ⚠️ `feedback-build.py --check` is not here yet: the generator stops on Italian texts that
+      # have no label in the document, and the labels of 6.26-6.30 arrive with their cumulative
+      # document (`Filiera`), which adds the line.
+      - name: Verifica la pagina del DF
+        run: /tmp/aiv-cloud-tests/bin/python tools/feedback-check.py publish/feedback.html
   # ⚠️ Since 6.29 only the default branch goes to production: 'Run workflow' lets anyone pick a
   # branch, and the job hands that branch the real secrets.
   deploy:

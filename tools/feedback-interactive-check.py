@@ -22,7 +22,18 @@ def chromium():
     if found:
         return found
     cloud = Path('/opt/pw-browsers/chromium')
-    return str(cloud) if cloud.is_file() else None
+    if cloud.is_file():
+        return str(cloud)
+    # The third place, since 6.29 (H31 of the 6.25 review): the browser that `playwright install`
+    # puts in its own folder, which is the one on GitHub's machines. Without it the check could not
+    # run in the workflow of the feedback document, and stopped on 'Chromium non disponibile'.
+    try:
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as pw:
+            own = pw.chromium.executable_path
+        return own if Path(own).is_file() else None
+    except Exception:
+        return None
 
 
 def read_export(path):
