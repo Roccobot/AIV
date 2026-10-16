@@ -420,9 +420,17 @@ fun ViewerScreen(
      * dichiarato: per il tempo del caricamento quei dati sono quelli di **prima**. Su una
      * strisciata fra foto del telefono sono decimi di secondo; su un'immagine grossa presa
      * dalla rete si vedono più a lungo, ed è il baratto che toglie il lampeggio.
+     * ⚠️⚠️ **SENZA I PIXEL, DALLA `6.28`** (rilievo C35 della revisione della 6.25): tenuta
+     * intera, la foto lasciata restava in memoria per tutto il caricamento della successiva, fino
+     * a 190 MB su una foto da 48 megapixel, mentre la riga ne legge solo tipo, peso, misure e
+     * nome. Al posto dei pixel c'è [NO_PIXELS]; chi ha bisogno dei pixel (la conversione, la
+     * finestra del nome) prende [ready], l'immagine in scena.
      */
     var shown by remember { mutableStateOf<LoadedImage?>(null) }
-    LaunchedEffect(state) { (state as? ViewerState.Ready)?.let { shown = it.image } }
+    LaunchedEffect(state) {
+        (state as? ViewerState.Ready)?.let { shown = it.image.copy(bitmap = NO_PIXELS) }
+    }
+    val ready = (state as? ViewerState.Ready)?.image
 
     /*
      * ⚠️ **Il dialogo della conversione vive QUI e non dentro il menu**, per la stessa ragione
@@ -479,7 +487,7 @@ fun ViewerScreen(
     // uno stato **durante** la composizione, che è il modo classico di far ricomporre in
     // tondo. Senza immagine il dialogo semplicemente non c'è, e il caso non capita perché la
     // voce che lo apre vive dentro un menu che senza immagine non si apre.
-    shown?.takeIf { converting }?.let { picture ->
+    ready?.takeIf { converting }?.let { picture ->
         ConvertDialog(
             image = picture,
             source = source,
@@ -688,10 +696,10 @@ fun ViewerScreen(
             riapriHold = it.hold
         }
     }
-    LaunchedEffect(shown, riapriNome) {
+    LaunchedEffect(ready, riapriNome) {
         val atteso = riapriNome ?: return@LaunchedEffect
         if (naming != null) return@LaunchedEffect
-        val viva = shown ?: return@LaunchedEffect
+        val viva = ready ?: return@LaunchedEffect
         if (ImageActions.fileName(viva, source) == atteso) naming = Naming(viva, riapriHold)
         else riapriNome = null
     }
@@ -1276,6 +1284,12 @@ fun ViewerScreen(
  * volta dopo la finestra si sarebbe aperta col permesso di quella prima.
  */
 private class Naming(val picture: LoadedImage, val hold: Boolean)
+
+/**
+ * Il segnaposto dei pixel nella copia che la riga delle info tiene della foto lasciata: un pixel
+ * solo, condiviso. Vedi `shown` in [ViewerScreen].
+ */
+private val NO_PIXELS = ImageBitmap(1, 1)
 
 /**
  * Le richieste che il menu del tocco lungo **non esegue da sé**, e che passa a chi lo
