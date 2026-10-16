@@ -796,7 +796,11 @@ fun AdvancedEditorScreen(
                 onSettled = { push() },
                 onPeek = { senza -> peek = senza },
                 // ⚠️ The three drop the chosen mark of Disegno: after them its index may be another's.
+                // ⚠️⚠️ **E prima di tutto mettono nella storia il cambio che aspetta**, dalla `6.26`
+                // (rilievo A13): un cambio di stile entra 400 ms dopo l'ultimo ritocco, e toccati in
+                // quella finestra 'Annulla' tornava a due passi fa e il cambio si perdeva.
                 onUndo = {
+                    push()
                     if (at > 0) {
                         at -= 1
                         look = history[at]
@@ -804,6 +808,7 @@ fun AdvancedEditorScreen(
                     }
                 },
                 onRedo = {
+                    push()
                     if (at < history.size - 1) {
                         at += 1
                         look = history[at]
@@ -811,6 +816,7 @@ fun AdvancedEditorScreen(
                     }
                 },
                 onOriginal = {
+                    push()
                     gaze.picked = null
                     gaze.selection = Healing.Selection.NONE
                     gaze.healingFailed = false

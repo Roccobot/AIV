@@ -352,6 +352,45 @@ class DisegnoTest {
     }
 
     /**
+     * **'Annulla' toccato subito dopo un cambio di stile disfa quel cambio, e non uno in più**
+     * (`6.26`, rilievo A13 della revisione della 6.25): il cambio entra nella storia 400 ms dopo
+     * l'ultimo ritocco, e in quella finestra 'Annulla' tornava a due passi fa, togliendo anche il
+     * secondo elemento, e il cambio si perdeva.
+     * ⚠️ **L'orologio della scena è fermo** fra il tondo e 'Annulla', o la finestra passerebbe da
+     * sola.
+     * ⚠️⚠️ **CONTROPROVATA** togliendo il `push()` in testa a `onUndo`: dopo 'Annulla' resta un
+     * elemento solo.
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `Annulla subito dopo un cambio di stile disfa solo quel cambio`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
+        pronta()
+        apriDisegno()
+        trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
+        trascinaDa(Offset(40f, 40f), Offset(100f, 100f))
+        fun salva(): List<Mark> {
+            banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+            banco.waitForIdle()
+            return salvato!!.drawing.marks
+        }
+        val prima = salva()
+        tocca(Offset(-70f, -70f))
+        banco.mainClock.autoAdvance = false
+        banco.onNodeWithContentDescription(testo(R.string.ink_blue)).performClick()
+        banco.mainClock.advanceTimeBy(100)
+        banco.onNodeWithContentDescription(testo(R.string.editor_undo)).performClick()
+        banco.mainClock.advanceTimeBy(100)
+        banco.mainClock.autoAdvance = true
+        banco.waitForIdle()
+        assertEquals("'Annulla' doveva disfare il solo cambio di colore", prima, salva())
+        banco.onNodeWithContentDescription(testo(R.string.editor_redo)).performClick()
+        banco.waitForIdle()
+        assertEquals("'Ripristina' doveva riportare il blu", Draw.INKS[3], salva()[0].ink or 0xFF000000.toInt())
+    }
+
+    /**
      * **'Riempimento' si accende solo per le forme chiuse.**
      *
      * ⚠️ Lo stesso criterio del 'Filtro BN': un comando che non cambia niente si legge come un
