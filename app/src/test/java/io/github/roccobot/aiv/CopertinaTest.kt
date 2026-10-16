@@ -150,7 +150,7 @@ class CopertinaTest {
      * ventisette lingue.
      */
     @Test
-    fun `la fascia dell'invito nomina la cartella e si può lasciar perdere`() {
+    fun `la fascia dell'invito nomina la cartella e si chiude senza scegliere`() {
         var basta = 0
         banco.setContent {
             AivTheme(darkTheme = false) {

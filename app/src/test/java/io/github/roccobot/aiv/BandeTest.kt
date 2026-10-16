@@ -196,7 +196,7 @@ class BandeTest {
      * sopra: che il rumore ci sia, e che resti piccolo.
      */
     @Test
-    fun `la tessera dei telefoni vecchi porta il rumore nell'opacità`() {
+    fun `la tessera dei telefoni vecchi mette il rumore nel canale alfa`() {
         val alta = 300
         val mappa = rampBitmap(PROVE_STOPS, PICCO, alta)
         assertTrue("La tessera non si è costruita", mappa != null)

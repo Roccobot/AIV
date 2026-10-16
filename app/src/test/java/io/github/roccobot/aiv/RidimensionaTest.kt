@@ -563,7 +563,7 @@ class RidimensionaTest {
      * misura quello che resta, cioè che la riga sia i soli numeri col segno e l'unità.
      */
     @Test
-    fun `la misura di partenza è il solo numero`() {
+    fun `la misura di partenza resta il solo numero`() {
         assertEquals(
             "La riga sotto il titolo non è la sola misura",
             "1800 × 1200 px",

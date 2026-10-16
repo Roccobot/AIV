@@ -126,7 +126,9 @@ class FintoMedia : ContentProvider() {
     override fun insert(uri: Uri, values: ContentValues?): Uri {
         val row = Uri.withAppendedPath(uri, rows.size.toString())
         rows += ContentValues(values)
-        files[row] = File.createTempFile("riga", ".bin")
+        // Si cancella alla fine del processo del banco: una prova che non cancella la riga
+        // lasciava il file sul disco a ogni corsa (6.30, rilievo G19 della revisione Setaccio).
+        files[row] = File.createTempFile("riga", ".bin").apply { deleteOnExit() }
         return row
     }
 

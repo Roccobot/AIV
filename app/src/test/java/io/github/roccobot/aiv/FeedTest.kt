@@ -105,7 +105,7 @@ class FeedTest {
 
     /** **Case 4: two pictures of the same moment keep the higher id first**, reading after reading. */
     @Test
-    fun `a parità di data vince l'id più alto`() {
+    fun `con la stessa data vince l'id maggiore`() {
         val stesso = ms(2026, 5, 5)
         val pagina = Feed.order(listOf(riga(7, stesso, 0), riga(9, stesso, 0)), FeedDate.TAKEN, zone)
         assertEquals(listOf(9L, 7L), pagina.items.map { it.lastPathSegment!!.toLong() })

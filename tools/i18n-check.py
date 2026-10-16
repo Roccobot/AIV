@@ -206,7 +206,7 @@ def main():
             # vecchia non fa comparire l'inglese: fa comparire un valore sbagliato.
             if name in base_fissi:
                 if name in here_s:
-                    said.append('la stringa %s non e\' traducibile e qui c\'e\' ancora' % name)
+                    said.append("la stringa %s non è traducibile e qui c'è ancora" % name)
             elif name not in here_s:
                 if not parziale:
                     said.append('manca la stringa %s' % name)

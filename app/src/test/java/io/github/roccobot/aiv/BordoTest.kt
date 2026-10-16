@@ -15,11 +15,11 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
@@ -33,7 +33,7 @@ import org.robolectric.annotation.GraphicsMode
  * sits inside a larger box).
  * ⚠️ **Counter-tested** with `ACCENT_EDGE = true`: the ring turns accent and both cases fail.
  */
-@RunWith(RobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = "w360dp-h640dp-xhdpi")
 class BordoTest {

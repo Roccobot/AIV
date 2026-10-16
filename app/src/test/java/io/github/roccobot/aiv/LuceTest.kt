@@ -513,7 +513,7 @@ class LuceTest {
      * dito valga sempre lo stesso raddoppio, da qualunque ingrandimento parta.
      */
     @Test
-    fun `il trascinamento a una mano raddoppia, e il verso è il suo`() {
+    fun `il trascinamento a una mano raddoppia e tiene il suo verso`() {
         val span = 100f
         assertEquals("Fermo, il dito ha mosso l'ingrandimento", 1f, pulled(1f, 0f, span), SOGLIA)
         assertEquals("Giù di una misura non ha raddoppiato", 2f, pulled(1f, span, span), SOGLIA)

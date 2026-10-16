@@ -117,7 +117,7 @@ class NascosteTest {
      * compare niente.
      */
     @Test
-    fun `la voce dice quello che fa, e senza nascoste non c'è`() {
+    fun `la voce dice quello che fa, e senza nascoste manca`() {
         var quale by mutableStateOf(false)
         var quali by mutableStateOf(NASCOSTE)
         banco.setContent {

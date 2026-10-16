@@ -22,7 +22,7 @@ class AdaptiveTest {
     }
 
     @Test
-    fun `da 600 il pannello laterale è possibile ma chiuso di serie`() {
+    fun `da 600 il pannello laterale esiste ma parte chiuso`() {
         assertTrue(Adaptive.sideAvailable(600))
         assertFalse(Adaptive.sideDefaultOpen(600))
         assertEquals(Adaptive.Band.NARROW, Adaptive.band(600))

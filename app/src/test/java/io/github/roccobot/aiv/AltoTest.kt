@@ -41,7 +41,7 @@ class AltoTest {
         pinTop(avail = spazio, panel = pannello, sky = cielo, air = aria)
 
     @Test
-    fun `dal visualizzatore la rinomina è intera e sopra la tastiera`() {
+    fun `dal visualizzatore la rinomina resta intera e sopra la tastiera`() {
         // ⚠️ È la forma esatta del difetto: fino alla `5.50` il tetto toglieva 86dp e il pannello
         // restava di 342dp, con l'anteprima tagliata a metà.
         val alto = pannello(visualizzatore)
@@ -52,7 +52,7 @@ class AltoTest {
     }
 
     @Test
-    fun `dalla griglia dietro la tastiera finisce al più il margine sotto i tasti`() {
+    fun `dalla griglia dietro la tastiera finisce al massimo il margine sotto i tasti`() {
         // ⚠️ La sua scelta B1: prima cede l'aria sopra, poi il margine sotto i tasti. Qui lo
         // spazio è 26dp più corto del contenuto, quindi il margine cede tutto e l'anteprima
         // scorre di 2dp.
@@ -73,7 +73,7 @@ class AltoTest {
     }
 
     @Test
-    fun `quando il pannello non ci sta più l'aria sopra cala senza salti`() {
+    fun `quando il pannello non entra l'aria sopra cala senza salti`() {
         // ⚠️ Al confine le due regole danno lo stesso numero: un carattere in più che allunga
         // l'anteprima sposta il pannello di quanto si allunga, non di un salto.
         val spazio = 500
@@ -107,7 +107,7 @@ class AltoTest {
     }
 
     @Test
-    fun `senza una misura dello spazio non c'è tetto e il pannello resta all'aria dichiarata`() {
+    fun `senza una misura dello spazio manca il tetto e il pannello resta all'aria dichiarata`() {
         // ⚠️ Succede al primo passaggio, quando la finestra non è ancora disposta: meglio la
         // misura di prima che un tetto costruito su uno spazio inventato.
         assertEquals(0, pinRoof(avail = 0, tuck = margine))

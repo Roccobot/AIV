@@ -1,6 +1,8 @@
 package io.github.roccobot.aiv
 
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import java.io.File
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -9,8 +11,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import java.io.File
 
 /**
  * Disfare una copia e disfare uno spostamento: le due operazioni inverse della `1.83`.
@@ -24,7 +24,7 @@ import java.io.File
  * file toccati, e senza un contesto non si può chiamare. Quello che si misura invece è tutto sul
  * disco, in una cartella temporanea vera.
  */
-@RunWith(RobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 class DisfareTest {
 
     @get:Rule

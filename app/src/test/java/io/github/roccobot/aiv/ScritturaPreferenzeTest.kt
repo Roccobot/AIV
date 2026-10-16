@@ -35,7 +35,7 @@ class ScritturaPreferenzeTest {
      * directly): the second write never arrives, and the case ends on its 10 s limit.
      */
     @Test
-    fun `una scrittura rimasta a metà non ferma quelle dopo`() {
+    fun `una scrittura interrotta non ferma quelle dopo`() {
         val app = ApplicationProvider.getApplicationContext<Context>()
         runBlocking { Hint.FEED.forget(app) }
         val fermo = StandardTestDispatcher()

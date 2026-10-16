@@ -25,7 +25,7 @@ class AggiornamentiPlayTest {
     private val app: Context get() = ApplicationProvider.getApplicationContext()
 
     @Test
-    fun `AIV Play non si aggiorna da sé`() {
+    fun `AIV Play non si aggiorna da solo`() {
         assertFalse(Store.updates)
     }
 

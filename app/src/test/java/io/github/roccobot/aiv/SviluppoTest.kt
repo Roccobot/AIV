@@ -766,7 +766,7 @@ class SviluppoTest {
      * questa riga esiste per escludere.
      */
     @Test
-    fun `la curva a riposo è l'identità e non oltrepassa`() {
+    fun `la curva a riposo lascia i valori uguali e non oltrepassa`() {
         val ferma = Curve.NONE.table()
         for (i in 0 until Curve.SIZE) {
             assertEquals("livello $i", i.toFloat() / (Curve.SIZE - 1), ferma[i], 1e-6f)
@@ -888,7 +888,7 @@ class SviluppoTest {
      * quello che un lettore di schermo annuncia, ed è lo stesso criterio dei sette gettoni.
      */
     @Test
-    fun `il mirato c'è nel solo hsl e si annuncia senza scriversi`() {
+    fun `il mirato esiste nel solo hsl e si annuncia senza scriversi`() {
         banco.setContent { Scena() }
         pronta()
         assertEquals("nella Luce non c'è niente da mirare", 0, quantiDetti(R.string.look_target))
@@ -942,7 +942,7 @@ class SviluppoTest {
      * anche il conto, da solo, non muoverebbe niente.
      */
     @Test
-    fun `la geometria a riposo lascia ogni punto dov'è`() {
+    fun `la geometria a riposo lascia ogni punto al suo posto`() {
         assertTrue(Geometry.NONE.idle)
         assertTrue(Look(geo = Geometry.NONE).lossless)
 
@@ -976,7 +976,7 @@ class SviluppoTest {
      * meno di un millesimo di pixel a parecchi pixel.
      */
     @Test
-    fun `la geometria torna indietro dove è andata`() {
+    fun `la geometria torna indietro da dove era andata`() {
         val prove = listOf(
             Geometry(straighten = 1f),
             Geometry(aspect = -1f),
@@ -1261,7 +1261,7 @@ class SviluppoTest {
      * sopra**, che è quello che un rettangolo fermo non farebbe.
      */
     @Test
-    fun `una posa porta con sé il rettangolo di ritaglio`() {
+    fun `una posa conserva il rettangolo di ritaglio`() {
         val sinistra = ImageEdit.Crop(0f, 0f, 0.5f, 1f)
         val fermo = Look(crop = sinistra)
 
@@ -1859,7 +1859,7 @@ class SviluppoTest {
      * quindi fra le righe non ha un numero, e quello che lui vede è dove cade sullo schermo.
      */
     @Test
-    fun `il filtro è spento a colori e vive sotto l'interruttore`() {
+    fun `il filtro resta spento a colori e vive sotto l'interruttore`() {
         banco.setContent { Scena() }
         pronta()
         modulo(R.string.look_color)
@@ -3544,7 +3544,7 @@ class SviluppoTest {
      * ⚠️ **A riposo vale zero**, quindi chi non usa nessuno dei due paga le tessere di prima.
      */
     @Test
-    fun `il bordo delle tessere copre il filtro più largo`() {
+    fun `il bordo delle tessere copre anche il filtro maggiore`() {
         assertEquals(0, Effects.NONE.bleed(4000f))
 
         val velo = Effects(haze = 0.5f)
