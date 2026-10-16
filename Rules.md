@@ -1208,7 +1208,8 @@ esecuzione.
 ## 🧰 Gli strumenti che questo repo si porta dietro
 
 - **`tools/feedback-check.py`**: si lancia prima di pubblicare il documento di feedback (§ '🔗 Il
-  documento vivo del progetto').
+  documento vivo del progetto'), e passa la mano a `tools/feedback-interactive-check.py`, dove
+  vivono le prove (dalla `6.30`: la metà sul formato di prima del DF non serviva più).
 - **Il registro delle dipendenze, `docs/Dependencies.json`**: lo confronta con le ultime versioni
   pubblicate lo script unico del repo del sito, lanciato dalla radice
   (`python3 ../roccobot.github.io/.memo/scripts/check-dependencies.py`), prima di ogni release

@@ -189,7 +189,10 @@ APPROVED = ROOT / 'docs/Labels-approved.json'
 def italian_strings():
     import xml.etree.ElementTree as ET
     texts = {}
-    for element in ET.parse(ROOT / 'app/src/main/res/values-it/strings.xml').getroot():
+    # Every XML of the folder, as Android merges them and as `i18n-check.py` reads them: since 6.30
+    # (F50 of the 6.25 review) the six strings of `healing.xml` were never seen as new or changed.
+    folder = ROOT / 'app/src/main/res/values-it'
+    for element in (el for file in sorted(folder.glob('*.xml')) for el in ET.parse(file).getroot()):
         name = element.get('name')
         if element.tag == 'string':
             texts[name] = ''.join(element.itertext())
@@ -204,7 +207,7 @@ if '--approve-labels' in sys.argv:
     current, approved = italian_strings(), json.loads(APPROVED.read_text(encoding='utf-8'))
     for key in sorted(label_keys):
         if key not in current:
-            raise SystemExit(f'Etichetta {key}: la chiave non esiste in values-it/strings.xml')
+            raise SystemExit(f'Etichetta {key}: la chiave non esiste nei file di values-it')
         approved[key] = current[key]
         print(f'approvata {key}: {current[key]}')
     APPROVED.write_text(json.dumps(dict(sorted(approved.items())), ensure_ascii=False, indent=1) + '\n')
