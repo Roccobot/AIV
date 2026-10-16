@@ -267,9 +267,12 @@ class JumpArm internal constructor(
      *
      * La corsa accumulata si azzera solo alla fine: un pixel che arriva mentre il glifo rientra
      * riprende da dov'era, come nel mockup.
+     * ⚠️ **Un rientro annullato a metà riparte da dov'è** ([shown]): lo annulla ogni `tick`, anche
+     * quello di una corsa della pillola, che non passa da [pull]. Lasciato in `BACK`, il glifo
+     * restava mezzo chevron, e il primo trascinamento anche lento armava il salto.
      */
     private suspend fun retreat() {
-        if (phase == Phase.IDLE || phase == Phase.BACK) return
+        if (phase == Phase.IDLE) return
         phase = Phase.BACK
         animate(shown, 0f, animationSpec = tween(BACK_MS, easing = SMOOTHER)) { v, _ ->
             shown = v
@@ -282,12 +285,16 @@ class JumpArm internal constructor(
         phase = Phase.IDLE
     }
 
-    /** Il congedo, con i suoi due tempi: uno a corsa incompleta, l'altro a tasto armato. */
+    /**
+     * Il congedo, con i suoi due tempi: uno a corsa incompleta, l'altro a tasto armato. Un rientro
+     * interrotto si completa subito: vedi [retreat].
+     */
     internal suspend fun idle() {
         when (phase) {
             Phase.PULL -> delay(QUIET_MS)
             Phase.READY -> delay(BACK_WAIT_MS)
-            else -> return
+            Phase.BACK -> {}
+            Phase.IDLE -> return
         }
         retreat()
     }
