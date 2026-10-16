@@ -48,16 +48,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.Public
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Image
-import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
@@ -546,7 +536,7 @@ fun FolderScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = onBack) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            imageVector = Glyphs.Material.ArrowBack,
                             contentDescription = stringResource(R.string.settings_back)
                         )
                     }
@@ -1025,7 +1015,7 @@ private val FolderView.glyph: ImageVector
     @Composable get() = when (this) {
         FolderView.GRID -> Glyphs.ViewGrid
         FolderView.LIST -> Glyphs.ViewList
-        FolderView.TREE -> Icons.Default.Folder
+        FolderView.TREE -> Glyphs.Material.Folder
         // La pila di immagini, scelta A5 dell'utente.
         FolderView.FEED -> Glyphs.Feed
     }
@@ -1325,7 +1315,7 @@ private fun hubEntries(
      * 'Nascondi cartelle'. I due glifi sono dell'utente, una cartella con un occhio.
      */
     if (steady && !granted) {
-        add(PillEntry(Icons.Default.Image, stringResource(R.string.hub_pick), group = 0, short = stringResource(R.string.start_pick)) { onPickImage() })
+        add(PillEntry(Glyphs.Material.Image, stringResource(R.string.hub_pick), group = 0, short = stringResource(R.string.start_pick)) { onPickImage() })
     } else if (hiddenCount > 0 || steady) {
         add(
             PillEntry(
@@ -1345,9 +1335,9 @@ private fun hubEntries(
 
     // Cerca è in cima alle azioni: è la domanda più frequente di chi apre questo menu senza
     // sapere già dove andare.
-    add(PillEntry(Icons.Default.Search, stringResource(R.string.hub_search), group = 1, short = stringResource(R.string.hub_search)) { onSearch() })
-    val indirizzo = PillEntry(Icons.Default.Public, stringResource(R.string.hub_url), group = 1, short = stringResource(R.string.start_url)) { onAddress() }
-    val impostazioni = PillEntry(Icons.Default.Settings, stringResource(R.string.hub_settings), group = 2, short = stringResource(R.string.hub_settings)) { onSettings() }
+    add(PillEntry(Glyphs.Material.Search, stringResource(R.string.hub_search), group = 1, short = stringResource(R.string.hub_search)) { onSearch() })
+    val indirizzo = PillEntry(Glyphs.Material.Public, stringResource(R.string.hub_url), group = 1, short = stringResource(R.string.start_url)) { onAddress() }
+    val impostazioni = PillEntry(Glyphs.Material.Settings, stringResource(R.string.hub_settings), group = 2, short = stringResource(R.string.hub_settings)) { onSettings() }
     if (!steady) add(indirizzo)
     /*
      * Solo se il permesso manca (decisione dell'utente; il perché è su [Hub]). Sparisce da sé
@@ -1355,7 +1345,7 @@ private fun hubEntries(
      * in chi chiama), e il menu si ricompone.
      */
     if (!granted && !steady) {
-        add(PillEntry(Icons.Default.Image, stringResource(R.string.hub_pick), group = 1) { onPickImage() })
+        add(PillEntry(Glyphs.Material.Image, stringResource(R.string.hub_pick), group = 1) { onPickImage() })
     }
     // ⚠️ **Il cestino si raggiunge solo da qui**: le sue immagini sono nella cartella dell'app,
     // dove il MediaStore non guarda, quindi non compaiono fra le cartelle. È in fondo alle azioni:
@@ -1690,7 +1680,7 @@ private fun FavouritesRow(onOpen: () -> Unit) {
             modifier = Modifier.weight(1f)
         )
         Icon(
-            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            imageVector = Glyphs.Material.KeyboardArrowRight,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -1778,9 +1768,9 @@ private fun Tally(bucket: Folder.Bucket) {
         horizontalArrangement = Arrangement.spacedBy(COUNT_GAP)
     ) {
         if (bucket.pictures > 0 || bucket.clips == 0) {
-            TallyPair(Icons.Outlined.Image, bucket.pictures)
+            TallyPair(Glyphs.Material.ImageOutlined, bucket.pictures)
         }
-        if (bucket.clips > 0) TallyPair(Icons.Outlined.Movie, bucket.clips)
+        if (bucket.clips > 0) TallyPair(Glyphs.Material.MovieOutlined, bucket.clips)
     }
 }
 
@@ -2419,7 +2409,7 @@ private const val TINT_GLOW_END = 0.72f
 private fun Cover(uri: Uri?) {
     if (uri == null) {
         Icon(
-            imageVector = Icons.Default.Folder,
+            imageVector = Glyphs.Material.Folder,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(40.dp)

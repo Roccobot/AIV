@@ -2,10 +2,6 @@ package io.github.roccobot.aiv
 
 import android.net.Uri
 import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -42,7 +38,7 @@ internal fun feedPickActions(
         PadAction(PadKey.RENAME, Glyphs.TextCursor, R.string.pick_rename) {
             onJob(FileJob.Rename(list))
         },
-        PadAction(PadKey.INFO, Icons.Outlined.Info, R.string.pick_info) {
+        PadAction(PadKey.INFO, Glyphs.Material.InfoOutlined, R.string.pick_info) {
             onJob(FileJob.Facts(list))
         },
         PadAction(PadKey.MOVE, Glyphs.FolderPairDashed, R.string.pick_move) {
@@ -55,7 +51,7 @@ internal fun feedPickActions(
             onHold = { onJob(FileJob.Duplicate(list)) },
             holdLabel = R.string.pick_duplicate
         ) { onJob(FileJob.Transfer(list, move = false)) },
-        PadAction(PadKey.SHARE, Icons.Default.Share, R.string.menu_share) {
+        PadAction(PadKey.SHARE, Glyphs.Material.Share, R.string.menu_share) {
             val now = list
             scope.launch { ImageActions.shareMany(context, now) }
         },
@@ -70,7 +66,7 @@ internal fun feedPickActions(
         ) {
             onJob(FileJob.Delete(list, forGood = !binOn))
         },
-        PadAction(PadKey.LIST, Icons.AutoMirrored.Outlined.FormatListBulleted, R.string.pick_list) {
+        PadAction(PadKey.LIST, Glyphs.Material.FormatListBulletedOutlined, R.string.pick_list) {
             val now = list
             scope.launch {
                 ImageActions.copyNames(context, now, null)

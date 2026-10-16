@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -173,7 +171,7 @@ fun <T> Reorderable(
                 Icon(
                     // Sei punti (scelta dell'utente, 1.57): le tre righe sono il segno della
                     // scheda che si tira giù, i sei punti quello di una cosa che si sposta.
-                    imageVector = Icons.Default.DragIndicator,
+                    imageVector = Glyphs.Material.DragIndicator,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier

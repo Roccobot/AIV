@@ -28,15 +28,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
-import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.SdStorage
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -329,7 +320,7 @@ private fun Roots(roots: List<Tree.Root>, onPath: (String?) -> Unit) {
                 horizontalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.SdStorage,
+                    imageVector = Glyphs.Material.SdStorage,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(GLYPH)
@@ -380,7 +371,7 @@ private fun PathBar(dir: File, up: File?, roots: List<Tree.Root>, onPath: (Strin
         if (above != null) {
             FilledTonalIconButton(onClick = above) {
                 Icon(
-                    imageVector = Icons.Default.ArrowUpward,
+                    imageVector = Glyphs.Material.ArrowUpward,
                     contentDescription = stringResource(R.string.tree_up)
                 )
             }
@@ -579,7 +570,7 @@ private fun treePickActions(
         PadAction(PadKey.MOVE, Glyphs.FolderPairDashed, R.string.pick_move) {
             onJob(FileJob.Transfer(list, move = true))
         },
-        PadAction(PadKey.SHARE, Icons.Default.Share, R.string.menu_share) {
+        PadAction(PadKey.SHARE, Glyphs.Material.Share, R.string.menu_share) {
             val now = list
             scope.launch { ImageActions.shareMany(context, now) }
         },
@@ -597,10 +588,10 @@ private fun treePickActions(
         ) {
             onJob(FileJob.Delete(list, forGood = !binOn))
         },
-        PadAction(PadKey.INFO, Icons.Outlined.Info, R.string.pick_info) {
+        PadAction(PadKey.INFO, Glyphs.Material.InfoOutlined, R.string.pick_info) {
             onJob(FileJob.Facts(list))
         },
-        PadAction(PadKey.LIST, Icons.AutoMirrored.Outlined.FormatListBulleted, R.string.pick_list) {
+        PadAction(PadKey.LIST, Glyphs.Material.FormatListBulletedOutlined, R.string.pick_list) {
             val now = list
             scope.launch {
                 ImageActions.copyNames(context, now, null)
@@ -657,7 +648,7 @@ private fun SpotGlyph(spot: Tree.Spot) {
                 )
                 if (spot.clip) {
                     Icon(
-                        imageVector = Icons.Default.PlayArrow,
+                        imageVector = Glyphs.Material.PlayArrow,
                         contentDescription = stringResource(R.string.grid_item_clip),
                         tint = MaterialTheme.colorScheme.surface,
                         modifier = Modifier.size(GLYPH * 0.6f)
@@ -665,13 +656,13 @@ private fun SpotGlyph(spot: Tree.Spot) {
                 }
             }
             spot.folder -> Icon(
-                imageVector = Icons.Default.Folder,
+                imageVector = Glyphs.Material.Folder,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(GLYPH * 0.7f)
             )
             else -> Icon(
-                imageVector = Icons.AutoMirrored.Filled.InsertDriveFile,
+                imageVector = Glyphs.Material.InsertDriveFile,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(GLYPH * 0.7f)

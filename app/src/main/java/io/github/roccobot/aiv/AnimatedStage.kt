@@ -11,11 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.outlined.NavigateBefore
-import androidx.compose.material.icons.outlined.NavigateNext
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -295,16 +290,16 @@ fun AnimatedBar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(2.dp)
     ) {
-        Key(Icons.Outlined.NavigateBefore, R.string.anim_prev) {
+        Key(Glyphs.Material.NavigateBeforeOutlined, R.string.anim_prev) {
             scope.launch { animation.stepBack() }
         }
         Key(
-            icon = if (animation.playing) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+            icon = if (animation.playing) Glyphs.Material.Pause else Glyphs.Material.PlayArrow,
             label = if (animation.playing) R.string.anim_pause else R.string.anim_play
         ) {
             animation.toggle()
         }
-        Key(Icons.Outlined.NavigateNext, R.string.anim_next) {
+        Key(Glyphs.Material.NavigateNextOutlined, R.string.anim_next) {
             scope.launch { animation.stepForward() }
         }
         if (counter) {

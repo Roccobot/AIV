@@ -44,6 +44,11 @@ vivono in disegni già approvati, e toglierli è una decisione di chi li ha fatt
 ricava da nessuna misura, quindi vive scritta qui: il verificatore lo **dichiara** escluso invece
 di contarne le punte, perché un numero accanto al suo nome si legge come un lavoro da fare.
 
+⚠️⚠️ **E DALLA `6.30` SONO ESCLUSI ANCHE I GLIFI DI MATERIAL PORTATI COSÌ COME SONO** (`ic_m_*`,
+scelta H1a dell'utente): sono entrati in `res/` quando la libreria delle icone è uscita dalle
+dipendenze, col disegno identico, e un raccordo li cambierebbe. Li riconosce il commento
+`<!-- Material: ... -->` in testa al file, e l'uscita li dichiara esclusi, come il logo.
+
 Modi:
   icon-round.py                elenca quante punte vive ha ogni disegno di `res/drawable`
   icon-round.py -v [FILE ...]  scrive anche dove sono, con l'angolo e il raggio da usare
@@ -51,6 +56,7 @@ Modi:
 import importlib.util
 import math
 import pathlib
+import re
 import sys
 import xml.etree.ElementTree as ET
 
@@ -76,6 +82,17 @@ CORTO = 1e-3
 # ⚠️⚠️ **IL LOGO PERSONALE NON SI TOCCA MAI, ED È UNA SUA REGOLA**: non è un'esclusione tecnica,
 # quindi non si ricava da nessuna misura e resta scritta qui, come in testa al file stesso.
 INTOCCABILI = {'ic_tian.xml'}
+# ⚠️⚠️ **I GLIFI DI MATERIAL PORTATI NEL PROGETTO NON SI RACCORDANO, ED È UNA SUA SCELTA** (H1a,
+# 6.30): quando la libreria delle icone è uscita, i glifi che l'app usava sono entrati in `res/`
+# col disegno identico, a zero pixel. Raccordarli vorrebbe dire cambiarli. Si riconoscono dal
+# commento che ne dichiara l'origine, in testa al file, e non dal nome: è il commento a dire che il
+# disegno è di Material così com'è.
+RE_MATERIAL = re.compile(r'<!-- Material: Icons\.[A-Za-z.]+ [0-9.]+ -->')
+
+
+def di_material(percorso):
+    """Se il file è un glifo di Material portato così com'è, col commento della sua origine."""
+    return RE_MATERIAL.search(percorso.read_text(encoding='utf-8')) is not None
 # ⚠️⚠️ **QUANTO LONTANO PUÒ CADERE UN GIRO DAL PROPRIO PUNTO DI PARTENZA E RESTARE CHIUSO**: i
 # tracciati sono scritti a due decimali, quindi un giro arrotondato torna a un centesimo di unità
 # dal punto della `M` e la chiusura implicita diventa una rettina che svolta. Misurato su
@@ -418,11 +435,18 @@ def main():
     nomi = [a for a in argomenti if not a.startswith('-')]
     file = [pathlib.Path(n) for n in nomi] if nomi else sorted(DRAWABLE.glob('*.xml'))
     fuori = [f for f in file if f.name in INTOCCABILI]
-    guardati = [f for f in file if f.name not in INTOCCABILI]
+    material = [f for f in file if f.name not in INTOCCABILI and di_material(f)]
+    guardati = [f for f in file if f.name not in INTOCCABILI and f not in material]
     totale = sum(lavora(f, dettaglio) for f in guardati)
     print(f'{len(guardati)} disegni, {totale} punte vive')
     for f in fuori:
         print(f'{f.name}: escluso per regola, il logo personale non si tocca')
+    if material:
+        print(f'{len(material)} glifi di Material esclusi per regola: il disegno resta identico '
+              f'a quello della libreria (scelta H1a)')
+        if dettaglio:
+            for f in material:
+                print(f'    {f.name}')
     return 0
 
 

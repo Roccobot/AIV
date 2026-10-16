@@ -3,8 +3,6 @@ package io.github.roccobot.aiv
 import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Icon
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -212,7 +210,7 @@ class AvvisiTest {
                         actions = listOf(
                             PadAction(
                                 key = PadKey.COPY,
-                                icon = Icons.Outlined.Info,
+                                icon = Glyphs.Material.InfoOutlined,
                                 label = R.string.menu_copy_here
                             ) { }
                         )
@@ -292,7 +290,7 @@ class AvvisiTest {
                             holdLabel = "Tutti",
                             onTap = { },
                             onHold = { }
-                        ) { quale -> Icon(Icons.Outlined.Info, contentDescription = quale) }
+                        ) { quale -> Icon(Glyphs.Material.InfoOutlined, contentDescription = quale) }
                     }
                     AppNotice(
                         Notices.line,
@@ -362,7 +360,7 @@ class AvvisiTest {
                         actions = listOf(
                             PadAction(
                                 key = PadKey.COPY,
-                                icon = Icons.Outlined.Info,
+                                icon = Glyphs.Material.InfoOutlined,
                                 label = R.string.menu_copy_here
                             ) { }
                         )
@@ -375,7 +373,7 @@ class AvvisiTest {
                             holdLabel = "Tutti",
                             onTap = { },
                             onHold = { }
-                        ) { quale -> Icon(Icons.Outlined.Info, contentDescription = quale) }
+                        ) { quale -> Icon(Glyphs.Material.InfoOutlined, contentDescription = quale) }
                     }
                     AppNotice(
                         Notices.line,

@@ -37,8 +37,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -277,7 +275,7 @@ fun Sheet(
                         IconButton(onClick = chiudi, modifier = Modifier.size(SHEET_SHUT)) {
                             Icon(
                                 /* La croce piena, come tutte le altre chiusure dell'app. */
-                                imageVector = Icons.Default.Close,
+                                imageVector = Glyphs.Material.Close,
                                 // Descritta come 'Chiudi', il nome del tasto.
                                 contentDescription = stringResource(R.string.pick_close)
                             )

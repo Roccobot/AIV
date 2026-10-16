@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material: Icons.Filled.Public 1.7.8 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M12,2C6.48,2,2,6.48,2,12S6.48,22,12,22S22,17.52,22,12S17.52,2,12,2ZM11,19.93C7.05,19.44,4,16.08,4,12C4,11.38,4.08,10.79,4.21,10.21L9,15L9,16C9,17.1,9.9,18,11,18L11,19.93ZM17.9,17.39C17.64,16.58,16.9,15.999999,16,15.999999L15,15.999999L15,12.999999C15,12.449999,14.55,11.999999,14,11.999999L8,12L8,10L10,10C10.55,10,11,9.55,11,9L11,7L13,7C14.1,7,15,6.1,15,5L15,4.59C17.93,5.78,20,8.65,20,12C20,14.08,19.2,15.97,17.9,17.39Z" />
+</vector>

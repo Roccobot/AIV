@@ -65,15 +65,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.VolumeUp
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.outlined.LightMode
-import androidx.compose.material.icons.outlined.FitScreen
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.PhotoSizeSelectActual
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
@@ -1633,7 +1624,7 @@ private fun BoxScope.KnobBadge(knob: Knob) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
-            imageVector = if (knob.brightness) Icons.Outlined.LightMode else Icons.AutoMirrored.Outlined.VolumeUp,
+            imageVector = if (knob.brightness) Glyphs.Material.LightModeOutlined else Glyphs.Material.VolumeUpOutlined,
             contentDescription = null,
             tint = Color.White,
             modifier = Modifier.size(CLIP_GLYPH)
@@ -1696,7 +1687,7 @@ private fun BoxScope.ClipKeys(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = if (playing) Icons.Default.Pause else Icons.Default.PlayArrow,
+                imageVector = if (playing) Glyphs.Material.Pause else Glyphs.Material.PlayArrow,
                 contentDescription = stringResource(
                     if (playing) R.string.clip_pause else R.string.clip_play
                 ),
@@ -2987,12 +2978,12 @@ private fun ImageMenu(
 
                 MenuRow(
                     text = stringResource(R.string.fit_label),
-                    icon = Icons.Outlined.FitScreen,
+                    icon = Glyphs.Material.FitScreenOutlined,
                     onTap = { menu.close(); onZoom(restScale) }
                 )
                 MenuRow(
                     text = "100%",
-                    icon = Icons.Outlined.PhotoSizeSelectActual,
+                    icon = Glyphs.Material.PhotoSizeSelectActualOutlined,
                     onTap = { menu.close(); onZoom(oneToOne) }
                 )
             }
@@ -3071,7 +3062,7 @@ private fun ImageMenu(
                             }
                         }
                 val condividi =
-                        PadAction(PadKey.SHARE, Icons.Default.Share, R.string.menu_share) {
+                        PadAction(PadKey.SHARE, Glyphs.Material.Share, R.string.menu_share) {
                             menu.close()
                             ops.share(image)
                         }
@@ -3085,7 +3076,7 @@ private fun ImageMenu(
                 val info =
                         PadAction(
                             key = PadKey.INFO,
-                            icon = Icons.Outlined.Info,
+                            icon = Glyphs.Material.InfoOutlined,
                             label = R.string.pick_info,
                             onHold = { menu.close(); ops.bar() },
                             holdLabel = R.string.settings_info_visible

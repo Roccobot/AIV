@@ -5,10 +5,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.Public
-import androidx.compose.material.icons.filled.Search
+import androidx.annotation.DrawableRes
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.VectorGroup
@@ -97,9 +94,9 @@ object Shortcuts {
     /** Le tre azioni fisse, nell'ordine in cui le mostra il launcher, dalla più vicina all'icona. */
     fun publish(context: Context) {
         val fixed = listOf(
-            entry(context, "feed", FEED, R.string.view_feed, R.string.view_feed, feedGlyph(context), 0),
-            entry(context, "search", SEARCH, R.string.hub_search, R.string.hub_search, Icons.Filled.Search, 1),
-            entry(context, "address", ADDRESS, R.string.start_url, R.string.hub_url, Icons.Filled.Public, 2)
+            entry(context, "feed", FEED, R.string.view_feed, R.string.view_feed, glyph(context, R.drawable.ic_feed), 0),
+            entry(context, "search", SEARCH, R.string.hub_search, R.string.hub_search, glyph(context, R.drawable.ic_m_search), 1),
+            entry(context, "address", ADDRESS, R.string.start_url, R.string.hub_url, glyph(context, R.drawable.ic_m_public), 2)
         )
         ShortcutManagerCompat.addDynamicShortcuts(context, fixed)
     }
@@ -119,7 +116,7 @@ object Shortcuts {
         val info = ShortcutInfoCompat.Builder(context, ID_FOLDER)
             .setShortLabel(name)
             .setLongLabel(name)
-            .setIcon(icon(context, Icons.Filled.Folder))
+            .setIcon(icon(context, glyph(context, R.drawable.ic_m_folder)))
             .setIntent(intent)
             .setRank(3)
             .build()
@@ -202,9 +199,13 @@ object Shortcuts {
             .setRank(rank)
             .build()
 
-    /** Il glifo del Feed, lo stesso file che disegna l'app ([Glyphs.Feed]), letto fuori da una composizione. */
-    private fun feedGlyph(context: Context): ImageVector =
-        ImageVector.vectorResource(context.theme, context.resources, R.drawable.ic_feed)
+    /**
+     * Un glifo dell'app letto fuori da una composizione: lo stesso file che disegna l'app (il Feed è
+     * [Glyphs.Feed], gli altri sono in [Glyphs.Material]), perché le scorciatoie si pubblicano
+     * senza una composizione intorno.
+     */
+    internal fun glyph(context: Context, @DrawableRes id: Int): ImageVector =
+        ImageVector.vectorResource(context.theme, context.resources, id)
 
     /**
      * L'icona di un'azione: il glifo dell'app nei due colori dell'icona del launcher, scambiati.

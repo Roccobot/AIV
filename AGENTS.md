@@ -319,7 +319,7 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
   (`Rules.md` § '🧪 Quando si scrive una prova, e quando no').
 - **Gli strumenti di `tools/`, lanciati dalla radice**: `i18n-check.py` deve dire 28 lingue, 0
   problemi; `icon-check.py` blocca sulla grammatica e avvisa sulla resa, e se manca Chromium lo
-  dichiara; `icon-round.py` deve rispondere zero, con `ic_tian` escluso (`Rules.md` § '🧰 Gli
+  dichiara; `icon-round.py` deve rispondere zero, con `ic_tian` e gli `ic_m_*` esclusi (`Rules.md` § '🧰 Gli
   strumenti che questo repo si porta dietro'). `og-image.py` si rilancia quando cambiano l'icona,
   il titolo, `og:url` o la schermata chiara (`Rules.md` § '🔗 L'anteprima del link della
   paginetta').
@@ -341,8 +341,9 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
   quella stringa, la presidia `ContoTest`, e sotto Android 13 l'editor
   completo non c'è (`Rules.md` § '🎚️ L'editor completo, e il conto che esiste in una copia sola').
 - **Un disegno vive in `res/drawable/ic_<nome>.xml`, e `Glyphs.kt` è il catalogo**: `aapt2` non
-  guarda `android:pathData`; a zero pixel di scarto vince Material, e gli angoli convessi esterni
-  si arrotondano a 0,4 per regola del progetto (`Rules.md` § '🖌️ Come entra un disegno').
+  guarda `android:pathData`; a zero pixel di scarto vince Material, i cui glifi sono i file
+  `ic_m_*` (la libreria non c'è più), e gli angoli convessi esterni si arrotondano a 0,4 per
+  regola del progetto, tranne quelli dei glifi di Material (`Rules.md` § '🖌️ Come entra un disegno').
 - **Il design system vive in Claude Design, `Roccobot Design`**, e da là si prende solo quello che
   l'utente nomina; un file che arriva in chat si lavora e non si archivia, e `dev/` non si ricrea
   (`Rules.md` § '🎨 Il design system, che vive fuori dal repository').

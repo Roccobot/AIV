@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -74,7 +72,7 @@ fun ViewerFactsSide(
             )
             IconButton(onClick = onClose) {
                 Icon(
-                    imageVector = Icons.Outlined.Close,
+                    imageVector = Glyphs.Material.Close,
                     contentDescription = stringResource(R.string.pick_close),
                     tint = MaterialTheme.colorScheme.onSurface
                 )

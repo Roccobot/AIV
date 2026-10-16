@@ -26,8 +26,6 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -211,7 +209,7 @@ internal fun BottomMenu(
         animationSpec = tween(BAR_IN_MS, easing = PILL_EASE),
         label = "bar"
     )
-    val close = PillEntry(icon = Icons.Default.Close, label = stringResource(R.string.pick_close)) { open = false }
+    val close = PillEntry(icon = Glyphs.Material.Close, label = stringResource(R.string.pick_close)) { open = false }
     // Un tasto piega la barra prima di agire, come una riga di menu chiude il suo menu.
     val keys = entries.map { e -> e.copy(onTap = { open = false; e.onTap() }) }
         .let { if (atEnd) it + close else listOf(close) + it }
@@ -292,7 +290,7 @@ internal fun CornerMenu(
         label = "corner"
     )
     val round = LocalPillLook.current.cornerRound
-    val close = PillEntry(icon = Icons.Default.Close, label = stringResource(R.string.pick_close)) { open = false }
+    val close = PillEntry(icon = Glyphs.Material.Close, label = stringResource(R.string.pick_close)) { open = false }
     val cells = entries.map { e ->
         e.copy(onTap = { open = false; e.onTap() }, onHold = e.onHold?.let { hold -> { open = false; hold() } })
     } + close
@@ -706,7 +704,7 @@ private fun FoldedPill(
                 size = PILL_KEY
             )
         }
-        val opener = PillEntry(Icons.Default.Close, fabLabel, enabled = enabled, onHold = onHold) { onOpen() }
+        val opener = PillEntry(Glyphs.Material.Close, fabLabel, enabled = enabled, onHold = onHold) { onOpen() }
         JumpKey(
             entry = opener,
             jump = 1,
@@ -745,7 +743,7 @@ private fun RoundRest(
 ) {
     Box(modifier = modifier.declaresFoot().pillFill(backdrop)) {
         PillKey(
-            entry = PillEntry(Icons.Default.Close, label, enabled = enabled, onHold = onHold) {
+            entry = PillEntry(Glyphs.Material.Close, label, enabled = enabled, onHold = onHold) {
                 if (armed) onLeap() else onOpen()
             },
             size = PILL_KEY,

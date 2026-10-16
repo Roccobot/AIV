@@ -1,7 +1,5 @@
 package io.github.roccobot.aiv
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -57,7 +55,7 @@ class VibrazioneTest {
         banco.setContent {
             CompositionLocalProvider(LocalHapticFeedback provides conta) {
                 AivTheme(darkTheme = false) {
-                    MenuRow(text = VOCE, icon = Icons.Default.Info, onTap = {}, holdLabel = VOCE, onHold = {})
+                    MenuRow(text = VOCE, icon = Glyphs.Material.Info, onTap = {}, holdLabel = VOCE, onHold = {})
                 }
             }
         }

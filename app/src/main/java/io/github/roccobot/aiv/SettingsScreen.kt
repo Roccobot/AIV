@@ -39,12 +39,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -81,7 +75,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -694,13 +687,13 @@ private fun SearchField(query: String, onQuery: (String) -> Unit) {
         leadingIcon = {
             // Senza descrizione: la lente ripete il suggerimento del campo, e il lettore di
             // schermo leggerebbe 'cerca' due volte.
-            Icon(imageVector = Icons.Default.Search, contentDescription = null)
+            Icon(imageVector = Glyphs.Material.Search, contentDescription = null)
         },
         trailingIcon = {
             if (query.isNotEmpty()) {
                 IconButton(onClick = { onQuery("") }) {
                     Icon(
-                        imageVector = Icons.Default.Close,
+                        imageVector = Glyphs.Material.Close,
                         contentDescription = stringResource(R.string.settings_search_clear)
                     )
                 }
@@ -1380,7 +1373,7 @@ private fun FavouritesList(list: List<String>, onList: (List<String>) -> Unit, s
                 Text(hiddenShown(entry), style = MaterialTheme.typography.bodySmall)
             }
             IconButton(onClick = { onList(list - entry) }) {
-                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.favourite_remove))
+                Icon(Glyphs.Material.Close, contentDescription = stringResource(R.string.favourite_remove))
             }
         }
     }
@@ -1938,7 +1931,7 @@ private fun Shell(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onBack) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        imageVector = Glyphs.Material.ArrowBack,
                         contentDescription = stringResource(R.string.settings_back)
                     )
                 }
@@ -2156,7 +2149,7 @@ private fun PageRow(
             summary?.let { Detail(it) }
         }
         Icon(
-            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            imageVector = Glyphs.Material.KeyboardArrowRight,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -2619,7 +2612,7 @@ private fun HiddenFoldersList(settings: Settings, onChange: (Settings) -> Unit, 
             }
             IconButton(onClick = { removing = entry }) {
                 Icon(
-                    Icons.Default.Close,
+                    Glyphs.Material.Close,
                     contentDescription = stringResource(
                         if (included) R.string.folder_remove else R.string.settings_hidden_show
                     )
@@ -2800,7 +2793,7 @@ private fun FactFields(
             ) {
                 if (field.always) {
                     Icon(
-                        imageVector = Icons.Default.Lock,
+                        imageVector = Glyphs.Material.Lock,
                         contentDescription = stringResource(R.string.settings_facts_always),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(18.dp)
@@ -3432,7 +3425,7 @@ private fun GlassPreview(tune: GlassTune) {
         }
         CompositionLocalProvider(LocalPillLook provides look, LocalContentColor provides pillInk()) {
             Row(modifier = Modifier.align(Alignment.Center).pillFill(backdrop)) {
-                listOf(Icons.Default.Search, Icons.Default.Close, Icons.Default.Settings).forEach {
+                listOf(Glyphs.Material.Search, Glyphs.Material.Close, Glyphs.Material.Settings).forEach {
                     Box(contentAlignment = Alignment.Center, modifier = Modifier.size(PILL_KEY)) {
                         Icon(it, contentDescription = null, modifier = Modifier.size(PILL_GLYPH))
                     }

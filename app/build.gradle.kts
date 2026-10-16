@@ -288,7 +288,12 @@ dependencies {
      * `debugImplementation`**: un'anteprima non serve all'APK che si pubblica.
      */
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.material.icons.extended)
+    /*
+     * ⚠️ **QUI C'ERA `material-icons-extended` FINO ALLA `6.30`**: ferma alla 1.7.8 dal febbraio
+     * 2025 e pesante 35,7 MB, per i pochi glifi che l'app usa. Quei glifi vivono in
+     * `res/drawable/ic_m_*.xml`, col disegno identico, e si chiamano da `Glyphs.Material`
+     * (scelta H1a dell'utente). Un glifo di Material nuovo entra come file, non con la libreria.
+     */
 
     debugImplementation(libs.androidx.ui.tooling)
 

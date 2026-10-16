@@ -37,11 +37,6 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.CropLandscape
-import androidx.compose.material.icons.filled.CropPortrait
-import androidx.compose.material.icons.filled.Flip
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -314,7 +309,7 @@ fun EditorScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.settings_back))
+                Icon(Glyphs.Material.ArrowBack, stringResource(R.string.settings_back))
             }
             /*
              * ⚠️ **Il titolo è 'Modifica immagine', la stessa stringa dell'editor completo**
@@ -850,7 +845,7 @@ private fun EditorSheet(
              * è provvisorio.
              */
             val flipKey = PadAction(
-                PadKey.FLIP, Icons.Filled.Flip, R.string.editor_flip,
+                PadKey.FLIP, Glyphs.Material.Flip, R.string.editor_flip,
                 enabled = live,
                 onHold = { onFlip(true) },
                 holdLabel = R.string.editor_flip_down
@@ -1075,8 +1070,8 @@ internal fun ShapeRow(
             text = stringResource(one.label),
             icon = when {
                 !full -> null
-                one == Lay.TALL -> Icons.Filled.CropPortrait
-                else -> Icons.Filled.CropLandscape
+                one == Lay.TALL -> Glyphs.Material.CropPortrait
+                else -> Glyphs.Material.CropLandscape
             },
             selected = one == lay,
             // Disattivati con 'Originale' ([Shape.fromImage]).
