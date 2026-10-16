@@ -63,6 +63,23 @@ revoke all on function public.aiv_feedback_save(text, text, jsonb)
   from public, anon, authenticated;
 grant execute on function public.aiv_feedback_save(text, text, jsonb) to service_role;
 
+-- Since 6.29 (H7 of the 6.25 review): the latest submitted round is looked up by owner and time,
+-- and every save adds a revision, so without an index that lookup grows with the history.
+create index if not exists aiv_feedback_history_owner_saved
+  on public.aiv_feedback_history(owner_id, saved_at desc);
+
+-- Since 6.29: how much the history weighs, read by the deploy (`supabase-usage.mjs`). The free
+-- plan turns the project read only past 500 MB of database, and from there no save succeeds.
+create or replace function public.aiv_feedback_usage() returns jsonb
+  language sql security invoker set search_path = '' as $$
+  select pg_catalog.jsonb_build_object(
+    'history_rows', (select pg_catalog.count(*) from public.aiv_feedback_history),
+    'history_bytes', pg_catalog.pg_total_relation_size('public.aiv_feedback_history'),
+    'database_bytes', pg_catalog.pg_database_size(pg_catalog.current_database()));
+$$;
+revoke all on function public.aiv_feedback_usage() from public, anon, authenticated;
+grant execute on function public.aiv_feedback_usage() to service_role;
+
 -- Originals use immutable hash-based names. MIME and original filename stay in JSON.
 insert into storage.buckets(id, name, public, file_size_limit, allowed_mime_types)
   values ('aiv-feedback', 'aiv-feedback', false, 8388608,

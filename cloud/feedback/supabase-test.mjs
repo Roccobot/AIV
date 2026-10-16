@@ -3,6 +3,7 @@ import {createHmac,createHash} from 'node:crypto';
 import worker from './worker.mjs';
 import {SupabaseStore} from './supabase-store.mjs';
 import {testServer} from './supabase-test-server.mjs';
+import {usage,report} from './supabase-usage.mjs';
 const fixture=await testServer();
 try {
   const env={SUPABASE_URL:fixture.url,SUPABASE_SECRET_KEY:'development-supabase-test-key',OWNER_ID:'10722164',SESSION_SECRET:'development-test-secret',GITHUB_CLIENT_ID:'test-id',GITHUB_CLIENT_SECRET:'test-secret'};
@@ -71,6 +72,19 @@ try {
   assert.equal((await put(saved.headers.get('ETag'),{...crowded,notes:'ancora'})).status,200);
   assert.equal(fixture.calls.slice(before).filter(call=>call.path.startsWith('/storage/v1/object/info/')).length,60);
   fixture.listing='ok';
+  // 6.29 (H7): the deploy's measure, with the function of the schema and without it.
+  const store=new SupabaseStore(env);
+  const measured=await usage(store);
+  assert.equal(measured.files,62);
+  assert.equal(measured.database.history_rows,Number((await fixture.db.query('select count(*)::int as count from public.aiv_feedback_history')).rows[0].count));
+  assert.deepEqual(report(measured).warnings,[]);
+  assert.equal(report({database:{database_bytes:300*1024*1024,history_bytes:1,history_rows:1},files:0,bytes:0}).warnings.length,1);
+  assert.equal(report({database:null,files:1,bytes:600*1024*1024}).warnings.length,1);
+  fixture.usage='missing';
+  const partial=await usage(store);
+  assert.equal(partial.database,null);assert.equal(partial.files,62);
+  assert.match(report(partial).lines[0],/rilancia/);
+  fixture.usage='ok';
   assert.equal(fixture.calls.filter(call=>call.authorization!==undefined).length,0);
   assert.equal((await fixture.db.query('select count(*)::int as count from public.aiv_feedback_history')).rows[0].count,5);
   assert.equal((await worker.fetch(request('/api/feedback'),{...env,SUPABASE_SECRET_KEY:'wrong-key'})).status,503);

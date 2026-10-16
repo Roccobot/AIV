@@ -8,7 +8,7 @@ export async function testServer(port = 0) {
   await db.exec('create role anon; create role authenticated; create role service_role bypassrls; create schema storage; create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);');
   await db.exec(await readFile(new URL('./supabase-setup.sql',import.meta.url),'utf8'));
   await db.exec('grant usage on schema storage to service_role; grant select on storage.buckets to service_role; set role service_role;');
-  const files = new Map(), calls = [], fixture = {listing:'ok'};
+  const files = new Map(), calls = [], fixture = {listing:'ok',usage:'ok'};
   const server = createServer(async (request,response) => {
     const reply = (body,status=200,type='application/json') => {
       response.writeHead(status,{'Content-Type':type});
@@ -45,6 +45,11 @@ export async function testServer(port = 0) {
         if (fixture.listing === 'broken') return reply({error:'InvalidRequest'},400);
         const names=[...files.keys()].filter(key=>key.startsWith(prefix+'/')).map(key=>key.slice(prefix.length+1)).filter(name=>!name.includes('/')).sort();
         return reply(names.slice(offset,offset+limit).map(name=>({name,id:name,metadata:{size:files.get(prefix+'/'+name).length}})));
+      }
+      // `usage` set to 'missing' answers as PostgREST does for a function the schema lacks.
+      if (url.pathname === '/rest/v1/rpc/aiv_feedback_usage' && request.method === 'POST') {
+        if (fixture.usage === 'missing') return reply({code:'PGRST202'},404);
+        return reply((await db.query('select public.aiv_feedback_usage() as result')).rows[0].result);
       }
       if (url.pathname === '/storage/v1/object/aiv-feedback' && request.method === 'DELETE') {
         const {prefixes}=JSON.parse(bytes.toString());

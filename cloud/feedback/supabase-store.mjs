@@ -76,21 +76,29 @@ export class SupabaseStore {
    * whatever it does not confirm is asked one by one, as before, so a listing that answered in
    * another shape would cost the old requests and never a refused draft.
    */
+  /** The owner's attachments as {key, size}, a page of LIST_PAGE at a time. */
+  async *attachments() {
+    const folder = this.prefix+'files';
+    for (let offset = 0; ; offset += LIST_PAGE) {
+      const response = await this.request('/storage/v1/object/list/aiv-feedback',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({prefix:folder,limit:LIST_PAGE,offset,sortBy:{column:'name',order:'asc'}})
+      });
+      const page = await response.json();
+      if (!Array.isArray(page)) return;
+      for (const item of page) {
+        const size = item?.metadata?.size;
+        if (typeof item?.name === 'string' && Number.isInteger(size) && size > 0) yield {key:folder+'/'+item.name,size};
+      }
+      if (page.length < LIST_PAGE) return;
+    }
+  }
   async sizes(keys) {
-    const wanted = new Set(keys), found = new Map(), folder = this.prefix+'files';
+    const wanted = new Set(keys), found = new Map();
     try {
-      for (let offset = 0; ; offset += LIST_PAGE) {
-        const response = await this.request('/storage/v1/object/list/aiv-feedback',{
-          method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({prefix:folder,limit:LIST_PAGE,offset,sortBy:{column:'name',order:'asc'}})
-        });
-        const page = await response.json();
-        if (!Array.isArray(page)) break;
-        for (const item of page) {
-          const key = folder+'/'+item?.name, size = item?.metadata?.size;
-          if (wanted.has(key) && Number.isInteger(size) && size > 0) found.set(key,size);
-        }
-        if (page.length < LIST_PAGE || found.size === wanted.size) break;
+      for await (const {key,size} of this.attachments()) {
+        if (wanted.has(key)) found.set(key,size);
+        if (found.size === wanted.size) break;
       }
     } catch { /* The single checks below answer for whatever the listing did not confirm. */ }
     for (const key of wanted) {

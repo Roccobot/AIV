@@ -84,6 +84,7 @@ jobs:
           done
           node cloud/feedback/github-preflight.mjs
           node cloud/feedback/supabase-preflight.mjs
+          node cloud/feedback/supabase-usage.mjs
           cloud/feedback/node_modules/.bin/wrangler deploy --config cloud/feedback/wrangler.toml
           cloud/feedback/node_modules/.bin/wrangler secret list --config cloud/feedback/wrangler.toml --format json > /tmp/aiv-feedback-secret-names.json
           node cloud/feedback/deploy-secrets.mjs /tmp/aiv-feedback-secret-names.json | cloud/feedback/node_modules/.bin/wrangler secret bulk --config cloud/feedback/wrangler.toml
