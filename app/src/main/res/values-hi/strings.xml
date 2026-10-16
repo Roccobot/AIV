@@ -115,6 +115,7 @@
     <string name="folder_renamed">फ़ोल्डर का नाम बदल दिया</string>
     <string name="folder_rename_taken">इस नाम का फ़ोल्डर पहले से है</string>
     <string name="folder_rename_fail">फ़ोल्डर का नाम नहीं बदला जा सका</string>
+    <string name="folder_create_fail">फ़ोल्डर नहीं बनाया जा सका</string>
     <string name="jump_top">शुरुआत में जाएँ</string>
     <string name="jump_bottom">अंत में जाएँ</string>
     <string name="settings_folder_columns">ग्रिड के स्तंभ</string>

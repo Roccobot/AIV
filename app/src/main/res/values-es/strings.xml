@@ -115,6 +115,7 @@
     <string name="folder_renamed">Carpeta renombrada</string>
     <string name="folder_rename_taken">Ya existe una carpeta con este nombre</string>
     <string name="folder_rename_fail">No se ha podido renombrar la carpeta</string>
+    <string name="folder_create_fail">No se ha podido crear la carpeta</string>
     <string name="jump_top">Ir al principio</string>
     <string name="jump_bottom">Ir al final</string>
     <string name="settings_folder_columns">Columnas en las cuadrículas</string>

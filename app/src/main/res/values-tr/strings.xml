@@ -115,6 +115,7 @@
     <string name="folder_renamed">Klasör yeniden adlandırıldı</string>
     <string name="folder_rename_taken">Bu adda bir klasör zaten var</string>
     <string name="folder_rename_fail">Klasör yeniden adlandırılamadı</string>
+    <string name="folder_create_fail">Klasör oluşturulamadı</string>
     <string name="jump_top">Başa git</string>
     <string name="jump_bottom">Sona git</string>
     <string name="settings_folder_columns">Izgaralardaki sütunlar</string>

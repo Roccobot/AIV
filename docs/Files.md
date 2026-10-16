@@ -176,6 +176,23 @@
 - ⚠️ **`DisfareTest` è nata con il lavoro e non dopo un difetto**: qui un difetto non si vede e non
   si disfa a sua volta.
 
+## 🛡️ Le scritture che non lasciano file a metà
+
+Dalla `6.26`, con i rilievi della revisione `Setaccio` (B6, B3, D31, D10).
+
+- ⚠️⚠️ **Un file che si riscrive passa da `AtomicWrite`**: si scrive accanto (`.nome.part`), si
+  sincronizza e si rinomina sopra, quindi un errore a metà lascia il file com'era. La usano
+  l'archivio del cestino, quello dei ripristini, la filigrana, l'SVG ripulito, le miniature AVIF e la
+  cache remota; il salvataggio degli editor ha da sempre un suo file provvisorio.
+- ⚠️⚠️ **Senza l'archivio del cestino scritto i file mandati nel cestino tornano a casa**, e la copia
+  di sicurezza dell'editor non c'è: nel cestino senza la loro riga non si ripristinerebbero più.
+- **Un file nuovo che non arriva in fondo si cancella** (`FileTree.pour`), nella copia in un'altra
+  cartella e nello spostamento fra due volumi.
+- **'Nuova cartella' con un nome già preso porta nella cartella che c'è** (`FileTree.makeFolder`),
+  nell'albero e nella destinazione; un errore vero lo dice l'avviso `folder_create_fail`, e `.` e `..`
+  non si accettano.
+- Le prove sono `ScritturaSicuraTest` e `NuovaCartellaTest`.
+
 ## 🖼️ Le miniature che mentono dopo una riscrittura
 
 - ⚠️⚠️ **La cache di `Thumbs` è indicizzata sull'indirizzo e non sul contenuto**, quindi un file

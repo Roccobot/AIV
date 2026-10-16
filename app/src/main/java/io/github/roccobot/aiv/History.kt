@@ -155,8 +155,9 @@ object History {
         return rows(runCatching { if (file.isFile) file.readText() else "" }.getOrDefault(""))
     }
 
+    /** Riscrive l'archivio con [AtomicWrite], come quello del cestino (rilievo C25). */
     private fun write(context: Context, rows: List<Row>) {
-        runCatching { file(context).writeText(text(rows)) }
+        AtomicWrite.text(file(context), text(rows))
     }
 
     /**

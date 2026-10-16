@@ -248,9 +248,13 @@ object Resize {
      * quella del pennello della filigrana.
      * ⚠️ **Chi chiama ricicla quello che ha passato solo se riceve un bitmap diverso**, che è la
      * convenzione di ogni passata di questa catena.
+     * ⚠️⚠️ **Un errore di memoria passa, e non risponde `null`** (rilievo B15 della revisione
+     * della 6.25): `null` vuol dire 'niente da fare', e il salvataggio scriveva il file alla
+     * misura piena dicendo 'salvato'. La funzione la chiamano i soli salvataggi, che quell'errore
+     * lo raccolgono e rispondono 'troppo grande'.
      */
     fun apply(image: Bitmap, plan: Plan): Bitmap? {
         val (w, h) = plan.sizeFor(image.width, image.height) ?: return null
-        return runCatching { Bitmap.createScaledBitmap(image, w, h, true) }.getOrNull()
+        return Bitmap.createScaledBitmap(image, w, h, true)
     }
 }

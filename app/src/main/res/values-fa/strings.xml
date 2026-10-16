@@ -115,6 +115,7 @@
     <string name="folder_renamed">نام پوشه تغییر کرد</string>
     <string name="folder_rename_taken">پوشه‌ای با این نام از قبل هست</string>
     <string name="folder_rename_fail">تغییر نام پوشه ممکن نشد</string>
+    <string name="folder_create_fail">ساخت پوشه ممکن نشد</string>
     <string name="jump_top">رفتن به ابتدا</string>
     <string name="jump_bottom">رفتن به انتها</string>
     <string name="settings_folder_columns">ستون‌های شبکه‌ها</string>

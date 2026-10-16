@@ -115,6 +115,7 @@
     <string name="folder_renamed">已重新命名資料夾</string>
     <string name="folder_rename_taken">已有同名資料夾</string>
     <string name="folder_rename_fail">無法重新命名資料夾</string>
+    <string name="folder_create_fail">無法建立資料夾</string>
     <string name="jump_top">回到開頭</string>
     <string name="jump_bottom">前往結尾</string>
     <string name="settings_folder_columns">格狀檢視的欄數</string>

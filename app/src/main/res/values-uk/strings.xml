@@ -115,6 +115,7 @@
     <string name="folder_renamed">Теку перейменовано</string>
     <string name="folder_rename_taken">Тека з такою назвою вже є</string>
     <string name="folder_rename_fail">Не вдалося перейменувати теку</string>
+    <string name="folder_create_fail">Не вдалося створити теку</string>
     <string name="jump_top">На початок</string>
     <string name="jump_bottom">У кінець</string>
     <string name="settings_folder_columns">Стовпці в сітках</string>

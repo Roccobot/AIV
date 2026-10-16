@@ -115,6 +115,7 @@
     <string name="folder_renamed">Dossier renommé</string>
     <string name="folder_rename_taken">Un dossier porte déjà ce nom</string>
     <string name="folder_rename_fail">Le dossier n\'a pas pu être renommé</string>
+    <string name="folder_create_fail">Le dossier n\'a pas pu être créé</string>
     <string name="jump_top">Aller au début</string>
     <string name="jump_bottom">Aller à la fin</string>
     <string name="settings_folder_columns">Colonnes dans les grilles</string>

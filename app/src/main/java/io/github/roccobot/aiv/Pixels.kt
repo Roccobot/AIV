@@ -60,6 +60,18 @@ object Pixels {
     }
 
     /**
+     * Dimentica il lato di [uri]: il file dietro quell'indirizzo è stato riscritto.
+     *
+     * ⚠️ **La chiama `Thumbs.forget`**, dalla `6.26` (rilievo B14 della revisione della 6.25):
+     * dopo un ritaglio salvato sopra l'originale il lato restava quello di prima, e la finestra
+     * del ridimensionamento mostrava misure sbagliate e decideva su quelle.
+     */
+    @Synchronized
+    fun forget(uri: Uri) {
+        seen.remove(uri.toString())
+    }
+
+    /**
      * Il lato lungo del file dietro [uri], letto dall'intestazione e poi ricordato.
      *
      * ⚠️ Torna `null` per tutto quello che non si riesce ad aprire, e chi chiama deve

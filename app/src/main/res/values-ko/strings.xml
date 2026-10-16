@@ -115,6 +115,7 @@
     <string name="folder_renamed">폴더 이름을 변경했습니다</string>
     <string name="folder_rename_taken">이 이름의 폴더가 이미 있습니다</string>
     <string name="folder_rename_fail">폴더 이름을 변경하지 못했습니다</string>
+    <string name="folder_create_fail">폴더를 만들지 못했습니다</string>
     <string name="jump_top">처음으로 이동</string>
     <string name="jump_bottom">끝으로 이동</string>
     <string name="settings_folder_columns">격자의 열 수</string>

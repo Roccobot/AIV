@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.MediaStore
 import android.provider.OpenableColumns
+import android.util.LruCache
 import android.webkit.MimeTypeMap
 import androidx.annotation.StringRes
 import androidx.exifinterface.media.ExifInterface
@@ -13,7 +14,6 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Che cosa si sa delle immagini scelte: il conto e il peso sempre, tutto il resto solo
@@ -370,20 +370,32 @@ internal fun sizeOf(context: Context, uri: Uri): Long {
      * selezione si rifà a ogni cambiamento, quindi scegliendo trenta immagini una per una si
      * interrogava il `ContentResolver` centinaia di volte per numeri che non cambiano. Le altre
      * due letture dello stesso genere ce l'avevano già (`Names` e `Videos`), e questa no.
-     * ⚠️ **Il peso di un file non cambia mentre lo si guarda**: chi lo riscrive passa da
-     * un'operazione dell'app, che ricarica la cartella e con lei la selezione.
+     * ⚠️⚠️ **Chi riscrive un file lo dimentica** ([forgetSize], chiamata da `Thumbs.forget`,
+     * dalla `6.26`, rilievo C20 della revisione della 6.25): fino alla `6.25` la mappa non si
+     * svuotava mai, quindi dopo un salvataggio sopra l'originale la scheda `Info` e la selezione
+     * dicevano il peso di prima finché l'app restava aperta.
      * ⚠️ **Lo zero non si ricorda**, ed è la clausola che conta: zero è anche il ripiego di una
      * lettura andata male (un indirizzo di rete non ancora in cache), e memorizzarlo
      * trasformerebbe un errore di un attimo in un peso sbagliato per sempre.
      */
-    pesi[uri]?.let { return it }
+    pesi.get(uri)?.let { return it }
     val letto = readSize(context, uri)
-    if (letto > 0L) pesi[uri] = letto
+    if (letto > 0L) pesi.put(uri, letto)
     return letto
 }
 
-/** I pesi già letti, per indirizzo. Vedi la nota su [sizeOf]. */
-private val pesi = ConcurrentHashMap<Uri, Long>()
+/** Dimentica il peso di [uri]: il file è stato riscritto. Vedi [sizeOf]. */
+internal fun forgetSize(uri: Uri) {
+    pesi.remove(uri)
+}
+
+/**
+ * I pesi già letti, per indirizzo. Vedi la nota su [sizeOf].
+ *
+ * ⚠️ **Con un tetto, dalla `6.26`** (rilievo C20): senza, cresceva di un indirizzo per ogni file
+ * mai pesato. Quattromila coprono la selezione di una cartella grande; un peso uscito si rilegge.
+ */
+private val pesi = LruCache<Uri, Long>(4096)
 
 private fun readSize(context: Context, uri: Uri): Long {
     if (uri.scheme?.lowercase() == "file") {

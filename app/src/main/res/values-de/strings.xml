@@ -115,6 +115,7 @@
     <string name="folder_renamed">Ordner umbenannt</string>
     <string name="folder_rename_taken">Es gibt schon einen Ordner mit diesem Namen</string>
     <string name="folder_rename_fail">Der Ordner konnte nicht umbenannt werden</string>
+    <string name="folder_create_fail">Der Ordner konnte nicht erstellt werden</string>
     <string name="jump_top">Zum Anfang springen</string>
     <string name="jump_bottom">Zum Ende springen</string>
     <string name="settings_folder_columns">Spalten in den Rastern</string>

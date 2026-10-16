@@ -115,6 +115,7 @@
     <string name="folder_renamed">フォルダーの名前を変更しました</string>
     <string name="folder_rename_taken">この名前のフォルダーはすでにあります</string>
     <string name="folder_rename_fail">フォルダーの名前を変更できませんでした</string>
+    <string name="folder_create_fail">フォルダーを作成できませんでした</string>
     <string name="jump_top">先頭へ移動</string>
     <string name="jump_bottom">末尾へ移動</string>
     <string name="settings_folder_columns">一覧の列数</string>

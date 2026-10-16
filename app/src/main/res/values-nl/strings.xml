@@ -115,6 +115,7 @@
     <string name="folder_renamed">Map hernoemd</string>
     <string name="folder_rename_taken">Er bestaat al een map met deze naam</string>
     <string name="folder_rename_fail">De map kon niet worden hernoemd</string>
+    <string name="folder_create_fail">De map kon niet worden gemaakt</string>
     <string name="jump_top">Naar het begin</string>
     <string name="jump_bottom">Naar het einde</string>
     <string name="settings_folder_columns">Kolommen in de rasters</string>

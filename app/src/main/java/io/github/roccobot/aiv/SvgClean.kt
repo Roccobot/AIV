@@ -137,16 +137,18 @@ object SvgClean {
             }
             // ⚠️ Rientra come è uscito: un `.svgz` ripulito e scritto in chiaro resterebbe un
             // file col nome sbagliato, e chi lo apre altrove si aspetta il gzip.
-            val scritto = runCatching {
+            // ⚠️ Con [AtomicWrite] (rilievo B36): scritto sul posto e interrotto, il documento
+            // dell'utente restava troncato. Il gzip si chiude qui, prima: [AtomicWrite] vuole
+            // il flusso aperto per il suo `sync`.
+            val scritto = AtomicWrite.write(file) { fuori ->
                 if (zippato) {
-                    file.outputStream().use { fuori ->
-                        GZIPOutputStream(fuori).use { it.write(pulito.toByteArray()) }
-                    }
+                    val zip = GZIPOutputStream(fuori)
+                    zip.write(pulito.toByteArray())
+                    zip.finish()
                 } else {
-                    file.writeText(pulito)
+                    fuori.write(pulito.toByteArray())
                 }
-                true
-            }.getOrDefault(false)
+            }
             if (!scritto) return@withContext Result.Failed(R.string.clean_failed)
             // ⚠️ La scansione come dopo ogni scrittura dell'editor: senza, il MediaStore
             // continua a dichiarare il peso di prima e la miniatura vecchia resta in cache.
