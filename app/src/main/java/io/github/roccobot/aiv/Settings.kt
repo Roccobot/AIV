@@ -22,100 +22,71 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 /*
- * The settings, and which ones exist.
+ * Le impostazioni, e quali esistono.
  *
- * The list is a subset of the ones 'Decent Image Viewer' exposes, plus three that
- * only make sense here. Choosing the subset is the whole design of this file, so
- * the reasons are written down rather than left to be guessed:
+ * Restano fuori di proposito:
+ * - la **lingua**: la sceglie Android dal sistema, e un selettore dentro l'app sarebbe un secondo
+ *   meccanismo che fa quello che la piattaforma fa già;
+ * - la **rotella** del mouse (verso, passo, sensibilità): su un telefono non c'è, e il pizzico lo
+ *   gestisce il sistema;
+ * - i DPI dell'**esportazione SVG**: il visualizzatore legge gli SVG (vedi [Svg]) ma niente qui ne
+ *   scrive. Se un giorno servisse uno zoom più nitido su un vettoriale, la misura raster di un SVG
+ *   in arrivo, oggi la costante [Svg.BOX], verrebbe qui;
+ * - la correzione del **testo** da tavolo, misurata su un carattere che questa app non carica.
  *
- * - The **language** is deliberately absent. Android picks it from the system and
- *   the strings live in values/ and values-it/: a switch inside the app would be
- *   a second mechanism doing what the platform already does, and the two would
- *   disagree the first time one of them was touched.
- * - Everything about the **wheel** is gone, and it is most of the userscript's
- *   panel: direction, step, mode, sensitivity. There is no wheel on a phone, and
- *   pinch is handled by the system with its own tuning.
- * - The **SVG export** settings (two DPI values) still have nothing to act on, and
- *   from 1.31 the reason is a narrower one than the note used to give: the viewer
- *   does read SVG now (see [Svg]), but those two values are about *writing* one,
- *   which nothing here does. ⚠️ They are however the obvious home for the raster
- *   size of an incoming SVG, today the constant [Svg.BOX]: if sharper zoom on a
- *   vector is ever asked for, this is where the number would move.
- * - The **text nudge** is desktop typography, measured on a font this app never
- *   loads.
- *
- * What stays is what a finger can reach and a phone can change.
+ * Resta quello che un dito raggiunge e un telefono può cambiare.
  */
 
-/** One picture the app has opened before, as the opening screen lists it. */
+/** Un'immagine che l'app ha già aperto, come la elenca la schermata iniziale. */
 data class RecentImage(val address: String, val name: String)
 
 /**
- * What every stored choice has: a token that outlives a rename.
+ * Quello che ogni scelta salvata ha: un token che sopravvive a una rinomina.
  *
- * ⚠️ The stored value is the token and NOT the enum constant's name. The two look
- * identical today and part company the day a constant is renamed: with the name,
- * every phone that had saved a value would silently fall back to the default, and
- * the setting would look like it had never been touched.
+ * ⚠️ **Si salva il token e NON il nome della costante**: oggi sono uguali, e il giorno che una
+ * costante si rinomina ogni telefono che aveva salvato un valore ripiegherebbe in silenzio su
+ * quello di fabbrica.
  */
 interface Choice {
     val token: String
 }
 
-/** How the space behind the picture is painted. */
+/** Come si dipinge lo spazio dietro l'immagine. */
 enum class BgType(override val token: String) : Choice {
-    /** The checkerboard, which is what makes transparency visible. */
+    /** La scacchiera, che fa vedere la trasparenza. */
     CHECKER("checker"),
-    /** One flat colour, for looking at a photograph without a pattern under it. */
+    /** Un colore unito, per guardare un'immagine senza un motivo sotto. */
     SOLID("solid")
 }
 
 /**
- * Which pair of greys the background uses. Separate from [BgType] on purpose:
- * they are independent axes, and merging them would force a choice between
- * transparency and colour, losing the light checkerboard entirely. The userscript
- * made that mistake once and had to undo it.
+ * Quale coppia di grigi usa lo sfondo. Separata da [BgType] apposta: sono due assi indipendenti, e
+ * unirli costringerebbe a scegliere fra trasparenza e colore, perdendo la scacchiera chiara.
  */
 enum class BgTheme(override val token: String) : Choice { AUTO("auto"), LIGHT("light"), DARK("dark") }
 
 /**
- * What '100%' means, and on a phone the two answers are far apart.
+ * Che cosa vuol dire '100%', e su un telefono le due risposte sono lontane.
  *
- * A phone screen has two to three device pixels per layout pixel, so an image
- * shown at one image pixel per DEVICE pixel is a third of the size it would be at
- * one image pixel per LAYOUT pixel. Neither is wrong: [PHYSICAL] shows the file
- * as it really is, [LOGICAL] shows it the size a web page would.
+ * Uno schermo di telefono ha da due a tre pixel del dispositivo per pixel di layout, quindi
+ * un'immagine a un pixel per pixel del DISPOSITIVO è un terzo di quella a un pixel per pixel di
+ * LAYOUT. Nessuna delle due è sbagliata: [PHYSICAL] mostra il file com'è, [LOGICAL] alla misura di
+ * una pagina web.
  */
 enum class ScaleMode(override val token: String) : Choice { PHYSICAL("physical"), LOGICAL("logical") }
 
 /**
  * Che cosa stacca dallo schermo una superficie che si apre sopra la schermata.
  *
- * ⚠️⚠️ **TRE RISPOSTE E MAI DUE INSIEME, ED È UNA SUA ISTRUZIONE** (2026-09-07: *facciamo che
- * si può scegliere tra sfocatura e ombreggiatura (MAI insieme)*). Fino alla `1.80` la domanda
- * aveva due risposte, perché era un interruttore: la sfocatura c'era o non c'era. L'ombra era
- * uscita nella `1.54` insieme al bordo d'accento (*via le ombre e vai con il bordino da 2px del
- * colore di accento*), e la sua domanda del giro della `1.80` la riapre: *continuo a non capire
- * perché ottenere 'sta ombreggiatura è così complicato, è una cosa che letteralmente migliaia di
- * app fanno di continuo*.
- *
- * ⚠️⚠️ **'MAI INSIEME' NON È SOLO UNA REGOLA DI GUSTO: È QUELLO CHE RENDE L'OMBRA POSSIBILE.**
- * Le due vie vogliono due geometrie opposte sui menu, e per questo non potevano convivere
- * nemmeno volendo: la sfocatura è un attributo della **finestra**, quindi vuole una finestra
- * grande **quanto il pannello disegnato**, o sfoca una fascia di sfondo intorno a lui (era la
- * cornice del giro della `1.51`); l'ombra invece **esce** dal pannello, quindi vuole una
- * finestra **più grande** di lui, o viene tagliata di netto sul bordo, che è il 'quadrato
- * sfocato' che lui ha bocciato due volte. Con una scelta sola in vigore, ognuna ha la finestra
- * che le serve.
- *
- * ⚠️ **[NONE] non è il terzo comodo: è l'interruttore spento della `1.39`**, e resta perché la
- * ragione per cui esisteva non è decaduta (*rende tutto visibilmente più lento*): chi ha un
- * telefono che non regge nessuno dei due effetti li spegne. ⚠️ **E il BORDO d'accento non è in
- * questo elenco**: quello non è una funzione che si accende ma il modo in cui l'app è fatta, e
- * c'è in tutti e tre i casi (vedi `Edge.kt`).
+ * ⚠️ **Tre risposte, mai due insieme** (istruzione dell'utente: sfocatura o ombra, mai insieme).
+ * Non è solo gusto: la sfocatura è un attributo della finestra e vuole una finestra grande quanto
+ * il pannello, o sfoca una fascia intorno; l'ombra esce dal pannello e vuole una finestra più
+ * grande, o è tagliata sul bordo. Con una scelta sola in vigore, ognuna ha la finestra che le
+ * serve. [NONE] serve a chi ha un telefono che non regge nessuno dei due effetti. Il bordo
+ * d'accento non è in questo elenco: c'è in tutti e tre i casi (vedi `Edge.kt`).
  */
 enum class PanelDepth(override val token: String) : Choice {
-    /** Lo sfondo sfocato più la patina scura: quello che l'app fa dalla `1.38`. */
+    /** Lo sfondo sfocato più la patina scura. */
     BLUR("blur"),
     /** L'ombra intorno alla superficie, e nient'altro dietro: quello che fa Material. */
     SHADOW("shadow"),
@@ -124,123 +95,77 @@ enum class PanelDepth(override val token: String) : Choice {
 }
 
 /**
- * Come si riconosce l'**ultimo media visualizzato** in una griglia.
+ * Come si riconosce l'**ultimo media visualizzato** in una griglia: cornice, angolo o tondo
+ * (richieste dell'utente). L'ordine di dichiarazione è quello dei gettoni.
  *
- * ⚠️⚠️ **DUE DALLA `2.11`, ED È SUA RICHIESTA** (punto D del campo libero del giro accorpato:
- * *aggiungi 'Indicatore dell'ultimo media visualizzato' con due chip di selezione esclusiva:
- * 'Cornice' e 'Angolo' (predefinito di fabbrica: 'Cornice')*). Fino alla `2.10` il segno era uno
- * solo, il nastro nell'angolo, e non si poteva cambiare.
- * ⚠️⚠️ **[FRAME] ROVESCIA UNA SCELTA DELLA `0.58`, E VA SAPUTO PERCHÉ NON SEMBRI UNA SVISTA**:
- * allora la cornice era fra le cinque proposte e l'aveva **scartata**, per una ragione scritta in
- * `GridScreen` e che regge ancora (*una cornice attorno a una miniatura è il gesto universale
- * della selezione, quindi da lontano quel segno dice la cosa sbagliata*). Adesso la rivuole, con
- * un mockup suo: quello che cambia non è l'argomento, è la sua preferenza, e la scelta resta
- * doppia proprio perché i due segni dicono cose diverse.
- * ⚠️ **Quale dei due arriva di fabbrica dipende da quando l'app è stata installata**: il perché e
- * il come vivono su `MarkMigration`.
- * ⚠️⚠️ **DALLA `2.92` LE RISPOSTE SONO TRE, ED È SUA RICHIESTA** (punto 2 del campo libero del giro
- * della `2.91`: *nuova scelta: un pallino colore accento 50% in basso a sinistra nel quadrato di
- * miniatura dell'elemento*). ⚠️ **I valori di fabbrica non cambiano**: il tondo arriva solo a
- * chi lo sceglie, quindi `MarkMigration` resta com'è, e l'ordine di dichiarazione, che è quello
- * dei gettoni, lo mette in coda perché è l'ultimo arrivato.
- * ⚠️ **La voce si chiama 'Tondo' dalla `2.94`**, ed è una sua riscrittura: fino alla `2.93` diceva
- * 'Pallino'. Il token resta `dot`, perché nell'archivio vive lui e non il nome.
- * ⚠️⚠️ **E DALLA `2.95` IL TONDO È IL VALORE DI FABBRICA, ED È SUA ISTRUZIONE** (voce `tondo-opaco`
- * del giro della `2.93` e della `2.94`, approvata con una nota: *dev'essere il predefinito*). Quindi la
- * frase qui sopra che dice che i valori di fabbrica non cambiano è superata, e l'ordine resta quello:
- * lui non ha chiesto di spostare il gettone, e l'ordine dei gettoni è una cosa diversa dal valore con
- * cui si parte.
- * ⚠️ **Chi ha già l'app tiene il segno che ha**, per la stessa ragione della sfocatura della `2.61`:
- * dalla `2.11` la migrazione scrive la chiave al primo avvio, quindi l'archivio non distingue 'ho
- * scelto la cornice' da 'la cornice è arrivata di fabbrica'. Il tondo arriva alle installazioni nuove.
+ * ⚠️ **La cornice era stata scartata come proposta iniziale** (in `GridScreen`: intorno a una
+ * miniatura è il segno della selezione), e l'utente l'ha poi voluta fra le scelte: i segni dicono
+ * cose diverse, e la scelta è sua.
+ * ⚠️ **Di fabbrica il tondo** (voce `tondo-opaco`), ma chi ha già l'app tiene il segno che ha:
+ * l'archivio non distingue 'ho scelto la cornice' da 'la cornice è arrivata di fabbrica'. Il come è
+ * su `MarkMigration`. La voce si chiama 'Tondo', e il token resta `dot`.
  */
 enum class LastMark(override val token: String) : Choice {
-    /** Una cornice intorno alla miniatura, del colore d'accento: il mockup della `2.11`. */
+    /** Una cornice intorno alla miniatura, del colore d'accento. */
     FRAME("frame"),
-    /** Il nastro triangolare nell'angolo in basso a sinistra, cioè il segno dalla `0.58`. */
+    /** Il nastro triangolare nell'angolo in basso a sinistra. */
     CORNER("corner"),
-    /** Un tondo d'accento nello stesso angolo del nastro: nasce con la `2.92`, al 60% dalla `2.94`. */
+    /** Un tondo d'accento nello stesso angolo del nastro. */
     DOT("dot")
 }
 
 /**
- * Da che parte stanno le funzioni usate più spesso, nel pannello della selezione.
+ * Da che parte sono le funzioni usate più spesso, nel pannello della selezione.
  *
- * ⚠️⚠️ **NON È UN'IMPOSTAZIONE DI ESTETICA MA DI POLLICE** (richiesta dell'utente,
- * 2026-08-31): le dieci azioni sono in fila, e chi tiene il telefono con la destra arriva
- * comodo solo all'ultimo terzo. Rovesciando le due file, le stesse funzioni finiscono sotto
- * lo stesso dito dell'altra mano.
- * ⚠️ **Rovescia le FILE e non l'ordine dell'elenco**: la prima fila resta la prima, cambia
- * solo da che parte comincia. Girando l'elenco intero, 'Copia' finirebbe nella seconda fila.
- *
- * ⚠️⚠️ **L'ORDINE DI DICHIARAZIONE È QUELLO DEI DUE TASTI, e la sinistra viene prima anche
- * se il valore di fabbrica è la destra** (richiesta dell'utente, 2026-08-31: *anche se
- * 'Destra' è predefinita, deve essere al secondo posto, in modo che 'Sinistra' sia a sinistra
- * e 'Destra' a destra*). Questa scelta parla di **lati**, quindi i due tasti stanno dove
- * stanno le mani: metterli in ordine di frequenza costringerebbe a leggere l'etichetta per
- * capire quale si sta toccando.
- * ⚠️ **Il valore predefinito NON dipende da quest'ordine e non è cambiato**: sta scritto due
- * volte, nel valore di serie di `Settings.hand` e nel ripiego della rilettura, ed è `RIGHT`
- * in tutti e due. ⚠️ E la memoria non si rompe: sul disco va il **token**, non la posizione
- * (vedi `byToken`), quindi un telefono aggiornato ritrova la scelta di ieri.
+ * ⚠️ **È un'impostazione di pollice** (richiesta dell'utente): chi tiene il telefono con la destra
+ * arriva comodo solo all'ultimo terzo della fila, e rovesciando le file le stesse funzioni
+ * finiscono sotto lo stesso dito dell'altra mano. Si rovesciano le file, non l'ordine dell'elenco:
+ * la prima fila resta la prima. L'ordine di dichiarazione è quello dei due tasti, sinistra prima
+ * (richiesta dell'utente): la scelta parla di lati. Il valore di fabbrica, `RIGHT`, è scritto in
+ * `Settings.hand` e nel ripiego della rilettura; sul disco va il token (vedi `byToken`), non la
+ * posizione.
  */
 enum class Hand(override val token: String) : Choice { LEFT("left"), RIGHT("right") }
 
 /**
  * L'elemento interattivo principale del telefono in verticale: la voce in cima a 'Pulsanti e
- * indicatori'.
- *
- * ⚠️⚠️ **DALLA `4.10`, ED È SUA RICHIESTA** (giro della `4.04`, nota E: *'Elemento interattivo
- * principale' al primo posto di 'Pulsanti e indicatori'*): prima la stessa scelta era
- * l'interruttore 'Pillola al posto del FAB in verticale' (`phone-pill-on`), che con il menu
- * inferiore della `4.15` e il menu angolare non basta più. La domanda ha cambiato verso, quindi la
- * chiave è nuova (`main-control`), e quella di prima si traduce (`PREF_RETIRED`, in `Backup.kt`).
- * ⚠️ **Solo sul telefono in verticale** (risposta G4): sul tablet la voce non compare, e il valore
- * in vigore è [FAB] (`pillMode`, in `PhonePill.kt`).
+ * indicatori' (nota E dell'utente sul giro della `4.04`). La sua chiave è `main-control`; quella
+ * dell'interruttore di prima si traduce (`PREF_RETIRED`, in `Backup.kt`). Solo sul telefono in
+ * verticale (risposta G4): sul tablet la voce non compare, e vale [FAB] (`pillMode`, in
+ * `PhonePill.kt`).
  */
 enum class MainControl(override val token: String) : Choice {
-    /** Il FAB col suo menu: 'Tasto fluttuante'. Valore di fabbrica fino alla `4.20`. */
+    /** Il FAB col suo menu: 'Tasto fluttuante'. */
     FAB("fab"),
     /**
      * La pillola di icone, a scomparsa o estesa secondo [Settings.phonePill]: 'Pillola di icone'.
-     * Valore di fabbrica nella `4.25` e nella `4.30`, e in AIV Play dalla `5.12` ([Store.mainControl]).
+     * Valore di fabbrica in AIV Play ([Store.mainControl]).
      */
     PILL("pill"),
     /**
-     * Il menu inferiore, dalla `4.15`: 'Menu inferiore'. A scomparsa o fisso secondo lo stesso
-     * [Settings.phonePill] della pillola (gettoni `A scomparsa` e `Fisso`): la domanda è una
-     * sola, cioè se il comando resta aperto, e due valori diversi chiederebbero di sceglierla due
-     * volte. Il disegno vive in `BottomMenu.kt`.
+     * Il Menu basso, a scomparsa o fisso secondo lo stesso [Settings.phonePill] della pillola: la
+     * domanda è una sola, cioè se il comando resta aperto. Il disegno è in `BottomMenu.kt`.
      */
     BOTTOM("bottom"),
     /**
-     * Il menu angolare, dalla `4.20`: 'Menu angolare'. Sempre a scomparsa (*il menu angolare
-     * sempre*), quindi [Settings.phonePill] non lo riguarda: a riposo è la pillola verticale del
-     * menu inferiore, aperto è un pannello 3x3 nella schermata iniziale e 2x2 nelle cartelle
-     * (decisioni G1 e C1-C3). Il disegno vive in `BottomMenu.kt`. Valore di fabbrica dalla `4.31`,
-     * in AIV Play fino alla `5.11`.
+     * Il Menu 'Start', sempre a scomparsa, quindi [Settings.phonePill] non lo riguarda: a riposo è
+     * la pillola verticale del Menu basso, aperto un pannello 3x3 nella schermata iniziale e 2x2
+     * nelle cartelle (decisioni G1 e C1-C3). Il disegno è in `BottomMenu.kt`. Valore di fabbrica in
+     * AIV GitHub ([Store.mainControl]).
      */
     CORNER("corner")
 }
 
 /**
- * Che cosa prende il posto del FAB sul telefono in verticale.
- *
- * ⚠️⚠️ **DALLA `4.00`, ED È SUA RICHIESTA** (2026-10-05: *la pillola mi sta piacendo tanto che
- * potrei provare ad inserirla nella modalità principale dell'app*): la pillola d'accento degli
- * schermi larghi, coricata in basso e ancorata al lato preferito ([Hand]).
- * ⚠️ **Solo sul telefono**: il tablet in verticale ha già la sua pillola, e la voce nelle sue
- * impostazioni non compare. La regola vive in `pillMode`, in `PhonePill.kt`.
+ * Quale pillola, quando l'elemento principale è la pillola di icone (richiesta dell'utente): la
+ * pillola d'accento degli schermi larghi, coricata in basso e ancorata al lato preferito ([Hand]).
+ * Solo sul telefono: la regola è in `pillMode`, in `PhonePill.kt`.
  */
 enum class PhonePill(override val token: String) : Choice {
     /**
-     * Il FAB di sempre col suo menu: il valore **in vigore** quando l'interruttore è spento o
-     * sul tablet (`pillMode`).
-     *
-     * ⚠️ **Dalla `4.02` non è più una scelta** (sua risposta a `4.00-01`: *preferisco un
-     * interruttore on/off generale*), e dalla `4.10` lo dice [Settings.mainControl]:
-     * [Settings.phonePill] non vale mai questo. Il gettone resta solo nei file scritti prima, e [SettingsStore.read] lo
-     * legge come interruttore spento.
+     * Il FAB di sempre: il valore in vigore sul tablet (`pillMode`). Non è più una scelta (risposta
+     * dell'utente a `4.00-01`): [Settings.phonePill] non vale mai questo, e il gettone resta solo
+     * nei file scritti prima, che [SettingsStore.read] legge come interruttore spento.
      */
     OFF("off"),
     /**
@@ -253,33 +178,29 @@ enum class PhonePill(override val token: String) : Choice {
 }
 
 /**
- * Di che cosa è fatta la pillola.
- *
- * ⚠️ **[GLASS] vuole Android 12** (la sfocatura di quello che c'è dietro una vista,
- * `RenderEffect`): sotto, il gettone non compare (sua risposta, 2026-10-05), e un valore letto da
- * un backup fatto su un telefono più nuovo ripiega su [SOLID] (`pillFillIn`, in `PhonePill.kt`).
+ * Di che cosa è fatta la pillola. [GLASS] vuole Android 12 (`RenderEffect`): sotto, il gettone non
+ * compare (risposta dell'utente), e un valore letto da un backup ripiega su [SOLID] (`pillFillIn`,
+ * in `PhonePill.kt`).
  */
 enum class PillFill(override val token: String) : Choice {
-    /** L'accento pieno. Valore di fabbrica fino alla `4.20`. */
+    /** L'accento pieno. */
     SOLID("solid"),
     /** L'accento all'80%. */
     TRANSLUCENT("translucent"),
     /**
-     * Il vetro nell'accento (gettone 'Traslucido'): la pillola del DF, come risultato. Valore di
-     * fabbrica dalla `4.25` (nota D del giro della `4.20`).
+     * Il vetro nell'accento (gettone 'Traslucido'). Valore di fabbrica (nota D del giro della
+     * `4.20`).
      */
     GLASS("glass")
 }
 
 /**
- * Dopo quanto un file eliminato se ne va dal cestino da solo.
+ * Dopo quanto un file eliminato se ne va da solo dal cestino.
  *
- * ⚠️⚠️ **DURATE CON UN NOME E NON UN NUMERO DI GIORNI, ed è una scelta di traduzione**: '7
- * giorni' vuole un plurale, e le categorie di plurale non coincidono fra le ventotto lingue
- * (in arabo 7 e 14 ne chiedono due diverse). 'Una settimana' e 'Un mese' sono frasi fisse:
- * si traducono una volta e non hanno un caso in cui sbagliano.
- * ⚠️ **[NEVER] è il valore di fabbrica**, e vale zero giorni: lo svuotamento automatico è
- * spento finché non lo si accende, perché cancella file per sempre.
+ * ⚠️ **Durate con un nome e non un numero di giorni**: '7 giorni' vuole un plurale, e le categorie
+ * di plurale non coincidono fra le ventotto lingue; 'Una settimana' è una frase fissa. [NEVER] è il
+ * valore di fabbrica: lo svuotamento automatico cancella per sempre, ed è spento finché non lo si
+ * accende.
  */
 enum class BinKeep(override val token: String, val days: Int) : Choice {
     NEVER("never", 0),
@@ -289,23 +210,17 @@ enum class BinKeep(override val token: String, val days: Int) : Choice {
 }
 
 /**
- * Quanto è grande il testo nella vista a **elenco**.
- *
- * ⚠️ Vale per il solo elenco e non per tutta l'app: là ogni riga è nome più conto, e chi
- * sceglie l'elenco lo sceglie per **leggere**, quindi il corpo è parte della vista come le
- * colonne lo sono della griglia. Il corpo di sistema resta quello che decide tutto il
- * resto, e questa scelta ci si moltiplica sopra invece di sostituirlo.
+ * Quanto è grande il testo nella modalità lista. Vale per la sola lista: là ogni riga è nome più
+ * conto, e chi sceglie la lista lo fa per leggere. Si moltiplica sopra il corpo di sistema, che
+ * decide il resto.
  */
 enum class TextSize(override val token: String) : Choice {
     SMALL("small"), NORMAL("normal"), LARGE("large")
 }
 
 /**
- * Come si chiama una delle tre misure.
- *
- * ⚠️ **Sta accanto all'enum e non nella schermata che la mostra, dalla `1.46`**: adesso i tre
- * nomi servono a due superfici (la scorciatoia del dialogo e la pagina delle impostazioni), e
- * un `when` privato in una delle due avrebbe costretto l'altra a riscriverlo.
+ * Come si chiama una delle tre misure. È accanto all'enum perché la mostrano due superfici, la
+ * scorciatoia della finestra e la pagina delle impostazioni.
  */
 @StringRes
 fun TextSize.label(): Int = when (this) {
@@ -314,90 +229,59 @@ fun TextSize.label(): Int = when (this) {
     TextSize.LARGE -> R.string.text_large
 }
 
-/** Where the one line of details sits. Asked for by the user. */
+/** Dove è la riga dei dettagli: in alto o in basso (richiesta dell'utente). */
 enum class InfoPosition(override val token: String) : Choice { TOP("top"), BOTTOM("bottom") }
 
 /**
- * Come si guarda quello che c'è sul telefono: le tre viste della casa.
+ * Come si guarda quello che c'è sul telefono: le viste della schermata iniziale.
  *
- * ⚠️⚠️ **L'ELENCO È TORNATO A ESSERE UNA SCELTA, e non una versione superata.** La `0.37`
- * lo aveva **sostituito** con le copertine, che si riconoscono a colpo d'occhio ma
- * mostrano quattro cartelle per schermata; l'elenco ne mostra una decina e i nomi per
- * intero, che su un telefono con trenta cartelle è l'unico modo di trovarne una per nome.
- * Sono due domande diverse ('quale cartella' e 'quale nome'), quindi due viste e non una
- * migliore dell'altra.
- * ⚠️ **La copertina resta in tutti e due**: la riga dell'elenco porta la stessa miniatura
- * piccola, perché l'icona di cartella uguale per tutte era proprio il difetto della `0.29`.
- *
- * ⚠️⚠️ **LA TERZA È ARRIVATA CON LA `0.84`, ed è di un'altra natura**: [GRID] e [LIST] sono
- * due rese dello **stesso** elenco, le cartelle che il MediaStore conosce; [TREE] è la
- * memoria del telefono navigata cartella per cartella, letta dal disco (vedi `Tree`). Sta
- * accanto alle altre due perché rispondono tutte a 'dove sono le mie cose', ma sotto non
- * condividono niente.
+ * ⚠️ **Griglia e lista sono due domande diverse**: le copertine si riconoscono a colpo d'occhio ma
+ * ne entrano quattro per schermata; la lista ne mostra una decina coi nomi interi, l'unico modo di
+ * trovare per nome una cartella fra trenta. La copertina è in tutte e due, in piccolo nella riga
+ * della lista.
+ * ⚠️ **[TREE] è di un'altra natura**: [GRID] e [LIST] sono due rese delle cartelle del MediaStore,
+ * [TREE] è la memoria del telefono navigata cartella per cartella, letta dal disco (vedi `Tree`).
  */
 enum class FolderView(override val token: String) : Choice {
     GRID("grid"), LIST("list"), TREE("tree"),
 
     /**
-     * Every photo and video in one stream, by month, from 6.02 ([Feed]). His name for it.
+     * Tutte le immagini e i video in un flusso solo, per mese ([Feed]), col nome che l'utente gli
+     * ha dato.
      *
-     * ⚠️ **Not a rendering of the folder list like [GRID] and [LIST]**: it shows the pictures of
-     * the folders those two show, without the folders. In the Start menu it takes the place of
-     * the switch between the round key and the pill (his choice: *non serve, era solo un
-     * riempitivo*).
+     * ⚠️ **Non è una resa dell'elenco delle cartelle come [GRID] e [LIST]**: mostra le immagini
+     * delle cartelle che quelle due mostrano, senza le cartelle. Nel Menu 'Start' prende il posto
+     * del commutatore fra il tasto tondo e la pillola (scelta dell'utente).
      */
     FEED("feed")
 }
 
 /**
- * Which date puts the Feed in order: his choice of 2026-10-14, with [TAKEN] as the factory value.
- *
- * ⚠️ **[TAKEN] falls back on the modification date** where a file has no date of taking: see
- * [Feed.moment]. The two chips say so (`Scatto, Modifica` and `Modifica`).
+ * Quale data mette in ordine il Feed: scelta dell'utente, con [TAKEN] di fabbrica. [TAKEN] ripiega
+ * sulla data di modifica dove un file non ha la data di scatto (vedi [Feed.moment]); i due gettoni
+ * lo dicono (`Scatto, Modifica` e `Modifica`).
  */
 enum class FeedDate(override val token: String) : Choice { TAKEN("taken"), MODIFIED("modified") }
 
 /**
- * Dove si vede il colore di una cartella, **fuori** dalla sua intestazione.
+ * Dove si vede il colore di una cartella fuori dalla sua intestazione (risposte dell'utente a
+ * `d-colore-come`): nella schermata iniziale, dove serve a riconoscere una cartella.
  *
- * ⚠️⚠️ **NASCE NELLA `1.87` DALLA SUA SCELTA FRA I MOCKUP** (giro della `1.86`, domanda
- * `d-colore-come`: *applica i seguenti stili di colore esterni all'intestazione: `filetto`,
- * `cornice`, `nome`, `alone`*). Fino alla `1.86` la tinta scelta col tocco lungo sull'icona di
- * una cartella si vedeva **solo** nel gradiente della sua intestazione, cioè dopo che quella
- * cartella era già aperta: la domanda a cui questo enum risponde era se dovesse vedersi anche
- * nella schermata iniziale, dove serve a **riconoscere** una cartella invece che a decorarla.
- * ⚠️ **Quattro e non cinque, ed è la sua scelta**: il mockup ne proponeva cinque, e l'angolo
- * piegato è quello che non ha preso. Chi lo ritrovasse fra i disegni sappia che è stato visto e
- * scartato, non dimenticato.
- * ⚠️⚠️ **[NAME] È IL VALORE DI FABBRICA DALLA `1.91`, E LA POSIZIONE DI PRIMA ERA LA SUA**
- * (riscontro del giro della `1.89`, risposta a `d-colore-come`: *imposta solo 'Nome' (il testo del
- * titolo della cartella) come attivo per impostazione di fabbrica*). Fino alla `1.90` era [NONE],
- * e nemmeno quello era una scelta mia: la sua posizione di allora era *sono propenso a lasciare
- * il colore solo lì*, e i quattro stili erano le proposte per cambiarla provandole. Le ha
- * provate, e questa è la risposta.
- * ⚠️ **Resta vero che il valore di fabbrica non si sceglie per far vedere una funzione**: qui a
- * sceglierlo è stato lui, dopo un giro con l'app in mano.
- * ⚠️ **Nella vista 'Cartelle di sistema' non c'è niente da tingere**, e non è una
- * dimenticanza: là le cartelle sono percorsi letti dal disco, mentre una tinta è appesa al
- * `BUCKET_ID` del MediaStore (vedi [FolderTints]), che quelle non hanno.
- *
- * ⚠️⚠️ **L'ORDINE DI DICHIARAZIONE È L'ORDINE DEI CHIP, ed è suo** (stesso giro, testo
- * `t-colore-stili`: *va tutto benissimo, cambia solo l'ordine nelle impostazioni: metti 'Nome'
- * dopo 'Nessuno'*). ⚠️ **Cambiarlo non tocca quello che è già salvato**, perché nell'archivio
- * vive il `token` e non la posizione: è la ragione per cui questo riordino non ha bisogno di
- * nessuna migrazione.
+ * Quattro stili e non cinque: l'angolo piegato del mockup è stato visto e scartato. [NAME] è il
+ * valore di fabbrica, scelto dall'utente dopo averli provati. Nella vista 'Cartelle di sistema' non
+ * c'è niente da tingere: là le cartelle sono percorsi letti dal disco, e una tinta è appesa al
+ * `BUCKET_ID` del MediaStore (vedi [FolderTints]). L'ordine di dichiarazione è l'ordine dei
+ * gettoni, scelto dall'utente (`t-colore-stili`); nell'archivio vive il token, quindi riordinare
+ * non chiede una migrazione.
  */
 enum class FolderColour(override val token: String) : Choice {
-    /** Niente: la tinta resta nella sola intestazione, com'era fino alla `1.86`. */
+    /** Niente: la tinta resta nella sola intestazione. */
     NONE("none"),
-    /** Il nome della cartella scritto nel suo colore. Il valore di fabbrica dalla `1.91`. */
+    /** Il nome della cartella scritto nel suo colore. Il valore di fabbrica. */
     NAME("name"),
     /**
-     * Un filetto sotto la copertina.
-     *
-     * ⚠️ **Vive DENTRO il riquadro della copertina**, e non sotto: appeso fuori sposterebbe il
-     * nome di quattro punti nelle sole cartelle che hanno un colore, cioè darebbe una griglia
-     * con le righe disallineate fra loro.
+     * Un filetto sotto la copertina, dentro il suo riquadro: appeso fuori sposterebbe il nome nelle
+     * sole cartelle con un colore, e le righe della griglia non sarebbero allineate.
      */
     EDGE("edge"),
     /** Una cornice intorno alla copertina, disegnata all'interno del suo bordo. */
@@ -407,421 +291,274 @@ enum class FolderColour(override val token: String) : Choice {
 }
 
 /**
- * Il tema dell'interfaccia, chiesto dall'utente il 2026-08-29.
+ * Il tema dell'interfaccia (richiesta dell'utente).
  *
- * ⚠️⚠️ **NON È LO STESSO DI [BgTheme], e confonderli è l'errore facile**: quello dice di
- * che grigi è fatto lo **sfondo dietro la fotografia**, questo dice se l'**app** è chiara
- * o scura. Sono davvero due domande: chi guarda foto al buio può volere l'app scura e la
- * scacchiera chiara, perché la scacchiera serve a far vedere la trasparenza e non a
- * intonarsi.
- * ⚠️ Fino alla `0.44` la seconda domanda non esisteva e vinceva sempre il sistema; da qui
- * il valore di fabbrica resta **[SYSTEM]**, cioè il comportamento di prima, e le altre due
- * sono una scelta esplicita.
+ * ⚠️ **Non è [BgType] né [BgTheme]**: quelli dicono di che grigi è fatto lo sfondo dietro
+ * l'immagine, questo se l'app è chiara o scura. Chi guarda al buio può volere l'app scura e la
+ * scacchiera chiara. Di fabbrica [SYSTEM].
  */
 enum class UiTheme(override val token: String) : Choice {
     SYSTEM("system"), LIGHT("light"), DARK("dark")
 }
 
 /**
- * Quante colonne mostra la griglia delle CARTELLE.
- *
- * ⚠️ **Le cartelle e non le fotografie**, ed è la lettura letterale della richiesta: la
- * domanda a cui l'utente rispondeva era se due colonne fossero la densità giusta per le
- * **copertine**. La griglia delle fotografie resta adattiva sui suoi 108dp, che sono una
- * misura confermata.
- * ⚠️ **Fisso e non più adattivo**, per la sola griglia delle cartelle: il numero lo sceglie
- * l'utente, quindi non può dipendere dalla larghezza dello schermo. Il costo dichiarato: a
- * 4 colonne su un telefono stretto la copertina scende sotto i 90dp e si riconosce meno,
- * che è esattamente la ragione per cui l'adattivo esisteva.
+ * Quante colonne mostra la griglia delle CARTELLE, non delle immagini, che resta adattiva sui suoi
+ * 108 dp. Il numero lo sceglie l'utente, quindi non dipende dalla larghezza dello schermo; il costo
+ * dichiarato: a 4 colonne su un telefono stretto la copertina scende sotto i 90 dp.
  */
 val FOLDER_COLUMNS = listOf(2, 3, 4)
-
-// ⚠️ QUI VIVEVA `SearchEngine`, il motore della ricerca immagine, tolto nella
-// 0.18 insieme alla funzione (istruzione dell'utente dopo la prova sul telefono).
-// La chiave `search-engine` può essere rimasta scritta nell'archivio dei telefoni
-// che avevano la versione vecchia: non si legge più, e non è un difetto da
-// inseguire, perché DataStore ignora le chiavi che nessuno chiede.
 
 data class Settings(
     val bgType: BgType = BgType.CHECKER,
     val bgTheme: BgTheme = BgTheme.AUTO,
-    /** Whether a picture smaller than the view grows to fill it. Off, as in the userscript: blowing up a 64px icon helps nobody. */
+    /**
+     * Se un'immagine più piccola della vista cresce fino a riempirla. Spento, come nello
+     * userscript: ingrandire un'icona da 64 px non serve a nessuno.
+     */
     val fitGrow: Boolean = false,
     val zoomMax: Float = 40f,
     val scaleMode: ScaleMode = ScaleMode.PHYSICAL,
     /**
-     * Dov'è la barra delle info.
-     *
-     * ⚠️ **In alto di serie dalla 1.20** (scelta dell'utente, 2026-09-01): là non finisce
-     * sotto il pollice di chi sfoglia, e non litiga con la fila dei comandi delle immagini
-     * animate, che sta in basso al centro.
+     * Dove è la barra delle info. In alto di serie (scelta dell'utente): là non finisce sotto il
+     * pollice di chi sfoglia, e non si scontra con la fila dei comandi delle immagini animate, in
+     * basso al centro.
      */
     val infoPosition: InfoPosition = InfoPosition.TOP,
     val infoVisible: Boolean = true,
     /**
-     * Che cosa c'è dietro dialoghi, menu e pannelli: la sfocatura, l'ombra oppure niente.
+     * Che cosa c'è dietro finestre, menu e pannelli: la sfocatura, l'ombra o niente (vedi
+     * [PanelDepth]). Di fabbrica la sfocatura (istruzione dell'utente).
      *
-     * ⚠️⚠️ **ERA UN INTERRUTTORE FINO ALLA `1.80` E DALLA `1.81` È UNA SCELTA A TRE**, su sua
-     * istruzione (*facciamo che si può scegliere tra sfocatura e ombreggiatura (MAI insieme)*).
-     * Il perché delle tre risposte, e perché due non possono convivere, sta su [PanelDepth].
-     * ⚠️⚠️ **DALLA `2.61` IL VALORE DI FABBRICA È LA SFOCATURA, ED È SUA ISTRUZIONE** (campo
-     * libero del giro della `2.55`: *cambio di valore predefinito di fabbrica: l'effetto
-     * `sfocatura` dev'essere attivo all'installazione (al posto di `ombra`)*). La storia di
-     * questo valore in una riga: acceso nella `1.38`, spento nella `1.39` perché *rende tutto
-     * visibilmente più lento*, sfocatura di fabbrica nella `1.80` dopo quaranta versioni di
-     * prova, ombra dalla `1.82` (voce `sfoc-ombra`: *mi piace talmente tanto che voglio
-     * l'ombreggiatura come nuova opzione predefinita di fabbrica*), e di nuovo sfocatura adesso.
-     * ⚠️ **L'ombra non se ne va**: resta una delle tre risposte, e chi la vuole la sceglie.
-     * ⚠️⚠️ **CHI HA GIÀ L'APP NON SE NE ACCORGE, E IL FATTO SI DICHIARA INVECE DI PROMETTERE IL
-     * CONTRARIO**: [SettingsStore.save] riscrive **tutte** le chiavi in un colpo, quindi chi ha
-     * mai toccato una qualunque impostazione porta già questa scritta, e un valore di fabbrica
-     * si vede solo dove l'archivio tace. Non si rimedia con una migrazione come quella
-     * dell'indicatore ([MarkMigration]): là il valore di prima era **assente** e qui è scritto,
-     * quindi l'archivio non distingue 'ho scelto l'ombra' da 'avevo l'ombra e ho toccato
-     * dell'altro', e una migrazione rovescerebbe anche una scelta vera.
-     * ⚠️⚠️ **IL VALORE DI FABBRICA VIVE IN DUE POSTI, e vanno insieme**: qui e in
-     * [SettingsStore.read]. Cambiarne uno solo lascerebbe l'app in un modo al primo avvio e in
-     * un altro dopo il primo salvataggio delle impostazioni, che è il genere di difetto che non
-     * dà nessun errore: dalla `2.61` a presidiarlo è il banco, che legge un archivio vuoto e
-     * confronta con questo campo.
-     * ⚠️⚠️ **E NON COSTA FOTOGRAMMI DOVE IL TELEFONO NON LA REGGE, che è la domanda che ha fatto
-     * insieme alla richiesta**: la sfocatura non la dipinge l'app, è un attributo di **finestra**
-     * (`FLAG_BLUR_BEHIND` più `blurBehindRadius`), quindi da Android 12 la esegue il compositore
-     * di sistema ed è il sistema a dire se farla, con una risposta che cambia da sola col
-     * risparmio energetico e con l'hardware. Dove dice di no non si vede l'effetto e non si
-     * perde un fotogramma, e la domanda l'app la fa già: `blurs`, in `Veil.kt`.
+     * ⚠️ **Chi ha già l'app non se ne accorge**: [SettingsStore.save] riscrive tutte le chiavi in
+     * un colpo, quindi chi ha toccato una qualunque impostazione ha già questa scritta, e un valore
+     * di fabbrica vale solo dove l'archivio tace. Una migrazione come quella dell'indicatore
+     * ([MarkMigration]) non si può fare: qui il valore di prima è scritto, e l'archivio non
+     * distingue una scelta da un valore ereditato.
+     * ⚠️ **Il valore di fabbrica è in due posti**: qui e in [SettingsStore.read], e il banco li
+     * confronta leggendo un archivio vuoto. La sfocatura non costa fotogrammi dove il telefono non
+     * la regge: è un attributo di finestra (`FLAG_BLUR_BEHIND` più `blurBehindRadius`), che da
+     * Android 12 esegue il compositore di sistema, e il sistema decide se farla (risparmio
+     * energetico, hardware). L'app lo chiede in `blurs`, in `Veil.kt`.
      */
     val panelDepth: PanelDepth = PanelDepth.BLUR,
     /**
-     * Se il menu a pressione lunga porta anche 'Adatta alla vista' e '100%'.
+     * Se il menu a pressione lunga contiene anche 'Adatta alla vista' e '100%'.
      *
-     * ⚠️⚠️ **SPENTA DI FABBRICA, ed è una RIMOZIONE travestita da impostazione** (richiesta
-     * dell'utente, 2026-09-02: *aggiungi 'Mostra zoom nel menu contestuale del visualizzatore'
-     * nelle impostazioni (default: spento); come conseguenza, togli '100%' e 'Adatta alla
-     * vista' dal menu a pressione lunga*). Quelle due voci fanno quello che il **doppio tocco**
-     * fa già, e stanno in mezzo a comandi che agiscono sul file: chi apre quel menu cerca di
-     * solito un'altra cosa.
-     * ⚠️ **L'interruttore esiste lo stesso perché la scorciatoia è nascosta**: un gesto non si
-     * dichiara da sé, e chi non lo conosce resterebbe senza. Da qui l'onboarding del doppio
-     * tocco (vedi `Hint.ZOOM_TAP`), che è la vera contropartita della rimozione.
+     * ⚠️ **Spento di fabbrica, ed è una rimozione** (richiesta dell'utente): quelle due voci fanno
+     * quello che fa già il doppio tocco, e sono in mezzo a comandi che agiscono sul file.
+     * L'interruttore esiste perché un gesto non si dichiara da sé; la contropartita è l'onboarding
+     * del doppio tocco (`Hint.ZOOM_TAP`).
      */
     val zoomInMenu: Boolean = false,
     /**
-     * Se la sequenza si sfoglia in ordine **cronologico** invece che dalla più recente.
+     * Se la sequenza si sfoglia in ordine cronologico e non dalla più recente (il verso della
+     * galleria, che è il predefinito: decisione dell'utente).
      *
-     * ⚠️⚠️ **IL SIGNIFICATO SI È ROVESCIATO NELLA 0.30, e per questo la chiave è NUOVA**
-     * (`sequence-reversed`): dalla 0.27 alla 0.29 il verso predefinito era quello del
-     * MediaStore, cronologico, e questa voce accesa dava il verso della galleria; adesso
-     * il verso della galleria è il predefinito (decisione dell'utente: *è la cosa più
-     * naturale su smartphone*) e questa voce accesa riporta al cronologico. Tenere la
-     * chiave vecchia avrebbe dato a chi l'aveva accesa **l'opposto** di quello che aveva
-     * scelto, in silenzio: è la stessa lezione della chiave del permesso nella 0.21, cioè
-     * che **una domanda nuova vuole una chiave nuova**.
-     * ⚠️ La chiave vecchia (`reverse-order`) resta scritta negli archivi e non si legge
-     * più: DataStore ignora le chiavi che nessuno chiede.
+     * ⚠️ **La chiave è `sequence-reversed` perché il significato si è rovesciato**: con la chiave
+     * di prima (`reverse-order`, che resta scritta negli archivi e non si legge più) chi l'aveva
+     * accesa avrebbe avuto l'opposto, in silenzio. Una domanda nuova vuole una chiave nuova.
      */
     val reverseSequence: Boolean = false,
     /**
-     * ⚠️ Non compare nella schermata delle impostazioni, e non è una dimenticanza: si
-     * cambia dal menu della schermata delle cartelle, cioè dal posto in cui si vede
-     * l'effetto. Una vista si sceglie guardandola, non leggendo un interruttore due
-     * schermate più in là.
+     * Non compare nella schermata delle impostazioni: si cambia dal menu della schermata delle
+     * cartelle, dove si vede l'effetto.
      */
     val folderView: FolderView = FolderView.GRID,
     /**
-     * Le quattro opzioni delle due viste che non sono la griglia, dalla `0.99`.
-     *
-     * ⚠️ **Stanno nelle impostazioni pur vivendo in un popup**, come le colonne: il popup è
-     * una **scorciatoia** a una scelta che deve sopravvivere alla chiusura dell'app, non
-     * uno stato di schermata. Il filtro dei generi, che invece è volatile per richiesta,
-     * infatti non è qui.
+     * Le opzioni della modalità lista. Sono nelle impostazioni anche se si cambiano da un popup,
+     * come le colonne: il popup è una scorciatoia a una scelta che deve sopravvivere alla chiusura
+     * dell'app. Il filtro dei generi, volatile per richiesta, non è qui.
      */
     val listCount: Boolean = true,
     val listText: TextSize = TextSize.NORMAL,
     /** Se la vista ad albero mostra anche i file che cominciano per punto. */
     val treeHidden: Boolean = false,
-    /** Se la vista ad albero nasconde le cartelle che non portano a nessuna immagine. */
+    /** Se la vista ad albero nasconde le cartelle che non conducono a nessuna immagine. */
     val treePictures: Boolean = false,
-    /** Da che parte stanno le funzioni principali del pannello. Vedi [Hand]. */
+    /** Da che parte sono le funzioni principali del pannello. Vedi [Hand]. */
     val hand: Hand = Hand.RIGHT,
     /**
      * L'elemento interattivo principale del telefono in verticale. Vedi [MainControl].
      *
-     * ⚠️⚠️ **IL MENU 'START' DI FABBRICA DALLA `4.31`, ED È SUA SCELTA** (domanda in chat dopo la
-     * `4.30`, risposta *Menu 'Start' predefinito*). Nella `4.25` e nella `4.30` era la pillola a
-     * scomparsa (nota D del giro della `4.20`), e fino alla `4.20` il FAB.
-     * ⚠️ **Chi ha già l'app tiene la sua scelta**: il valore di fabbrica vale dove l'archivio tace.
-     * ⚠️ **Nato nella `4.10` con la chiave `main-control`**: un archivio senza di lei lo ricava da
-     * `phone-pill-on` (4.02-4.05), e uno ancora più vecchio dal gettone di [phonePill] (4.00-4.01),
-     * così chi aveva acceso la pillola la ritrova accesa.
-     * ⚠️ **Il valore di fabbrica lo dà [Store.mainControl]**, perché dalla `5.12` dipende dalla
-     * variante (in AIV Play la pillola a scomparsa, sua scelta temporanea); qui e in
-     * [SettingsStore.read] si legge da lì, e il banco legge un archivio vuoto contro questo campo.
+     * ⚠️ **Il valore di fabbrica lo dà [Store.mainControl]**, perché dipende dalla variante (il
+     * Menu 'Start' in AIV GitHub, scelta dell'utente; la pillola a scomparsa in AIV Play); qui e in
+     * [SettingsStore.read] si legge da lì, e il banco confronta un archivio vuoto con questo campo.
+     * Chi ha già l'app tiene la sua scelta. Un archivio senza `main-control` lo ricava da
+     * `phone-pill-on`, e uno ancora più vecchio dal gettone di [phonePill], così chi aveva acceso
+     * la pillola la ritrova.
      */
     val mainControl: MainControl = Store.mainControl,
     /**
-     * Quale pillola, quando [mainControl] è [MainControl.PILL]. Vedi [PhonePill].
-     *
-     * ⚠️ **Mai [PhonePill.OFF]**: lo spento è dell'interruttore. **A scomparsa di fabbrica**, il
-     * primo gettone, perché è quella che tiene il FAB al suo posto finché non lo si tocca.
+     * Quale pillola, quando [mainControl] è [MainControl.PILL]. Vedi [PhonePill]. Mai
+     * [PhonePill.OFF]; a scomparsa di fabbrica, che tiene il FAB al suo posto finché non lo si
+     * tocca.
      */
     val phonePill: PhonePill = PhonePill.SLIDE,
     /**
      * Di che cosa è fatta la pillola, dovunque ci sia. Vedi [PillFill].
      *
-     * ⚠️ **Riempie anche la pillola degli schermi larghi**: la voce compare solo sul telefono, e
-     * il telefono in orizzontale mostra quella pillola, quindi una scelta copre tutte e due. Sul
-     * tablet la voce non c'è e il valore resta quello di fabbrica.
-     * ⚠️ **Traslucido di fabbrica dalla `4.25`, ed è sua** (nota D del giro della `4.20`); fino alla
-     * `4.20` era il solido (*`Tinta unita` (predefinito)*, il nome di allora). Sotto Android 12 il
-     * traslucido non si disegna, e `pillFillIn` ripiega sul solido.
+     * Riempie anche la pillola degli schermi larghi: la voce compare solo sul telefono, che in
+     * orizzontale mostra quella pillola. Traslucido di fabbrica (nota D dell'utente sul giro della
+     * `4.20`); sotto Android 12 `pillFillIn` ripiega sul solido.
      */
     val pillFill: PillFill = PillFill.GLASS,
     /**
-     * Come si regola il traslucido, coi cursori e i due colori che compaiono con lui. Vedi
-     * [GlassTune].
-     *
-     * ⚠️ **Dalla `4.20`, ed è sua richiesta** (nota N1 del giro della `4.15`), e si nascondono
-     * spegnendo [GLASS_TUNING]. Di fabbrica dalla `4.25` sono i suoi valori (nota D del giro della
-     * `4.20`); fino alla `4.20` erano il vetro del DF.
-     * ⚠️ **Chi aveva già mosso i cursori li ritrova dove li aveva lasciati**: i valori di fabbrica
-     * nuovi valgono dove l'archivio tace, e 'Ripristina' sotto i cursori ce li riporta.
+     * Come si regola il traslucido, coi cursori e i due colori che compaiono con lui (vedi
+     * [GlassTune]; nota N1 dell'utente). Si nascondono spegnendo [GLASS_TUNING]. I valori di
+     * fabbrica sono quelli dell'utente (nota D del giro della `4.20`) e valgono dove l'archivio
+     * tace; 'Ripristina' sotto i cursori li riporta.
      */
     val glass: GlassTune = GlassTune(),
     /**
-     * Come riposa il menu angolare: un tasto tondo solo, oppure la pillola verticale di due tasti.
-     *
-     * ⚠️⚠️ **DALLA `4.25`, ED È SUA** (giro della `4.20`, `4.20-01`: *di default è un tasto singolo e
-     * rotondo ... una nona icona fa da commutatore*): il tondo di fabbrica, e la pillola si sceglie
-     * dal commutatore nella prima riga del menu angolare della schermata iniziale.
-     * ⚠️ **Vive solo in quel commutatore**, che è la sua casa e la sua sola via: nel pannello delle
-     * impostazioni non c'è una voce, perché la scelta si fa guardando il menu.
+     * Come riposa il Menu 'Start': un tasto tondo solo (di fabbrica), o la pillola verticale di due
+     * tasti (`4.20-01`). Si sceglie solo dal commutatore nella prima riga del menu nella schermata
+     * iniziale: nel pannello delle impostazioni non c'è una voce, perché si sceglie guardando il
+     * menu.
      */
     val cornerRound: Boolean = true,
     /**
-     * Se 'Copia lista' mette anche il percorso della cartella, in testa ai nomi.
-     *
-     * ⚠️ Spenta di fabbrica, come chiesto: una lista di nomi si incolla dove si vuole,
-     * mentre un percorso di sistema in testa è utile a chi sa che cosa farsene.
+     * Se 'Copia lista' mette anche il percorso della cartella in testa ai nomi. Spenta di fabbrica,
+     * come chiesto.
      */
     val listPath: Boolean = false,
     /**
-     * Se in testa alla selezione si legge anche il **peso** di quello che si è scelto.
+     * Se in testa alla selezione si legge anche il peso di quello che si è scelto.
      *
-     * ⚠️⚠️ **L'INTERRUTTORE ESISTE PERCHÉ IL PESO COSTA, dalla 1.06** (riscontro dell'utente
-     * sul collaudo: *meglio renderla attivabile/disattivabile dalle impostazioni*): quel
-     * numero non sta nell'indirizzo, quindi ogni selezione ferma è una interrogazione al
-     * MediaStore su tutti gli elementi scelti. Chi non lo guarda mai la paga lo stesso.
-     * ⚠️ **Governa il solo peso e non il conto**, che è il titolo della selezione: senza il
-     * conto la testata resterebbe vuota, e l'impostazione diventerebbe un modo di rompere la
-     * schermata invece di alleggerirla.
-     * ⚠️ **Accesa di fabbrica**: è la funzione così com'era fino alla `1.05`, e spegnerla di
-     * default vorrebbe dire toglierla a chi non sa che esiste.
+     * ⚠️ **L'interruttore esiste perché il peso costa** (riscontro dell'utente): ogni selezione
+     * ferma è una domanda al MediaStore su tutti gli elementi scelti. Governa il solo peso e non il
+     * conto, che è il titolo della selezione. Accesa di fabbrica, per non togliere la funzione a
+     * chi non sa che esiste.
      */
     val pickWeight: Boolean = true,
     /**
-     * Chi apre una fotografia quando si tocca 'Modifica', dalla `1.03`.
+     * Chi apre un'immagine quando si tocca 'Modifica'.
      *
-     * ⚠️ **Vuoto vuol dire 'mai scelto', ed è diverso da 'nessuno'**: la prima volta il menu
-     * chiede, e da lì in poi non chiede più. Senza la distinzione, o si chiederebbe a ogni
-     * modifica o non si chiederebbe mai.
-     * ⚠️ **Il valore è un componente appiattito** (`pacchetto/classe`), o `Editors.INTERNAL`
-     * per l'editor interno (anche `Editors.FULL`, scritto fino alla `5.00`). Vedi `Editors`.
+     * ⚠️ **Vuoto vuol dire 'mai scelto', diverso da 'nessuno'**: la prima volta il menu chiede, poi
+     * non più. Il valore è un componente appiattito (`pacchetto/classe`), o `Editors.INTERNAL` per
+     * l'editor interno (anche `Editors.FULL`, la forma scritta da versioni vecchie). Vedi
+     * `Editors`.
      */
     val editorApp: String = "",
 
     /**
      * Con quanta cura l'editor completo riscrive il file.
      *
-     * ⚠️⚠️ **'Alta' di fabbrica, e la ragione non è la prudenza ma il MESTIERE di un JPEG**: a
-     * 95 la differenza a occhio dal massimo non c'è, e il file quasi raddoppia passando a 100,
-     * perché la quantizzazione smette di fare il suo lavoro. 'Senza perdita' scriverebbe un PNG
-     * per ogni salvataggio, cioè file parecchie volte piu grossi per una cosa che serve quando
-     * l'immagine si dovrà rilavorare ancora.
-     * ⚠️ **Il valore è il token e non la posizione** (vedi `Quality`): l'ordine dei gettoni puo
-     * cambiare senza che nessuno perda la sua scelta.
+     * ⚠️ **'Alta' di fabbrica, per come funziona un JPEG**: a 95 la differenza dal massimo non si
+     * vede, e a 100 il file quasi raddoppia, perché la quantizzazione smette di lavorare. 'Senza
+     * perdita' scriverebbe un PNG a ogni salvataggio, file parecchie volte più grossi. Si salva il
+     * token (vedi `Quality`): l'ordine dei gettoni può cambiare senza che nessuno perda la sua
+     * scelta.
      */
     val editorQuality: Quality = Quality.DEFAULT,
 
     /**
-     * Se prima di sovrascrivere una fotografia se ne mette una copia nel cestino.
+     * Se prima di sovrascrivere un'immagine se ne mette una copia nel cestino.
      *
-     * ⚠️⚠️ **ACCESA DI FABBRICA, e la ragione è che il danno è ASIMMETRICO** (richiesta
-     * dell'utente, 2026-08-31): spenta, un ritaglio sbagliato si porta via l'originale e non
-     * c'è nessuna via di ritorno; accesa, il prezzo è un file in piu nel cestino, che si
-     * svuota con un tocco. Fra i due, il valore di serie deve essere quello che perdona.
-     * ⚠️ **Non dipende da [binOn]**: il cestino si raggiunge dal FAB di casa anche quando
-     * l'eliminazione non ci passa, quindi la copia resta recuperabile in tutti e due i casi.
+     * ⚠️ **Accesa di fabbrica, perché il danno è asimmetrico** (richiesta dell'utente): spenta, un
+     * ritaglio sbagliato si porta via l'originale; accesa, il prezzo è un file in più nel cestino.
+     * Non dipende da [binOn]: il cestino si raggiunge dal FAB anche quando l'eliminazione non ci
+     * passa.
      */
     val editorBackup: Boolean = true,
 
     /**
-     * Se la **filigrana** scelta si scrive sull'immagine quando l'editor salva.
+     * Se la filigrana scelta si scrive sull'immagine quando l'editor salva.
      *
-     * ⚠️⚠️ **SPENTA DI FABBRICA, ED È LA SUA SPECIFICA** (risposta `altro` a `d-filigrana-file`:
-     * *vale per tutti gli editing se il suo interruttore è attivo al salvataggio*). Un valore di
-     * fabbrica non si sceglie per far vedere una funzione, e qui varrebbe doppio: accesa senza
-     * che nessuno l'abbia chiesta scriverebbe un logo su una fotografia.
-     * ⚠️ **Da sola non fa niente**: senza un file scelto non c'è niente da scrivere, e la pagina
-     * lo dice invece di lasciare un interruttore che promette qualcosa.
-     * ⚠️⚠️ **TOGLIE IL SENZA PERDITA**, ed è la conseguenza che va saputa: girare un JPEG si fa
-     * con un tag EXIF senza toccare i pixel, ma una filigrana i pixel li scrive, quindi con lei
-     * accesa quel file va riscritto. La regola vive su `Look.lossless` e questa è la seconda cosa
-     * che la può spegnere.
+     * ⚠️ **Spenta di fabbrica** (risposta `altro` a `d-filigrana-file`): accesa senza averlo
+     * chiesto scriverebbe un logo su un'immagine. Senza un file scelto non fa niente, e la pagina
+     * lo dice.
+     * ⚠️ **Toglie il senza perdita**: girare un JPEG si fa con un tag EXIF, ma una filigrana scrive
+     * i pixel. La regola è su `Look.lossless`.
      */
     val markOn: Boolean = false,
 
     /**
-     * Dove cade la filigrana sull'immagine.
-     *
-     * ⚠️ **In basso a destra di fabbrica**: è l'angolo in cui una firma sta da sempre, ed è il
-     * più lontano da dove un soggetto di solito cade.
+     * Dove cade la filigrana sull'immagine: in basso a destra di fabbrica, l'angolo di una firma e
+     * il più lontano da dove cade di solito un soggetto.
      */
     val markSpot: Watermark.Spot = Watermark.Spot.BOTTOM_RIGHT,
 
     /**
-     * Quanto è larga la filigrana, in centesimi del lato lungo.
-     *
-     * ⚠️⚠️ **DALLA `2.71` È UN NUMERO SCRITTO A MANO E NON UNO DI QUATTRO GETTONI**, ed è sua
-     * richiesta: il perché, e perché i centesimi, vivono su [Watermark.SIZE].
-     * ⚠️ **Quattordici di fabbrica**, che è la 'Media' di prima: chi aveva quella scelta ritrova
-     * la stessa firma, e chi non ha mai toccato niente non vede cambiare un pixel.
+     * Quanto è larga la filigrana, in centesimi del lato lungo (il perché è su [Watermark.SIZE]).
+     * Quattordici di fabbrica.
      */
     val markSize: Int = Watermark.SIZE_DEFAULT,
 
     /**
-     * Quanto la filigrana sta lontana dal bordo, in **decimi** di centesimo del lato lungo.
-     *
-     * ⚠️ **Tre centesimi di fabbrica**, che è il numero che fino alla `2.70` viveva nel codice
-     * come costante: il valore di fabbrica non cambia quello che un'immagine già firmata
-     * otterrebbe.
-     * ⚠️⚠️ **L'UNITÀ È IL DECIMO DALLA `2.76`, ED È SUA RICHIESTA**: il perché vive su
-     * [Watermark.AIR], e come si legge quello che era scritto prima su `MARK_AIR_FINE`.
+     * Quanto la filigrana è lontana dal bordo, in decimi di centesimo del lato lungo (il perché è
+     * su [Watermark.AIR], e la lettura delle chiavi su `MARK_AIR_FINE`). Tre centesimi di fabbrica.
      */
     val markAir: Int = Watermark.AIR_DEFAULT,
 
     /**
-     * Quanto la filigrana è opaca, in centesimi.
-     *
-     * ⚠️ **Piena di fabbrica**: quello che si vede è quello che il file porta, e chi la vuole
-     * discreta lo dice qui invece di prepararsi un secondo PNG.
+     * Quanto la filigrana è opaca, in centesimi: piena di fabbrica, e chi la vuole discreta lo dice
+     * qui.
      */
     val markAlpha: Int = Watermark.ALPHA_DEFAULT,
 
-    /*
-     * ⚠️⚠️ **QUI VIVEVA `markShow`, L'ANTEPRIMA DELLA FIRMA SUL PALCO, E DALLA `2.75` NON
-     * C'È PIÙ**: era nata nella `2.74` su sua richiesta e il giro dopo l'ha revocata (voce
-     * `mark-palco` non approvata: *funziona bene, ma mi sono accorto che non serve, e forse
-     * confonde pure*). Con lei escono la sua chiave, le sue due stringhe e tutto il disegno.
-     * ⚠️ **La chiave `mark-show` resta scritta negli archivi di chi ha la `2.74`**, e non si
-     * pota: una preferenza che nessuno legge non fa niente, e cancellarla costerebbe una
-     * migrazione per liberare un byte.
-     */
-
     /**
-     * Se il salvataggio dell'editor completo **ridimensiona** l'immagine.
+     * Se il salvataggio dell'editor completo ridimensiona l'immagine.
      *
-     * ⚠️⚠️ **QUESTI TRE CAMPI NON COMPAIONO NELLA SCHERMATA DELLE IMPOSTAZIONI, E NON È UNA
-     * DIMENTICANZA**: i loro comandi vivono nell'**editor**, ed è la sua risposta `editor` a
-     * `d-resize-dove` (*mi piacerebbe più nell'editor, fatto in modo che funzioni tipo un parametro
-     * del salvataggio*). È la clausola 4 di `Rules.md` § '⚙️ Dove va un'impostazione, e chi la
-     * deve trovare', la stessa di [folderView].
-     * ⚠️⚠️ **MA VIVONO LO STESSO NELLE PREFERENZE, E LA RAGIONE È IL LAVORO IN SERIE**: chi
-     * rimpicciolisce a milleseicento lo fa su parecchie immagini di fila, e uno stato dentro la
-     * schermata gli farebbe riscrivere la misura a ogni apertura.
-     * ⚠️ **Spento di fabbrica**: un valore di fabbrica non si sceglie per far vedere una funzione,
-     * e qui varrebbe doppio, perché acceso senza che nessuno l'abbia chiesto butterebbe via dei
-     * pixel.
-     * ⚠️ **Da solo non basta a fare un lavoro**: se il piano non rimpicciolisce quell'immagine non
-     * c'è niente da fare, e a dirlo è [Resize.Plan.sizeFor].
+     * ⚠️ **Questi tre campi non compaiono nella schermata delle impostazioni**: i loro comandi sono
+     * nell'editor (risposta `editor` a `d-resize-dove`, clausola 4 di `Rules.md` § '⚙️ Dove va
+     * un'impostazione, e chi la deve trovare'), ma vivono nelle preferenze per il lavoro in serie:
+     * chi rimpicciolisce lo fa su parecchie immagini di fila. Spento di fabbrica, perché butterebbe
+     * via pixel; se il piano non rimpicciolisce quell'immagine non c'è niente da fare
+     * ([Resize.Plan.sizeFor]).
      */
     val sizeOn: Boolean = false,
 
     /**
-     * Che cosa governa il valore del ridimensionamento.
-     *
-     * ⚠️⚠️ **IL LIBERO DI FABBRICA, DALLA `2.77`, E PRIMA ERA IL LATO LUNGO**: la finestra si
-     * apre senza nessun gettone acceso, che è la sua riga alla lettera, e i due campi portano le
-     * misure che l'immagine ha già. Il perché quel piano non faccia niente vive su [Resize.NONE].
+     * Che cosa governa il valore del ridimensionamento. Il libero di fabbrica: la finestra si apre
+     * senza gettoni accesi, e i due campi contengono le misure dell'immagine (vedi [Resize.NONE]).
      */
     val sizeMode: Resize.Mode = Resize.NONE.mode,
 
     /**
-     * Quanto vale il ridimensionamento, in pixel o in per cento a seconda di [sizeMode].
-     *
-     * ⚠️⚠️ **UNO SOLO PER TUTTI E SEI I MODI, ED È UNA SCELTA**: con un valore per modo, chi
-     * passa da 'Lato lungo' a 'Percentuale' si ritroverebbe un numero che non ha scritto, e la
-     * finestra dovrebbe spiegare quale sta guardando. Così il numero è quello che si vede, e
-     * cambiando gettone la finestra lo **ricava** dai due campi, che non si muovono.
+     * Quanto vale il ridimensionamento, in pixel o in per cento secondo [sizeMode]. Uno solo per
+     * tutti i modi: con un valore per modo, cambiando gettone si troverebbe un numero mai scritto;
+     * così la finestra lo ricava dai due campi, che non si muovono.
      */
     val sizeValue: Int = Resize.NONE.value,
     /**
-     * Se la fila dei comandi di un'immagine animata mostra il contatore dei fotogrammi.
-     *
-     * ⚠️⚠️ **ACCESO DI FABBRICA, ed è l'utente ad averlo chiesto insieme all'interruttore**
-     * (2026-09-01: *contatore: sì, lo voglio, ma mettiamo un on/off*). L'interruttore non
-     * nasce da un dubbio sul contatore: nasce dal fatto che un numero sopra l'immagine è
-     * l'unica parte della fila che non è un comando, quindi è la sola che qualcuno possa
-     * voler togliere per guardare e basta.
+     * Se la fila dei comandi di un'immagine animata mostra il contatore dei fotogrammi. Acceso di
+     * fabbrica, con l'interruttore chiesto dall'utente: il contatore è la sola parte della fila che
+     * non è un comando, quindi la sola che si può voler togliere.
      */
     val animCounter: Boolean = true,
     /**
-     * Se all'avvio si guarda negli appunti.
-     *
-     * ⚠️⚠️ **SPENTA DI DEFAULT, per volontà dell'utente dopo averla provata** (2026-08-29:
-     * *niente avviso, opzione spenta di default*). Il motivo è il prezzo che si paga: da
-     * Android 12 il sistema **annuncia** ogni lettura degli appunti, quindi una lettura a
-     * ogni avvio è un avvisino a ogni avvio, anche quando negli appunti non c'è niente di
-     * utile. Accesa, l'app fa quello che era stato chiesto; spenta, l'avviso non compare
-     * mai. La scelta è di chi la usa e non nostra, ed è la ragione per cui è
-     * un'impostazione e non un comportamento.
+     * Se all'avvio si guarda negli appunti. Spenta di fabbrica, per scelta dell'utente: da Android
+     * 12 il sistema annuncia ogni lettura degli appunti, quindi un avviso a ogni avvio anche con
+     * gli appunti inutili.
      */
     val clipboardStart: Boolean = false,
     /**
-     * L'ultimo indirizzo degli appunti che l'app ha aperto da sé.
+     * L'ultimo indirizzo degli appunti che l'app ha aperto da sé. Vuoto vuol dire 'nessuno ancora'.
      *
-     * ⚠️⚠️ **NON È UNA PREFERENZA MA UNO STATO, e vive qui per una ragione precisa**: la
-     * decisione di aprire o no si prende dentro [ViewerViewModel.readClipboard], che deve
-     * rispondere **subito** per non perdere la corsa con la cartella d'avvio (vedi la nota
-     * là). Un archivio a parte si leggerebbe con una sua coroutine, e quando la risposta
-     * arrivasse la fotografia sarebbe già stata aperta o già coperta. Le impostazioni
-     * invece quella funzione le aspetta già, quindi qui il valore c'è per costruzione.
-     * ⚠️ Vuoto vuol dire 'nessuno ancora', ed è diverso da 'non lo so'.
+     * ⚠️ **Non è una preferenza ma uno stato, e vive qui apposta**: la decisione si prende in
+     * [ViewerViewModel.readClipboard], che deve rispondere subito per non perdere la corsa con la
+     * cartella d'avvio (nota là). Un archivio a parte si leggerebbe con una sua coroutine, troppo
+     * tardi; le impostazioni quella funzione le aspetta già.
      */
     val clipboardDone: String = "",
     /**
-     * Quando gli appunti portavano l'indirizzo che l'app ha aperto da sé.
-     *
-     * ⚠️⚠️ **NASCE PERCHÉ RICOPIARE LO STESSO INDIRIZZO NON RIAPRIVA NIENTE, dalla 1.45**
-     * (segnalazione dell'utente, 2026-09-03, sulla GIF di Wikimedia: *se l'URL è negli
-     * appunti, non si apre all'avvio*). La memoria della `0.94` teneva il solo indirizzo, e la
-     * sua nota diceva la cosa giusta a metà: *copiando un indirizzo nuovo la funzione deve
-     * tornare a rispondere*. Ma copiare **di nuovo** lo stesso indirizzo è una richiesta
-     * altrettanto chiara, e con il solo confronto delle stringhe era indistinguibile da 'quel
-     * link sta negli appunti da tre giorni'.
-     * ⚠️ **Il tempo lo dà il sistema e non lo misuriamo noi**: `ClipDescription.getTimestamp`
-     * dice quando quel contenuto è stato messo negli appunti (da Android 8, e il `minSdk` è
-     * 28). Un tempo nostro direbbe solo quando lo abbiamo letto, che è un'altra cosa.
-     * ⚠️ Zero vuol dire 'nessuno ancora', come la stringa vuota accanto.
+     * Quando gli appunti contenevano l'indirizzo che l'app ha aperto da sé: ricopiare lo stesso
+     * indirizzo è una richiesta chiara, e col solo confronto delle stringhe non si distinguerebbe
+     * da un link negli appunti da giorni (segnalazione dell'utente). Il tempo è quello del sistema,
+     * `ClipDescription.getTimestamp`, cioè quando il contenuto è entrato negli appunti, non quando
+     * lo abbiamo letto. Zero vuol dire 'nessuno ancora'.
      */
     val clipboardWhen: Long = 0L,
     /**
-     * La cartella da aprire all'avvio, e `null` quando non se n'è scelta nessuna.
-     *
-     * ⚠️ **Due campi per una cosa sola, e il secondo non è ridondante**: l'id è quello
-     * che apre, il nome è quello che si legge nelle impostazioni. Senza il nome la voce
-     * direbbe un numero, e per tradurlo bisognerebbe interrogare il MediaStore ogni
-     * volta che si apre quella schermata, permesso compreso.
+     * La cartella da aprire all'avvio, `null` se non se n'è scelta nessuna. Due campi: l'id apre,
+     * il nome si legge nelle impostazioni senza interrogare il MediaStore.
      */
     val startFolder: Long? = null,
     val startFolderName: String = "",
     /**
-     * Se all'avvio si apre la foto più recente di [startFolder] invece della schermata
-     * iniziale.
-     *
-     * ⚠️ Separato dalla cartella perché sono due decisioni: 'quale cartella' resta
-     * scritta anche quando si spegne l'avvio automatico, e riaccenderlo non costa
-     * riscegliere. Chi lo accende senza aver scelto viene portato all'elenco.
+     * Se all'avvio si apre l'immagine più recente di [startFolder] e non la schermata iniziale.
+     * Separato dalla cartella: 'quale cartella' resta scritta anche spegnendo l'avvio automatico.
+     * Chi lo accende senza aver scelto è portato all'elenco.
      */
     val openAtStart: Boolean = false,
     /** Chiaro, scuro o come il sistema. Vedi [UiTheme]: non è il tema dello sfondo. */
@@ -829,336 +566,196 @@ data class Settings(
     /** Quante colonne ha la griglia delle cartelle. Vedi [FOLDER_COLUMNS]. */
     val folderColumns: Int = 2,
     /**
-     * Se sotto la copertina di una cartella si vede il conto delle immagini.
-     *
-     * ⚠️⚠️ **SPEGNENDOLA la riga di griglia si ACCORCIA, e l'intestazione cresce di
-     * altrettanto**: non resta uno spazio vuoto al suo posto. È la lettura di 'opzionale'
-     * che dà qualcosa in cambio, e tiene esatto il conto delle righe visibili
-     * (`coverHeader`), che è quello che l'utente ha chiesto al punto 1a.
-     * ⚠️ **Accesa di serie**: è un dato che si guarda, e togliere qualcosa a chi non l'ha
-     * chiesto è il modo di far cercare un'impostazione che non si sa di avere.
+     * Se sotto la copertina di una cartella si vede il conto delle immagini. Spegnendola la riga
+     * della griglia si accorcia e l'intestazione cresce di altrettanto, così il conto delle righe
+     * visibili (`coverHeader`) resta esatto (punto 1a dell'utente). Accesa di fabbrica.
      */
     val folderCount: Boolean = true,
     /**
-     * Dove si vede il colore di una cartella fuori dalla sua intestazione. Vedi [FolderColour],
-     * che porta il perché del valore di fabbrica.
-     *
-     * ⚠️ **Vale per tutte e due le viste della schermata iniziale**, copertine ed elenco: è una
-     * risposta alla domanda *come riconosco una cartella*, e quella domanda non cambia
-     * cambiando vista. Le due rese sono diverse perché diverse sono le due celle, non perché lo
-     * sia la scelta.
+     * Dove si vede il colore di una cartella fuori dalla sua intestazione. Vedi [FolderColour].
+     * Vale per le due modalità griglia e lista della schermata iniziale: la domanda, come riconosco
+     * una cartella, non cambia cambiando vista.
      */
     val folderColour: FolderColour = FolderColour.NAME,
     /**
-     * Se l'eliminazione manda le fotografie nel **cestino** invece di cancellarle.
+     * Se l'eliminazione manda le immagini nel cestino invece di cancellarle.
      *
-     * ⚠️⚠️ **DECIDE ANCHE SE C'È UNA CONFERMA, e i due fatti sono uno** (testo dettato
-     * dall'utente, dalla `0.79`): col cestino acceso eliminare **non chiede niente**, perché
-     * l'azione si disfa con un 'Ripristina'; spegnendolo l'eliminazione diventa istantanea e
-     * definitiva, quindi **prima** di ogni eliminazione compare una conferma. La regola che
-     * ne esce è una sola: si chiede conferma **quando e solo quando** non si può tornare
-     * indietro.
-     * ⚠️ **Accesa di serie**: un'app che cancella per sempre al primo tocco sbagliato non è
-     * quello che si attende da una galleria, e chi vuole l'eliminazione secca la sceglie.
-     * ⚠️ **Spegnerla NON svuota il cestino** e non lo rende irraggiungibile: quello che c'è
-     * dentro resta, e la sua voce nel menu del FAB pure. Sarebbe la sorpresa peggiore.
+     * ⚠️ **Decide anche se c'è una conferma** (testo dettato dall'utente): col cestino acceso
+     * eliminare non chiede niente, perché si disfa; spento, l'eliminazione è definitiva e prima
+     * compare una conferma. Si chiede conferma quando e solo quando non si può tornare indietro.
+     * Accesa di fabbrica. Spegnerla non svuota il cestino e non lo rende irraggiungibile.
      */
     val binOn: Boolean = true,
     /**
-     * Se sfogliando nel visualizzatore si saltano i filmati.
+     * Se sfogliando nel visualizzatore si saltano i video.
      *
-     * ⚠️⚠️ **SPENTA DI FABBRICA, ed è quello che decide l'architettura** (parole dell'utente,
-     * 2026-08-31: *dev'essere OFF di default, perciò sì, serve per forza il ramo decisionale
-     * e un secondo visualizzatore*). Spenta vuol dire che il caso normale è 'sfoglio anche i
-     * video', quindi il ramo che sceglie fra fotografia e filmato serve **sempre**, e non si
-     * poteva rimandare accendendo l'opzione per finta. Quel ramo esiste dalla `0.83`.
-     * ⚠️⚠️ **TOCCA IL SOLO SFOGLIO, e non il tocco**: da una griglia un filmato si apre
-     * comunque, perché toccarlo è una richiesta esplicita. Questa spegne il **gesto**, cioè
-     * il caso in cui il filmato arriva senza che nessuno l'abbia chiesto.
-     * ⚠️ **Il contatore mostra dei salti, ed è voluto**: la serie resta quella della
-     * cartella, quindi si passa da `3/10` a `5/10`. L'alternativa era rinumerare, cioè
-     * mentire su quante cose ci sono nella cartella.
+     * ⚠️ **Spenta di fabbrica** (parole dell'utente): il caso normale è sfogliare anche i video.
+     * Tocca il solo gesto dello sfoglio: da una griglia un video si apre comunque, perché toccarlo
+     * è una richiesta. Il contatore mostra dei salti (da `3/10` a `5/10`), perché la serie resta
+     * quella della cartella.
      */
     val imagesOnly: Boolean = false,
     /**
-     * Se un filmato raggiunto **con un tocco** parte da sé, dalla `1.46`.
-     *
-     * ⚠️⚠️ **È IL ROVESCIO ESATTO DI [imagesOnly], E LE DUE NON SI SOVRAPPONGONO**: quella
-     * spegne il **gesto**, questa accende il **tocco** (richiesta dell'utente, 2026-09-03: *al
-     * tocco sulla miniatura di un video parte subito la riproduzione. Quando si sfoglia,
-     * invece, i video sono sempre in modalità con 'Play' in sovrimpressione*). Sfogliando non
-     * parte niente **nemmeno con questa accesa**, e non è una dimenticanza: è la seconda metà
-     * della richiesta, e la regola vive in un punto solo, `Arrival.plays`.
-     * ⚠️ **Spenta di fabbrica**: un audio che comincia da sé è una sorpresa, e chiede il fuoco
-     * audio mettendo in pausa la musica di un'altra app. Chi la vuole paga un tocco; chi non la
-     * conosce non si trova l'app che parla.
+     * Se un video raggiunto con un tocco parte da sé: il rovescio di [imagesOnly], che spegne il
+     * gesto, mentre questa accende il tocco (richiesta dell'utente). Sfogliando non parte niente
+     * nemmeno con questa accesa: la regola è in un punto solo, `Arrival.plays`. Spenta di fabbrica:
+     * un audio che comincia da sé mette in pausa la musica di un'altra app.
      */
     val clipAutoplay: Boolean = false,
     /**
-     * Se sotto ogni miniatura della griglia delle foto si legge il nome del file.
-     *
-     * ⚠️ **Spenta di fabbrica** (richiesta dell'utente): una galleria mostra fotografie, e un
-     * nome sotto ognuna è un dato che serve a chi lavora coi file, non a chi guarda.
-     * ⚠️ **Accenderla costa una domanda al MediaStore per fotografia**, una volta sola per
-     * indirizzo: il nome di un `content://` non si ricava dall'indirizzo. Vedi [Names].
+     * Se sotto ogni miniatura della griglia si legge il nome del file. Spenta di fabbrica
+     * (richiesta dell'utente). Accenderla costa una domanda al MediaStore per miniatura, una volta
+     * per indirizzo: il nome di un `content://` non si ricava dall'indirizzo. Vedi [Names].
      */
     val gridNames: Boolean = false,
     /**
-     * Se l'intestazione di una cartella porta la **sfumatura** dell'accento.
-     *
-     * ⚠️⚠️ **È LA VARIANTE 10 DEL MOCKUP, SCELTA DA LUI** (risposta a `d-frontespizio` del giro
-     * della `1.81`): la tinta parte piena sotto la barra di sistema e si spegne **una riga di
-     * miniature più in basso** dell'intestazione, cioè scavalca il bordo della fascia invece di
-     * tagliarla di netto. Con lei l'icona della cartella passa in negativo.
-     * ⚠️ **Accesa di fabbrica, e la decisione registrata dice due cose**: il titolo della voce nel
-     * brief è *variante 10 di fabbrica*, e l'elenco dei chip dice *gli ultimi due accesi di
-     * fabbrica*, cioè [frontFacts] e [frontPickAll]. Senza la sfumatura la 10 non è la 10, quindi
-     * qui vince il titolo; è un tocco per spegnerla, e la voce di collaudo lo chiede.
+     * Se l'intestazione di una cartella ha il gradiente (variante 10 del mockup, `d-frontespizio`):
+     * la tinta parte piena sotto la barra di sistema e si spegne prima della griglia, e con lei
+     * l'icona della cartella passa in negativo. Acceso di fabbrica: senza il gradiente la variante
+     * 10 non è la 10.
      */
     val frontWash: Boolean = true,
     /**
-     * Se il nome della cartella nell'intestazione è scritto **grande e col carattere graziato**.
-     *
-     * ⚠️ **Viene dalla variante 7 del mockup** ('Solo il nome'), che nella 10 non c'è: la
-     * combinazione è la sua, e questo chip esiste perché voleva poterla provare.
-     * ⚠️ **Spento di fabbrica**: la 10 porta il titolo di sempre, e un valore di fabbrica non si
-     * sceglie per far vedere una funzione.
+     * Se il nome della cartella nell'intestazione è grande e col carattere graziato (variante 7 del
+     * mockup, che l'utente voleva poter provare). Spento di fabbrica.
      */
     val frontSerif: Boolean = false,
     /**
-     * Se l'intestazione porta le pastiglie del **peso** e del **numero di video**.
-     *
-     * ⚠️ **Sono due dati che oggi non si sanno senza aprire i file**, e vengono dalla variante 4.
-     * Il conto si fa una volta per cartella (vedi `Folder.weigh`) e non per miniatura.
+     * Se l'intestazione ha le pastiglie del peso e del numero di video (variante 4): due dati che
+     * non si sanno senza aprire i file. Il conto si fa una volta per cartella (`Folder.weigh`).
      */
     val frontFacts: Boolean = true,
     /**
-     * Se l'intestazione porta la pastiglia **'Seleziona tutto'**.
-     *
-     * ⚠️ **È un comando in mezzo a due dati**, e per questo ha un vestito diverso: la variante 10
-     * lo dichiara (*un dato e un comando che si somigliano sono la trappola vera di una fila
-     * mista*).
+     * Se l'intestazione ha la pastiglia 'Seleziona tutto': un comando in mezzo a due dati, e per
+     * questo con un aspetto diverso (variante 10).
      */
     val frontPickAll: Boolean = true,
     /**
-     * Se la finestra di **rinomina** porta il tasto che cambia l'estensione.
+     * Se la finestra di rinomina ha il tasto che cambia l'estensione: il gettone 'Rinomina' della
+     * voce 'Consenti la modifica dell'estensione' (l'altro è [extDownload]).
      *
-     * ⚠️⚠️ **SPENTA DI FABBRICA, ED È UNA GRIGLIA DI SICUREZZA CHIESTA DALL'UTENTE**
-     * (2026-09-02: *per far sì che la funzionalità sia usata solo da chi sa cosa sta facendo,
-     * la disattiviamo di default*). Cambiare l'estensione **non converte niente**: lascia
-     * dentro un JPEG con l'etichetta di un PNG, e su un'estensione non multimediale il file
-     * sparisce dalle viste a griglia e a lista, che è il modo peggiore di perdere una
-     * immagine, perché sembra cancellata.
-     * ⚠️ **Ma la funzione serve, e per questo non è stata tolta**: il caso vero è il suo
-     * (*a volte mi capita di dover rinominare un .svg in .txt perché l'app Claude non è in
-     * grado di allegare file .svg in chat*), cioè aggirare il filtro di un'altra app.
-     * ⚠️ **Tre presidi e non uno**: questo interruttore, il paragrafo che sta sotto di lui
-     * nelle impostazioni, e il velo che compare la **prima volta** che si apre quel
-     * pannellino (vedi [Hint.EXT_WARN]). Il primo tiene fuori chi non la cerca, il terzo
-     * avvisa chi la cerca senza sapere che cosa comporta.
-     *
-     * ⚠️⚠️ **DALLA `1.81` LA VOCE È UNA E I CHIP SONO DUE, e questo campo è il chip 'Rinomina'**
-     * (riscontro del giro della `1.80`, campo libero punto A: *`Modifica le estensioni con
-     * 'Rinomina'` -> diventa `Consenti la modifica dell'estensione` e deve avere due chip spenti
-     * di fabbrica: `Scarica` e `Rinomina` che attivano la modifica dell'estensione per ciascuna
-     * delle due funzionalità*). L'altro chip è [extDownload].
-     * ⚠️⚠️ **LA CHIAVE RESTA `ext-edit` DI PROPOSITO**, anche se il campo si è rinominato: era
-     * esattamente questa scelta, cioè 'estensione in Rinomina', quindi chi l'aveva accesa se la
-     * ritrova accesa dopo l'aggiornamento. Una chiave nuova si scrive quando la domanda cambia
-     * verso (`Rules.md`, § '⚙️ Dove va un'impostazione, e chi la deve trovare'), e qui la
-     * domanda di questo campo è la stessa: si è solo aggiunta la sua gemella.
+     * ⚠️ **Spento di fabbrica, una protezione chiesta dall'utente**: cambiare l'estensione non
+     * converte niente, e con un'estensione non multimediale il file sparisce dalle modalità griglia
+     * e lista, come cancellato. La funzione resta per il caso dell'utente (rinominare un `.svg` in
+     * `.txt` per allegarlo in un'app che rifiuta gli SVG). I presidi sono tre: questo interruttore,
+     * il paragrafo sotto di lui nelle impostazioni, e il velo della prima volta ([Hint.EXT_WARN]).
+     * ⚠️ **La chiave resta `ext-edit`**: la domanda di questo campo è la stessa di prima, quindi
+     * chi l'aveva accesa la ritrova accesa.
      */
     val extRename: Boolean = false,
     /**
-     * Se la finestra del **salvataggio** porta il tasto che cambia l'estensione.
-     *
-     * ⚠️⚠️ **NASCE NELLA `1.81` COME GEMELLA DI [extRename], ED È SUA** (stessa richiesta: due
-     * chip, uno per funzione). Fino alla `1.80` le due finestre leggevano lo stesso interruttore,
-     * quindi accendere l'estensione in 'Rinomina' la accendeva anche in 'Scarica' senza che
-     * nessuno l'avesse chiesto.
-     * ⚠️ **Spenta di fabbrica come la gemella**, e per la stessa ragione: il valore di fabbrica
-     * non si sceglie per far vedere la funzione, e qui protegge un file.
-     * ⚠️ **Il tocco lungo su 'Scarica' la scavalca**, come scavalca [saveRename]: è il 'per
-     * questa volta sola' che lui ha chiesto (campo libero del giro della `1.79`, punto D). Quello
-     * che non scavalca è l'avviso della prima volta.
+     * Se la finestra del salvataggio ha il tasto che cambia l'estensione: la gemella di
+     * [extRename], un gettone per funzione (richiesta dell'utente). Spenta di fabbrica come la
+     * gemella. Il tocco lungo su 'Scarica' la scavalca, come scavalca [saveRename] ('per questa
+     * volta sola'), ma non scavalca l'avviso della prima volta.
      */
     val extDownload: Boolean = false,
     /**
-     * Se le miniature vivono nella **memoria grafica** invece che in quella dell'app.
+     * Se le miniature sono nella memoria grafica invece che in quella dell'app (richiesta e
+     * autorizzazione dell'utente).
      *
-     * ⚠️⚠️ **RICHIESTA DELL'UTENTE, e autorizzata in chiaro due volte** (giro della `1.67`:
-     * *PROCEDI*; giro della `1.74`: *aggiungi l'opzione come stabilito*). Il guadagno vero non
-     * è la velocità di disegno ma il **budget**: `ImageSource.pixelBudget` misura la memoria
-     * che resta all'app per decidere se campionare la fotografia grande, e ogni miniatura
-     * tenuta in caldo da Coil gliela toglie. In memoria grafica quelle non pesano più sul
-     * mucchio dell'app, quindi il visualizzatore ha più spazio proprio dove la qualità si
-     * vede.
-     * ⚠️⚠️ **SPENTA DI FABBRICA, E STA FRA LE 'FUNZIONALITÀ AVANZATE' PER UNA RAGIONE
-     * MISURABILE**: un bitmap in memoria grafica costa un **descrittore di file** al processo,
-     * e il tetto di Android è dell'ordine del migliaio. Una cache di miniature che cresce
-     * senza freno li esaurisce, e quando succede l'app non rallenta: va in errore. È
-     * esattamente il genere di funzione per cui quel gruppo è nato.
-     * ⚠️⚠️ **SPENTA VUOL DIRE SOFTWARE DAPPERTUTTO, e questo cambia una cosa rispetto alla
-     * `1.74`**: fino a lì la decodifica di ripiego di Coil poteva già dare bitmap in memoria
-     * grafica, perché è il suo valore di serie, mentre le miniature del sistema erano software.
-     * Erano due comportamenti diversi per due strade, e nessuno dei due era stato scelto.
-     * Adesso a decidere è questo interruttore, e da spento tutte e due le strade sono software.
-     * Un interruttore che governa metà di quello che il suo titolo dice è peggio di nessun
-     * interruttore.
-     * ⚠️ **Non tocca il visualizzatore**: là la decodifica è quella di `ImageSource`, che deve
-     * poter **rileggere** i pixel (esportazione, editor, copia negli appunti) e un bitmap in
-     * memoria grafica non si rilegge. Questo interruttore parla delle sole miniature.
+     * Il guadagno è il budget: `ImageSource.pixelBudget` misura la memoria che resta per decidere
+     * se campionare l'immagine grande, e ogni miniatura in memoria grafica non pesa più su quella
+     * dell'app.
+     * ⚠️ **Spenta di fabbrica, fra le funzionalità avanzate, per una ragione misurabile**: un
+     * bitmap in memoria grafica costa un descrittore di file, e il tetto di Android è dell'ordine
+     * del migliaio. Una cache che cresce li esaurisce, e l'app va in errore. Spenta vuol dire
+     * software dappertutto, anche nella decodifica di ripiego di Coil. Non tocca il visualizzatore,
+     * che deve poter rileggere i pixel (esportazione, editor, appunti).
      */
     val gpuThumbs: Boolean = false,
     /**
      * Se AIV GitHub cerca da sé una versione nuova all'apertura, una volta al giorno.
      *
-     * ⚠️⚠️ **ACCESA DI FABBRICA, ED È LA SUA SCELTA D1** (2026-10-11: *interruttore, acceso di
-     * fabbrica*): chi scarica AIV da GitHub non ha nessun negozio che lo avvisi, e una versione
-     * nuova che nessuno vede è il problema da cui la richiesta è nata (*scaricare ogni volta
-     * manualmente la release è troppo scomodo*). Il controllo non scarica niente: propone, e chi
-     * conferma decide.
-     * ⚠️ **In AIV Play la voce non c'è** (`Store.updates`): là gli aggiornamenti li porta il Play
-     * Store, e il campo resta letto e scritto senza effetto. Il perché vive in `Updater`.
+     * ⚠️ **Acceso di fabbrica, scelta D1 dell'utente**: chi scarica da GitHub non ha un negozio che
+     * lo avvisi. Il controllo non scarica niente: propone. In AIV Play la voce non c'è
+     * (`Store.updates`), e il campo resta senza effetto; il perché è in `Updater`.
      */
     val autoUpdate: Boolean = true,
     /**
      * Se salvare un'immagine chiede prima il nome.
      *
-     * ⚠️⚠️ **SPENTA DI FABBRICA, ED È LA SUA SPECIFICA** (*Impostazione 'Consenti rinomina al
-     * salvataggio', spenta di fabbrica*). Il valore di fabbrica non è scelto per far vedere la
-     * funzione: salvare è un gesto che si fa di fretta, e chi non ha chiesto di rinominare non
-     * deve trovarsi una finestra in mezzo. Chi la vuole la accende, e chi la vuole **una volta
-     * sola** tiene premuto 'Scarica'.
-     * ⚠️ **Non decide DOVE si salva**: quello lo decide [downloadPath], che dalla `1.80` gli fa
-     * compagnia nella stessa finestra. Questo interruttore parla del solo nome.
-     * ⚠️ **Vive in 'Modifica e backup' e non in una sezione sua**: la domanda a cui risponde è
-     * *che cosa scrive l'app su disco, e con che nome*, che è la stessa dell'editor che
-     * sovrascrive e della copia di sicurezza che lo protegge.
+     * ⚠️ **Spenta di fabbrica, specifica dell'utente**: salvare è un gesto di fretta. Chi la vuole
+     * una volta sola tiene premuto 'Scarica'. Non decide dove si salva: lo decide [downloadPath],
+     * nella stessa finestra. È in 'Modifica e backup' perché risponde alla domanda su che cosa
+     * l'app scrive su disco, e con che nome.
      */
     val saveRename: Boolean = false,
     /**
-     * Se salvare un'immagine offre anche di **scegliere dove**.
-     *
-     * ⚠️⚠️ **NASCE NELLA `1.80` ED È LA SUA RICHIESTA ALLA LETTERA** (riscontro del giro della
-     * `1.79`, campo libero punto C: *va aggiunta un'opzione 'Scegli il percorso di download'.
-     * Se attiva (di fabbrica, NO), deve apparire l'icona 'Percorso', per scegliere dove
-     * scaricare il file*). Da accesa, nella finestra del nome compare il comando che apre il
-     * selettore di sistema; da spenta, tutto va in Download come dalla `1.77`.
-     * ⚠️⚠️ **SPENTA DI FABBRICA, E LO HA SCRITTO LUI FRA PARENTESI**: il valore di fabbrica non
-     * si sceglie per far vedere la funzione, e la ragione della `1.77` non è cambiata (*niente
-     * scelta della cartella, sempre Downloads, che è l'unica che funziona senza autorizzazioni,
-     * anche in vista di Play*). Questa è la deroga per chi la chiede, non il verso nuovo.
-     * ⚠️ **Sta accanto a [saveRename] perché risponde alla stessa domanda**, *che cosa scrive
-     * l'app su disco, e con che nome*: sono due voci della stessa famiglia, e la soglia della
-     * sotto-pagina si conta sulla famiglia (vedi `Rules.md`, § '⚙️ Dove va
+     * Se salvare offre anche di scegliere dove (richiesta dell'utente): accesa, nella finestra del
+     * nome compare il comando che apre il selettore di sistema; spenta, tutto va in Download, che
+     * funziona senza autorizzazioni, anche in vista di Play. Spenta di fabbrica, come ha scritto
+     * l'utente. È accanto a [saveRename] perché è della stessa famiglia (`Rules.md` § '⚙️ Dove va
      * un'impostazione, e chi la deve trovare').
      */
     val downloadPath: Boolean = false,
     /**
-     * Dopo quanto un file eliminato se ne va dal cestino da solo.
-     *
-     * ⚠️⚠️ **LE TRE DECISIONI CHE LA GOVERNANO SONO SUE, e si citano con la loro chiave perché
-     * si possano riverificare** (giro della 1.67): `d-cestino-quando`: **`file`**, cioè ogni
-     * file conta la propria età e non si svuota tutto a intervalli; `d-cestino-chiusa`:
-     * **`aperta`**, cioè la pulizia gira **solo mentre l'app è in primo piano**;
-     * `d-cestino-editor`: **`fuori`**, cioè le copie di sicurezza dell'editor non scadono mai.
-     * ⚠️⚠️ **LA SECONDA ERA STATA REGISTRATA AL CONTRARIO nel brief, e l'ha dovuto segnalare
-     * lui** (2026-09-06: *nell'apposito artefatto ti avevo già risposto la stessa cosa e tu hai
-     * memorizzato il contrario*). Da quell'inversione era nata l'idea che servisse
-     * un'operazione programmata di sistema, e con lei una libreria in più: non serve niente.
-     * La regola che ne è uscita sta in `Roccobot.md` § '🔑 Una risposta si travasa con la sua
-     * chiave, e si rilegge dalla fonte'.
-     * ⚠️ **Spenta di fabbrica**, perché cancella file per sempre.
+     * Dopo quanto un file eliminato se ne va dal cestino da solo. Le tre decisioni dell'utente sono
+     * in `Rules.md` § '🗑️ Lo svuotamento automatico del cestino' (`d-cestino-quando`,
+     * `d-cestino-chiusa`, `d-cestino-editor`). Spento di fabbrica, perché cancella file per sempre.
      */
     val binKeep: BinKeep = BinKeep.NEVER,
     /**
      * I percorsi delle cartelle che non devono comparire fra quelle da sfogliare.
      *
-     * ⚠️⚠️ **PERCORSI E NON IDENTIFICATIVI, ed è la scelta che regge la funzione**
-     * (richiesta dell'utente, 2026-08-29: *percorsi che non devono apparire*). L'id di
-     * una cartella nel MediaStore **non è stabile**: si ricalcola dal percorso, quindi
-     * cambia quando la cartella viene rinominata o spostata, e su un archivio
-     * riscansionato può cambiare da solo. Un elenco di id smetterebbe di nascondere
-     * proprio le cartelle che qualcuno ha toccato, cioè in silenzio.
-     * ⚠️ **Nasconde anche quello che sta SOTTO**: escludere `/storage/emulated/0/Foo`
-     * toglie anche `Foo/Bar`, perché chi esclude un percorso esclude un ramo. Il
-     * confronto è sul separatore, o `/Foo2` verrebbe nascosto insieme a `/Foo`.
-     * ⚠️ **Nascondere non cancella niente**: le foto restano dove sono, e la cartella si
-     * rivede dalle impostazioni. Vale la pena dirlo perché una funzione che si chiama
-     * 'escludi' accanto a una che cancellerà davvero è il posto giusto per un equivoco.
-     * ⚠️⚠️ **DALLA `2.96` UN PERCORSO DEL TELEFONO È SENZA LA RADICE, ED È SUA RICHIESTA**: `DCIM/Temp`
-     * e non `/storage/emulated/0/DCIM/Temp`, così un file di impostazioni lo porta su un altro
-     * telefono. Dalla `2.99` una scheda resta intera, perché il suo identificativo la ritrova. Il perché per esteso, e che cosa ne segue, vivono su `portablePath`, e il confronto
-     * su `coveringOf`: questo campo non si legge mai con `in` o con `startsWith`, perché una voce e
-     * il percorso di una cartella non sono più scritti nella stessa forma.
-     * ⚠️ **La chiave è nuova**, perché è cambiato quello che la risposta dice: il passaggio da una
-     * all'altra lo fa [HiddenMigration].
+     * ⚠️ **Percorsi e non identificativi** (richiesta dell'utente): l'id di una cartella nel
+     * MediaStore si ricalcola dal percorso, quindi cambia con una rinomina o uno spostamento, e un
+     * elenco di id smetterebbe di nascondere proprio le cartelle toccate. Nasconde anche il ramo
+     * sotto (`Foo/Bar` con `Foo`), col confronto sul separatore. Nascondere non cancella niente: la
+     * cartella si rivede dalle impostazioni.
+     * ⚠️ **Un percorso del telefono è scritto senza la radice** (richiesta dell'utente):
+     * `DCIM/Temp`, così un file di impostazioni funziona su un altro telefono; una scheda resta
+     * intera, perché il suo identificativo la ritrova. Il perché è su `portablePath`, il confronto
+     * su `coveringOf`: questo campo non si legge mai con `in` o `startsWith`. La chiave è nuova, e
+     * il passaggio lo fa [HiddenMigration].
      */
     val hiddenFolders: Set<String> = emptySet(),
-    /** Only this directory is excluded; newly created descendants stay visible. */
+    /** Solo questa cartella è esclusa; le sottocartelle create dopo restano visibili. */
     val hiddenExactFolders: Set<String> = emptySet(),
-    /** Existing behavior stays the default, including for users upgrading. */
+    /** Di serie l'esclusione, il comportamento di prima, anche per chi aggiorna. */
     val folderMode: FolderMode = FolderMode.EXCLUDED,
-    /** Camera, Screenshots and Movies are authorized by default when present. */
+    /** Fotocamera, Screenshots e Movies sono incluse di serie, quando ci sono. */
     val includedFolders: Set<String> = DEFAULT_INCLUDED_FOLDERS,
     /**
-     * The order of the folders in the home grid, from the `5.80`. See [FolderOrder].
+     * L'ordine delle cartelle nella griglia della schermata iniziale. Vedi [FolderOrder].
      *
-     * ⚠️⚠️ **`null` IS THE FACTORY VALUE, AND IT IS HIS**: *non ci sarà un default, perché al primo
-     * avvio un popup deve chiedere*. While it is `null` the grid stays alphabetical and the home
-     * asks once (`FolderOrderDialog`); his answer `C1` asks also those who update. The key is
-     * removed, not written, so 'not chosen' survives a save of the whole object.
+     * ⚠️ **`null` è il valore di fabbrica, scelta dell'utente**: al primo avvio una finestra
+     * chiede. Finché è `null` la griglia è alfabetica e la schermata iniziale chiede una volta
+     * (`FolderOrderDialog`); la sua risposta `C1` chiede anche a chi aggiorna. La chiave si toglie
+     * e non si scrive, così 'non scelto' sopravvive al salvataggio dell'oggetto intero.
      */
     val folderOrder: FolderOrder? = null,
     /**
-     * The favourite folders, as portable paths (see `portablePath`), in the order shown at the
-     * top of the grid and of the list, from the `5.80`.
+     * Le cartelle preferite, come percorsi portabili (vedi `portablePath`), nell'ordine mostrato in
+     * cima alla griglia e alla lista.
      *
-     * ⚠️ **A list and not a set**, because the order is his (*in un ordine personalizzato*); it is
-     * stored as one string, one path per line, since a set of strings in `DataStore` has no order.
-     * ⚠️ **Empty by default**, his words: *una lista (vuota di default)*.
+     * ⚠️ **Una lista e non un insieme**, perché l'ordine è dell'utente; si salva come una stringa,
+     * un percorso per riga, perché un insieme di stringhe in `DataStore` non ha ordine. Vuota di
+     * serie.
      */
     val favouriteFolders: List<String> = emptyList(),
-    /** Which date puts the Feed in order, from 6.02. See [FeedDate]. */
+    /** Quale data mette in ordine il Feed. Vedi [FeedDate]. */
     val feedDate: FeedDate = FeedDate.TAKEN,
     /**
-     * L'ordine dei campi delle informazioni sul file. Vedi [FactField].
-     *
-     * ⚠️ **Ci sono TUTTI, anche quelli spenti**, ed è la differenza fra un ordine e un
-     * elenco: se qui vivessero solo i visibili, riaccenderne uno vorrebbe dire non sapere
-     * più dove rimetterlo, e ricomparirebbe in fondo invece che al suo posto.
+     * L'ordine dei campi delle informazioni sul file. Vedi [FactField]. Ci sono tutti, anche gli
+     * spenti: con i soli visibili, uno riacceso non saprebbe dove tornare.
      */
     val factOrder: List<FactField> = FactField.entries,
     /**
-     * I campi che l'utente ha spento.
-     *
-     * ⚠️ **L'insieme dice chi NON si vede, non chi si vede**: così un campo aggiunto da
-     * una versione futura nasce **acceso**, che è il verso giusto. Al contrario nascerebbe
-     * invisibile su ogni telefono che ha toccato l'impostazione una volta, cioè
-     * introvabile.
-     * ⚠️ I tre campi [FactField.always] non ci finiscono mai: lo garantisce la lettura,
-     * non la buona volontà di chi scrive l'interfaccia.
+     * I campi che l'utente ha spento: l'insieme dice chi non si vede, così un campo nuovo nasce
+     * acceso. I tre campi [FactField.always] non ci finiscono mai: lo garantisce la lettura.
      */
     val factOff: Set<FactField> = emptySet(),
     /**
-     * L'ordine dei sei tasti nel riquadro del tocco lungo: visualizzatore e albero.
-     *
-     * ⚠️ **Di fabbrica è quello che ha dettato lui per la `1.54`**, e i due posti in cui vive
-     * quel riquadro lo condividono: chi impara dov'è 'Sposta' lo sa in tutti e due.
-     * ⚠️⚠️ **NEL CESTINO NON SI SCAMBIA PIÙ NIENTE, dalla `1.56`**: fino alla `1.55` là 'Sposta'
-     * e 'Copia' si invertivano, per una richiesta della `1.54`. Con un ordine scelto dall'utente
-     * quello scambio diventerebbe una **seconda trasformazione sopra la sua scelta**, cioè
-     * l'app che disobbedisce proprio a chi ha appena riordinato. Una funzione che si può
-     * configurare non può anche correggere la configurazione.
+     * L'ordine dei sei tasti nel riquadro del tocco lungo: visualizzatore e albero lo condividono,
+     * così chi impara dov'è 'Sposta' lo sa in tutti e due. Di fabbrica quello dettato dall'utente.
+     * Nel cestino non si scambia niente: con un ordine scelto dall'utente, uno scambio sopra
+     * sarebbe l'app che disobbedisce a chi ha appena riordinato.
      */
     val menuOrder: List<PadKey> = MENU_KEYS,
     /**
-     * L'ordine dei dieci tasti della scheda della selezione.
-     *
-     * ⚠️ **È un ordine a sé e non lo stesso di [menuOrder]**: le due superfici portano insiemi
-     * diversi in ordini diversi, tutti e due dettati da lui. Il perché per esteso sta accanto
-     * alle chiavi, in `Store`.
+     * L'ordine dei dieci tasti della scheda della selezione: un ordine a sé, perché le due
+     * superfici hanno insiemi diversi in ordini diversi, dettati dall'utente (vedi [MENU_KEYS]).
      */
     val pickOrder: List<PadKey> = PICK_KEYS,
     /** L'ordine della prima fila dell'editor: girare e centrare. */
@@ -1166,41 +763,22 @@ data class Settings(
     /** L'ordine della seconda fila dell'editor: la cronologia e la conferma. */
     val stepOrder: List<PadKey> = STEP_KEYS,
     /**
-     * L'ordine dei sette moduli dell'editor completo, dalla `2.34`.
-     *
-     * ⚠️ **È un ordine come gli altri quattro, ed è sua richiesta** (2026-09-13: *voglio poter
-     * ordinare anche i pulsanti dei moduli*). ⚠️ **Vive qui anche sui telefoni che l'editor
-     * completo non ce l'hanno** (sotto Android 13): una preferenza che non si può cambiare
-     * resta scritta e non fa danno, mentre una lettura condizionale vorrebbe dire due strade
-     * per un dato solo.
+     * L'ordine dei moduli dell'editor completo (richiesta dell'utente). È scritto anche sui
+     * telefoni senza editor completo (sotto Android 13): una lettura condizionale vorrebbe due
+     * strade per un dato solo.
      */
     val modOrder: List<PadKey> = MOD_KEYS,
     /**
-     * Se sotto le icone dei riquadri a griglia si legge la parola.
-     *
-     * ⚠️ **Accesa di fabbrica, perché è come l'app è sempre stata**: l'interruttore nasce per
-     * chi vuole i comandi più compatti (richiesta dell'utente, 2026-09-04), non per cambiare
-     * l'aspetto a chi non lo chiede. Il valore di fabbrica non si sceglie per far vedere la
-     * funzione.
-     * ⚠️ **Vale per i riquadri a GRIGLIA e non per i menu a lista**: quelli hanno l'icona
-     * accanto al testo, e togliere il testo lascerebbe una riga con un glifo e un vuoto.
+     * Se sotto le icone dei riquadri a griglia si legge la parola. Accesa di fabbrica, com'è sempre
+     * stata: l'interruttore è per chi vuole i comandi più compatti (richiesta dell'utente). Vale
+     * per i riquadri a griglia e non per i menu a lista, dove l'icona è accanto al testo.
      */
     val padLabels: Boolean = true,
     /**
-     * Con che segno si riconosce l'ultimo media visualizzato in una griglia.
-     *
-     * ⚠️⚠️ **IL VALORE DI FABBRICA È LA CORNICE, ED È SUO ALLA LETTERA** (punto D del campo
-     * libero del giro accorpato: *predefinito di fabbrica: 'Cornice'*), quindi qui non c'è niente
-     * da giustificare: non è un valore scelto per far vedere una funzione, è quello che ha
-     * chiesto.
-     * ⚠️⚠️ **MA CHI AGGIORNA TROVA L'ANGOLO**, che è l'altra metà della sua clausola, e non si
-     * ottiene da questo numero: lo decide una migrazione dell'archivio, e il perché vive su
-     * `MarkMigration`. Questo resta il valore di fabbrica dichiarato, cioè quello che vale se
-     * l'archivio non dice niente.
-     * ⚠️⚠️ **E DALLA `2.95` QUEL VALORE È IL TONDO, ED È SUA ISTRUZIONE** (voce `tondo-opaco`: *dev'essere
-     * il predefinito*), quindi la cornice di fabbrica della `2.11` è superata. Il perché vive su
-     * [LastMark], e i posti che lo scrivono sono tre: questo, la lettura del flusso e la migrazione.
-     * Il banco li tiene allineati (`ProfonditaTest` e `IndicatoreTest`).
+     * Con che segno si riconosce l'ultimo media visualizzato in una griglia. Di fabbrica il tondo
+     * (voce `tondo-opaco`); chi aggiorna da prima che la scelta esistesse trova l'angolo, deciso da
+     * `MarkMigration`. Il valore di fabbrica è scritto in tre posti (questo, la lettura e la
+     * migrazione), tenuti allineati dal banco (`ProfonditaTest` e `IndicatoreTest`).
      */
     val lastMark: LastMark = LastMark.DOT,
 ) {
@@ -1211,21 +789,18 @@ data class Settings(
 /**
  * Gli ordini di fabbrica dei quattro riquadri, che sono anche l'elenco di chi ci vive.
  *
- * ⚠️⚠️ **QUESTE LISTE FANNO DUE MESTIERI, e conviene saperlo prima di toccarle**: dicono in che
- * ordine stanno i tasti **e** quali tasti quel riquadro conosce. [padOrderOf] usa il secondo per
- * riempire i buchi di un archivio vecchio, quindi togliere una voce da qui non è un ritocco
- * all'ordine: è dire che quel tasto non esiste più in quel riquadro.
- * ⚠️ **L'ordine è quello dettato dall'utente per la `1.54`**, riga per riga, e non uno mio.
- * ⚠️ **In AIV Play le prime due perdono i tasti che scrivono sui file** (`Store.allows`, dalla
- * `5.10`), e con loro li perde la pagina che le riordina. Dalla `5.20` 'Elimina' c'è, perché passa
- * dal MediaStore (`MediaDelete`).
+ * ⚠️ **Queste liste fanno due mestieri**: dicono l'ordine dei tasti e quali tasti quel riquadro
+ * conosce. [padOrderOf] usa il secondo per riempire i buchi di un archivio vecchio, quindi togliere
+ * una voce da qui vuol dire che quel tasto non esiste più in quel riquadro. L'ordine è quello
+ * dettato dall'utente. In AIV Play le prime due perdono i tasti che scrivono sui file
+ * (`Store.allows`); 'Elimina' c'è, perché passa dal MediaStore (`MediaDelete`).
  */
 val MENU_KEYS = listOf(
     PadKey.COPY, PadKey.MOVE, PadKey.SHARE,
     PadKey.RENAME, PadKey.DELETE, PadKey.INFO
 ).filter(Store::allows)
 
-/** I dieci della scheda della selezione, nell'ordine dettato per la `1.54`. */
+/** I dieci della scheda della selezione, nell'ordine dettato dall'utente. */
 val PICK_KEYS = listOf(
     PadKey.RENAME, PadKey.INFO, PadKey.MOVE, PadKey.COPY, PadKey.SHARE,
     PadKey.DELETE, PadKey.LIST, PadKey.ALL, PadKey.NONE, PadKey.INVERT
@@ -1234,114 +809,74 @@ val PICK_KEYS = listOf(
 /**
  * La prima fila dell'editor: centrare, riflettere e girare.
  *
- * ⚠️ **L'ordine di fabbrica è quello della mano DESTRA**, che è il valore di fabbrica
- * dell'impostazione che fino alla `1.55` specchiava le due file. Chi teneva la sinistra
- * ritrova la sua fila rovesciata **una volta sola**, alla prima apertura dopo l'aggiornamento,
- * e da lì la mette come vuole trascinando.
- * ⚠️⚠️ **'Rifletti' STA IN MEZZO, ED È IL POSTO CHE HA CHIESTO LUI** (2026-09-09: *il comando
- * potrebbe stare al centro fra 'Centra in orizzontale' e 'Ruota a sinistra'*). Non è una
- * simmetria trovata a occhio: sono cinque tasti e quello nuovo è il terzo.
- * ⚠️ **Chi aggiorna se lo ritrova lì e non in fondo**, perché `padOrderOf` infila un tasto
- * nuovo dove questa lista lo mette, subito dopo l'ultimo dei suoi predecessori già in scena.
- * ⚠️ **La sua LUNGHEZZA è anche il numero di colonne della fila**, e la legge `EditorScreen`:
- * un 5 scritto due volte sarebbe il posto in cui, aggiungendo un tasto, la fila va a capo
- * senza che nessuno abbia toccato il numero.
+ * L'ordine di fabbrica è quello della mano destra. 'Rifletti' è al centro, dove l'ha chiesto
+ * l'utente; chi aggiorna lo trova lì e non in fondo, perché `padOrderOf` infila un tasto nuovo
+ * subito dopo l'ultimo dei suoi predecessori già in scena.
+ * ⚠️ **La lunghezza è anche il numero di colonne della fila**, e la legge `EditorScreen`: un 5
+ * scritto due volte farebbe andare a capo la fila al primo tasto aggiunto.
  */
 val TURN_KEYS = listOf(
     PadKey.CENTRE_DOWN, PadKey.CENTRE_ACROSS, PadKey.FLIP, PadKey.TURN_LEFT, PadKey.TURN_RIGHT
 )
 
-/** I quattro della seconda fila dell'editor, sempre nell'ordine della mano destra. */
+/** I quattro della seconda fila dell'editor, nell'ordine della mano destra. */
 val STEP_KEYS = listOf(
     PadKey.ORIGINAL, PadKey.UNDO, PadKey.REDO, PadKey.APPLY
 )
 
 /**
- * I moduli dell'editor completo, nell'ordine che ha dettato lui.
+ * I moduli dell'editor completo, nell'ordine dettato dall'utente (Dettagli, Effetti, Geometria,
+ * Ritaglio, Luce, Colore, HSL, Curve, Disegno, Stili).
  *
- * ⚠️⚠️ **QUESTO ELENCO È UNA PERMUTAZIONE DELLA TABELLA DEI MODULI, E NON UNA SECONDA TABELLA**:
- * qui ci sono le chiavi con cui l'ordine si salva, là (`MODULES`, in `AdvancedEditorScreen.kt`)
- * che cosa ogni modulo fa, come si chiama e che segno porta. A legarli è la chiave che ogni
- * modulo dichiara, e il banco misura che i due elenchi si coprano: un modulo nuovo che si
- * dimenticasse di qui sparirebbe dalla fila senza dare nessun errore.
- * ⚠️⚠️ **L'ORDINE DI FABBRICA È IL SUO E DALLA `2.35` LO HA DETTATO PER ESTESO** (2026-09-13:
- * *dettagli, curve, geometria, ritaglio (nuovo default attivo all'avvio), luce, contrasto, HSL*),
- * quindi è lo stesso della tabella. Fino alla `2.34` era quello del giro della `2.29`, col Ritaglio
- * davanti e il Dettaglio in fondo.
- * ⚠️⚠️ **E DALLA `2.55` LE CURVE E GLI EFFETTI SI SONO SCAMBIATI LA CASELLA** (riscontro del giro
- * della `2.54`: *il nuovo ordine dei moduli dev'essere: Dettagli, Effetti, Geometria, Ritaglio,
- * Luce, Colore, HLS, Curve, Stili*). Di quella frase del 2026-09-13 cade il solo posto delle
- * Curve, e il Ritaglio resta il quarto, quindi [LOOK_FIRST] non si muove.
- * ⚠️⚠️ **CHI HA GIÀ RIORDINATO LA FILA TIENE IL SUO ORDINE, e non è un difetto**: questo elenco è
- * il valore di fabbrica, e `padOrderOf` lo usa solo per quello che l'archivio non dice. Una
- * preferenza esplicita non si rovescia con un aggiornamento.
+ * ⚠️ **È una permutazione della tabella dei moduli, non una seconda tabella**: qui le chiavi con
+ * cui l'ordine si salva, là (`MODULES`, in `AdvancedEditorScreen.kt`) che cosa fa ogni modulo. Il
+ * banco misura che i due elenchi si coprano: un modulo dimenticato qui sparirebbe dalla fila senza
+ * errori. Chi ha già riordinato la fila tiene il suo ordine: questo elenco è il valore di fabbrica,
+ * e `padOrderOf` lo usa per quello che l'archivio non dice.
  */
 val MOD_KEYS = listOf(
     PadKey.MOD_DETAIL,
     /*
-     * ⚠️⚠️ **IL NONO VIVE QUI DALLA `2.55`, ED È LA RISPOSTA ALLA DOMANDA CHE LA `2.53` GLI AVEVA
-     * FATTO**: là era fra l'HSL e gli Stili, per una scelta mia che la voce di collaudo gli
-     * chiedeva di confermare, e lui ha dettato l'ordine intero. Adesso vive accanto all'unico
-     * altro modulo che guarda i pixel vicini, cioè quello con cui divide il bordo delle tessere.
-     * ⚠️ **La sua chiave non cambia**: chi ha già riordinato la fila tiene il suo ordine, e
-     * questo elenco governa il solo valore di fabbrica.
+     * Gli Effetti accanto al Dettaglio, l'altro modulo che guarda i pixel vicini e con cui dividono
+     * il bordo delle tessere.
      */
     PadKey.MOD_EFFECTS,
     PadKey.MOD_GEOMETRY, PadKey.MOD_CROP,
     PadKey.MOD_LIGHT, PadKey.MOD_COLOUR, PadKey.MOD_MIX,
-    /*
-     * ⚠️ **Le Curve vengono dopo l'HSL dalla `2.55`**, e fino alla `2.54` erano seconde: è la
-     * stessa istruzione che ha portato gli Effetti al loro posto, cioè uno scambio e non due
-     * traslochi.
-     */
     PadKey.MOD_TONE,
-    /*
-     * ⚠️ **Il Disegno è penultimo dalla `4.50`**, e dalla `4.40` era l'ultimo (sua nota D sul giro
-     * della `4.36`: *a destra, in fondo, ultimo modulo*): dopo di lui vengono gli Stili, che sono
-     * sempre in fondo (vedi [stylesLast]).
-     */
+    /* Il Disegno è penultimo: dopo vengono gli Stili, sempre in fondo (vedi [stylesLast]). */
     PadKey.MOD_DRAW,
     /*
-     * ⚠️⚠️ **L'OTTAVO ARRIVA IN CODA CON LA `2.50`, E SUL SUO SCHERMO SARÀ L'UNICO DA
-     * RAGGIUNGERE SCORRENDO** (campo libero del giro della `2.40`: *nel mio caso, con il mio
-     * schermo, sarà l'unico a richiedere uno scorrimento a destra, ma va benissimo così*). Fino
-     * alla `2.40` gli stili erano un pannello che si apriva da un'icona in fondo alla scheda.
-     * ⚠️ **Dalla `4.50` resta in coda anche a chi ha riordinato la fila**: lo fa [stylesLast].
+     * Gli Stili in coda: su uno schermo stretto sono da raggiungere scorrendo, e restano in coda
+     * anche a chi ha riordinato la fila ([stylesLast]).
      */
     PadKey.MOD_PRESET
 )
 
 /**
- * L'ordine dei moduli con gli Stili in fondo, qualunque sia quello salvato.
- *
- * ⚠️⚠️ **GLI STILI SONO SEMPRE L'ULTIMO MODULO A DESTRA, DALLA `4.50`** (sua nota E sul giro della
- * `4.49`: *Il modulo Stili dev'essere sempre l'ultimo a destra*). 'Sempre' vale anche per chi ha
- * già riordinato la fila, dove la `4.40` aveva messo il Disegno dopo di loro, e per il riquadro
- * delle impostazioni: un gettone degli Stili trascinato altrove torna in fondo.
- * ⚠️ Un modulo che nascerà entra prima di loro da sé, perché `padOrderOf` lo infila dove
- * [MOD_KEYS] lo mette e questa funzione sposta solo gli Stili.
+ * L'ordine dei moduli con gli Stili in fondo, qualunque sia quello salvato (nota E dell'utente: gli
+ * Stili sempre l'ultimo modulo a destra). Vale anche per chi ha già riordinato, e per il riquadro
+ * delle impostazioni. Un modulo nuovo entra prima di loro da sé, perché `padOrderOf` lo infila dove
+ * [MOD_KEYS] lo mette.
  */
 fun stylesLast(order: List<PadKey>): List<PadKey> = order.sortedBy { it == PadKey.MOD_PRESET }
 
 /**
  * Rilegge un ordine salvato, tollerando tutto quello che un archivio può avere di storto.
  *
- * ⚠️⚠️ **QUELLO CHE MANCA SI AGGIUNGE AL POSTO CHE HA DI FABBRICA, e non in fondo**: è la
- * garanzia che una versione futura possa aggiungere un tasto a un riquadro senza che sparisca
- * dai telefoni di chi ha già riordinato. In fondo sarebbe la soluzione facile, e metterebbe
- * l'azione nuova nel posto in cui nessuno guarda.
- * ⚠️ **Un gettone che non appartiene a questo riquadro si scarta**: l'archivio è un file di
- * testo, e una chiave sbagliata non deve far comparire 'Inverti' dentro il menu di una foto.
- * ⚠️ **I doppioni si contano una volta sola**, come in `factOrderOf`.
+ * ⚠️ **Quello che manca si aggiunge al posto che ha di fabbrica, non in fondo**: così una versione
+ * futura può aggiungere un tasto senza che sparisca a chi ha già riordinato, o finisca dove nessuno
+ * guarda. Un token che non appartiene a questo riquadro si scarta, e i doppioni contano una volta,
+ * come in `factOrderOf`.
  */
 fun padOrderOf(tokens: List<String>, base: List<PadKey>): List<PadKey> {
     val known = tokens.mapNotNull { t -> base.firstOrNull { it.token == t } }.distinct()
     if (known.size == base.size) return known
     val fuori = known.toMutableList()
-    // ⚠️ Si scorre la lista di FABBRICA e si infila ogni mancante subito dopo l'ultimo dei
-    // suoi predecessori che è già in scena: così un tasto nuovo compare accanto a quelli con
-    // cui è stato disegnato. Mancanti consecutivi restano nel loro ordine, perché ognuno
-    // diventa il predecessore del successivo appena entra.
+    // Si scorre la lista di fabbrica e si infila ogni mancante subito dopo l'ultimo dei suoi
+    // predecessori già in scena: un tasto nuovo compare accanto a quelli con cui è stato disegnato.
+    // Mancanti consecutivi restano nel loro ordine, perché ognuno diventa il predecessore del
+    // successivo.
     for (k in base) {
         if (k in fuori) continue
         val prima = base.subList(0, base.indexOf(k)).lastOrNull { it in fuori }
@@ -1351,13 +886,12 @@ fun padOrderOf(tokens: List<String>, base: List<PadKey>): List<PadKey> {
 }
 
 /**
- * One store for everything the app remembers, declared at file level so that both
- * the settings and the recents can reach it.
+ * Un archivio solo per tutto quello che l'app ricorda, dichiarato a livello di file perché lo
+ * raggiungano le impostazioni e gli indirizzi recenti.
  *
- * ⚠️ It has to be ONE: two `preferencesDataStore` delegates over the same name
- * crash at the first read with 'there are multiple DataStores active for the same
- * file', and two different names would mean two files for one small set of
- * preferences.
+ * ⚠️ **Deve essere UNO**: due delegati `preferencesDataStore` sullo stesso nome vanno in errore
+ * alla prima lettura ('there are multiple DataStores active for the same file'), e due nomi diversi
+ * farebbero due file per poche preferenze.
  */
 private val Context.aivStore: DataStore<Preferences> by preferencesDataStore(
     name = "aiv-settings",
@@ -1365,50 +899,37 @@ private val Context.aivStore: DataStore<Preferences> by preferencesDataStore(
 )
 
 /**
- * Every write to [aivStore] goes through here, never through `edit` directly (6.25).
+ * Ogni scrittura su [aivStore] passa da qui, mai da `edit` direttamente.
  *
- * ⚠️⚠️ DATASTORE RUNS THE CHANGE ON THE CALLER'S DISPATCHER, AND HOLDS THE STORE'S WRITE LOCK WHILE
- * IT DOES (`DataStoreImpl.transformAndWrite`, `withContext(callerContext)`, read in the 1.2.1
- * sources). A caller whose dispatcher stops running leaves the lock held, and every later write of
- * the process waits forever. On a phone the main thread never stops, so it never happened there; on
- * the bench every test has a dispatcher of its own that stops with the test, and a test that ended
- * with a write half way kept `FeedTest` waiting for four hours on GitHub (6.24). The change runs on
- * [Dispatchers.IO], which does not stop: `ScritturaPreferenzeTest` holds it.
+ * ⚠️ **DataStore esegue la modifica sul dispatcher del chiamante, tenendo il lucchetto di
+ * scrittura** (`DataStoreImpl.transformAndWrite`, `withContext(callerContext)`, letto nei sorgenti
+ * 1.2.1). Un chiamante il cui dispatcher si ferma lascia il lucchetto preso, e ogni scrittura
+ * successiva del processo aspetta per sempre. Sul telefono il thread principale non si ferma; sul
+ * banco ogni prova ha un dispatcher suo che si ferma con lei, e una prova finita a metà scrittura
+ * ha bloccato `FeedTest` per ore su GitHub. La modifica gira su [Dispatchers.IO], che non si ferma:
+ * presidiato da `ScritturaPreferenzeTest`.
  */
 private suspend fun Context.writeStore(change: suspend (MutablePreferences) -> Unit) {
     withContext(Dispatchers.IO) { aivStore.edit(change) }
 }
 
 /**
- * La chiave dell'indicatore dell'ultimo media, e sta **a livello di file** e non fra le altre.
- *
- * ⚠️ **Perché qui**: la legge anche [MarkMigration], che deve vivere accanto al delegato dello
- * store, cioè fuori da [SettingsStore]. È l'unica chiave con questa necessità.
+ * La chiave dell'indicatore dell'ultimo media, a livello di file e non fra le altre: la legge anche
+ * [MarkMigration], che vive accanto al delegato dello store, fuori da [SettingsStore].
  */
 internal val LAST_MARK = stringPreferencesKey("last-mark")
 
 /**
- * Chi aggiorna tiene l'angolo, chi installa adesso trova la cornice.
+ * Chi aggiorna da prima che l'indicatore fosse una scelta tiene l'angolo; chi installa adesso trova
+ * il valore di fabbrica di [Settings.lastMark], il tondo.
  *
- * ⚠️⚠️ **È UNA SUA CLAUSOLA ALLA LETTERA** (punto D del campo libero del giro accorpato: *chi
- * aggiorna dovrà trovare la doppia scelta, ma anche se 'Cornice' è l'impostazione di fabbrica,
- * deve restare 'Angolo', per non stravolgere la UI di chi è già utente*). Cioè il valore di
- * fabbrica è uno solo, ma **da che parte cade** dipende da quando l'app è arrivata sul telefono.
- * ⚠️⚠️ **SI DECIDE UNA VOLTA SOLA E SI SCRIVE, e la via che sembrava più corta è un difetto**:
- * leggere 'l'archivio è vuoto' a ogni lettura darebbe la cornice finché l'utente non tocca una
- * qualunque altra impostazione, e da quel momento l'angolo. Una migrazione gira **prima della
- * prima lettura** e lascia nell'archivio una risposta che non cambia più.
- * ⚠️ **Il segno di 'già utente' è che l'archivio porti qualcosa**, e regge perché in questo store
- * vivono anche i promemoria che l'app scrive da sé: la domanda sul permesso ai file, che si fa al
- * primo avvio, e i mini onboarding. Chi ha aperto l'app una volta ha già una chiave.
- * ⚠️ **Il caso limite si dichiara invece di nasconderlo**: un archivio davvero vuoto è
- * indistinguibile da un'installazione nuova, e là la cornice arriva. Sono i telefoni su cui l'app
- * è stata installata e mai aperta.
- * ⚠️⚠️ **DALLA `2.95` UN'INSTALLAZIONE NUOVA RICEVE IL TONDO E NON PIÙ LA CORNICE**, ed è la sua nota
- * sulla voce `tondo-opaco` (*dev'essere il predefinito*): il ramo dell'archivio vuoto scrive il valore
- * di fabbrica di [Settings.lastMark], quindi i due non possono più dire due cose diverse. Il ramo di
- * chi aggiorna non cambia: la clausola dell'angolo è della `2.11`, e vale per un archivio che la
- * chiave non l'ha ancora.
+ * ⚠️ **È una clausola dell'utente**: chi è già utente non deve vedere cambiare la sua interfaccia.
+ * ⚠️ **Si decide una volta e si scrive**: leggere 'l'archivio è vuoto' a ogni lettura darebbe il
+ * valore di fabbrica finché l'utente non tocca un'altra impostazione, e l'angolo da lì in poi. Una
+ * migrazione gira prima della prima lettura e lascia una risposta che non cambia più. Il segno di
+ * 'già utente' è un archivio non vuoto: qui vivono anche i promemoria che l'app scrive da sé (la
+ * domanda sul permesso ai file, i mini onboarding). Un archivio davvero vuoto, cioè l'app
+ * installata e mai aperta, riceve il valore di fabbrica.
  */
 internal object MarkMigration : DataMigration<Preferences> {
     override suspend fun shouldMigrate(currentData: Preferences): Boolean =
@@ -1424,10 +945,9 @@ internal object MarkMigration : DataMigration<Preferences> {
 }
 
 /**
- * L'elenco delle cartelle nascoste, coi percorsi senza la radice del volume. Vedi `portablePath`.
- *
- * ⚠️ **Sta a livello di file per la stessa ragione di [LAST_MARK]**: la legge anche [HiddenMigration],
- * che vive accanto al delegato dello store.
+ * L'elenco delle cartelle nascoste, coi percorsi senza la radice del volume (vedi `portablePath`),
+ * e le altre chiavi delle cartelle. Sono a livello di file come [LAST_MARK]: [HIDDEN_FOLDERS] la
+ * legge anche [HiddenMigration].
  */
 internal val HIDDEN_FOLDERS = stringSetPreferencesKey("hidden-relative")
 internal val HIDDEN_EXACT_FOLDERS = stringSetPreferencesKey("hidden-only")
@@ -1439,23 +959,19 @@ internal val FAVOURITE_FOLDERS = stringPreferencesKey("favourite-folders")
 internal val FEED_DATE = stringPreferencesKey("feed-date")
 
 /**
- * L'elenco fino alla `2.95`, coi percorsi interi: si legge una volta sola, e poi non c'è più.
- *
- * ⚠️ **Il nome non si riusa mai**, e il file di impostazioni lo sa: uno scritto fino alla `2.95` porta
- * questa chiave nella voce di 'Aspetto e navigazione', e l'importazione la traduce come fa la
- * migrazione (vedi `PREF_RETIRED`, in `Backup.kt`).
+ * L'elenco nella forma di prima, coi percorsi interi: si legge una volta e poi non c'è più. Il nome
+ * non si riusa mai: un file di impostazioni vecchio contiene questa chiave, e l'importazione la
+ * traduce come la migrazione (`PREF_RETIRED`, in `Backup.kt`).
  */
 internal val HIDDEN_FOLDERS_ABSOLUTE = stringSetPreferencesKey("hidden-folders")
 
 /**
  * Chi aggiorna ritrova le sue cartelle nascoste, scritte nella forma nuova.
  *
- * ⚠️⚠️ **UNA MIGRAZIONE E NON UN RIPIEGO IN LETTURA, AL CONTRARIO DELLA DISTANZA DELLA FILIGRANA**:
- * là la chiave vecchia diceva la stessa cosa con un'altra unità, e leggerla per moltiplicarla non
- * costava niente; qui l'elenco si **scrive** a ogni cartella nascosta o rimostrata, e con due chiavi
- * vive la prima scrittura le farebbe divergere. La vecchia quindi si traduce una volta e si toglie.
- * ⚠️ **Le due si uniscono invece di sostituirsi**: un archivio che le portasse tutte e due (non
- * capita, ma costa una riga non chiederselo) perderebbe una delle due metà.
+ * ⚠️ **Una migrazione e non un ripiego in lettura, al contrario della distanza della filigrana**:
+ * là la chiave vecchia diceva la stessa cosa con un'altra unità; qui l'elenco si scrive a ogni
+ * cartella nascosta o rimostrata, e con due chiavi la prima scrittura le farebbe divergere. Le due
+ * si uniscono, così un archivio che le avesse tutte e due non perde una metà.
  */
 internal object HiddenMigration : DataMigration<Preferences> {
     override suspend fun shouldMigrate(currentData: Preferences): Boolean =
@@ -1472,30 +988,27 @@ internal object HiddenMigration : DataMigration<Preferences> {
 }
 
 /**
- * L'archivio così com'è, chiave per chiave: per il backup, che lo porta fuori.
+ * L'archivio com'è, chiave per chiave: per il backup, che lo porta fuori.
  *
- * ⚠️⚠️ **CON [rewritePreferences] SONO LE SOLE DUE PORTE SULL'ARCHIVIO GREZZO, E HANNO UN LETTORE
- * SOLO**: ogni altro pezzo dell'app legge una chiave sua col suo tipo, mentre un accesso per nome
- * è il modo di leggere un intero come una stringa, che `DataStore` non perdona (lancia invece di
- * rispondere il valore di fabbrica). Il backup lo può fare perché la mappa dei tipi la tiene lui
- * ([PREF_KEYS]), e una prova la confronta con quello che [SettingsStore.save] scrive davvero.
+ * ⚠️ **Con [rewritePreferences] sono le sole porte sull'archivio grezzo, e hanno un lettore solo**:
+ * un accesso per nome può leggere un intero come una stringa, e `DataStore` allora va in errore. Il
+ * backup può farlo perché la mappa dei tipi la tiene lui ([PREF_KEYS]), e una prova la confronta
+ * con quello che [SettingsStore.save] scrive.
  */
 internal suspend fun storedPreferences(context: Context): Preferences = context.aivStore.data.first()
 
 /**
- * Riscrive l'archivio in una transazione sola: per il backup, che lo riporta dentro.
- *
- * ⚠️ **Una transazione e non una scrittura per area**: un'importazione che si fermasse a metà
- * lascerebbe un archivio fatto di due backup, cioè una cosa che nessuno dei due descrive.
+ * Riscrive l'archivio in una transazione sola, per il backup: un'importazione fermata a metà
+ * lascerebbe un archivio fatto di due backup.
  */
 internal suspend fun rewritePreferences(context: Context, change: (MutablePreferences) -> Unit) {
     context.writeStore { change(it) }
 }
 
-/** Reads and writes the settings. */
+/** Legge e scrive le impostazioni. */
 object SettingsStore {
 
-    /** Permission must be available before deciding which factory folders exist. */
+    /** Le cartelle incluse di fabbrica si decidono quando il permesso c'è già. */
     internal suspend fun initializeIncluded(context: Context, defaults: Set<String>) {
         context.writeStore { p ->
             if (p[INCLUDED_INITIALIZED] != true) {
@@ -1516,16 +1029,10 @@ object SettingsStore {
     private val PANEL_DEPTH = stringPreferencesKey("panel-depth")
 
     /**
-     * L'interruttore della `1.39`, che dalla `1.81` si legge **una volta sola** e non si scrive
-     * più.
-     *
-     * ⚠️⚠️ **SERVE A NON FAR PERDERE LA SCELTA A CHI AGGIORNA, e non è prudenza**: chi aveva
-     * spento la sfocatura perché il suo telefono non la regge la ritroverebbe accesa, cioè
-     * l'app tornerebbe lenta senza che nessuno abbia toccato niente. Una chiave nuova che
-     * ignora la vecchia è un'impostazione azzerata in silenzio.
-     * ⚠️ **Non si riscrive**, o le due chiavi diventerebbero due fonti della stessa cosa e la
-     * prima a mentire sarebbe quella che nessuno legge: appena [PANEL_DEPTH] esiste, questa non
-     * si guarda più.
+     * L'interruttore della sfocatura di prima, che si legge una volta sola e non si scrive più: chi
+     * l'aveva spento perché il telefono non la regge non la ritrova accesa. Non si riscrive, o le
+     * due chiavi sarebbero due fonti della stessa cosa: appena [PANEL_DEPTH] esiste, questa non si
+     * guarda.
      */
     private val VEIL = booleanPreferencesKey("veil")
     private val ZOOM_IN_MENU = booleanPreferencesKey("zoom-in-menu")
@@ -1539,14 +1046,14 @@ object SettingsStore {
     private val CLIPBOARD_WHEN = longPreferencesKey("clipboard-when")
     private val HAND = stringPreferencesKey("hand")
     private val MAIN_CONTROL = stringPreferencesKey("main-control")
-    /** Ritirata nella `4.10`: si legge solo per ricavare [MAIN_CONTROL]. */
+    /** Ritirata: si legge solo per ricavare [MAIN_CONTROL]. */
     private val PHONE_PILL_ON = booleanPreferencesKey("phone-pill-on")
     private val PHONE_PILL = stringPreferencesKey("phone-pill")
     private val PILL_FILL = stringPreferencesKey("pill-fill")
     private val GLASS_RADIUS = intPreferencesKey("glass-radius")
     private val GLASS_INTENSITY = intPreferencesKey("glass-intensity")
     private val GLASS_TINT = intPreferencesKey("glass-tint")
-    /** Ritirata nella `4.25`: un archivio della `4.20` la contiene ancora, ma non si legge più. */
+    /** Ritirata: un archivio vecchio la contiene ancora, ma non si legge più. */
     private val GLASS_LIGHT = intPreferencesKey("glass-light")
     private val GLASS_SHIFT = intPreferencesKey("glass-shift")
     private val GLASS_COLOUR_LIGHT = intPreferencesKey("glass-colour-light")
@@ -1561,32 +1068,22 @@ object SettingsStore {
     private val MARK_SPOT = stringPreferencesKey("mark-spot")
 
     /*
-     * ⚠️⚠️ **LA CHIAVE DELLA MISURA È NUOVA, E NON È UNA DEROGA ALLA REGOLA CHE DICE DI NON
-     * TOCCARLE**: fino alla `2.70` là viveva il **token** di un gettone, cioè una stringa, e
-     * dalla `2.71` vive un numero. Riusando `mark-size` una preferenza scritta ieri si leggerebbe
-     * col tipo sbagliato, e `DataStore` non risponde il valore di fabbrica: **lancia**. Quindi la
-     * domanda non è cambiata, è cambiato quello che la risposta può dire, e la chiave lo dichiara
-     * nel nome.
-     * ⚠️ **Quella vecchia resta scritta e non si legge più**: chi aveva 'Grande' ritrova la
-     * misura di fabbrica, cioè la 'Media'. Sono quattro valori, e leggerli per tradurli
-     * costerebbe un ramo che campa un giro.
+     * ⚠️ **La chiave della misura è nuova perché è cambiato il tipo**: `mark-size` conteneva il
+     * token di un gettone, una stringa, e qui c'è un numero. Riusandola, una preferenza vecchia si
+     * leggerebbe col tipo sbagliato, e `DataStore` va in errore invece di rispondere il valore di
+     * fabbrica. Quella vecchia resta scritta e non si legge: chi aveva 'Grande' ritrova la misura
+     * di fabbrica.
      */
     private val MARK_SIZE = intPreferencesKey("mark-size-pct")
 
     /**
-     * La distanza dal bordo, in **decimi** di centesimo, e la chiave di prima che la traduce.
+     * La distanza dal bordo, in decimi di centesimo, e la chiave di prima che la traduce.
      *
-     * ⚠️⚠️ **LA CHIAVE È NUOVA DALLA `2.76` PERCHÉ È CAMBIATA L'UNITÀ, NON LA DOMANDA**: dalla
-     * `2.71` alla `2.75` `mark-air` portava centesimi, quindi un `3` là dentro e un `3` qui
-     * vogliono dire due distanze diverse (tre centesimi contro tre decimi). Tenendo la stessa
-     * chiave, chi aggiorna si ritroverebbe la firma **a filo del bordo** senza aver toccato
-     * niente, e nessun conto darebbe errore.
-     * ⚠️⚠️ **E NON SERVE UNA MIGRAZIONE, AL CONTRARIO DELL'INDICATORE ([MarkMigration])**: là il
-     * ripiego guardava se l'archivio era **vuoto**, cioè una condizione che il primo salvataggio
-     * cambia, e per questo la risposta andava scritta una volta sola. Qui il ripiego guarda una
-     * chiave che nessuno scrive più, quindi dice sempre la stessa cosa.
-     * ⚠️ **Quella vecchia resta scritta e non si scrive più**: una preferenza che nessuno aggiorna
-     * non fa danno, e serve ancora a chi non ha mai salvato da quando questa versione è arrivata.
+     * ⚠️ **La chiave è nuova perché è cambiata l'unità**: `mark-air` conteneva centesimi, e un `3`
+     * là e un `3` qui sono due distanze diverse; con la stessa chiave chi aggiorna troverebbe la
+     * firma a filo del bordo. Non serve una migrazione, al contrario dell'indicatore
+     * ([MarkMigration]): il ripiego guarda una chiave che nessuno scrive più, quindi risponde
+     * sempre uguale.
      */
     private val MARK_AIR_FINE = intPreferencesKey("mark-air-tenths")
     private val MARK_AIR_OLD = intPreferencesKey("mark-air")
@@ -1609,8 +1106,8 @@ object SettingsStore {
     private val FRONT_SERIF = booleanPreferencesKey("front-serif")
     private val FRONT_FACTS = booleanPreferencesKey("front-facts")
     private val FRONT_PICK_ALL = booleanPreferencesKey("front-pick-all")
-    // ⚠️ La chiave resta quella della `1.36` mentre il campo si è rinominato in `extRename`:
-    // era già 'estensione in Rinomina', quindi chi l'aveva accesa se la ritrova accesa.
+    // La chiave resta `ext-edit` anche se il campo si chiama `extRename`: chi l'aveva accesa la
+    // ritrova accesa.
     private val EXT_EDIT = booleanPreferencesKey("ext-edit")
     private val EXT_DOWNLOAD = booleanPreferencesKey("ext-download")
     private val GPU_THUMBS = booleanPreferencesKey("gpu-thumbs")
@@ -1621,22 +1118,16 @@ object SettingsStore {
     private val FOLDER_COUNT = booleanPreferencesKey("folder-count")
     private val FOLDER_COLOUR = stringPreferencesKey("folder-colour")
 
-    // ⚠️ Due chiavi e non una, perché sono due domande: in che ordine stanno i campi, e
-    // quali sono spenti. Una sola stringa coi soli accesi perderebbe la posizione di
-    // quelli spenti (vedi `Settings.factOrder`).
+    // Due chiavi, perché sono due domande: in che ordine sono i campi, e quali sono spenti (vedi
+    // `Settings.factOrder`).
     private val FACT_ORDER = stringPreferencesKey("fact-order")
     private val FACT_OFF = stringSetPreferencesKey("fact-off")
 
     /*
-     * ⚠️⚠️ **QUATTRO CHIAVI PER QUATTRO RIQUADRI, e non una sola** (dalla `1.56`). La ragione
-     * non è di comodo: i due riquadri delle azioni sui file portano insiemi diversi di tasti
-     * **in ordini diversi**, e tutti e due dettati dall'utente. Il menu del tocco lungo va
-     * copia-sposta-condividi e poi rinomina-elimina-info; la scheda della selezione va
-     * rinomina-info-sposta-copia-condividi e poi le sue quattro. Nessuno dei due è il
-     * sottoinsieme ordinato dell'altro, quindi una chiave sola ne cambierebbe uno.
-     * ⚠️ **Le due file dell'editor sono due chiavi perché sono due gruppi**: il filetto in
-     * mezzo dice che girare e centrare è un mestiere, e la cronologia un altro. Un tasto non
-     * passa da una fila all'altra.
+     * ⚠️ **Quattro chiavi per quattro riquadri**: i due riquadri delle azioni sui file hanno
+     * insiemi diversi di tasti in ordini diversi, tutti e due dettati dall'utente, e nessuno è il
+     * sottoinsieme ordinato dell'altro. Le due file dell'editor sono due gruppi (girare e centrare,
+     * la cronologia), e un tasto non passa dall'una all'altra.
      */
     private val MENU_ORDER = stringPreferencesKey("menu-order")
     private val PICK_ORDER = stringPreferencesKey("pick-order")
@@ -1645,30 +1136,26 @@ object SettingsStore {
     private val MOD_ORDER = stringPreferencesKey("mod-order")
     private val PAD_LABELS = booleanPreferencesKey("pad-labels")
 
-    /** Bounds of the only numeric setting, so a stored value out of range cannot reach the viewer. */
+    /**
+     * I limiti della sola impostazione numerica, così un valore salvato fuori scala non arriva al
+     * visualizzatore.
+     */
     const val ZOOM_MAX_MIN = 2f
     const val ZOOM_MAX_MAX = 200f
 
     fun flow(context: Context): Flow<Settings> = context.aivStore.data.map(::read)
 
     /**
-     * Le preferenze come le legge l'app, coi ripieghi di fabbrica di [Settings].
-     *
-     * ⚠️⚠️ **È UNA FUNZIONE A SÉ DALLA `2.61`, E LA RAGIONE È CHE IL BANCO LA POSSA CHIAMARE**:
-     * dentro la `map` di [flow] quella lettura si prova solo con un archivio vero su disco, cioè
-     * con un file e un contesto, mentre da qui si misura con delle `Preferences` scritte a mano,
-     * come già fa `IndicatoreTest` con [MarkMigration]. Quello che c'era da presidiare lo dice il
-     * KDoc di [Settings.panelDepth]: un valore di fabbrica vive **qui e là**, e cambiarne uno
-     * solo non dà nessun errore.
+     * Le preferenze come le legge l'app, coi ripieghi di fabbrica di [Settings]. È una funzione a
+     * sé perché il banco la possa chiamare con delle `Preferences` scritte a mano, come
+     * `IndicatoreTest` con [MarkMigration]: un valore di fabbrica vive qui e sul campo (vedi
+     * [Settings.panelDepth]).
      */
     internal fun read(p: Preferences): Settings {
-        // ⚠️ Il modo si legge prima, perché il valore del ridimensionamento ha confini diversi a
-        // seconda di lui: leggerli nello stesso costruttore vorrebbe dire leggere la chiave due
-        // volte, e la seconda lettura potrebbe non essere la stessa il giorno che qualcuno la
-        // tocca.
+        // Il modo si legge prima, perché il valore del ridimensionamento ha confini diversi secondo
+        // il modo: leggerlo nel costruttore vorrebbe leggere la chiave due volte.
         val sizeMode = Resize.Mode.entries.byToken(p[SIZE_MODE], Resize.NONE.mode)
-        // ⚠️ Dalla `5.30` AIV Play fissa alcuni valori, qualunque cosa dica l'archivio: il perché
-        // vive su `Store.fit`.
+        // AIV Play fissa alcuni valori, qualunque cosa dica l'archivio: il perché è su `Store.fit`.
         return Store.fit(Settings(
             bgType = BgType.entries.byToken(p[BG_TYPE], BgType.CHECKER),
             bgTheme = BgTheme.entries.byToken(p[BG_THEME], BgTheme.AUTO),
@@ -1678,17 +1165,11 @@ object SettingsStore {
             infoPosition = InfoPosition.entries.byToken(p[INFO_POSITION], InfoPosition.TOP),
             infoVisible = p[INFO_VISIBLE] ?: true,
             /*
-             * ⚠️ Il ripiego sulla chiave vecchia gira solo finché quella nuova non è mai stata
-             * scritta, e il perché sta su [VEIL].
-             * ⚠️⚠️ **I TRE CASI SONO TRE, DALLA `1.82`, e prima erano due**: chi aveva **acceso**
-             * la sfocatura tiene la sfocatura, chi l'aveva spenta tiene il niente, e chi non ha
-             * mai toccato la voce riceve il valore di fabbrica di adesso. Con un `else` solo, chi
-             * l'aveva spenta si vedrebbe cambiare una scelta esplicita da un aggiornamento.
-             * ⚠️⚠️ **E DALLA `2.61` IL PRIMO E IL TERZO RISPONDONO LO STESSO, MA NON SI
-             * ACCORPANO**: coincidono perché il valore di fabbrica è tornato la sfocatura, cioè
-             * per una coincidenza che il giro dopo può far cadere. Scritti come un ramo solo, il
-             * giorno che quel valore cambia una scelta esplicita se ne andrebbe con lui, senza
-             * che niente dia errore.
+             * Il ripiego sulla chiave vecchia vale finché la nuova non è mai stata scritta (vedi
+             * [VEIL]). I casi sono tre: chi aveva acceso la sfocatura la tiene, chi l'aveva spenta
+             * tiene il niente, chi non l'ha mai toccata riceve il valore di fabbrica. ⚠️ Il primo e
+             * il terzo oggi coincidono, ma non si accorpano: al cambio del valore di fabbrica una
+             * scelta esplicita se ne andrebbe con lui.
              */
             panelDepth = p[PANEL_DEPTH]
                 ?.let { PanelDepth.entries.byToken(it, PanelDepth.BLUR) }
@@ -1707,10 +1188,9 @@ object SettingsStore {
             clipboardDone = p[CLIPBOARD_DONE] ?: "",
             clipboardWhen = p[CLIPBOARD_WHEN] ?: 0L,
             hand = Hand.entries.byToken(p[HAND], Hand.RIGHT),
-            // ⚠️ Un archivio dalla `4.02` alla `4.05` ha l'interruttore, uno della `4.00` o della
-            // `4.01` il solo gettone: `off` vuol dire spenta, gli altri due accesa.
-            // ⚠️ Un archivio che non dice niente dà il valore di fabbrica della variante
-            // ([Store.mainControl]); uno con la sola pillola dei giri vecchi dà la pillola o il FAB.
+            // Un archivio vecchio ha l'interruttore, uno più vecchio il solo gettone: `off` vuol
+            // dire spenta, gli altri due accesa. Un archivio che non dice niente dà il valore di
+            // fabbrica della variante ([Store.mainControl]).
             mainControl = p[MAIN_CONTROL]?.let { MainControl.entries.byToken(it, Store.mainControl) }
                 ?: when (p[PHONE_PILL_ON] ?: p[PHONE_PILL]?.let { it != PhonePill.OFF.token }) {
                     null -> Store.mainControl
@@ -1724,8 +1204,8 @@ object SettingsStore {
                 radius = (p[GLASS_RADIUS] ?: GlassTune.RADIUS).coerceIn(GlassTune.RADIUS_RANGE),
                 intensity = (p[GLASS_INTENSITY] ?: GlassTune.INTENSITY).coerceIn(GlassTune.INTENSITY_RANGE),
                 tint = (p[GLASS_TINT] ?: GlassTune.TINT).coerceIn(GlassTune.TINT_RANGE),
-                // ⚠️ Non si ricava da `glass-light`: là zero era il valore di fabbrica, e un archivio
-                // della `4.20` avrebbe spento lo scostamento che lui ha chiesto di fabbrica.
+                // Non si ricava da `glass-light`: là zero era il valore di fabbrica, e un archivio
+                // vecchio spegnerebbe lo scostamento che l'utente ha voluto di fabbrica.
                 shift = (p[GLASS_SHIFT] ?: GlassTune.SHIFT).coerceIn(GlassTune.SHIFT_RANGE),
                 lightColour = p[GLASS_COLOUR_LIGHT],
                 darkColour = p[GLASS_COLOUR_DARK]
@@ -1740,12 +1220,10 @@ object SettingsStore {
             markSpot = Watermark.Spot.entries.byToken(
                 p[MARK_SPOT], Watermark.Spot.BOTTOM_RIGHT
             ),
-            // ⚠️ I tre numeri si riportano dentro i loro confini in **lettura**, come il valore
-            // del ridimensionamento: un archivio scritto a mano, o da una versione che domani
-            // allarga una corsa, darebbe un cursore fuori scala invece di un valore da mostrare.
+            // I tre numeri si riportano nei loro confini in lettura: un archivio scritto a mano, o
+            // da una versione che allarga una corsa, darebbe un cursore fuori scala.
             markSize = (p[MARK_SIZE] ?: Watermark.SIZE_DEFAULT).coerceIn(Watermark.SIZE),
-            // ⚠️ Il ripiego traduce i centesimi di prima in decimi: il perché di due chiavi
-            // invece di una migrazione vive su [MARK_AIR_FINE].
+            // Il ripiego traduce i centesimi di prima in decimi: il perché è su [MARK_AIR_FINE].
             markAir = (
                 p[MARK_AIR_FINE]
                     ?: p[MARK_AIR_OLD]?.times(Watermark.AIR_STEP)
@@ -1754,9 +1232,8 @@ object SettingsStore {
             markAlpha = (p[MARK_ALPHA] ?: Watermark.ALPHA_DEFAULT).coerceIn(Watermark.ALPHA),
             sizeOn = p[SIZE_ON] ?: false,
             sizeMode = sizeMode,
-            // ⚠️ Il valore si riporta dentro i confini del **suo** modo, e non di uno solo: fra i
-            // pixel e la percentuale i limiti non sono gli stessi, quindi un archivio scritto in
-            // un modo e riletto nell'altro darebbe un numero che la finestra non saprebbe mostrare.
+            // Il valore si riporta nei confini del suo modo: fra pixel e percentuale i limiti sono
+            // diversi.
             sizeValue = (p[SIZE_VALUE] ?: Resize.NONE.value).coerceIn(Resize.range(sizeMode)),
             animCounter = p[ANIM_COUNTER] ?: true,
             listCount = p[LIST_COUNT] ?: true,
@@ -1764,9 +1241,8 @@ object SettingsStore {
             treeHidden = p[TREE_HIDDEN] ?: false,
             treePictures = p[TREE_PICTURES] ?: false,
             uiTheme = UiTheme.entries.byToken(p[UI_THEME], UiTheme.SYSTEM),
-            // ⚠️ Ricondotto all'elenco ammesso e non solo letto: un numero fuori posto
-            // nell'archivio (una versione futura, un file modificato a mano) darebbe una
-            // griglia a zero colonne, cioè una schermata vuota senza nessun errore.
+            // Ricondotto all'elenco ammesso: un numero fuori posto darebbe una griglia a zero
+            // colonne, cioè una schermata vuota senza errori.
             folderColumns = p[FOLDER_COLUMNS_KEY]?.takeIf { it in FOLDER_COLUMNS } ?: 2,
             folderCount = p[FOLDER_COUNT] ?: true,
             folderColour = FolderColour.entries.byToken(p[FOLDER_COLOUR], FolderColour.NAME),
@@ -1774,9 +1250,8 @@ object SettingsStore {
             imagesOnly = p[IMAGES_ONLY] ?: false,
             clipAutoplay = p[CLIP_AUTOPLAY] ?: false,
             gridNames = p[GRID_NAMES] ?: false,
-            // ⚠️ I quattro valori di fabbrica sono scritti anche qui e non solo sui campi: il
-            // perché è in `Rules.md`, § '⚙️ Dove va un'impostazione, e chi la deve
-            // trovare' (un'app accesa al primo avvio e spenta dopo il primo salvataggio).
+            // I quattro valori di fabbrica sono scritti anche qui e non solo sui campi: il perché è
+            // in `Rules.md`, § '⚙️ Dove va un'impostazione, e chi la deve trovare'.
             frontWash = p[FRONT_WASH] ?: true,
             frontSerif = p[FRONT_SERIF] ?: false,
             frontFacts = p[FRONT_FACTS] ?: true,
@@ -1792,8 +1267,8 @@ object SettingsStore {
             hiddenExactFolders = p[HIDDEN_EXACT_FOLDERS] ?: emptySet(),
             includedFolders = p[INCLUDED_FOLDERS] ?: DEFAULT_INCLUDED_FOLDERS,
             folderMode = FolderMode.entries.firstOrNull { it.token == p[FOLDER_MODE] } ?: FolderMode.EXCLUDED,
-            // ⚠️ An unknown token reads as 'not chosen', and the home asks again: a wrong order
-            // given in silence would be worse than one more question.
+            // Un token sconosciuto vale 'non scelto', e la schermata iniziale chiede di nuovo: un
+            // ordine sbagliato dato in silenzio sarebbe peggio di una domanda in più.
             folderOrder = FolderOrder.entries.firstOrNull { it.token == p[FOLDER_ORDER] },
             favouriteFolders = favouritesOf(p[FAVOURITE_FOLDERS]),
             feedDate = FeedDate.entries.byToken(p[FEED_DATE], FeedDate.TAKEN),
@@ -1805,14 +1280,12 @@ object SettingsStore {
             modOrder = stylesLast(padOrderOf((p[MOD_ORDER] ?: "").split(','), MOD_KEYS)),
             padLabels = p[PAD_LABELS] ?: true,
             /*
-             * ⚠️ **Il ripiego è il valore di fabbrica dichiarato**, e in pratica non si usa mai:
-             * a scrivere la chiave ci pensa `MarkMigration`, che gira prima della prima lettura.
-             * Resta perché un ripiego che non c'è è un `null` che nessuno ha previsto.
+             * Il ripiego è il valore di fabbrica dichiarato, e in pratica non si usa: la chiave la
+             * scrive `MarkMigration` prima della prima lettura.
              */
             lastMark = LastMark.entries.byToken(p[LAST_MARK], LastMark.DOT),
-            // ⚠️ I campi sempre visibili si tolgono **in lettura**: un archivio che li
-            // dichiarasse spenti (una versione futura, un file modificato a mano) non deve
-            // poter far sparire il nome del file.
+            // I campi sempre visibili si tolgono in lettura: un archivio che li dichiarasse spenti
+            // non deve far sparire il nome del file.
             factOff = (p[FACT_OFF] ?: emptySet())
                 .mapNotNull { t -> FactField.entries.firstOrNull { it.token == t } }
                 .filterNot { it.always }
@@ -1821,23 +1294,15 @@ object SettingsStore {
     }
 
     /**
-     * Segna che questo indirizzo degli appunti è stato aperto, e non si riaprirà più.
-     *
-     * ⚠️ Scrive la **sola** chiave invece di passare da [save]: quella riscrive l'oggetto
-     * intero, e chiamarla da qui vorrebbe dire riscrivere **ogni** preferenza per ricordare
-     * una stringa, con in mezzo la possibilità di sovrascrivere con una copia vecchia quello
-     * che la schermata delle impostazioni ha cambiato nel frattempo.
-     * ⚠️ Fino alla `1.46` qui c'era il conto, 'ventiquattro preferenze', e le assegnazioni di
-     * [save] erano già trentacinque: il numero non aggiungeva niente all'argomento, che è
-     * 'tutte invece di una', e intanto mentiva. Il criterio sta in `rules/Roccobot.md`
-     * § '🔢 I conti si contano, non si scrivono'.
+     * Segna che questo indirizzo degli appunti è stato aperto, e non si riaprirà. Scrive le sole
+     * due chiavi e non passa da [save], che riscrive tutto l'oggetto e potrebbe sovrascrivere con
+     * una copia vecchia quello che le impostazioni hanno cambiato nel frattempo.
      */
     suspend fun clipboardOpened(context: Context, address: String, at: Long) {
         context.writeStore { p ->
             p[CLIPBOARD_DONE] = address
-            // ⚠️ Le due chiavi si scrivono INSIEME, e non è pignoleria: separate, un arresto
-            // fra le due lascerebbe un indirizzo con l'istante di un altro, cioè una memoria
-            // che dice di aver aperto una cosa che non ha aperto. `edit` è una transazione.
+            // Le due chiavi si scrivono insieme, in una transazione (`edit`): separate, un arresto
+            // fra le due lascerebbe un indirizzo con l'istante di un altro.
             p[CLIPBOARD_WHEN] = at
         }
     }
@@ -1845,13 +1310,11 @@ object SettingsStore {
     /**
      * Scrive l'oggetto intero.
      *
-     * ⚠️⚠️ **IN AIV PLAY LE CHIAVI CHE `Store.fit` FISSA NON SI SCRIVONO, DALLA `6.29`** (rilievo E17
-     * della revisione della 6.25): l'oggetto che arriva qui è già passato da `Store.fit`, quindi
-     * porta i valori fissati, e scriverli voleva dire riscrivere l'archivio, contro la regola di
-     * `Store.fit` (*nothing is rewritten*). Si vedeva il giorno in cui una restrizione cade, o
-     * esportando le impostazioni da AIV Play verso AIV GitHub. Il pulsante principale si scrive
-     * quando la scelta è cambiata rispetto a quello che l'archivio dava, cioè quando l'hai
-     * cambiato tu.
+     * ⚠️ **In AIV Play le chiavi che `Store.fit` fissa non si scrivono** (rilievo E17): l'oggetto è
+     * già passato da `Store.fit`, e scriverne i valori riscriverebbe l'archivio, contro la regola
+     * di `Store.fit`; si vedrebbe il giorno in cui una restrizione cade, o esportando da AIV Play
+     * verso AIV GitHub. L'elemento principale si scrive quando la scelta differisce da quella che
+     * l'archivio dava, cioè quando l'utente l'ha cambiata.
      */
     suspend fun save(context: Context, settings: Settings) {
         val fixed = !Store.fullSettings
@@ -1867,9 +1330,8 @@ object SettingsStore {
             if (!fixed) p[PANEL_DEPTH] = settings.panelDepth.token
             p[ZOOM_IN_MENU] = settings.zoomInMenu
             if (!fixed) p[REVERSE_SEQUENCE] = settings.reverseSequence
-            // ⚠️ Una cartella tolta si CANCELLA invece di essere scritta a zero: zero è
-            // un id come un altro, e un giorno finirebbe per somigliare a una cartella
-            // vera. L'assenza della chiave è l'unico modo di dire 'nessuna'.
+            // Una cartella tolta si cancella e non si scrive a zero: zero è un id come un altro.
+            // L'assenza della chiave è l'unico modo di dire 'nessuna'.
             settings.startFolder?.let { p[START_FOLDER] = it } ?: p.remove(START_FOLDER)
             p[START_FOLDER_NAME] = settings.startFolderName
             p[OPEN_AT_START] = settings.openAtStart
@@ -1883,7 +1345,7 @@ object SettingsStore {
             p[GLASS_INTENSITY] = settings.glass.intensity
             p[GLASS_TINT] = settings.glass.tint
             p[GLASS_SHIFT] = settings.glass.shift
-            // ⚠️ Un colore che torna all'accento si toglie: l'assenza è il valore di fabbrica.
+            // Un colore che torna all'accento si toglie: l'assenza è il valore di fabbrica.
             settings.glass.lightColour?.let { p[GLASS_COLOUR_LIGHT] = it } ?: p.remove(GLASS_COLOUR_LIGHT)
             settings.glass.darkColour?.let { p[GLASS_COLOUR_DARK] = it } ?: p.remove(GLASS_COLOUR_DARK)
             p.remove(GLASS_LIGHT)
@@ -1906,9 +1368,8 @@ object SettingsStore {
             p[LIST_TEXT] = settings.listText.token
             p[TREE_HIDDEN] = settings.treeHidden
             p[TREE_PICTURES] = settings.treePictures
-            // ⚠️ Si riscrive anche qui, o il salvataggio della schermata delle impostazioni
-            // (che scrive l'oggetto INTERO) cancellerebbe l'indirizzo già aperto, e gli
-            // appunti tornerebbero a riaprirsi al primo avvio dopo un giro nelle opzioni.
+            // Si riscrive anche qui, o il salvataggio delle impostazioni, che scrive l'oggetto
+            // intero, cancellerebbe l'indirizzo già aperto, e gli appunti si riaprirebbero.
             p[CLIPBOARD_DONE] = settings.clipboardDone
             p[CLIPBOARD_WHEN] = settings.clipboardWhen
             p[UI_THEME] = settings.uiTheme.token
@@ -1950,64 +1411,35 @@ object SettingsStore {
     }
 }
 
-/** The separator of the stored favourites: a path never holds a line break. */
+/** Il separatore dei preferiti salvati: un percorso non contiene mai un a capo. */
 internal const val FAVOURITE_JOIN = "\n"
 
 /**
- * The favourites read back from their string, without blanks and without repeats.
- *
- * ⚠️ **Repeats go in reading**: a file of settings edited by hand, or two imports, must not put
- * the same folder twice at the top of the grid.
+ * I preferiti riletti dalla loro stringa, senza vuoti e senza doppioni: un file di impostazioni
+ * modificato a mano, o due importazioni, non devono mettere due volte la stessa cartella in cima.
  */
 internal fun favouritesOf(stored: String?): List<String> =
     stored.orEmpty().split(FAVOURITE_JOIN).filter { it.isNotBlank() }.distinct()
 
 /**
- * A token that is unknown, or missing, falls back to the default instead of
- * throwing: a stored file that a future version does not recognise must not stop
- * the app from starting.
+ * Un token sconosciuto, o assente, ripiega sul valore di serie senza andare in errore: un archivio
+ * che una versione futura non riconosce non deve impedire all'app di partire.
  */
 private fun <T : Choice> List<T>.byToken(token: String?, fallback: T): T =
     if (token == null) fallback else firstOrNull { it.token == token } ?: fallback
 
 /**
- * The pictures AIV has opened, most recent first.
+ * Se la domanda sul permesso alle cartelle è già stata fatta una volta.
  *
- * ⚠️⚠️ This exists INSTEAD of the thing that was asked for, which was to look at
- * what has recently been visited in Chrome or Brave and offer the pictures from
- * those pages. That cannot be done, and not for want of a permission to request:
- * a browser's history lives in its own private storage, and the public provider
- * that once exposed it (`Browser.BOOKMARKS_URI`, behind
- * READ_HISTORY_BOOKMARKS) was cut off in Android 6 precisely so that one app
- * could not read another's browsing. No app can offer that list, so this offers
- * the nearest true thing: what you opened here.
- *
- * ⚠️ Only web addresses are remembered, and a local file deliberately is not. The
- * permission on a `content://` handed over by another app lasts as long as that
- * intent does, so a remembered local picture would be a row that looks openable
- * and fails when tapped. A list that lies is worse than a shorter one.
- */
-/**
- * Whether the folder permission has already been asked for once.
- *
- * ⚠️ Sta qui e non fra le impostazioni perché NON è una scelta dell'utente: è un
- * promemoria dell'app a sé stessa. Serve perché il permesso si chiede **una volta
- * sola**, alla prima immagine locale aperta: un sistema che chiede e richiede è
- * quello che insegna a rifiutare per riflesso, e chi ha detto no una volta ha
- * detto abbastanza.
+ * ⚠️ È qui e non fra le impostazioni perché non è una scelta dell'utente: è un promemoria dell'app.
+ * Il permesso si chiede una volta sola, alla prima immagine locale aperta: chiedere e richiedere
+ * insegna a rifiutare per riflesso.
  */
 object FolderAsk {
 
-    // ⚠️⚠️ LA CHIAVE È CAMBIATA NELLA 0.21, E NON È UN RIORDINO: la 0.20 ha
-    // cambiato la DOMANDA (dal dialogo su READ_MEDIA_IMAGES alla pagina di
-    // sistema sull'accesso a tutti i file) ma aveva tenuto la chiave vecchia,
-    // quindi su ogni telefono che aveva già risposto alla 0.19 il promemoria era
-    // già a `true` e la domanda nuova non è mai stata fatta. Il difetto non si
-    // vede da nessuna parte: la funzione semplicemente non fa niente, e sui
-    // telefoni che l'avevano provata prima, cioè proprio quelli. Una domanda
-    // nuova vuole un promemoria nuovo.
-    // ⚠️ La chiave vecchia resta scritta negli archivi e non si legge più:
-    // DataStore ignora le chiavi che nessuno chiede.
+    // ⚠️ La chiave è `all-files-asked` perché la domanda è cambiata (la pagina di sistema
+    // sull'accesso a tutti i file): con la chiave della domanda di prima, ogni telefono che aveva
+    // già risposto non avrebbe mai visto quella nuova. Una domanda nuova vuole un promemoria nuovo.
     private val ASKED = booleanPreferencesKey("all-files-asked")
 
     fun flow(context: Context): Flow<Boolean> = context.aivStore.data.map { p -> p[ASKED] ?: false }
@@ -2017,14 +1449,9 @@ object FolderAsk {
     }
 
     /**
-     * Dimentica di aver chiesto, così la domanda torna alla prossima immagine locale.
-     *
-     * ⚠️⚠️ **È L'UNICA VIA DI RITORNO da un 'no', ed è la ragione per cui esiste** (chiesta
-     * dall'utente, 2026-09-01, insieme al ripristino degli onboarding): la domanda si fa una
-     * volta sola per non insegnare a rifiutare per riflesso, ma quella scelta di disegno,
-     * senza questa funzione, chiuderebbe la porta per sempre a chi ha toccato 'no' di fretta.
-     * ⚠️ **Non concede niente**: rimette in piedi la **domanda**, e il permesso resta quello
-     * che il sistema dice. Chi l'ha già concesso non vedrà nulla, perché la richiesta guarda
+     * Dimentica di aver chiesto, così la domanda torna alla prossima immagine locale: l'unica via
+     * di ritorno da un 'no' dato di fretta (richiesta dell'utente). Non concede niente: il permesso
+     * resta quello del sistema, e chi l'ha già concesso non vede niente, perché la richiesta guarda
      * prima `Folder.granted`.
      */
     suspend fun forget(context: Context) {
@@ -2035,139 +1462,79 @@ object FolderAsk {
 /**
  * I mini onboarding dell'app, e se si sono già visti.
  *
- * ⚠️ **Non parlano tutti del tocco lungo sul FAB, e fino alla `1.78` questa riga diceva così**:
- * due dei quattro nascono altrove, uno sull'immagine intera (il doppio tocco dello zoom) e uno
- * dentro la finestra di rinomina (l'avviso sulle estensioni), come i loro KDoc dichiarano.
- *
- * ⚠️⚠️ **Stanno qui e NON in [Settings], e la differenza non è di comodo**: `Settings` è
- * quello che l'utente sceglie e ritrova nella schermata delle impostazioni, questi sono
- * promemoria che l'app tiene per sé. Metterli là darebbero righe in una schermata che
- * l'utente ha già chiesto di alleggerire, e sarebbero righe che non decidono niente.
- * ⚠️ Ognuno si archivia **una volta sola**, e da lì in poi non si mostra più: un onboarding
- * che torna è un avviso, e un avviso che torna insegna a chiuderlo senza leggerlo. Vale la
- * stessa ragione già scritta per [FolderAsk].
- *
- * ⚠️⚠️ **QUI C'ERA ANCHE `PICK_ALL`, il velo che insegnava il tocco lungo sul FAB
- * della selezione, ed è uscito nella `0.94` col FAB stesso**: 'scegli tutto' adesso è
- * un tasto della bottomsheet, che si vede, quindi non c'è più niente da insegnare. La sua
- * chiave in archivio (`pick-all-hint-seen`) resta scritta sui telefoni di chi l'aveva già
- * visto e non dà fastidio a nessuno: cancellarla vorrebbe dire una migrazione per liberare
- * un booleano.
+ * ⚠️ **Sono qui e non in [Settings]**: `Settings` è quello che l'utente sceglie nella schermata
+ * delle impostazioni, questi sono promemoria che l'app tiene per sé. Ognuno si archivia una volta
+ * sola: un onboarding che torna è un avviso, e un avviso che torna insegna a chiuderlo senza
+ * leggerlo (la stessa ragione di [FolderAsk]).
  */
 enum class Hint(internal val token: String) {
     BIN_EMPTY("bin-empty-hint-seen"),
 
     /**
-     * La scorciatoia delle colonne, dalla `0.78`: **solo nella schermata delle cartelle**.
-     *
-     * ⚠️ **Nella griglia delle immagini non si insegna**, quindi il `when` sulle frasi in
-     * `GridScreen` ha un ramo che non si vedrà mai.
-     * ⚠️ **Era 'la terza, e le prime due stanno nella griglia' fino alla `1.78`**: uno dei due
-     * veli della griglia era quello della selezione, uscito nella `0.94` insieme alla sua
-     * chiave (vedi il blocco qui sopra), e il conto non l'aveva seguito.
+     * La scorciatoia delle colonne, solo nella schermata delle cartelle: nella griglia delle
+     * immagini non si insegna, quindi il `when` sulle frasi in `GridScreen` ha un ramo che non si
+     * vedrà mai.
      */
     COLUMNS("columns-hint-seen"),
 
     /**
-     * Il doppio tocco che cambia lo zoom, dalla `1.25`: **nel visualizzatore**, alla prima
-     * immagine che si apre.
-     *
-     * ⚠️⚠️ **NASCE COME CONTROPARTITA DI UNA RIMOZIONE** (richiesta dell'utente, 2026-09-02):
-     * 'Adatta alla vista' e '100%' escono dal menu a pressione lunga, e senza un avviso il
-     * doppio tocco resterebbe un gesto che nessuno sa di avere. Non insegna una
-     * **scorciatoia**: insegna l'unico modo rimasto.
-     * ⚠️ **È anche il primo che non evidenzia un FAB**, perché il gesto si fa sull'immagine
-     * intera: da qui `HintCentre` invece di `HintVeil`.
+     * Il doppio tocco che cambia lo zoom, nel visualizzatore, alla prima immagine aperta. È la
+     * contropartita della rimozione di 'Adatta alla vista' e '100%' dal menu a pressione lunga:
+     * insegna l'unico modo rimasto. Il gesto si fa sull'immagine intera, quindi `HintCentre` e non
+     * `HintVeil`.
      */
     ZOOM_TAP("zoom-tap-hint-seen"),
 
     /**
-     * I due rischi del cambio di estensione, dalla `1.36`: **nel pannellino della rinomina**,
-     * la prima volta che si apre.
+     * I due rischi del cambio di estensione, nel pannellino della rinomina, la prima volta che si
+     * apre.
      *
-     * ⚠️⚠️ **È IL TERZO PRESIDIO DELLA GRIGLIA DI SICUREZZA** (richiesta dell'utente,
-     * 2026-09-02: *la prima volta che l'utente usa la funzione di rinomina delle estensioni,
-     * deve apparire un mini-onboarding in mezzo allo schermo*), e gli altri due sono
-     * l'interruttore spento di fabbrica e il paragrafo che lo accompagna (vedi
-     * [Settings.extEdit]).
-     * ⚠️⚠️ **È IL SOLO VELO CHE AVVISA, e non insegna niente.** Gli altri dicono 'esiste anche
-     * questo' o 'si fa così', questo dice 'attento a che cosa comporta'. Da qui il testo
-     * con due punti esclamativi invece di una frase sola, e il fatto che compaia **prima** che
-     * il pannellino si apra: un avviso dopo il gesto non è un avviso.
-     * ⚠️ **Non ha bisogno di un secondo interruttore**: chi ha acceso la funzione ha già letto
-     * il paragrafo nelle impostazioni, e questo velo è quello che si vede **mentre** la si usa,
-     * cioè nel momento in cui serve.
+     * ⚠️ **È il terzo presidio** (richiesta dell'utente), con l'interruttore spento di fabbrica e
+     * il suo paragrafo (vedi [Settings.extRename]). È il solo velo che avvisa invece di insegnare,
+     * e compare prima che il pannellino si apra: un avviso dopo il gesto non è un avviso.
      */
     EXT_WARN("ext-warn-hint-seen"),
 
     /**
-     * La copertina scelta a mano, dalla `1.95`: **nella griglia di una cartella**, la prima volta
-     * che il tocco sull'icona dell'intestazione avvia la scelta.
-     *
-     * ⚠️⚠️ **NASCE COL GESTO CHE SOSTITUISCE UNA VOCE DI MENU** (riscontro del giro della `1.94`,
-     * voce `copertina-togli`): la voce che toglieva la copertina si spegne, e al suo posto c'è un
-     * gesto ricorsivo sulla stessa icona. Un gesto non si dichiara da sé, e questo ne fa **due**
-     * cose diverse a seconda della cartella, quindi senza il velo resterebbe una funzione per chi
-     * la sa. Il testo è suo alla lettera.
-     * ⚠️ **Indica l'ICONA e non un FAB**, cioè il terzo genere di velo: gli altri due evidenziano
-     * il FAB in fondo o non evidenziano niente. Da qui `HintSpot`.
+     * La copertina scelta a mano, nella griglia di una cartella, la prima volta che il tocco
+     * sull'icona dell'intestazione avvia la scelta (voce `copertina-togli`): quel gesto fa due cose
+     * secondo la cartella, e senza il velo resterebbe per chi lo sa. Il testo è dell'utente. Indica
+     * l'icona e non un FAB, quindi `HintSpot`.
      */
     COVER("cover-hint-seen"),
 
     /**
-     * La fila dei moduli dell'editor completo, dalla `2.50`: **la prima volta che quell'editor si
-     * apre**.
-     *
-     * ⚠️⚠️ **NASCE PERCHÉ QUELLA FILA HA COMINCIATO A CONTINUARE FUORI DALLO SCHERMO** (campo
-     * libero del giro della `2.40`: *aggiungiamo un mini-onboarding al primo avvio dell'editor*):
-     * coi moduli diventati otto l'ultimo si raggiunge scorrendo, e una fila che scorre non lo
-     * dichiara da sé. Il testo è suo alla lettera, e dice due cose: che si scorre, e che il tocco
-     * lungo su un gettone azzera quel modulo.
-     * ⚠️ **Indica una FILA e non un pezzo solo**, cioè il quarto genere di velo: da qui
-     * `HintStrip`.
+     * La fila dei moduli dell'editor completo, la prima volta che quell'editor si apre: la fila
+     * continua fuori dallo schermo, e lo scorrimento non si dichiara da sé. Il testo è dell'utente,
+     * e dice che si scorre e che il tocco lungo su un gettone azzera quel modulo. Indica una fila,
+     * quindi `HintStrip`.
      */
     MODULES("modules-hint-seen"),
 
     /**
-     * I due comandi del salvataggio e il tasto 'Salva', dalla `2.73`: **la seconda slide** del velo
-     * che si apre col primo avvio dell'editor completo.
-     *
-     * ⚠️⚠️ **NASCE CON I DUE TASTI IN TESTATA, ED È SUA RICHIESTA** (punto 3 del campo libero del
-     * giro della `2.70`, col testo dettato da lui): quei due comandi portano **due gesti ognuno**,
-     * e un gesto lungo non si dichiara da sé; 'Salva' ne ha preso un secondo con la `2.58`. Cioè
-     * in testata ci sono sei cose da fare e tre tasti che ne mostrano tre.
-     * ⚠️⚠️ **È UNA CHIAVE A SÉ E NON UN SECONDO PASSO DI [MODULES], E LA RAGIONE È CHI HA GIÀ
-     * L'APP**: con una chiave sola, chi ha aperto l'editor prima della `2.73` avrebbe la prima
-     * archiviata e non vedrebbe mai la seconda. Con due, la slide nuova arriva a tutti, e chi le
-     * vede insieme le legge in fila come voleva lui.
-     * ⚠️ **Viene dopo la prima**, perché la condizione la guarda: due veli in scena insieme
-     * sarebbero due frasi sovrapposte.
+     * I due comandi del salvataggio e il tasto 'Salva', la seconda slide del velo del primo avvio
+     * dell'editor completo (testo dell'utente): quei comandi hanno due gesti ciascuno, e un gesto
+     * lungo non si dichiara da sé.
+     * ⚠️ **È una chiave a sé e non un secondo passo di [MODULES]**: con una chiave sola, chi aveva
+     * già archiviato la prima non vedrebbe mai la seconda. Viene dopo la prima, e la condizione la
+     * guarda.
      */
     EDITOR_TOOLS("editor-tools-hint-seen"),
 
     /**
-     * Il modulo Disegno, dalla `4.61`: **la prima volta che il modulo si apre**, col tondo rosso
-     * evidenziato e la frase sopra.
-     *
-     * ⚠️⚠️ **IL TESTO È SUO ALLA LETTERA** (nota B del giro della `4.60`), e dice tre cose: che cosa
-     * si disegna, che il salvataggio appiattisce gli elementi nell'immagine, e che la pressione
-     * lunga su un tondo regola la luminosità, cioè un gesto che non si scopre da sé. ⚠️ **Nomina
-     * anche il testo e la pillola, che nella `4.61` non ci sono ancora**: entra com'è perché le
-     * lingue si scrivono una volta sola, e la lettura è dichiarata nella voce di collaudo.
-     * ⚠️ **Viene dopo le due slide dell'editor**, e la condizione le guarda: con un velo già in
-     * scena le frasi sarebbero due, sovrapposte.
+     * Il modulo Disegno, la prima volta che si apre, col tondo rosso evidenziato e la frase sopra
+     * (testo dell'utente, nota B sul giro della `4.60`): che cosa si disegna, che il salvataggio
+     * fonde gli elementi nell'immagine, e che la pressione lunga su un tondo regola la luminosità.
+     * Viene dopo le due slide dell'editor, e la condizione le guarda.
      */
     DRAW("draw-hint-seen"),
 
     /**
-     * The Feed, from 6.02: **the first time the home shows it**, a sentence in the middle.
-     *
-     * ⚠️⚠️ **HIS REQUEST, WITH THE TEXT LEFT TO ME** (2026-10-14: *un mini-onboarding a tua
-     * discrezione ... che spieghi in breve la scelta della data*): 'recent' has two meanings, and
-     * the stream follows one of them until someone chooses the other. The sentence says where the
-     * choice is.
-     * ⚠️ **It points at nothing**, like [ZOOM_TAP]: the choice is behind the long press on the main
-     * control, which the columns' veil already teaches in the grid of covers. Hence `HintCentre`.
+     * Il Feed, la prima volta che la schermata iniziale lo mostra: una frase al centro (richiesta
+     * dell'utente, col testo lasciato alla sessione). 'Recenti' ha due significati, e il flusso ne
+     * segue uno finché non si sceglie l'altro: la frase dice dov'è la scelta. Non indica niente,
+     * come [ZOOM_TAP]: la scelta è dietro il tocco lungo sull'elemento principale. Da qui
+     * `HintCentre`.
      */
     FEED("feed-hint-seen");
 
@@ -2180,29 +1547,36 @@ enum class Hint(internal val token: String) {
     }
 
     /**
-     * Dimentica di averlo mostrato, così il velo torna.
-     *
-     * ⚠️ **Rimuove la chiave invece di scriverci `false`**, e la differenza si vede solo il
-     * giorno che si legge l'archivio a mano: una chiave assente vuol dire 'mai visto', che è
-     * la verità che si sta ripristinando, mentre un `false` scritto sopra racconta una
-     * storia in più. Per `flow` sono la stessa cosa, perché legge `?: false`.
+     * Dimentica di averlo mostrato, così il velo torna. Toglie la chiave e non scrive `false`: una
+     * chiave assente vuol dire 'mai visto', che è la verità che si ripristina.
      */
     suspend fun forget(context: Context) {
         context.writeStore { p -> p.remove(seen) }
     }
 }
 
+/**
+ * Le immagini che AIV ha aperto, dalla più recente.
+ *
+ * ⚠️ **Sostituisce quello che era stato chiesto**, cioè le immagini delle pagine visitate in Chrome
+ * o Brave, che non si può fare: la cronologia di un browser vive nella sua memoria privata, e il
+ * fornitore pubblico che la esponeva (`Browser.BOOKMARKS_URI`, dietro READ_HISTORY_BOOKMARKS) è
+ * stato chiuso con Android 6. Questa è la cosa vera più vicina: quello che si è aperto qui.
+ * ⚠️ **Si ricordano solo gli indirizzi web**: il permesso su un `content://` ricevuto da un'altra
+ * app dura quanto quell'intent, e un'immagine locale ricordata sarebbe una riga che sembra apribile
+ * e fallisce.
+ */
 object Recents {
 
     private val ENTRIES = stringPreferencesKey("recent")
 
-    /** Eight, because the list has to fit under three buttons without becoming the screen. */
+    /** Otto, perché la lista deve entrare sotto tre tasti senza diventare la schermata. */
     private const val KEEP = 8
 
     /**
-     * ⚠️ Tab between the two fields and newline between the entries, so no
-     * escaping is needed: neither character can occur in a URL, and a name that
-     * contained one would have arrived from a file system that cannot hold it.
+     * Tabulazione fra i due campi e a capo fra le voci, senza sequenze di escape: nessuno dei due
+     * caratteri è ammesso in un URL, e un nome che ne contenesse uno verrebbe da un file system che
+     * non lo ammette.
      */
     fun flow(context: Context): Flow<List<RecentImage>> = context.aivStore.data.map { p ->
         (p[ENTRIES] ?: "").lineSequence()
@@ -2233,30 +1607,20 @@ object Recents {
 }
 
 /**
- * La **cartella di destinazione** del salvataggio, quella che lui ha scelto e che l'app ricorda.
+ * La cartella di destinazione del salvataggio, scelta dall'utente e ricordata dall'app: il file si
+ * salva lì solo alla pressione di 'Salva' (richiesta dell'utente).
  *
- * ⚠️⚠️ **NASCE NELLA `1.81` PERCHÉ IL PERCORSO SI DEVE RICORDARE** (riscontro del giro della
- * `1.80`, campo libero punto E: *Io voglio che sia memorizzato il percorso in modo che il file sia
- * salvato lì alla fine, ma solo alla pressione di 'Salva'*). Fino alla `1.80` il comando apriva la
- * finestra 'Salva file' del sistema, che scriveva subito: non c'era niente da ricordare, e non
- * c'era nemmeno una scelta.
- *
- * ⚠️⚠️ **NON STA IN [Settings] DI PROPOSITO, E NON È UNA SVISTA**: quella classe è la fotografia
- * di quello che si tocca nel pannello, e ogni suo campo ha una riga in una schermata (vedi
- * `Rules.md`, § '⚙️ Dove va un'impostazione, e chi la deve trovare'). Questo è un **dato**
- * che l'app si ricorda perché lui ha scelto una cartella, non una preferenza da spuntare: metterlo
- * là dentro vorrebbe dire un campo che il pannello non mostra e che nessuna delle cinque regole
- * saprebbe dove collocare. La stessa strada la fanno già i veli ([Hint]) e gli indirizzi recenti.
- *
- * ⚠️⚠️ **L'INDIRIZZO MEMORIZZATO NON BASTA: SERVE IL PERMESSO PERSISTENTE**, e a prenderlo è il
- * richiamo che riceve l'albero dal selettore (`takePersistableUriPermission`). Senza, l'indirizzo
- * si rilegge benissimo il giorno dopo e la scrittura va in `SecurityException`, cioè un difetto
- * che non si vede provando l'app nello stesso minuto in cui si è scelta la cartella.
+ * ⚠️ **Non è in [Settings], apposta**: quella classe è quello che si tocca nel pannello, e ogni suo
+ * campo ha una riga in una schermata (`Rules.md` § '⚙️ Dove va un'impostazione, e chi la deve
+ * trovare'). Questo è un dato che l'app ricorda, come i veli ([Hint]) e gli indirizzi recenti.
+ * ⚠️ **L'indirizzo non basta: serve il permesso persistente**, preso dal richiamo del selettore
+ * (`takePersistableUriPermission`). Senza, l'indirizzo si rilegge il giorno dopo e la scrittura va
+ * in `SecurityException`, un difetto che non si vede provando subito.
  */
 object DownloadFolder {
     private val TREE = stringPreferencesKey("download-tree")
 
-    /** L'albero scelto, o `null` se non ne è stato scelto nessuno: là si scrive in Download. */
+    /** L'albero scelto, o `null` se non ne è stato scelto nessuno: allora si scrive in Download. */
     fun flow(context: Context): Flow<String?> = context.aivStore.data.map { p -> p[TREE] }
 
     suspend fun set(context: Context, tree: String?) {
@@ -2266,18 +1630,13 @@ object DownloadFolder {
     }
 
     /**
-     * Scorda la cartella scelta e **rende** il permesso persistente che l'accompagnava.
+     * Scorda la cartella scelta e rende il permesso persistente che l'accompagnava.
      *
-     * ⚠️⚠️ **NASCE NELLA `1.82` PERCHÉ IL SELETTORE NON SA RIPORTARE A DOWNLOAD** (riscontro del
-     * giro della `1.81`, voce `save-percorso`: *se cambio cartella di download, non posso più
-     * tornare a storage/emulated/0/Download. Il file picker mi dice che 'per tutelare la mia
-     * privacy' non posso scegliere quella cartella*). Cioè fino alla `1.81` una cartella scelta
-     * una volta era per sempre, e la strada di serie dell'app diventava irraggiungibile
-     * dall'app stessa.
-     * ⚠️ **Il permesso si rende invece di restare appeso**: un albero che non si usa più tiene
-     * uno dei posti che il sistema concede a un'app, e quel numero non è grande. La resa può
-     * fallire (un permesso già scaduto, una cartella smontata) e quello **non è un guasto**: il
-     * dato da togliere è l'indirizzo, e quello si toglie comunque.
+     * ⚠️ **Il selettore non sa riportare a Download** (voce `save-percorso`: Android rifiuta quella
+     * cartella 'per tutelare la privacy'), quindi senza questa funzione una cartella scelta sarebbe
+     * per sempre. Il permesso si rende, perché un albero inutilizzato tiene uno dei pochi posti che
+     * il sistema concede a un'app. La resa può fallire (permesso scaduto, cartella smontata), e non
+     * è un guasto: l'indirizzo si toglie comunque.
      */
     suspend fun forget(context: Context) {
         val tree = context.aivStore.data.first()[TREE]
@@ -2289,20 +1648,17 @@ object DownloadFolder {
                         Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                 )
             } catch (e: SecurityException) {
-                // Non era più nostro: l'indirizzo si toglie lo stesso, che è quello che conta.
+                // Non era più nostro: l'indirizzo si toglie lo stesso.
             }
         }
         set(context, null)
     }
 
     /**
-     * Il nome da mostrare per una cartella scelta.
-     *
-     * ⚠️ **Si ricava dall'identificatore del documento e non dall'indirizzo grezzo**: un albero
-     * arriva come `content://...tree/primary%3APictures%2FVacanze`, che davanti agli occhi non si
-     * legge. L'identificatore è `primary:Pictures/Vacanze`, e quello che serve è l'ultimo pezzo.
-     * ⚠️ **La radice di un volume non ha un pezzo dopo i due punti**, e allora si mostra il volume:
-     * meglio `primary` che una riga vuota, che si leggerebbe come un guasto.
+     * Il nome da mostrare per una cartella scelta, ricavato dall'identificatore del documento: un
+     * albero arriva come `content://...tree/primary%3APictures%2FVacanze`, l'identificatore è
+     * `primary:Pictures/Vacanze`, e serve l'ultimo pezzo. La radice di un volume non ha un pezzo
+     * dopo i due punti, e si mostra il volume: meglio `primary` che una riga vuota.
      */
     fun label(tree: String): String {
         val id = tree.substringAfterLast("/tree/", "").let { android.net.Uri.decode(it) }
@@ -2312,30 +1668,17 @@ object DownloadFolder {
 }
 
 /**
- * Che cosa è già finito in Download di recente, per non scaricarlo due volte.
+ * Che cosa è già finito in Download di recente, per non scaricarlo due volte (richiesta
+ * dell'utente: stesso suffisso e stessi byte, notifica 'Hai già scaricato questa immagine' con
+ * 'Scarica di nuovo').
  *
- * ⚠️⚠️ **NASCE NELLA `1.82`, ED È UNA SUA RICHIESTA** (campo libero del giro della `1.81`, punto
- * E: *quando scelgo 'Salva', l'app deve verificare se ha già scaricato di recente un file con la
- * stessa estensione e lo stesso numero di byte. Se risulta già scaricato, deve apparire una
- * notifica in basso ... Testo: 'Hai già scaricato questa immagine'; azione a destra: 'Scarica di
- * nuovo'*).
- *
- * ⚠️⚠️ **LA FIRMA È SUFFISSO PIÙ BYTE, ED È QUELLO CHE HA CHIESTO LUI**: non il nome, che cambia
- * a ogni rinomina al salvataggio, e non un'impronta del contenuto, che vorrebbe dire rileggere il
- * file intero prima di ogni salvataggio. Due immagini diverse con lo stesso suffisso e **lo stesso
- * numero esatto di byte** sono un caso raro, e il prezzo di sbagliarlo è una notifica che si
- * scavalca con un tocco.
- *
- * ⚠️⚠️ **QUANTO DURA IL REGISTRO: TRENTA GIORNI E DUECENTO VOCI, ed è il consiglio che ha
- * chiesto** (*non so quanto può essere pesante un registro di tutti i file scaricati ... ma
- * consigliami tu*). Il conto che regge i due numeri: una voce pesa una trentina di byte, quindi
- * duecento sono meno di sette kilobyte, cioè niente per un `DataStore` che l'app rilegge a ogni
- * avvio; e trenta giorni è il tempo oltre il quale 'l'ho già scaricata' smette di essere un
- * ricordo dell'utente e diventa un'informazione che lo sorprende.
- * ⚠️ **I due limiti lavorano insieme e servono a due cose diverse**: il tempo tiene il registro
- * onesto, il tetto lo tiene piccolo anche in una giornata di trecento salvataggi.
- * ⚠️ **La potatura si fa in SCRITTURA e non in lettura**: leggere è la cosa che succede a ogni
- * salvataggio, scrivere solo quando uno riesce.
+ * ⚠️ **La firma è suffisso più byte, come chiesto**: il nome cambia con una rinomina, e un'impronta
+ * del contenuto vorrebbe rileggere il file intero. Due immagini diverse con lo stesso suffisso e lo
+ * stesso numero esatto di byte sono rare, e l'errore costa una notifica.
+ * ⚠️ **Il registro dura trenta giorni e duecento voci** (il consiglio chiesto dall'utente): una
+ * voce pesa una trentina di byte, quindi duecento sono meno di sette kilobyte; oltre trenta giorni
+ * 'l'ho già scaricata' sorprende invece di ricordare. Il tempo tiene il registro onesto, il tetto
+ * lo tiene piccolo. La potatura si fa in scrittura, che succede solo a salvataggio riuscito.
  */
 object DownloadLog {
     private val SEEN = stringSetPreferencesKey("download-seen")
@@ -2347,11 +1690,8 @@ object DownloadLog {
     private const val KEEP_MAX = 200
 
     /**
-     * La firma di un file: il suffisso e i byte.
-     *
-     * ⚠️ **Il suffisso si normalizza in minuscolo e senza punto**: `.JPG` e `jpg` sono lo stesso
-     * formato, e senza questa riga lo stesso file salvato due volte con due scritture diverse
-     * conterebbe come due file.
+     * La firma di un file: il suffisso, minuscolo e senza punto (`.JPG` e `jpg` sono lo stesso
+     * formato), e i byte.
      */
     fun mark(suffix: String, bytes: Long): String =
         "${suffix.removePrefix(".").lowercase()}:$bytes"
@@ -2363,8 +1703,9 @@ object DownloadLog {
     /**
      * Prende nota di un salvataggio riuscito.
      *
-     * @param now l'istante da scrivere accanto alla firma. ⚠️ **Arriva da fuori** perché così
-     *   questa funzione si può misurare senza aspettare un mese.
+     * @param now l'istante da scrivere accanto alla firma: arriva da fuori, così la funzione si
+     * misura
+     *   senza aspettare un mese.
      */
     suspend fun note(context: Context, mark: String, now: Long) {
         context.writeStore { p ->
@@ -2379,12 +1720,8 @@ object DownloadLog {
     }
 
     /**
-     * Le voci che restano: quelle degli ultimi trenta giorni, al massimo duecento.
-     *
-     * ⚠️ **Le più nuove per prime, e si taglia la coda**: con un tetto raggiunto, la voce da
-     * buttare è la più vecchia, cioè quella con meno probabilità di servire.
-     * ⚠️ **Una voce senza istante si butta**: è un archivio scritto a mano o rotto, e tenerla
-     * vorrebbe dire una firma che non scade mai.
+     * Le voci che restano: degli ultimi trenta giorni, al massimo duecento. Le più nuove per prime,
+     * e si taglia la coda; una voce senza istante si butta, o non scadrebbe mai.
      */
     internal fun prune(seen: Set<String>, now: Long): Set<String> = seen
         .mapNotNull { riga ->
@@ -2398,26 +1735,14 @@ object DownloadLog {
 }
 
 /**
- * Che colore ha l'intestazione di una cartella: l'archivio della scelta fatta col tocco lungo.
+ * Che colore ha l'intestazione di una cartella: l'archivio della scelta fatta col tocco lungo
+ * (richiesta dell'utente). È qui accanto a [DownloadLog] e non in [Settings]: è un elenco che
+ * cresce col numero di cartelle, e una data class di preferenze non è il posto di una mappa.
  *
- * ⚠️⚠️ **NASCE NELLA `1.85` DA UNA SUA RICHIESTA** (giro della `1.83`: *il tocco lungo sulla
- * cartella apre un selettore di colore che fa impostare il colore della sfumatura
- * dell'intestazione per cartella*). Vive qui accanto a [DownloadLog] e **non** dentro [Settings]
- * per la stessa ragione di quello: è un elenco che cresce col numero di cartelle segnate, e un
- * data class di preferenze non è il posto di una mappa.
- *
- * ⚠️⚠️ **UNA CARTELLA CANCELLATA NON SI RINCORRE, ED È UNA SUA ISTRUZIONE** (2026-09-08: *se una
- * cartella ha un colore associato e viene cancellata, non occorre che l'app ricordi il suo
- * colore*). Quindi qui non c'è nessuna potatura: una voce orfana pesa una ventina di byte e non
- * la legge più nessuno.
- * ⚠️⚠️ **E NON È NEMMENO UNA PERDITA, per come il MediaStore fa gli identificatori**: il
- * `BUCKET_ID` è il CRC del percorso in minuscolo, quindi una cartella ricreata **con lo stesso
- * nome nello stesso posto** ha lo stesso identificatore e si ritrova il suo colore. Chi
- * aggiungesse una potatura toglierebbe quello, che è un ritorno gradito e non un residuo.
- *
- * ⚠️ **La chiave è quel `BUCKET_ID` e non il nome**: due cartelle si possono chiamare uguale in
- * due posti diversi, e il nome cambia con una rinomina mentre il colore deve restare al posto
- * suo.
+ * ⚠️ **Una cartella cancellata non si rincorre** (istruzione dell'utente): nessuna potatura. Non è
+ * nemmeno una perdita: il `BUCKET_ID` è il CRC del percorso in minuscolo, quindi una cartella
+ * ricreata con lo stesso nome nello stesso posto ritrova il suo colore. La chiave è il `BUCKET_ID`
+ * e non il nome, che cambia con una rinomina ed è uguale in posti diversi.
  */
 object FolderTints {
     private val TINTS = stringSetPreferencesKey("folder-tints")
@@ -2427,25 +1752,16 @@ object FolderTints {
         read(context.aivStore.data.first()[TINTS].orEmpty())[bucket]
 
     /**
-     * Le tinte di tutte le cartelle segnate, per la schermata iniziale.
-     *
-     * ⚠️⚠️ **NASCE NELLA `1.87` CON I QUATTRO STILI DI [FolderColour]**, e la lettura in blocco
-     * non è una comodità: là le cartelle sono decine, e chiedere la tinta di ognuna con [of]
-     * vorrebbe dire leggere e ricomporre l'intero archivio una volta per cella. Le voci sono
-     * poche e vivono in una chiave sola, quindi il costo di averle tutte è quello di leggerne
-     * una.
-     * ⚠️ **Una cartella senza tinta non compare nella mappa**, e chi legge se lo aspetta: la
-     * mappa dice chi è segnato, non quante cartelle ci sono.
+     * Le tinte di tutte le cartelle segnate, per la schermata iniziale: chiederle una per cella con
+     * [of] rileggerebbe l'archivio intero per ogni cella. Una cartella senza tinta non è nella
+     * mappa.
      */
     suspend fun all(context: Context): Map<Long, Int> =
         read(context.aivStore.data.first()[TINTS].orEmpty())
 
     /**
-     * Segna la tinta di una cartella, oppure la toglie con un [index] nullo.
-     *
-     * ⚠️ **Riscrive l'insieme intero** invece di togliere e aggiungere: un `Set` di preferenze
-     * non ha un elemento da sostituire, e con poche decine di voci il costo è quello di leggere
-     * una riga.
+     * Segna la tinta di una cartella, o la toglie con un [index] nullo. Riscrive l'insieme intero:
+     * un `Set` di preferenze non ha un elemento da sostituire.
      */
     suspend fun set(context: Context, bucket: Long, index: Int?) {
         context.writeStore { p ->
@@ -2456,16 +1772,10 @@ object FolderTints {
     }
 
     /**
-     * Porta la tinta di [da] su [a]: la cartella è la stessa, rinominata.
-     *
-     * ⚠️⚠️ **SERVE PERCHÉ IL `BUCKET_ID` DIPENDE DAL PERCORSO** (sua domanda, 2026-09-08: *cosa
-     * succede all'immagine memorizzata come copertina se rinomino la cartella da AIV?*): dopo una
-     * rinomina il MediaStore dà alla cartella un identificatore nuovo, quindi senza questo
-     * travaso il colore resterebbe appeso a uno che non esiste più e la cartella si ritroverebbe
-     * senza tinta. Rinominando da **fuori** non si può fare niente, ed è la differenza fra i due
-     * casi.
-     * ⚠️ **Se non c'è niente da spostare non scrive**: una cartella senza tinta è il caso comune,
-     * e una scrittura a vuoto sull'archivio è una ricomposizione per tutti quelli che lo leggono.
+     * Porta la tinta di [da] su [a]: la cartella è la stessa, rinominata da AIV. Il `BUCKET_ID`
+     * dipende dal percorso, quindi dopo una rinomina il colore resterebbe su un id che non esiste
+     * più. Una rinomina fatta fuori dall'app non si può seguire. Senza niente da spostare non
+     * scrive, per non ricomporre chi legge l'archivio.
      */
     suspend fun move(context: Context, da: Long, a: Long) {
         if (da == a) return
@@ -2479,17 +1789,12 @@ object FolderTints {
 
     /**
      * Le tinte di [qui] con quelle di [arrivo] aggiunte, e dove la cartella è la stessa vince
-     * [arrivo]: per il backup, che le fonde invece di sostituirle.
-     *
-     * ⚠️⚠️ **È LA SUA RISPOSTA `fonde` A `d-backup-importa`** (*Copertine, colori e stili del file si
-     * aggiungono ai tuoi, e dove si sovrappongono (la stessa cartella, lo stesso nome) vince il
-     * file*). Il formato delle righe è di questo oggetto, ed è la ragione per cui la fusione vive qui e
-     * non nel backup.
-     * ⚠️⚠️ **LE RIGHE PASSANO COME SONO, ANCHE QUELLE CHE NON SI LEGGONO**: di una riga di qui si
-     * guarda solo la cartella, e se ne va soltanto se il file ne porta una per la stessa. Rilette e
-     * riscritte, due righe che l'app non sa leggere sparirebbero con la fusione e non con la
-     * sostituzione, cioè importare cambierebbe una cosa che il file non nomina. Lo ha misurato il
-     * caso 1 di `BackupTest`, che mette nell'insieme una riga storta apposta.
+     * [arrivo]: per il backup, che le fonde (risposta `fonde` a `d-backup-importa`). La fusione è
+     * qui perché il formato delle righe è di questo oggetto.
+     * ⚠️ **Le righe passano come sono, anche quelle che non si leggono**: di una riga di qui si
+     * guarda solo la cartella, e se ne va solo se il file ne contiene una per la stessa. Rilette e
+     * riscritte, le righe illeggibili sparirebbero, e importare cambierebbe una cosa che il file
+     * non nomina (presidiato dal caso 1 di `BackupTest`).
      */
     internal fun merged(qui: Set<String>, arrivo: Set<String>): Set<String> {
         val coperte = read(arrivo).keys
@@ -2497,11 +1802,8 @@ object FolderTints {
     }
 
     /**
-     * Le voci lette dall'archivio.
-     *
-     * ⚠️ **Una riga che non si legge si butta invece di far cadere l'app**: l'archivio è un
-     * insieme di stringhe, quindi ci può finire dentro qualunque cosa, e una cartella senza
-     * colore è un esito accettabile mentre un errore all'apertura non lo è.
+     * Le voci lette dall'archivio. Una riga illeggibile si butta senza chiudere l'app: l'archivio è
+     * un insieme di stringhe, e una cartella senza colore è un esito accettabile.
      */
     private fun read(righe: Set<String>): Map<Long, Int> = righe.mapNotNull { riga ->
         val dove = riga.substringBefore('=').toLongOrNull() ?: return@mapNotNull null
