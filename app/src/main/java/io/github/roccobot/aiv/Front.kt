@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.composed
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.material3.MaterialTheme
@@ -692,41 +693,50 @@ fun Modifier.frontWash(
     up: Dp,
     bar: Dp,
     ink: () -> Float
-): Modifier = drawWithCache {
-    val ariaPx = air.toPx()
-    val suPx = up.toPx()
-    val barraPx = bar.toPx()
-    val alto = size.height + suPx
-    val pieno = tint.copy(alpha = WASH_PEAK)
+): Modifier = composed {
     /*
-     * ⚠️⚠️ **LA RAMPA SI POSA COL RUMORE CHE LE TOGLIE LE BANDE, E LA STORIA CONTA** (sua
-     * segnalazione: *noto un banding fastidioso nel gradiente dell'intestazione: riducilo al
-     * massimo*). La `1.95` accendeva il dither del paint, che `drawRect` di Compose lascia spento;
-     * la `2.04` ha aggiunto un rumore scritto da noi, perché il mezzo livello di Skia non bastava
-     * (*vedo ancora del banding*); la `2.06` ha dato una seconda strada ai telefoni sotto Android 13
-     * (risposta `copri` a `d-dither-vecchi`). Dalla `4.90` le due strade vivono in [GrainedRamp],
-     * che posa allo stesso modo anche le altre rampe dell'app; il conto del difetto vive in testa a
-     * `Dither.kt`.
-     * ⚠️ **Si costruisce UNA VOLTA per misura e non a ogni fotogramma**: l'opacità che cambia mentre
-     * si scorre entra come `alpha`, che moltiplica il colore già composto.
-     * ⚠️ **La fascia piena sopra la testata non passa di qui**: è tinta unita, e una tinta unita
-     * non ha nessuna rampa da quantizzare.
+     * ⚠️⚠️ **LA RAMPA VIVE FUORI DALLA CACHE DEL DISEGNO, dalla `6.28`** (rilievo D34 della revisione
+     * della 6.25): la cache si rifà a ogni cambio di misura, e mentre la fascia si chiude la misura
+     * cambia a ogni fotogramma; dentro, ogni fotogramma compilava di nuovo il programma del rumore
+     * (dieci fotogrammi, dieci programmi, misurato in `RampeTest`). Il gradiente invece si rifà, e
+     * deve: segue l'altezza.
      */
-    val largo = size.width + ariaPx * 2
-    val rampa = GrainedRamp(WASH_STOPS, WASH_PEAK)
-    onDrawBehind {
-        val visto = ink()
-        if (visto <= 0f || alto <= 0f) return@onDrawBehind
-        if (barraPx > 0f) drawRect(
-            color = pieno,
-            topLeft = Offset(-ariaPx, -suPx - barraPx),
-            size = Size(largo, barraPx),
-            alpha = visto
-        )
-        rampa.paint(
-            this, tint, from = -suPx, to = alto - suPx, alpha = visto,
-            left = -ariaPx, top = -suPx, right = largo - ariaPx, bottom = alto - suPx
-        )
+    val rampa = remember { GrainedRamp(WASH_STOPS, WASH_PEAK) }
+    drawWithCache {
+        val ariaPx = air.toPx()
+        val suPx = up.toPx()
+        val barraPx = bar.toPx()
+        val alto = size.height + suPx
+        val pieno = tint.copy(alpha = WASH_PEAK)
+        /*
+         * ⚠️⚠️ **LA RAMPA SI POSA COL RUMORE CHE LE TOGLIE LE BANDE, E LA STORIA CONTA** (sua
+         * segnalazione: *noto un banding fastidioso nel gradiente dell'intestazione: riducilo al
+         * massimo*). La `1.95` accendeva il dither del paint, che `drawRect` di Compose lascia spento;
+         * la `2.04` ha aggiunto un rumore scritto da noi, perché il mezzo livello di Skia non bastava
+         * (*vedo ancora del banding*); la `2.06` ha dato una seconda strada ai telefoni sotto Android 13
+         * (risposta `copri` a `d-dither-vecchi`). Dalla `4.90` le due strade vivono in [GrainedRamp],
+         * che posa allo stesso modo anche le altre rampe dell'app; il conto del difetto vive in testa a
+         * `Dither.kt`.
+         * ⚠️ **L'opacità che cambia mentre si scorre entra come `alpha`**, che moltiplica il colore già
+         * composto, e non rifà niente.
+         * ⚠️ **La fascia piena sopra la testata non passa di qui**: è tinta unita, e una tinta unita
+         * non ha nessuna rampa da quantizzare.
+         */
+        val largo = size.width + ariaPx * 2
+        onDrawBehind {
+            val visto = ink()
+            if (visto <= 0f || alto <= 0f) return@onDrawBehind
+            if (barraPx > 0f) drawRect(
+                color = pieno,
+                topLeft = Offset(-ariaPx, -suPx - barraPx),
+                size = Size(largo, barraPx),
+                alpha = visto
+            )
+            rampa.paint(
+                this, tint, from = -suPx, to = alto - suPx, alpha = visto,
+                left = -ariaPx, top = -suPx, right = largo - ariaPx, bottom = alto - suPx
+            )
+        }
     }
 }
 

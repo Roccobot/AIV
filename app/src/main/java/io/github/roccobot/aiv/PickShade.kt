@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.node.DrawModifierNode
@@ -134,9 +135,23 @@ private class PickShadeNode(
      */
     private val ramp = GrainedRamp(SHADE_RAMP, SHADE_MAX)
 
+    /*
+     * ⚠️⚠️ **The ramp is in the window's coordinates, and the canvas moves under it, since 6.28**
+     * (finding D26 of the 6.25 review): its two ends were in the cell's coordinates, so they
+     * changed with every frame of scrolling and every cell in view built a new gradient each frame
+     * (ten places, ten gradients, measured in `RampeTest`). Moved by the cell's place, the ramp is
+     * the same one, and only where it is read changes.
+     */
     override fun ContentDrawScope.draw() {
         if (!behind) drawContent()
-        if (!y.isNaN()) ramp.paint(this, ink, top - tall - y, top - y)
+        val qui = y
+        if (!qui.isNaN()) {
+            val inizio = top - tall
+            val fine = top
+            translate(top = -qui) {
+                ramp.paint(this, ink, inizio, fine, top = qui, bottom = qui + size.height)
+            }
+        }
         if (behind) drawContent()
     }
 }
