@@ -11,50 +11,29 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
- * Il cestino: le fotografie eliminate ci restano finché non lo si svuota.
+ * Il cestino: le immagini eliminate restano qui finché non lo si svuota. Fuori dal cestino
+ * eliminare vuol dire spostare qui, e solo qui dentro vuol dire cancellare.
  *
- * ⚠️⚠️ **NASCE DALLA 0.64, e cambia il significato di 'elimina'** (richiesta dell'utente,
- * 2026-08-30): fuori dal cestino eliminare vuol dire **spostare qui**, e solo qui dentro
- * vuol dire cancellare. La conferma che diceva *vanno via dal telefono per sempre* non era
- * più vera e non lo dice più.
+ * ⚠️ **È nella cartella dell'app** (`Android/data/<app>/files/bin`), che il MediaStore non
+ * indicizza per costruzione: il cestino non compare fra le cartelle, le miniature e le ricerche
+ * senza nessun filtro. Il costo: disinstallare l'app svuota il cestino. E il cestino non si elenca
+ * con una query ma leggendo la cartella, quindi i suoi file viaggiano come `file://`, che il resto
+ * dell'app tratta come i `content://`.
  *
- * ⚠️⚠️ **STA DENTRO LA CARTELLA DELL'APP, e la scelta risolve da sé metà della richiesta**:
- * `Android/data/<app>/files/bin` **il MediaStore non lo indicizza affatto**, per costruzione
- * del sistema. Quindi il cestino non compare nell'elenco delle cartelle, non compare fra le
- * miniature di nessuna cartella e non compare nei risultati di una ricerca, senza che
- * nessuno debba filtrarlo da nessuna parte. Un `/sdcard/.cestino` avrebbe voluto un filtro
- * in tre punti, e il giorno che uno dei tre si dimentica le foto eliminate ricompaiono nella
- * galleria.
- * ⚠️ **Il costo dichiarato**: quella cartella è dell'app, quindi **disinstallare l'app
- * svuota il cestino**. È il comportamento che si attende da un cestino di un'app e non da
- * uno di sistema, e va saputo.
- * ⚠️ **Conseguenza tecnica, non evidente**: là dentro il MediaStore non vede niente, quindi
- * il cestino **non si può elencare** con una query come fa una cartella qualunque. Si elenca
- * leggendo la cartella, e le sue foto viaggiano come indirizzi `file://` invece di
- * `content://`. Tutto il resto dell'app li tratta uguale, ed è la ragione per cui la griglia,
- * il visualizzatore e le operazioni funzionano qui senza un ramo apposta.
- *
- * ⚠️⚠️ **LA PROVENIENZA SI SCRIVE, perché da un file spostato non si ricava**: 'ripristina'
- * deve riportare ogni fotografia **nella cartella dove stava**, e quel percorso non esiste
- * più da nessuna parte appena il file si è mosso. Vive in un archivio accanto al cestino,
- * una riga per file (vedi [INDEX]).
+ * ⚠️ **La provenienza si scrive**, perché da un file spostato non si ricava: 'ripristina' riporta
+ * ogni immagine nella sua cartella, e quel percorso vive in un archivio accanto al cestino, una
+ * riga per file (vedi [INDEX]).
  */
 object Bin {
 
     /**
-     * Dov'è il cestino. **Solo il percorso**: non crea niente.
+     * Dov'è il cestino: solo il percorso, senza creare niente.
      *
-     * ⚠️⚠️ **IL PERCORSO SI CALCOLA UNA VOLTA SOLA, e non è un'ottimizzazione da manuale**:
-     * questa funzione la chiama anche `DestinationDialog` **durante la composizione**, per
-     * spegnere il tasto quando si è dentro il cestino, e `getExternalFilesDir` tocca il
-     * disco (per giunta creando la cartella se manca). Senza la memoria, ogni ricomposizione
-     * pagherebbe un accesso al filesystem sul thread dell'interfaccia.
-     * ⚠️ **Non crea la cartella**: a crearla è [ready], cioè le operazioni che ci devono
-     * scrivere. Un elenco su una cartella che non esiste torna vuoto da sé, che è la
-     * risposta giusta per un cestino mai usato.
-     * ⚠️ **Il ripiego sulla memoria interna** serve al caso in cui la memoria condivisa non
-     * ci sia (non capita su un telefono, capita su un emulatore senza scheda): meglio un
-     * cestino che funziona in un posto meno comodo che un'eliminazione che non si può fare.
+     * Il percorso si calcola una volta sola: `DestinationDialog` chiama [holds] durante la
+     * composizione, e `getExternalFilesDir` tocca il disco (e crea la cartella se manca). A crearla
+     * è [ready], per chi ci deve scrivere; un elenco su una cartella che non esiste torna vuoto. Il
+     * ripiego sulla memoria interna serve quando la memoria condivisa manca (un emulatore senza
+     * scheda).
      */
     fun dir(context: Context): File = known ?: run {
         val home = context.getExternalFilesDir(null) ?: context.filesDir
@@ -65,35 +44,25 @@ object Bin {
     private fun ready(context: Context): File = dir(context).also { runCatching { it.mkdirs() } }
 
     /**
-     * Dice che a questo percorso del cestino il contenuto è cambiato: un file è arrivato, o se
-     * n'è andato.
+     * Dice che a questo percorso del cestino il contenuto è cambiato: un file è arrivato, o se n'è
+     * andato.
      *
-     * ⚠️⚠️ **QUI `FileTree.scan` NON ARRIVA, ED È LA CONSEGUENZA DIRETTA DI DOV'È IL CESTINO**:
-     * il MediaStore quella cartella non la indicizza affatto (vedi la nota in testa a questo
-     * oggetto), quindi una scansione non produce nessun indirizzo e la chiamata a
-     * [Thumbs.forget] che vive dentro `scan` non si fa **mai** per un file di qui. Le miniature
-     * del cestino sono l'unica parte dell'app che nessuno dichiarava cambiata.
-     * ⚠️⚠️ **E I PERCORSI DI QUI SI RIUSANO, che è quello che rende la cosa un difetto e non una
-     * mancanza teorica**: il nome lo sceglie `FileTree.freeName`, quindi appena un `foto.jpg`
-     * esce dal cestino quel percorso torna libero, e il `foto.jpg` che arriva domani se lo
-     * ritrova. La cache di Coil ha l'indirizzo per chiave, cioè servirebbe la miniatura del
-     * file di ieri.
-     * ⚠️ **Si chiama quando un file NASCE e quando MUORE**, non solo quando nasce: la miniatura
-     * di un percorso che si è liberato è già il seme del difetto successivo, e buttarla costa
-     * una voce di mappa.
+     * ⚠️ **`FileTree.scan` qui non arriva**: il MediaStore non indicizza il cestino, quindi la
+     * chiamata a [Thumbs.forget] dentro `scan` non si fa mai per un file di qui. E i percorsi si
+     * riusano ([FileTree.freeName]): uscito un `foto.jpg`, il prossimo `foto.jpg` ritrova lo stesso
+     * indirizzo, e la cache di Coil, che ha l'indirizzo per chiave, servirebbe la miniatura
+     * vecchia. Si chiama quando un file arriva e quando se ne va.
      */
     private fun touch(context: Context, file: File) = Thumbs.forget(context, file.toUri())
 
-    /** Vedi [dir]: il percorso non cambia mai per tutta la vita del processo. */
+    /** Vedi [dir]: il percorso non cambia per tutta la durata del processo. */
     @Volatile
     private var known: File? = null
 
     /**
-     * Se quel percorso è il cestino, o sta dentro il cestino.
-     *
-     * ⚠️ **Il confronto è sul separatore**, come per le cartelle escluse: con un
-     * `startsWith` nudo una cartella chiamata `bin2` accanto alla nostra risulterebbe
-     * dentro di lei.
+     * Se quel percorso è il cestino, o è dentro il cestino. Il confronto è sul separatore, come per
+     * le cartelle escluse: con un `startsWith` nudo una cartella `bin2` accanto risulterebbe
+     * dentro.
      */
     fun holds(context: Context, dir: File): Boolean {
         val own = dir(context).absolutePath
@@ -102,22 +71,16 @@ object Bin {
     }
 
     /**
-     * Manda nel cestino le immagini scelte, ricordandosi da dove venivano.
+     * Manda nel cestino le immagini scelte, ricordando da dove venivano.
      *
-     * ⚠️⚠️ **UN FILE SENZA PERCORSO NON PUÒ ANDARE NEL CESTINO, e fallisce invece di
-     * essere cancellato**: una fotografia arrivata da una chat non ha un file che l'app
-     * possa spostare, e trattare quel caso come 'elimina per sempre' vorrebbe dire che lo
-     * stesso gesto a volte è reversibile e a volte no, senza dirlo.
-     * ⚠️⚠️ **UN PERCORSO CON UN CARATTERE DI TABULAZIONE O UN RITORNO A CAPO SI RIFIUTA**,
-     * e il file resta dov'è: l'archivio della provenienza è un file di righe e colonne, e
-     * quei due caratteri sono i suoi separatori. Meglio un'eliminazione che non avviene di
-     * una che avviene senza poter più tornare indietro. Sono nomi che nessun telefono
-     * scrive, ma un file arriva anche da fuori.
-     * ⚠️ **Il nome se lo sceglie [FileTree.freeName]**, quindi due foto con lo stesso nome
-     * convivono nel cestino: è la ragione per cui l'archivio è indicizzato sul nome **nel
-     * cestino** e porta il percorso d'origine per intero.
-     * ⚠️ **Si dice al MediaStore che le origini non ci sono più**, o la galleria (e la
-     * griglia di questa app) continuerebbe a mostrare miniature di file spostati.
+     * ⚠️ **Un file senza percorso non va nel cestino, e fallisce**: un'immagine arrivata da una
+     * chat non ha un file da spostare, e cancellarla per sempre renderebbe lo stesso gesto a volte
+     * reversibile e a volte no.
+     * ⚠️ **Un percorso con una tabulazione o un ritorno a capo si rifiuta**, e il file resta dov'è:
+     * sono i separatori dell'archivio. Nessun telefono li scrive, ma un file arriva anche da fuori.
+     * Il nome lo sceglie [FileTree.freeName], quindi due file con lo stesso nome convivono: per
+     * questo l'archivio è indicizzato sul nome nel cestino e contiene il percorso d'origine intero.
+     * Le origini si dichiarano sparite al MediaStore, o la galleria mostrerebbe file spostati.
      */
     suspend fun send(context: Context, uris: List<Uri>): Sent =
         withContext(Dispatchers.IO + NonCancellable) {
@@ -142,10 +105,9 @@ object Bin {
                         failed++
                     }
                 }
-                // ⚠️⚠️ **SENZA L'ARCHIVIO SCRITTO I FILE TORNANO A CASA** (rilievo E12): nel
-                // cestino senza la loro riga non si potrebbero più ripristinare, e l'esito direbbe
-                // lo stesso 'spostati nel cestino'. Quello che non riesce a tornare resta nel
-                // cestino e si conta come riuscito, perché là è comunque.
+                // ⚠️ **Senza l'archivio scritto i file tornano a casa** (rilievo E12): nel cestino
+                // senza la loro riga non si potrebbero ripristinare. Quello che non riesce a
+                // tornare resta nel cestino e si conta come riuscito, perché è comunque là.
                 if (moved.isNotEmpty() && !write(context, records)) {
                     val back = moved.filter { (from, to) -> FileTree.carry(to, from) }
                     back.forEach { (_, to) -> touch(context, to) }
@@ -158,40 +120,26 @@ object Bin {
         }
 
     /**
-     * Che cosa ha fatto un'eliminazione: com'è andata, e **dove sono finiti** i file.
-     *
-     * ⚠️⚠️ **I DUE PEZZI VANNO INSIEME PERCHÉ IL SECONDO SI PUÒ SAPERE SOLO QUI, DALLA `1.60`**:
-     * l'offerta di disfare (vedi [Undo]) deve chiamare [restore] su **quei** file, e i nomi nel
-     * cestino non sono quelli d'origine, perché [FileTree.freeName] li cambia quando due file
-     * si chiamano uguale. Ricavarli da fuori vorrebbe dire rileggere il cestino e indovinare
-     * quali sono gli ultimi arrivati, che è vero finché non lo è più.
-     * ⚠️ **[landed] porta i soli file passati davvero**: quelli falliti non ci sono, quindi il
-     * suo conto è già [FileTree.Outcome.done] e chi lo usa non deve rifare la sottrazione.
+     * Che cosa ha fatto un'eliminazione: com'è andata, e dove sono finiti i file. Il secondo dato
+     * si sa solo qui: l'offerta di disfare (vedi [Undo]) chiama [restore] su quei file, e
+     * [FileTree.freeName] può averne cambiato il nome. [landed] contiene i soli file passati
+     * davvero, quindi il suo conto è già [FileTree.Outcome.done].
      */
     data class Sent(val outcome: FileTree.Outcome, val landed: List<Uri>)
 
     /**
-     * Mette nel cestino una **copia** di [from], lasciando l'originale dov'è.
+     * Mette nel cestino una copia di [from], lasciando l'originale dov'è.
      *
-     * ⚠️⚠️ **COPIA E NON SPOSTA, ed è tutta la differenza con [send]**: qui il file non se ne
-     * va da nessuna parte, sta per essere **riscritto sopra** dall'editor, e quello che si
-     * salva è la sua versione di prima. Chiamare `send` distruggerebbe proprio la cosa che si
-     * voleva proteggere.
-     * ⚠️ **La riga d'archivio porta il percorso ORIGINALE**, come per un'eliminazione, quindi
-     * il ripristino sa dove rimettere la copia. Se là intanto c'è la versione modificata,
-     * `restore` non la schiaccia: usa [FileTree.freeName] e le si mette accanto, che è
-     * l'unico esito onesto quando esistono due versioni della stessa fotografia.
-     * ⚠️ **Niente `FileTree.scan` sull'origine**: l'originale non si è mosso, e dichiararlo
-     * cambiato qui vorrebbe dire una scansione in più subito prima di quella che l'editor fa
-     * comunque dopo aver scritto.
+     * ⚠️ **Copia e non sposta, al contrario di [send]**: il file sta per essere riscritto
+     * dall'editor, e quello che si salva è la versione di prima. La riga d'archivio contiene il
+     * percorso originale, quindi il ripristino sa dove rimettere la copia; se là c'è la versione
+     * modificata, `restore` la mette accanto con [FileTree.freeName]. Niente `FileTree.scan`
+     * sull'origine: l'originale non si è mosso, e l'editor scandisce comunque dopo aver scritto.
      *
-     * @return la copia appena messa nel cestino, o `null` se non si è potuta fare.
-     *
-     * ⚠️⚠️ **RESTITUISCE IL FILE E NON UN SÌ O NO, dalla 1.13, perché un chiamante ha
-     * bisogno di RIPRENDERSELA**: la copia fatta prima di aprire un editor **esterno** va
-     * buttata se al ritorno si scopre che quell'editor non ha salvato niente, e senza sapere
-     * come si chiama non la si ritrova (il nome può essere cambiato: vedi
-     * [FileTree.freeName]). Chi vuole solo sapere se è andata bene guarda se è `null`.
+     * @return la copia appena messa nel cestino, o `null` se non si è potuta fare. Restituisce il
+     * file
+     *   perché un chiamante deve riprenderlo: la copia fatta prima di un editor esterno si toglie
+     *   se quell'editor non ha salvato niente, e il nome può essere cambiato.
      */
     suspend fun keep(context: Context, from: File): File? =
         withContext(Dispatchers.IO + NonCancellable) {
@@ -214,8 +162,8 @@ object Bin {
                     from.absolutePath,
                     KIND_KEPT
                 )
-                // ⚠️ Una copia senza la sua riga non tornerebbe mai al suo posto: meglio dire che
-                // la copia non c'è, e l'editor non salva sopra l'originale.
+                // Una copia senza la sua riga non tornerebbe mai al suo posto: si dice che la copia
+                // non c'è, e l'editor non salva sopra l'originale.
                 if (!write(context, records)) {
                     to.delete()
                     touch(context, to)
@@ -228,15 +176,11 @@ object Bin {
     /**
      * Toglie dal cestino una copia che si è rivelata inutile, file e riga d'archivio.
      *
-     * ⚠️⚠️ **È IL RIMEDIO A UNA COPIA DI TROPPO, NON UNA CANCELLAZIONE OFFERTA ALL'UTENTE, e
-     * la distinzione tiene in piedi la promessa del cestino**: si chiama solo su una copia
-     * che [keep] ha appena fatto e che si è dimostrata identica all'originale, cioè su un
-     * file che non contiene niente che non esista ancora. Un cestino che si svuota da sé
-     * sarebbe il contrario di quello che l'utente ha chiesto accendendo l'interruttore.
-     * ⚠️ **La riga d'archivio se ne va anche se il file resta**: una riga che punta a un file
-     * cancellato manderebbe il ripristino in errore, e un file senza riga finisce comunque in
-     * fondo alla lista senza poter tornare a casa. Fra i due mali, il file orfano è quello
-     * che l'utente può ancora vedere e buttare a mano.
+     * ⚠️ **È il rimedio a una copia di troppo, non una cancellazione offerta all'utente**: si
+     * chiama solo su una copia appena fatta da [keep] e identica all'originale. Un cestino che si
+     * svuota da sé tradirebbe la promessa dell'interruttore. La riga se ne va anche se il file
+     * resta: una riga che punta a un file cancellato manderebbe il ripristino in errore, mentre un
+     * file orfano l'utente lo vede e lo toglie a mano.
      */
     suspend fun drop(context: Context, kept: File): Boolean =
         withContext(Dispatchers.IO + NonCancellable) {
@@ -249,23 +193,15 @@ object Bin {
         }
 
     /**
-     * Riporta ogni immagine nella cartella dove stava.
+     * Riporta ogni immagine nella cartella dov'era.
      *
-     * ⚠️⚠️ **SENZA LA PROVENIENZA NON SI RIPRISTINA, e non si indovina**: un file che si
-     * trova nel cestino senza una riga d'archivio (ci è finito a mano, o l'archivio si è
-     * perso) fallisce. Rimetterlo 'da qualche parte' sarebbe peggio: chi non lo trova più
-     * penserebbe che sia stato cancellato.
-     * ⚠️ **La cartella d'origine si ricrea se non c'è più**: nel tempo passato nel cestino
-     * qualcuno può averla cancellata, e il ripristino non deve fallire per quello.
-     * ⚠️ **Il nome torna quello di prima**, anche se nel cestino era stato cambiato per non
-     * sovrapporsi a un altro: l'archivio porta il percorso originale per intero, ed è
-     * esattamente per questo.
-     * ⚠️ **Le destinazioni si fanno scandire**, o la fotografia ripristinata resterebbe
-     * invisibile alla galleria fino al prossimo giro dello scanner di sistema.
-     * ⚠️⚠️ **QUI SI SCRIVE LA CRONOLOGIA, dalla 0.76**, e questo è il solo posto che può
-     * farlo: la riga d'archivio di un file **sparisce** appena lo si ripristina, quindi
-     * l'istante in cui si sa dov'è finito è questo. Vale per tutte le vie del ripristino, il
-     * riquadro del visualizzatore compreso, perché passano tutte da qui. Vedi [History].
+     * ⚠️ **Senza la provenienza non si ripristina, e non si indovina**: un file senza riga
+     * d'archivio fallisce, perché rimetterlo 'da qualche parte' lo farebbe credere cancellato. La
+     * cartella d'origine si ricrea se non c'è più, e il nome torna quello di prima (l'archivio
+     * contiene il percorso intero). Le destinazioni si fanno scandire, o la galleria non le
+     * vedrebbe.
+     * ⚠️ **Qui si scrive la cronologia** (vedi [History]), il solo posto che può farlo: la riga
+     * d'archivio sparisce col ripristino, e tutte le vie del ripristino passano da qui.
      */
     suspend fun restore(context: Context, uris: List<Uri>): FileTree.Outcome =
         withContext(Dispatchers.IO + NonCancellable) {
@@ -275,9 +211,8 @@ object Bin {
                 val touched = ArrayList<String>(uris.size)
                 var done = 0
                 var failed = 0
-                // ⚠️ Un istante solo per tutta l'operazione, ed è quello che rende un gruppo
-                // un gruppo nella cronologia: dentro il ciclo, dieci file darebbero dieci
-                // gruppi da un file.
+                // Un istante solo per tutta l'operazione: è quello che fa un gruppo nella
+                // cronologia.
                 val now = System.currentTimeMillis()
                 for (uri in uris) {
                     val from = FileTree.fileOf(context, uri)
@@ -309,14 +244,9 @@ object Bin {
     /**
      * Svuota il cestino: cancella tutto, per davvero.
      *
-     * ⚠️ **L'archivio si azzera insieme ai file e non prima**: se qualche cancellazione
-     * fallisce, le righe di quei file restano, o resterebbero nel cestino senza poter più
-     * essere ripristinate.
-     * ⚠️⚠️ **E DALLA `2.86` CONTA ANCHE I BYTE CHE TORNANO LIBERI, ED È SUA RICHIESTA**
-     * (2026-09-21: *quando si svuota il cestino, oltre al numero di file eliminati, l'avviso deve
-     * dire anche quanti KB/MB/GB di archivio sono stati liberati*). Il peso si legge **prima**
-     * della cancellazione, perché dopo il file non c'è più, e si somma **solo** se la
-     * cancellazione riesce: un file rimasto non ha liberato niente.
+     * L'archivio si aggiorna insieme ai file: le righe di quelli che non si cancellano restano, o
+     * non si potrebbero più ripristinare. Conta anche i byte liberati (richiesta dell'utente): il
+     * peso si legge prima della cancellazione e si somma solo se riesce.
      */
     suspend fun empty(context: Context): FileTree.Outcome =
         withContext(Dispatchers.IO + NonCancellable) {
@@ -346,28 +276,15 @@ object Bin {
     /**
      * Che cosa c'è nel cestino, dall'ultima eliminata alla prima.
      *
-     * ⚠️⚠️ **L'ORDINE VIENE DALL'ARCHIVIO E NON DALLA DATA DEL FILE**: uno spostamento non
-     * cambia la data di modifica, quindi ordinare per quella darebbe l'ordine in cui le
-     * fotografie sono state **scattate**, non quello in cui sono state eliminate. In un
-     * cestino l'ultima buttata è quella che si cerca.
-     * ⚠️ **I file senza riga d'archivio stanno in fondo**, in ordine di nome: non si sa
-     * quando sono arrivati, e metterli in mezzo sarebbe inventare una data.
-     * ⚠️ Indirizzi `file://`: là dentro il MediaStore non vede niente. Vedi la nota in
-     * testa a questo oggetto.
+     * ⚠️ **L'ordine viene dall'archivio e non dalla data del file**: uno spostamento non cambia la
+     * data di modifica, che darebbe l'ordine degli scatti. I file senza riga vanno in fondo, in
+     * ordine di nome. Indirizzi `file://`, come dice la nota in testa.
      *
-     * ⚠️⚠️ **QUI L'ARCHIVIO SI POTA, e fino alla 1.46 non lo faceva nessuno.** Le vie d'uscita
-     * dal cestino sono quattro e tre cancellano la propria riga ([restore], [drop], [empty]);
-     * la quarta, l'eliminazione definitiva di una selezione, passa da `FileTree.delete` e non
-     * sa niente di questo archivio, quindi lasciava dietro una riga per ogni file. Nel cestino
-     * quella è la via **normale**, e l'archivio cresceva per sempre.
-     * ⚠️ **Si pota QUI e non nel punto che cancella**, ed è una scelta: un rimedio nel
-     * chiamante va ricordato, e il giorno che nasce una quinta uscita torna il difetto. Qui il
-     * conto torna da sé, perché questa funzione ha già in mano l'elenco dei file che
-     * **esistono**: una riga che non trova il suo file non descrive più niente, e chi apre il
-     * cestino è esattamente il momento in cui accorgersene.
-     * ⚠️ **E chiude anche quello che si è accumulato fin qui**, che un rimedio nel chiamante non
-     * avrebbe fatto. Stessa scelta e stessa forma della purga di `History.batches`: si riscrive
-     * il file **solo** se la potatura ha tolto qualcosa, o si scriverebbe a ogni apertura.
+     * ⚠️ **Qui l'archivio si pota**: l'eliminazione definitiva di una selezione passa da
+     * `FileTree.delete`, che non sa niente di questo archivio, e nel cestino è la via normale. Si
+     * pota qui, dove si ha già l'elenco dei file che esistono, così vale anche per una via d'uscita
+     * futura; si riscrive il file solo se la potatura ha tolto qualcosa, come la purga di
+     * `History.batches`.
      */
     suspend fun list(context: Context): List<Uri> = withContext(Dispatchers.IO) {
         val files = runCatching { dir(context).listFiles() }.getOrNull().orEmpty()
@@ -385,16 +302,9 @@ object Bin {
     }
 
     /**
-     * L'ordine del cestino: prima le eliminate di recente, poi quelle di cui non si sa
-     * niente.
-     *
-     * ⚠️ **Funzione pura, e non è un vezzo**: prende dei nomi e restituisce dei nomi,
-     * quindi si prova su una JVM normale senza Android intorno, ed è precisamente così che
-     * è stata verificata. La stessa ragione per cui il tokenizzatore di CLIP non sa niente
-     * di file.
-     * ⚠️ **Le righe che descrivono file spariti si saltano**: l'archivio può parlare di
-     * file che non ci sono più (cancellati a mano, o un'eliminazione a metà), e non deve far
-     * comparire buchi nella griglia.
+     * L'ordine del cestino: prima le eliminate di recente, poi quelle di cui non si sa niente. Le
+     * righe che descrivono file spariti si saltano, per non avere buchi nella griglia. Funzione
+     * pura, così si prova su una JVM senza Android.
      */
     fun ordered(names: List<String>, records: List<Record>): List<String> {
         val there = names.toSet()
@@ -406,21 +316,15 @@ object Bin {
     }
 
     /**
-     * Una riga d'archivio: come si chiama qui, quando è arrivata, da dove veniva, e **perché**
-     * ci è finita.
+     * Una riga d'archivio: come si chiama qui, quando è arrivata, da dove veniva, e perché.
      *
-     * ⚠️⚠️ **LA QUARTA COLONNA NASCE CON LO SVUOTAMENTO AUTOMATICO, dalla `1.75`, E SERVE A
-     * DISTINGUERE UNA COPIA DI SICUREZZA DA UN'ELIMINAZIONE**: l'utente ha stabilito che le
-     * copie dell'editor **non scadono** (giro della 1.67, `d-cestino-editor`: `fuori`), e fino
-     * a qui le due cose erano indistinguibili, perché [send] e [keep] scrivevano la stessa
-     * riga.
-     * ⚠️ **Non basta guardare se il file d'origine esiste ancora**, che sarebbe la via senza
-     * formato nuovo: per una copia di sicurezza l'originale c'è, per un'eliminazione no, ma chi
-     * modifica una fotografia e **poi** la elimina si ritrova una copia di sicurezza il cui
-     * originale non esiste più, cioè esattamente il file che non deve scadere.
-     * ⚠️⚠️ **`null` VUOL DIRE 'RIGA DI PRIMA DELLA `1.75`', e non si legge come 'eliminazione'**:
-     * là il perché non è scritto, quindi si ricade sulla prova dell'originale, che sui file
-     * vecchi sbaglia solo nel verso di **tenere** qualcosa più a lungo. Vedi [expiring].
+     * ⚠️ **La quarta colonna distingue una copia di sicurezza da un'eliminazione**: le copie
+     * dell'editor non scadono (scelta `fuori` dell'utente a `d-cestino-editor`). Guardare se
+     * l'originale esiste non basta: chi modifica un'immagine e poi la elimina ha una copia di
+     * sicurezza senza originale.
+     * ⚠️ **`null` vuol dire riga del formato a tre colonne**, non 'eliminazione': si ricade sulla
+     * prova dell'originale, che sbaglia solo nel verso di tenere un file più a lungo. Vedi
+     * [expiring].
      */
     class Record(val name: String, val at: Long, val origin: String, val kind: String? = null)
 
@@ -431,18 +335,11 @@ object Bin {
     const val KIND_KEPT = "bak"
 
     /**
-     * I nomi dei file che hanno passato il loro tempo e che lo svuotamento automatico può
-     * togliere.
+     * I nomi dei file che hanno passato il loro tempo e che lo svuotamento automatico può togliere.
      *
-     * ⚠️⚠️ **FUNZIONE PURA, come [ordered] e [records], e per la stessa ragione**: prende righe
-     * e istanti e restituisce nomi, quindi si prova su una JVM senza Android intorno. Che
-     * l'originale esista ancora lo dice chi chiama, con [esiste], perché quella è l'unica parte
-     * che tocca il disco.
-     * ⚠️ **Una riga senza `kind` scade solo se il suo originale NON c'è più**: è il ripiego per
-     * le righe scritte prima della `1.75`, e sbaglia solo nel verso di tenere un file in più.
-     * ⚠️ **`giorni <= 0` non toglie niente**, ed è il valore di fabbrica: lo svuotamento
-     * automatico è spento, quindi questa funzione deve poter essere chiamata lo stesso senza
-     * fare danni.
+     * Funzione pura, come [ordered] e [records]: che l'originale esista lo dice chi chiama, con
+     * [esiste]. Una riga senza `kind` scade solo se il suo originale non c'è più. `giorni <= 0`, il
+     * valore di fabbrica, non toglie niente.
      */
     fun expiring(
         records: List<Record>,
@@ -465,18 +362,10 @@ object Bin {
     /**
      * Toglie dal cestino i file che hanno passato il loro tempo, e torna quanti ne ha tolti.
      *
-     * ⚠️⚠️ **GIRA SOLO MENTRE L'APP È APERTA, ED È UNA SUA DECISIONE PRESA DUE VOLTE** (giro
-     * della 1.67, `d-cestino-chiusa`: **`aperta`**; e ripetuta il 2026-09-06 perché il brief
-     * l'aveva registrata al contrario: *nulla deve avvenire al di fuori dell'app aperta in primo
-     * piano*). Quindi niente operazione programmata di sistema e nessuna libreria in più: chi
-     * chiama questa funzione è l'app, quando è in scena.
-     * ⚠️ **Il conto è per FILE e non per cestino** (`d-cestino-quando`: `file`): ognuno se ne va
-     * quando ha compiuto il suo tempo, come fanno i cestini di sistema, invece di svuotare tutto
-     * a intervalli.
-     * ⚠️ **Le copie di sicurezza dell'editor restano** (`d-cestino-editor`: `fuori`): una rete
-     * che sparisce da sé non è una rete, e si tolgono solo svuotando il cestino a mano.
-     * ⚠️ **La riga d'archivio se ne va col file**, come in [empty]: una riga orfana manderebbe
-     * il ripristino in errore.
+     * Le tre decisioni dell'utente sono in `Rules.md` § '🗑️ Lo svuotamento automatico del cestino':
+     * gira solo ad app aperta (`d-cestino-chiusa`), il conto è per file (`d-cestino-quando`), e le
+     * copie di sicurezza restano (`d-cestino-editor`). La riga d'archivio se ne va col file, come
+     * in [empty].
      */
     suspend fun sweep(context: Context, giorni: Int): Int =
         withContext(Dispatchers.IO + NonCancellable) {
@@ -508,13 +397,9 @@ object Bin {
     /**
      * Che cosa c'è nel cestino adesso: le righe d'archivio e i file, per il backup.
      *
-     * ⚠️⚠️ **SI FOTOGRAFA SOTTO IL LOCK E SI COPIA FUORI**: la fotografia costa un elenco di
-     * cartella, mentre la copia di cento fotografie dura, e tenere il lock per tutto quel tempo
-     * fermerebbe un'eliminazione fatta nel frattempo dall'altra parte dell'app. Un file che
-     * sparisce fra le due cose (il cestino svuotato durante l'esportazione) chi copia lo salta.
-     * ⚠️ **Le righe che non trovano il loro file restano fuori**, come in [list]: descrivono
-     * file che non ci sono più, e portarle in un backup vorrebbe dire rimetterle in un altro
-     * cestino dove non descriverebbero niente.
+     * Si fotografa sotto il lock e si copia fuori: la copia di cento immagini dura, e il lock
+     * bloccherebbe un'eliminazione fatta nel frattempo. Un file sparito fra le due cose, chi copia
+     * lo salta. Le righe senza file restano fuori, come in [list].
      */
     internal suspend fun snapshot(context: Context): Pair<List<Record>, List<File>> =
         withContext(Dispatchers.IO) {
@@ -529,34 +414,24 @@ object Bin {
     /**
      * Aggiunge al cestino i file di un backup, con le loro righe d'archivio.
      *
-     * ⚠️⚠️ **SI AGGIUNGE E NON SI SOSTITUISCE, al contrario di ogni altra parte del backup**:
-     * sostituire vorrebbe dire cancellare per sempre quello che c'è nel cestino di adesso, cioè
-     * l'unica operazione che il cestino esiste per non fare. Le preferenze e le copertine si
-     * possono rifare, un file buttato no.
-     * ⚠️ **I doppioni si saltano**, o importare due volte lo stesso backup riempirebbe il cestino
-     * di copie. Una riga è la stessa se ha la stessa origine, lo stesso istante e lo stesso peso;
-     * un file senza riga è lo stesso se ha lo stesso nome e lo stesso peso.
-     * ⚠️ **L'istante resta quello del backup**, ed è una scelta dichiarata: dice quando il file è
-     * stato eliminato, che è vero anche su un altro telefono. Il prezzo è che lo svuotamento
-     * automatico lo conta da allora, quindi un file vecchio può andarsene al primo giro.
-     * ⚠️ **Il nome lo sceglie [FileTree.freeName]**, come a ogni arrivo: due file che si chiamano
-     * uguale convivono, e la riga d'archivio segue il nome nuovo.
+     * ⚠️ **Si aggiunge e non si sostituisce**, al contrario del resto del backup: sostituire
+     * cancellerebbe per sempre il cestino di adesso. I doppioni si saltano: una riga è la stessa
+     * con origine, istante e peso uguali, un file senza riga con nome e peso uguali. L'istante
+     * resta quello del backup, perché dice quando il file è stato eliminato: lo svuotamento
+     * automatico lo conta da allora, e un file vecchio può andarsene al primo giro. Il nome lo
+     * sceglie [FileTree.freeName], e la riga segue il nome nuovo.
      *
-     * @param incoming i file del backup, già estratti accanto al cestino, con la loro riga se ce
-     *   l'hanno. ⚠️ **Accanto e non in un posto qualunque**: sullo stesso volume uno spostamento
-     *   è una rinomina, mentre da un altro volume sarebbe una seconda copia di tutto.
-     * @return quanti file **non** sono entrati, cioè quelli che lo spostamento non è riuscito a
-     *   portare dentro. ⚠️ **Un doppione non conta**: è già nel cestino, quindi per chi importa è
-     *   arrivato. Zero vuol dire che il cestino porta tutto quello che il backup portava.
+     * @param incoming i file del backup, già estratti accanto al cestino, con la loro riga se c'è:
+     *   sullo stesso volume lo spostamento è una rinomina, e non una seconda copia di tutto.
+     * @return quanti file non sono entrati. Un doppione non conta, perché è già nel cestino.
      */
     internal suspend fun adopt(context: Context, incoming: List<Pair<File, Record?>>): Int =
         withContext(Dispatchers.IO + NonCancellable) {
             lock.withLock {
                 val bin = ready(context)
                 val records = read(context).toMutableList()
-                // ⚠️ Una mappa che cresce, e non una fotografia: due righe uguali dentro lo stesso
-                // backup sarebbero entrate tutte e due, perché il confronto guardava soltanto i
-                // file che c'erano prima dell'importazione.
+                // Una mappa che cresce: due righe uguali dentro lo stesso backup entrerebbero tutte
+                // e due se il confronto guardasse solo i file di prima dell'importazione.
                 val sizes = runCatching { bin.listFiles() }.getOrNull().orEmpty()
                     .filter { it.isFile }
                     .associateTo(HashMap()) { it.name to it.length() }
@@ -591,19 +466,15 @@ object Bin {
     /**
      * Le righe di un archivio, saltando quelle rovinate.
      *
-     * ⚠️ **Una riga per file, colonne separate da tabulazione**, come gli appunti di
-     * `Recents`: nessuna libreria, nessuna dipendenza, e un file che si legge a occhio se un
-     * giorno qualcosa non torna.
-     * ⚠️ **Le righe malformate si scartano** invece di far fallire la lettura: un archivio
-     * rovinato a metà deve far perdere i file che descriveva, non tutti gli altri.
-     * ⚠️ Pura come [ordered], e per la stessa ragione.
+     * Una riga per file, colonne separate da tabulazione, come gli appunti di `Recents`: nessuna
+     * libreria, e un file che si legge a occhio. Una riga malformata si scarta, così un archivio
+     * rovinato a metà perde solo i file che descriveva. Pura come [ordered].
      */
     fun records(text: String): List<Record> = text.lineSequence().mapNotNull { line ->
         val parts = line.split('\t')
-        // ⚠️⚠️ **TRE O QUATTRO, e le tre sono le righe scritte prima della `1.75`**: rifiutarle
-        // vorrebbe dire che aggiornando l'app ogni file già nel cestino perde la sua provenienza,
-        // cioè non si può più ripristinare. La colonna nuova è quindi facoltativa per sempre, e
-        // che cosa vuol dire la sua assenza sta su [Record].
+        // Tre o quattro colonne: le righe a tre sono del formato di prima, e rifiutarle toglierebbe
+        // la provenienza ai file già nel cestino. Che cosa vuol dire l'assenza della quarta è su
+        // [Record].
         if (parts.size != 3 && parts.size != 4) return@mapNotNull null
         val at = parts[1].toLongOrNull() ?: return@mapNotNull null
         if (parts[0].isBlank() || parts[2].isBlank()) return@mapNotNull null
@@ -611,11 +482,8 @@ object Bin {
     }.toList()
 
     /**
-     * L'archivio come testo. L'inversa di [records].
-     *
-     * ⚠️ **Una riga senza `kind` si riscrive a tre colonne**, non a quattro con l'ultima vuota:
-     * così un archivio mai toccato dalla `1.75` resta identico a se stesso, e il formato vecchio
-     * e quello nuovo non diventano due modi di scrivere la stessa cosa.
+     * L'archivio come testo, l'inversa di [records]. Una riga senza `kind` si riscrive a tre
+     * colonne, così un archivio del formato vecchio resta identico a se stesso.
      */
     fun text(records: List<Record>): String = records.joinToString("\n") { r ->
         if (r.kind == null) "${r.name}\t${r.at}\t${r.origin}"
@@ -632,10 +500,8 @@ object Bin {
         AtomicWrite.text(index(context), text(records))
 
     /**
-     * L'archivio delle provenienze, **accanto** al cestino e non dentro.
-     *
-     * ⚠️ Dentro sarebbe un file in più che l'elenco dovrebbe filtrare, e prima o poi
-     * comparirebbe fra le miniature come una fotografia rotta.
+     * L'archivio delle provenienze, accanto al cestino e non dentro: dentro sarebbe un file in più
+     * da filtrare dall'elenco, che comparirebbe fra le miniature come un'immagine rotta.
      */
     private fun index(context: Context): File = File(dir(context).parentFile, INDEX)
 
@@ -649,10 +515,9 @@ object Bin {
     private const val INDEX = "bin.tsv"
 
     /**
-     * ⚠️ **Le tre operazioni non si sovrappongono**: leggono e riscrivono lo stesso
-     * archivio, e due che si intrecciassero perderebbero le righe dell'altra. Non è
-     * teorico: 'svuota' su un cestino grosso dura, e nel frattempo l'interfaccia resta
-     * viva.
+     * Le operazioni sull'archivio non si sovrappongono: leggono e riscrivono lo stesso file, e due
+     * che si intrecciassero perderebbero le righe dell'altra. 'Svuota' su un cestino grosso dura, e
+     * l'interfaccia resta viva nel frattempo.
      */
     private val lock = Mutex()
 }
