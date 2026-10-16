@@ -55,14 +55,31 @@ class AdaptiveTest {
         assertEquals(Adaptive.Band.MEDIUM, Adaptive.band(840))
     }
 
+    /**
+     * **Gli strumenti dell'editor vanno a lato da 1024, e in orizzontale su uno schermo grande.**
+     *
+     * ⚠️ **L'orizzontale da 600 è la sua scelta D1** (voce G3 della revisione Setaccio): su uno
+     * schermo col lato minore da 600 dp Android 16 ignora il verticale che l'editor chiede, e con
+     * la sola soglia dei 1024 un tablet piccolo girato (960 per 600) o un pieghevole aperto in
+     * orizzontale avevano la disposizione del telefono. Il telefono in orizzontale, col lato
+     * minore sotto i 600, resta com'è, e così il tablet in verticale.
+     */
     @Test
-    fun `editor strumenti a lato solo da 1024`() {
-        assertFalse(Adaptive.editorBeside(600))
-        assertFalse(Adaptive.editorBeside(800))
-        assertFalse(Adaptive.editorBeside(1023))
-        assertTrue(Adaptive.editorBeside(1024))
-        assertEquals(320, Adaptive.editorToolsWidth(1024).value.toInt())
-        assertEquals(0, Adaptive.editorToolsWidth(800).value.toInt())
+    fun `editor strumenti a lato da 1024 e in orizzontale su schermo grande`() {
+        // Tablet in verticale: sotto i 1024 la scheda resta in basso.
+        assertFalse(Adaptive.editorBeside(600, 960, 600))
+        assertFalse(Adaptive.editorBeside(800, 1280, 800))
+        assertFalse(Adaptive.editorBeside(1023, 1366, 1023))
+        // Tablet piccolo e pieghevole in orizzontale: a lato.
+        assertTrue(Adaptive.editorBeside(960, 600, 600))
+        assertTrue(Adaptive.editorBeside(841, 701, 701))
+        // Telefono in orizzontale: lato minore sotto i 600, quindi in basso.
+        assertFalse(Adaptive.editorBeside(891, 411, 411))
+        // Da 1024 sempre a lato.
+        assertTrue(Adaptive.editorBeside(1024, 768, 768))
+        assertTrue(Adaptive.editorBeside(1024, 1366, 1024))
+        assertEquals(320, Adaptive.editorToolsWidth(true).value.toInt())
+        assertEquals(0, Adaptive.editorToolsWidth(false).value.toInt())
     }
 
     @Test

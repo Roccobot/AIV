@@ -81,7 +81,6 @@ import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -170,15 +169,13 @@ fun EditorScreen(
      */
     val activity = remember(context) { Knobs.activityOf(context) }
     /*
-     * ⚠️ **Da 1.024 dp il verticale non si impone** (voce `3.38-01`): con gli strumenti a lato
-     * ([Adaptive.editorBeside]) l'orizzontale è il layout previsto, e forzare `PORTRAIT` su un
-     * tablet orizzontale farebbe ruotare la finestra e oscillare la larghezza intorno alla soglia,
-     * con un layout che sfarfalla.
+     * ⚠️ **Con gli strumenti a lato il verticale non si impone** (voce `3.38-01`): da 1.024 dp, e in
+     * orizzontale su uno schermo grande ([Adaptive.editorBeside]), l'orizzontale è il layout
+     * previsto, e forzare `PORTRAIT` farebbe ruotare la finestra e oscillare la larghezza intorno
+     * alla soglia, con un layout che sfarfalla.
      */
-    val widthDp = with(LocalDensity.current) {
-        LocalWindowInfo.current.containerSize.width.toDp()
-    }.value.toInt()
-    val lockPortrait = !Adaptive.editorBeside(widthDp)
+    val beside = editorBeside()
+    val lockPortrait = !beside
     DisposableEffect(activity, lockPortrait) {
         if (!lockPortrait) return@DisposableEffect onDispose { }
         val prima = activity?.requestedOrientation
@@ -349,13 +346,12 @@ fun EditorScreen(
             }
         }
 
-        // Da 1.024 dp gli strumenti sono a lato (mockup editor/simple); sotto, la scheda resta in
-        // basso. La larghezza è quella della finestra, letta sopra per l'orientamento.
-        val beside = Adaptive.editorBeside(widthDp)
+        // Con gli strumenti a lato ([beside], letto sopra per l'orientamento) la scheda è in una
+        // colonna (mockup editor/simple); altrimenti resta in basso.
         // Con la mano destra (FAB a destra) i comandi sono a destra e il palco a sinistra; con la
         // sinistra si scambiano (voce `3.39-01`).
             val panelOnStart = LocalPadLook.current.hand == Hand.LEFT
-        val toolsWidth = Adaptive.editorToolsWidth(widthDp)
+        val toolsWidth = Adaptive.editorToolsWidth(beside)
 
         @Composable
         fun Sheet() {
@@ -660,8 +656,8 @@ internal fun reshaped(crop: ImageEdit.Crop, frame: Float, want: Float?): ImageEd
 internal data class EditorSheetChrome(val modifier: Modifier, val shape: RoundedCornerShape)
 
 /**
- * Come si veste la scheda dell'editor: in basso sul telefono, a lato da 1.024 dp
- * ([Adaptive.editorBeside]), come nel mockup.
+ * Come si veste la scheda dell'editor: in basso sul telefono, a lato da 1.024 dp e in orizzontale
+ * su uno schermo grande ([Adaptive.editorBeside]).
  *
  * Il lato lo decide [panelOnStart]: a lato, la scheda è all'inizio della riga per i mancini e alla
  * fine per i destri (`LocalPadLook.current.hand == Hand.LEFT` in [EditorScreen]).
@@ -695,7 +691,8 @@ internal fun editorSheetChrome(
 }
 
 /**
- * I comandi dell'editor, in una scheda appoggiata in fondo alla schermata, o a lato da 1.024 dp.
+ * I comandi dell'editor, in una scheda appoggiata in fondo alla schermata, o a lato
+ * ([Adaptive.editorBeside]).
  *
  * Una scheda perché i tasti sono sette (richiesta dell'utente). ⚠️ **Non una
  * `ModalBottomSheet`**, come la scheda della selezione ([PickSheet]): quella mette un velo e si
@@ -705,7 +702,7 @@ internal fun editorSheetChrome(
  */
 @Composable
 private fun EditorSheet(
-    /** Se la scheda è a lato del palco (tablet largo) e non sotto ([Adaptive.editorBeside]). */
+    /** Se la scheda è a lato del palco e non sotto ([Adaptive.editorBeside]). */
     beside: Boolean = false,
     /** Se a lato, la scheda è all'inizio della riga (mancini) o alla fine (destri). */
     panelOnStart: Boolean = true,

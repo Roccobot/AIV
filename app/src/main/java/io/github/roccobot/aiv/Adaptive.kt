@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -63,14 +65,21 @@ object Adaptive {
 
 
     /**
-     * Se l'editor mette gli strumenti a lato della tela: solo da 1024 dp, come nel mockup; sotto,
-     * gli strumenti sono sotto la tela (`.portrait .tools`, `.split .tools`).
+     * Se l'editor mette gli strumenti a lato della tela: da 1024 dp, come nel mockup, e in
+     * orizzontale su ogni schermo che Android considera grande (lato minore da [PHONE_MAX] dp in
+     * su); altrimenti gli strumenti sono sotto la tela (`.portrait .tools`, `.split .tools`).
+     *
+     * ⚠️ **L'orizzontale da 600 è una scelta dell'utente** (D1 sulla voce G3 della revisione
+     * Setaccio, 2026-10-16): su quegli schermi Android 16 ignora la richiesta del verticale che
+     * l'editor fa sul telefono, quindi un tablet piccolo o un pieghevole aperto mostravano in
+     * orizzontale la disposizione del telefono. Il lato minore non cambia ruotando, quindi la
+     * scelta non oscilla quando la finestra gira.
      */
-    fun editorBeside(widthDp: Int): Boolean = widthDp >= SIDE_OPEN_MIN
+    fun editorBeside(widthDp: Int, heightDp: Int, smallestDp: Int): Boolean =
+        widthDp >= SIDE_OPEN_MIN || (widthDp > heightDp && smallestDp >= PHONE_MAX)
 
     /** Larghezza della colonna degli strumenti dell'editor, dal mockup (`.tools` 320). */
-    fun editorToolsWidth(widthDp: Int): Dp =
-        if (editorBeside(widthDp)) 320.dp else 0.dp
+    fun editorToolsWidth(beside: Boolean): Dp = if (beside) 320.dp else 0.dp
 
 
     /**
@@ -88,7 +97,8 @@ object Adaptive {
 
     /**
      * Se Ridimensiona e Filigrana mettono l'anteprima a lato dei parametri: solo da 1024 dp, come
-     * l'editor (mockup `.portrait`, `.split`).
+     * nel mockup (`.portrait`, `.split`). Sono finestre che non bloccano l'orientamento, e la
+     * soglia dell'orizzontale di [editorBeside] non le riguarda.
      */
     fun previewBeside(widthDp: Int): Boolean = widthDp >= SIDE_OPEN_MIN
 
@@ -135,6 +145,22 @@ object Adaptive {
         smallestDp < PHONE_MAX && (widthDp > heightDp || viewer)
 
     enum class Shape { PHONE, WIDE, TALL }
+}
+
+/**
+ * Se l'editor, in questo momento, mette gli strumenti a lato: vedi [Adaptive.editorBeside].
+ *
+ * Larghezza e altezza sono quelle della finestra, il lato minore quello della configurazione,
+ * che è il numero con cui Android decide se uno schermo è grande. Lo leggono i due editor, per
+ * la disposizione e per il blocco del verticale.
+ */
+@Composable
+fun editorBeside(): Boolean {
+    val finestra = LocalWindowInfo.current.containerSize
+    val densita = LocalDensity.current
+    val larga = with(densita) { finestra.width.toDp() }.value.toInt()
+    val alta = with(densita) { finestra.height.toDp() }.value.toInt()
+    return Adaptive.editorBeside(larga, alta, LocalConfiguration.current.smallestScreenWidthDp)
 }
 
 /** La forma dello schermo in questo momento: vedi [Adaptive.shape]. */
