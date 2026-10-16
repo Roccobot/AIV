@@ -39,36 +39,24 @@ import androidx.compose.ui.unit.dp
 import java.io.File
 
 /**
- * La cronologia dei ripristini: dove sono finiti i file usciti dal cestino.
+ * La cronologia dei ripristini: dove sono finiti i file usciti dal cestino. Si apre dal menu del
+ * cestino, e il registro che legge lo scrive `Bin.restore` (vedi [History] per il perché di un
+ * secondo archivio).
  *
- * ⚠️⚠️ **NASCE DALLA 0.76** (richiesta dell'utente, con la sua ragione: *talvolta si fa un
- * ripristina senza pensarci troppo e senza ricordare dove è stato ripristinato un file*). Si
- * apre dal menu del cestino, che è il solo posto da cui ha senso cercarla, e il registro che
- * legge lo scrive `Bin.restore`: vedi [History] per il perché sia un secondo archivio e non
- * una lettura di quello del cestino.
- *
- * ⚠️ **Testata FISSA e lista pigra**, al contrario delle pagine delle impostazioni, che
- * scorrono tutte insieme dentro una colonna: là le voci sono venti e si contano, qui un solo
- * 'ripristina tutto' su una cartella grossa può scriverne trecento. ⚠️ È anche la ragione per
- * cui questa schermata non usa il guscio delle impostazioni: quello porta lo scorrimento con
- * sé, e uno scorrimento dentro l'altro non si può.
+ * ⚠️ **Testata fissa e lista pigra**, e quindi niente guscio delle impostazioni, che scorre tutto
+ * in una colonna: un 'ripristina tutto' su una cartella grossa scrive centinaia di righe, e uno
+ * scorrimento dentro l'altro non si può.
  */
 @Composable
 fun HistoryScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val context = LocalContext.current
 
     /*
-     * ⚠️ **Si legge una volta all'ingresso e non si osserva**: la cronologia cambia solo
-     * quando si ripristina qualcosa, e da qui non si ripristina niente. Un flusso che
-     * guardasse il file costerebbe un osservatore per un dato che non si muove mentre lo si
-     * guarda.
-     * ⚠️⚠️ **`null` vuol dire 'sto leggendo' e NON 'niente', e i due casi mostrano cose
-     * diverse**: senza la distinzione, per un fotogramma comparirebbe 'non è stato
-     * ripristinato niente' anche a chi ha una cronologia piena, che è la bugia peggiore che
-     * questa schermata potrebbe raccontare. Mentre legge non mostra nulla invece di un
-     * anello: è un file di testo su disco locale, e un anello che compare e sparisce in un
-     * decimo di secondo **è** un lampeggio (la stessa ragione dell'attesa dell'anello nel
-     * visualizzatore).
+     * Si legge una volta all'ingresso, senza osservare il file: da qui non si ripristina niente.
+     * ⚠️ **`null` vuol dire 'sto leggendo', non 'niente'**: senza la distinzione, per un fotogramma
+     * comparirebbe 'non è stato ripristinato niente' anche a chi ha una cronologia piena. Mentre
+     * legge non mostra niente, nemmeno l'anello, che su un file locale comparirebbe e sparirebbe in
+     * un lampo.
      */
     val batches by produceState<List<History.Batch>?>(initialValue = null, context) {
         value = History.batches(context)
@@ -78,9 +66,8 @@ fun HistoryScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val dual = Adaptive.sideAvailable(widthDp)
 
     Column(modifier = modifier.fillMaxSize().safeDrawingPadding()) {
-        // ⚠️ Il rientro è quello delle impostazioni, [PAGE_SIDE], e vale anche per la freccia: la
-        // testata e la lista devono cominciare sulla stessa colonna, o la pagina si legge
-        // come due pagine.
+        // Il rientro è [PAGE_SIDE], come nelle impostazioni, anche per la freccia: testata e lista
+        // cominciano sulla stessa colonna.
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = PAGE_SIDE, vertical = 12.dp)
@@ -91,9 +78,8 @@ fun HistoryScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                     contentDescription = stringResource(R.string.settings_back)
                 )
             }
-            // ⚠️ Il titolo prende `weight`, come nelle impostazioni: 'Cronologia dei
-            // ripristini' in tedesco e in tamil è quasi il doppio, e senza peso una `Row` lo
-            // taglia invece di mandarlo a capo.
+            // Il titolo prende `weight`, come nelle impostazioni: in tedesco e in tamil è quasi il
+            // doppio, e senza peso la `Row` lo taglia.
             Text(
                 text = stringResource(R.string.history_title),
                 style = MaterialTheme.typography.headlineSmall,
@@ -110,10 +96,7 @@ fun HistoryScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 modifier = Modifier.padding(horizontal = PAGE_SIDE)
             )
 
-            /*
-             * ⚠️⚠️ **DUE COLONNE DA 600 dp, DALLA `3.35`** (mockup `history`): gruppi per data
-             * a lato e percorsi nello spazio principale. Telefono invariato (lista unica).
-             */
+            /* Da 600 dp due colonne (mockup `history`): gruppi per data a lato, percorsi al centro. */
             dual -> {
                 var chosen by remember(groups) { mutableStateOf(groups.first().at) }
                 val batch = groups.firstOrNull { it.at == chosen } ?: groups.first()
@@ -153,12 +136,9 @@ fun HistoryScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 contentPadding = PaddingValues(start = PAGE_SIDE, end = PAGE_SIDE, bottom = 24.dp)
             ) {
                 /*
-                 * ⚠️ **La regola dei sette giorni si dice, e vive DENTRO la lista**: chi apre
-                 * questa schermata e non trova il ripristino di due settimane fa deve poter
-                 * capire perché senza chiederlo a nessuno. Dentro la lista e non sopra perché
-                 * è una nota e non una testata: scorre via col resto.
-                 * ⚠️ **Il numero arriva da [History.DAYS] e non è scritto nella frase**, così
-                 * il testo e la scadenza vera non possono divergere.
+                 * La regola dei sette giorni si dice dentro la lista, come nota che scorre col
+                 * resto: chi non trova un ripristino vecchio capisce perché. Il numero viene da
+                 * [History.DAYS], così testo e scadenza vera non divergono.
                  */
                 item(key = "nota") {
                     Detail(
@@ -167,14 +147,9 @@ fun HistoryScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                     )
                 }
                 /*
-                 * ⚠️⚠️ **UN GRUPPO PER OPERAZIONE, col filetto in mezzo** (richiesta
-                 * dell'utente: *tutti i file rimessi a posto dalla stessa operazione di
-                 * ripristino vanno di seguito, poi un separatore se c'è altro dopo*). Il
-                 * filetto vive **fra** i gruppi e non sotto ognuno: sotto l'ultimo sarebbe una
-                 * riga che promette qualcosa che non c'è.
-                 * ⚠️ **Le chiavi portano l'istante del gruppo**, che è unico per costruzione
-                 * (i gruppi nascono raggruppando su quello) e distingue lo stesso percorso
-                 * ripristinato due volte.
+                 * Un gruppo per operazione di ripristino, col filetto fra i gruppi e non sotto
+                 * l'ultimo. Le chiavi contengono l'istante del gruppo, unico per costruzione, che
+                 * distingue lo stesso percorso ripristinato due volte.
                  */
                 groups.forEachIndexed { i, batch ->
                     item(key = "q${batch.at}") { Moment(batch.at) }
@@ -190,9 +165,7 @@ fun HistoryScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     }
 }
 
-/**
- * L'indice dei giorni/operazioni a colonna, per la cronologia tablet.
- */
+/** L'indice delle operazioni in colonna, per la cronologia sul tablet. */
 @Composable
 private fun HistoryDateRail(
     groups: List<History.Batch>,
@@ -233,14 +206,9 @@ private fun HistoryDateRail(
 }
 
 /**
- * Quando è avvenuto un ripristino: il capo del suo gruppo.
- *
- * ⚠️ Nel colore dell'accento e in `titleSmall`, come i titoli di gruppo delle impostazioni:
- * chi non distingue quella tinta vede comunque un testo di un altro corpo, che è quello che
- * deve dire 'da qui comincia un altro gruppo'.
- * ⚠️ **La tinta è [accentInk] e non `primary`, dalla `1.81`**, come nei titoli di gruppo del
- * pannello: l'accento vero come parole non arriva alla soglia di contrasto, e il corpo del
- * carattere non la sostituisce.
+ * Quando è avvenuto un ripristino: il capo del suo gruppo. In [accentInk] e in `titleSmall`, come i
+ * titoli di gruppo delle impostazioni: `primary` come colore di testo non arriva alla soglia di
+ * contrasto, e il corpo diverso distingue il gruppo anche a chi non vede la tinta.
  */
 @Composable
 private fun Moment(at: Long) {
@@ -253,17 +221,10 @@ private fun Moment(at: Long) {
 }
 
 /**
- * Un file ripristinato: come si chiama, e dove è finito.
- *
- * ⚠️⚠️ **DUE RIGHE E NON IL PERCORSO INTERO SU UNA**, ed è la richiesta letta alla lettera
- * (*ognuno col proprio percorso*): il nome è quello che si cerca, la cartella è la risposta.
- * Su una riga sola il nome starebbe in fondo, dopo cinquanta caratteri di percorso, cioè
- * fuori dallo schermo esattamente nei casi in cui serve.
- * ⚠️ **Il percorso è quello vero e non abbellito**, `/storage/emulated/0/...` compreso: è la
- * stessa scelta della riga 'Cartella' di 'Info dettagliate sul file', e un percorso accorciato
- * non si potrebbe ricopiare in un gestore di file.
- * ⚠️ **Il nome torna dal percorso** invece di essere una seconda colonna dell'archivio: due
- * dati che dicono la stessa cosa divergono il giorno che uno dei due si scrive male.
+ * Un file ripristinato su due righe, nome e cartella: su una sola il nome finirebbe dopo il
+ * percorso, fuori dallo schermo. Il percorso è quello vero (`/storage/emulated/0/...` compreso),
+ * come nella riga 'Cartella' di 'Info dettagliate sul file', così si può ricopiare in un gestore di
+ * file. Il nome si ricava dal percorso, per non avere due dati che possono divergere.
  */
 @Composable
 private fun Line(path: String) {
@@ -273,12 +234,3 @@ private fun Line(path: String) {
         Detail(text = file.parent ?: path)
     }
 }
-
-/*
- * ⚠️⚠️ **QUI VIVEVANO DUE COPIE DEI MATTONI DELLE IMPOSTAZIONI, FINO ALLA `1.80`**: la
- * spiegazione (`Detail`) e il margine laterale (`EDGE = 20.dp`), che i loro stessi commenti
- * dichiaravano presi da là. Adesso arrivano da `SettingsScreen`, dove sono `internal`: il
- * margine è [PAGE_SIDE] e la spiegazione [Detail]. Due numeri uguali in due file sono un
- * numero che diverge al primo ritocco, e qui il ritocco sarebbe stato invisibile, perché le
- * due pagine non si vedono mai insieme.
- */
