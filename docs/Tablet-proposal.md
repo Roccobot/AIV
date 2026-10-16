@@ -54,7 +54,8 @@ La selezione di cartella, pagina e modulo sopravvive ai cambi di orientamento e 
 - La doppia vista cartelle/contenuto: utile per alternare cartelle senza ritornare all'elenco.
 - La posizione delle informazioni nel visualizzatore e la soglia per richiuderle.
 - La larghezza del pannello dell'editor e l'altezza dei controlli in verticale.
-- Il riordino delle impostazioni: proposta distinta in [Settings-proposal.md](Settings-proposal.md).
+- Il riordino delle impostazioni era una proposta distinta, applicata nella 3.27: dalla 6.30 il
+  suo documento vive solo nella storia di git (`docs/Settings-proposal.md`).
 
 Usa la sezione Decisioni del [feedback](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
 Le operazioni sono dimostrative; shader, riproduzione video e file non vengono eseguiti nel browser.

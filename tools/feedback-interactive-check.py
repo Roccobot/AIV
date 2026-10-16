@@ -1575,9 +1575,9 @@ def check(path):
             for field in page.locator('.rich-editor,textarea:not([hidden]),input:not([type="file"])').all():
                 assert field.evaluate('(el)=>getComputedStyle(el).fontWeight') == '400'
                 assert field.evaluate('(el)=>parseFloat(getComputedStyle(el).fontSize)') >= 18
-            # The intro lost its links to the two mockups with b25e7fa: they are checked
-            # only where the page still carries them.
-            for href in ['tablet.html', 'settings.html']:
+            # The intro lost its link to the tablet mockup with b25e7fa: it is checked only
+            # where the page still carries it.
+            for href in ['tablet.html']:
                 link = page.locator('nav a[href="'+href+'"]')
                 if not link.count():
                     continue

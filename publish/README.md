@@ -4,7 +4,7 @@ Dalla 6.29 `.github/workflows/pages.yml` pubblica di questa cartella un elenco d
 includere: `index.html`, `privacy.html`, `anteprima.jpg`, `schermate/` e `assets/Roboto.ttf`
 con la sua licenza; `tools/site-check.py` ferma la pubblicazione se una pagina cita un file
 locale che l'elenco non ha. Tutto il resto (il documento di feedback coi suoi script, stili e
-icone, e i due mockup) lo serve solo il Worker privato, che usa la cartella come asset.
+icone, e il mockup del tablet) lo serve solo il Worker privato, che usa la cartella come asset.
 
 | Pagina | Scopo | Fonte |
 |---|---|---|
@@ -12,11 +12,9 @@ icone, e i due mockup) lo serve solo il Worker privato, che usa la cartella come
 | [privacy.html](privacy.html) | Informativa sulla privacy | Pagina scritta direttamente |
 | [feedback.html](feedback.html) (solo sul Worker) | Prove condivise; risposte e allegati sul cloud privato | [docs/Feedback.md](../docs/Feedback.md), generatore `tools/feedback-build.py` |
 | [tablet.html](tablet.html) (solo sul Worker) | Mockup interattivi da valutare | [docs/Tablet-proposal.md](../docs/Tablet-proposal.md), pagina scritta direttamente |
-| [settings.html](settings.html) (solo sul Worker) | Proposta di riordino delle impostazioni | [docs/Settings-proposal.md](../docs/Settings-proposal.md), generatore `tools/settings-build.py` |
 
 Gli asset condivisi vivono in `assets/`: favicon SVG e PNG, Roboto e relativa licenza.
-La favicon del documento di feedback e delle sue pagine di supporto (`tablet.html`,
-`settings.html`) è `assets/feedback-favicon.svg`, il blocco note col glifo in `#43B59E`; il
+La favicon del documento di feedback e della sua pagina di supporto (`tablet.html`) è `assets/feedback-favicon.svg`, il blocco note col glifo in `#43B59E`; il
 PNG trasparente è l'alternativa per i browser meno recenti. ⚠️ `index.html`, la paginetta di
 download, **non** la usa: ha il glifo nudo dell'app incorporato nella pagina, e la prova
 `PaginettaTest` lo controlla.
@@ -30,9 +28,7 @@ Dalla radice del repository:
 
 ```sh
 python3 tools/feedback-build.py
-python3 tools/settings-build.py
 python3 tools/feedback-build.py --check
-python3 tools/settings-build.py --check
 python3 tools/feedback-check.py publish/feedback.html
 ```
 
