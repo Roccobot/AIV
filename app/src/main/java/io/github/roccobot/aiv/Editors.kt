@@ -9,27 +9,22 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 
 /**
- * Chi modifica una fotografia: l'editor interno, o un'app del telefono.
+ * Chi modifica un'immagine: l'editor interno, o un'app del telefono.
  *
- * ⚠️⚠️ **L'ELENCO SI CHIEDE AL SISTEMA E NON SI SCRIVE**: quali app sappiano modificare
- * un'immagine lo sa `PackageManager`, e ogni elenco scritto a mano sarebbe vecchio il giorno
- * dopo. Si domanda chi risponde a `ACTION_EDIT` sul tipo di [MIME], che è il modo con cui
- * Android chiede proprio questo.
+ * L'elenco si chiede al sistema: quali app sappiano modificare un'immagine lo sa
+ * `PackageManager`, e un elenco scritto a mano invecchierebbe subito. Si domanda chi risponde a
+ * `ACTION_EDIT` sul tipo di [MIME].
  *
- * ⚠️⚠️ **QUI DENTRO IL TIPO NON SI SCRIVE PER ESTESO, e non è pignoleria**: i commenti a
- * blocco di Kotlin si ANNIDANO, quindi la barra seguita dall'asterisco di un tipo con jolly
- * apre un commento dentro il commento, e la chiusura del KDoc chiude quello invece di questo.
- * Il file smette di compilare con un 'Unclosed comment' segnalato **all'ultima riga**, cioè
- * lontanissimo dalla causa. Già successo qui.
- * ⚠️⚠️ **E SERVE IL BLOCCO `<queries>` NEL MANIFEST**: da Android 11 un'app non vede le altre
- * se non dichiara che cosa cerca. Senza, questa funzione risponde **elenco vuoto** su un
- * telefono pieno di editor, e il difetto si vede solo su Android 11 in su, cioè non sul
- * telefono di chi scrive il codice se ne ha uno vecchio.
+ * ⚠️⚠️ **Nei commenti di questo file il tipo non si scrive per esteso**: i commenti a blocco di
+ * Kotlin si annidano, quindi la barra seguita dall'asterisco di un tipo con jolly apre un
+ * commento dentro il commento. Il file smette di compilare con un 'Unclosed comment' segnalato
+ * all'ultima riga, lontano dalla causa.
+ * ⚠️ **Serve il blocco `<queries>` nel manifest**: da Android 11 un'app non vede le altre se non
+ * dichiara che cosa cerca, e senza questa funzione risponde un elenco vuoto.
  *
- * ⚠️ **La scelta si ricorda come TESTO e non come oggetto**: nelle impostazioni ci va una
- * stringa, e un `ComponentName` si scrive e si rilegge con `flattenToString`. Il valore
- * [INTERNAL] è l'unico che non è un componente, ed è l'editor dell'app (con [FULL], che le
- * versioni prima della `5.01` scrivevano per il completo).
+ * La scelta si ricorda come stringa: un `ComponentName` si scrive e si rilegge con
+ * `flattenToString`. [INTERNAL] è il solo valore che non è un componente, ed è l'editor
+ * dell'app (con [FULL], il valore vecchio del completo).
  */
 object Editors {
 
@@ -37,94 +32,73 @@ object Editors {
      * Il valore che vuol dire 'l'editor dentro AIV', cioè la voce 'Editor interno'.
      * Vedi `Settings.editorApp`.
      *
-     * ⚠️⚠️ **DALLA `5.01` È UNA VOCE SOLA PER I DUE EDITOR DELL'APP, ED È SUA SCELTA** (nota su
-     * `5.00-02`: *sotto Android 13 l'editor semplice, obbligato; da Android 13 in su dev'essere
-     * disponibile SOLO l'editor completo. In entrambi i casi l'editor si chiamerà 'Editor
-     * interno': per l'utente dev'essere trasparente*). Quale dei due si apre lo decide il telefono
-     * al momento di aprirlo ([advancedEditorAvailable]), non la scelta salvata.
+     * ⚠️ **Una voce sola per i due editor dell'app** (voce `5.00-02` dell'utente, 5.01): sotto
+     * Android 13 si apre l'editor semplice, da Android 13 in su il completo. Lo decide il
+     * telefono al momento di aprirlo ([advancedEditorAvailable]), non la scelta salvata.
      */
     const val INTERNAL = "interno"
 
     /**
-     * Il valore che fino alla `5.00` voleva dire 'l'editor completo dentro AIV'.
+     * Il valore vecchio dell'editor completo dentro AIV.
      *
-     * ⚠️⚠️ **DALLA `5.01` NESSUNO LO SCRIVE PIÙ, MA SI LEGGE ANCORA**: è la scelta che i telefoni
-     * hanno già salvata, e vale come [INTERNAL] (vedi [isInternal]), così chi aveva il completo
-     * continua ad averlo. Quello che finisce nell'archivio non si traduce e non si rinomina,
-     * perché una scelta già salvata deve continuare a valere.
+     * ⚠️ **Nessuno lo scrive più, ma si legge ancora**: è la scelta che i telefoni hanno già
+     * salvato, e vale come [INTERNAL] ([isInternal]). Un valore salvato non si traduce e non si
+     * rinomina.
      */
     const val FULL = "completo"
 
     /**
-     * Se una scelta salvata è l'editor interno: [INTERNAL], o il [FULL] delle versioni prima della
-     * `5.01`. È il solo posto che conosce tutti e due i valori.
+     * Se una scelta salvata è l'editor interno: [INTERNAL] o [FULL]. È il solo posto che conosce
+     * tutti e due i valori.
      */
     fun isInternal(id: String): Boolean = id == INTERNAL || id == FULL
 
     /**
-     * Il prefisso che marca una scelta raggiunta con la CONDIVISIONE invece che con la
-     * modifica.
+     * Il prefisso che marca una scelta raggiunta con la condivisione e non con la modifica.
      *
-     * ⚠️⚠️ **STA DENTRO L'IDENTIFICATIVO SALVATO, e non in un campo a parte**: la scelta
-     * vive nelle impostazioni come **una stringa** (`Settings.editorApp`), e aggiungere un
-     * secondo campo vorrebbe dire due valori da tenere d'accordo per sempre. Un identificativo
-     * senza prefisso resta quello che era, quindi le scelte già salvate continuano a valere.
+     * È dentro l'identificativo salvato perché la scelta è una stringa sola
+     * (`Settings.editorApp`): un secondo campo sarebbe un secondo valore da tenere d'accordo. Un
+     * identificativo senza prefisso resta valido.
      */
     const val SHARED = "send:"
 
     /** Una voce dell'elenco: che cosa scegliere, come si chiama, e la sua icona. */
     data class Choice(val id: String, val label: String, val icon: Drawable?) {
 
-        /** Se ci si arriva condividendo la fotografia invece che aprendola per modificarla. */
+        /** Se ci si arriva condividendo l'immagine e non aprendola per modificarla. */
         val shared: Boolean get() = id.startsWith(SHARED)
     }
 
     /**
      * Le app che sanno modificare un'immagine, in ordine alfabetico.
      *
-     * ⚠️ **Senza l'editor interno**: quello lo mette la schermata, in cima, perché è l'unico
-     * che c'è sempre e non dipende da che cosa ha installato l'utente.
+     * Senza l'editor interno: lo mette la schermata, in cima, perché c'è sempre.
      */
     fun installed(context: Context): List<Choice> {
         val pm = context.packageManager
         /*
-         * ⚠️⚠️ **SI DOMANDA IN TRE MODI E SI UNISCE, ed è la correzione del 2026-08-31**
-         * (segnalazione dell'utente: Photo Editor e Magic Eraser installati e non fra le
-         * scelte). Il difetto era doppio, e una sola delle due cause non bastava a spiegarlo:
-         * - **il TIPO da solo non basta**: un filtro che dichiara anche `android:scheme` non
-         *   risponde a un intent senza indirizzo, quindi l'app resta invisibile. Le due righe
-         *   con l'indirizzo finto coprono quel caso, e l'indirizzo non si apre mai: serve
-         *   soltanto a far combaciare il filtro.
-         * - **`MATCH_DEFAULT_ONLY` esclude chi non dichiara `CATEGORY_DEFAULT`**, e sono
-         *   tanti. Qui non serve a niente: quella categoria conta per la risoluzione
-         *   *implicita*, e [open] parte con un **componente esplicito**, dove non è richiesta.
-         * ⚠️ **L'elenco vuoto non è un errore visibile**, ed è la ragione per cui il difetto
-         * poteva restare: senza nessuna delle due correzioni il selettore mostra l'editor
-         * semplice e basta, che è esattamente quello che farebbe su un telefono spoglio.
+         * ⚠️ **Si domanda in tre modi e si uniscono le risposte** ([ask]):
+         * - il solo tipo non basta: un filtro che dichiara anche `android:scheme` non risponde a
+         *   un intent senza indirizzo. Gli indirizzi finti coprono quel caso;
+         * - niente `MATCH_DEFAULT_ONLY`, che esclude chi non dichiara `CATEGORY_DEFAULT`: quella
+         *   categoria conta per la risoluzione implicita, e [open] parte con un componente
+         *   esplicito.
+         * Un elenco incompleto non dà errori: il selettore mostra solo l'editor interno, come su
+         * un telefono senza editor.
          */
         val found = ask(pm, Intent.ACTION_EDIT, MIME)
         val editors = found.toChoices(context, pm, "")
 
         /*
-         * ⚠️⚠️ **CHI NON SI DICHIARA EDITOR SI RAGGIUNGE CONDIVIDENDO, dalla 1.11** (prova
-         * dell'utente: Magic Eraser non compare in nessun 'Modifica', e compare fra i primi
-         * risultati di 'Condividi'). Non è un difetto della domanda: quell'app **non ha** un
-         * filtro `ACTION_EDIT`, quindi nemmeno Android la considera un editor, e nessuna
-         * query di modifica la troverà mai. L'unica via che esiste è quella che l'app stessa
-         * dichiara.
-         * ⚠️⚠️ **IL FILTRO CHE RENDE L'ELENCO USABILE: si toglie chi accetta anche il TESTO.**
-         * Domandare chi riceve un'immagine risponde con la messaggistica, la posta, il cloud,
-         * il Bluetooth: quaranta voci di cui tre sono foto-app. Un'app che tratta fotografie
-         * accetta immagini e **non** testo semplice; una che serve a mandare contenuti in giro
-         * accetta tutti e due. Sottraendo il secondo elenco dal primo resta quasi solo quello
-         * che interessa.
-         * ⚠️ **È un'euristica e si dichiara**: può lasciare fuori un editor che accetta anche
-         * testo (raro) e può tenere dentro un archivio in rete. Per questo le due famiglie
-         * restano **separate** nel selettore invece di essere mescolate: chi sceglie vede da
-         * quale delle due sta pescando.
-         * ⚠️ **Si scarta PRIMA di chiedere nomi e icone, dalla `6.28`** (rilievo B13 della
-         * revisione della 6.25): caricarli per le quaranta voci della condivisione e poi tenerne
-         * tre voleva dire decine di icone lette per niente.
+         * ⚠️ **Chi non si dichiara editor si raggiunge condividendo**: un'app senza filtro
+         * `ACTION_EDIT` (come Magic Eraser) nessuna domanda di modifica la troverà mai.
+         * ⚠️ **Si toglie chi accetta anche il testo**: chi riceve un'immagine è anche la
+         * messaggistica, la posta, il cloud, il Bluetooth, decine di voci. Un'app che tratta
+         * immagini accetta immagini e non testo semplice; una che manda contenuti accetta tutti e
+         * due. È un'euristica: può lasciare fuori un editor che accetta il testo e tenere dentro
+         * un archivio in rete, per questo nel selettore le due famiglie restano separate.
+         * Si scarta prima di chiedere nomi e icone, che costano (rilievo B13 della revisione
+         * Setaccio).
          */
         val talkers = ask(pm, Intent.ACTION_SEND, TEXT)
             .mapNotNull { it.activityInfo?.packageName }
@@ -161,8 +135,7 @@ object Editors {
         pm: PackageManager,
         mark: String
     ): List<Choice> = asSequence()
-        // ⚠️ AIV stessa non compare fra le scelte: sceglierla vorrebbe dire chiedere a
-        // questa app di aprire questa app, che non è quello che la voce promette.
+        // AIV stessa non compare fra le scelte: aprirebbe sé stessa.
         .filter { it.activityInfo?.packageName != context.packageName }
         .mapNotNull { info ->
             val act = info.activityInfo ?: return@mapNotNull null
@@ -180,44 +153,35 @@ object Editors {
     /**
      * Come si chiama quello scelto, e `null` se non è più installato.
      *
-     * ⚠️ **La disinstallazione va vista, non subita**: se l'app scelta sparisce, la voce nelle
-     * impostazioni deve tornare a dire 'nessuna' invece di mostrare il nome di una cosa che
-     * non c'è, e il menu deve tornare a chiedere.
+     * Se l'app scelta è stata disinstallata, la voce nelle impostazioni torna a dire 'nessuna'
+     * e il menu torna a chiedere.
      */
     fun labelOf(context: Context, id: String): String? {
         if (id.isBlank()) return null
         if (isInternal(id)) return context.getString(R.string.editor_internal)
-        /*
-         * ⚠️ **Si chiede il solo componente salvato, dalla `6.28`** (rilievo B13): fino ad
-         * allora si rifaceva tutto l'elenco, nove domande al sistema e le icone di ogni app, per
-         * trovare un nome. Un'app disinstallata risponde con un'eccezione, cioè `null`.
-         */
+        // Si chiede il solo componente salvato, senza rifare l'elenco (rilievo B13). Un'app
+        // disinstallata risponde con un'eccezione, cioè `null`.
         val component = ComponentName.unflattenFromString(id.removePrefix(SHARED)) ?: return null
         val pm = context.packageManager
         return runCatching { pm.getActivityInfo(component, 0).loadLabel(pm).toString() }.getOrNull()
     }
 
     /**
-     * Manda la fotografia all'app scelta.
+     * Manda l'immagine all'app scelta.
      *
-     * ⚠️⚠️ **IL PERMESSO DI SCRITTURA SI CONCEDE INSIEME ALL'INDIRIZZO**: senza
-     * `FLAG_GRANT_WRITE_URI_PERMISSION` l'editor apre la fotografia e poi non riesce a
-     * salvarla, e l'errore lo dà lui, in una schermata che non è nostra. Chi lo vede non ha
-     * modo di risalire ad AIV.
-     * ⚠️ **Il componente è esplicito**, ed è tutto il senso di ricordare la scelta: con un
-     * intent generico Android richiederebbe di scegliere ogni volta, che è la cosa che la
-     * memoria della scelta doveva togliere.
+     * ⚠️ **Il permesso di scrittura si concede insieme all'indirizzo**: senza
+     * `FLAG_GRANT_WRITE_URI_PERMISSION` l'editor apre l'immagine e poi non riesce a salvarla,
+     * con un errore suo da cui non si risale ad AIV.
+     * Il componente è esplicito: con un intent generico Android chiederebbe di scegliere ogni
+     * volta.
      */
     fun open(context: Context, uri: Uri, id: String): Boolean {
         val shared = id.startsWith(SHARED)
         val component = ComponentName.unflattenFromString(id.removePrefix(SHARED)) ?: return false
         /*
-         * ⚠️⚠️ **CONDIVIDERE NON È MODIFICARE, e la differenza si vede nel risultato**: con
-         * `ACTION_EDIT` l'app riceve **la fotografia** e la riscrive dov'era; con
-         * `ACTION_SEND` ne riceve una copia e salva **dove decide lei**, di solito in una
-         * cartella sua. L'originale non viene toccato.
-         * ⚠️ **Alla condivisione non si dà il permesso di SCRITTURA**, e non è una svista:
-         * quell'app non deve riscrivere niente, e un permesso che non serve non si concede.
+         * Con `ACTION_EDIT` l'app riceve l'immagine e la riscrive dov'era; con `ACTION_SEND` ne
+         * riceve una copia e salva dove decide lei, e l'originale non è toccato. Per questo alla
+         * condivisione si concede la sola lettura.
          */
         val intent = if (shared) {
             Intent(Intent.ACTION_SEND).apply {
@@ -236,24 +200,21 @@ object Editors {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
         }
-        // ⚠️ Il falso copre tutti i modi di non partire, non solo l'app sparita: chi chiama
-        // deve solo sapere se dire all'utente che non si è aperto niente.
+        // Il falso copre ogni modo di non partire: a chi chiama basta sapere se avvisare.
         return runCatching { context.startActivity(intent); true }.getOrDefault(false)
     }
 
-    /** Il tipo che si chiede e si dichiara: uno solo, e sta scritto in un posto solo. */
+    /** Il tipo che si chiede e si dichiara, scritto in un posto solo. */
     private const val MIME = "image/*"
 
-    /** Il tipo che serve solo a **escludere**: chi accetta anche questo non è una foto-app. */
+    /** Il tipo che serve solo a escludere: chi accetta anche questo non è un'app per immagini. */
     private const val TEXT = "text/plain"
 
     /**
      * Due indirizzi finti, per la sola domanda al sistema.
      *
-     * ⚠️⚠️ **NON SI APRONO MAI, e non devono esistere**: servono a far combaciare i filtri
-     * che pretendono uno schema, e la risposta che interessa è *quale app*, non *che cosa
-     * c'è là dentro*. Un indirizzo vero renderebbe la domanda dipendente da una fotografia
-     * che al momento della domanda potrebbe non esserci.
+     * Non si aprono mai e non devono esistere: servono a far combaciare i filtri che pretendono
+     * uno schema. La domanda è quale app, non che cosa c'è all'indirizzo.
      */
     private val SAMPLE_CONTENT: Uri = Uri.parse("content://media/external/images/media/1")
     private val SAMPLE_FILE: Uri = Uri.parse("file:///storage/emulated/0/Pictures/x.jpg")

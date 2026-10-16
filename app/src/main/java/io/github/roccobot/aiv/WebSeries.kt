@@ -10,40 +10,31 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 /**
- * Come si sfoglia una fotografia che sta sul Web, dove non esiste nessuna cartella.
+ * Come si sfoglia un'immagine che è sul Web, dove non esiste nessuna cartella.
  *
- * ⚠️⚠️ **AIV riceve l'indirizzo di UNA immagine, mai quello della pagina che la
- * conteneva, ed è il fatto che regge tutto questo file.** Non c'è un genitore da
- * risalire come nel MediaStore e non c'è un elenco da leggere: la vicina si può solo
- * **indovinare** trasformando l'indirizzo, e poi **verificare** che esista davvero. Da
- * qui vengono le due scelte che sembrano complicazioni e non lo sono: la scala di
- * criteri, e la domanda di rete prima che il dito possa rispondere.
+ * ⚠️ **AIV riceve l'indirizzo di un'immagine, mai quello della pagina che la conteneva.** Non
+ * c'è un genitore da risalire né un elenco da leggere: la vicina si può solo indovinare
+ * trasformando l'indirizzo, e poi verificare che esista. Da qui la scala di criteri e la domanda
+ * di rete prima del gesto.
  *
- * ⚠️⚠️ **PRIMA LA VERIFICA** (decisione dell'utente, 2026-08-29): quando la vicina non
- * esiste, la strisciata **non fa niente** invece di aprirla e mostrare un errore al posto
- * di una fotografia. Il prezzo è dichiarato, ed è una domanda di rete: per questo la si
- * fa **in anticipo**, appena la corrente è pronta, e non al momento del gesto, o il dito
- * aspetterebbe la rete.
+ * Prima la verifica (decisione dell'utente): quando la vicina non esiste, la strisciata non fa
+ * niente, senza aprire un errore. La domanda di rete si fa in anticipo, appena l'immagine
+ * corrente è pronta, o il dito aspetterebbe la rete.
  *
- * ⚠️ **La serie del Web è LARGA TRE e si rifà a ogni passo**, mentre quella di una
- * cartella nasce intera e non si tocca più. Non è una svista: una serie remota non ha
- * fine nota, e costruirla tutta vorrebbe dire interrogare il server finché non risponde
- * di no, cioè decine di richieste per un gesto che forse nessuno farà. Tre indirizzi
- * bastano a far funzionare tutto il resto della macchina, che di una serie sa solo che è
- * una lista con un indice.
+ * La serie del Web è larga tre e si rifà a ogni passo, mentre quella di una cartella nasce
+ * intera: una serie remota non ha fine nota, e costruirla tutta vorrebbe dire interrogare il
+ * server finché non risponde di no. Al resto dell'app basta una lista con un indice.
  */
 object WebSeries {
 
     /**
      * I criteri, **nell'ordine in cui si provano**: dal più certo e gratuito al più largo.
      *
-     * ⚠️⚠️ **Il primo che verifica VINCE e si blocca**: da lì in poi quell'indirizzo usa
-     * sempre quel criterio. Senza il blocco la cascata si ripercorrerebbe a ogni
-     * strisciata, e una serie che il primo criterio non copre pagherebbe otto domande di
-     * rete per ogni fotografia invece di due.
-     * ⚠️ **L'ordine non è estetico**: il nome del file vince sul percorso perché è più
-     * vicino all'immagine, e la lettera viene per ultima perché è la più rara e la più
-     * facile da confondere con l'ultima lettera di una parola.
+     * ⚠️ **Il primo che verifica vince e si blocca** per quella serie: senza il blocco la
+     * cascata si ripercorrerebbe a ogni strisciata, con molte più domande di rete per immagine.
+     * Il nome del file vince sul percorso perché è più vicino all'immagine; la lettera viene
+     * dopo i numeri perché è la più rara e la più facile da confondere con l'ultima lettera di
+     * una parola.
      */
     enum class Rule {
         /** L'ultimo numero nel nome del file: `foto_012.jpg` -> `foto_013.jpg`. */
@@ -61,36 +52,23 @@ object WebSeries {
         /**
          * L'indice della cartella che la contiene, **chiesto al server**.
          *
-         * ⚠️⚠️ **È l'unico che smette di indovinare e CHIEDE**, e per questo dà una serie
-         * **vera**: ordinata, finita, e senza una domanda di rete per ogni vicina. Molti
-         * server rispondono all'indirizzo di una cartella con l'elenco dei suoi file, ed è
-         * lì che si trova quello che i quattro criteri sopra possono solo dedurre.
-         * ⚠️ Viene per ultimo perché è il primo che **costa una pagina scaricata** invece
-         * di una domanda secca: ci si arriva solo quando i gratuiti hanno fallito.
+         * È l'unico che chiede l'elenco al server, e dà una serie vera: ordinata, finita, e
+         * senza una domanda di rete per ogni vicina. Molti server rispondono all'indirizzo di
+         * una cartella con l'elenco dei suoi file.
+         * Viene per ultimo perché costa una pagina scaricata invece di una domanda secca.
          */
         FOLDER_INDEX,
 
         /**
-         * Le immagini della **pagina** che si è aperta: il sesto gradino della cascata.
+         * Le immagini della pagina che si è aperta.
          *
-         * ⚠️⚠️ **NON STA NELLA CASCATA, e non è una dimenticanza**: gli altri cinque
-         * partono dall'indirizzo di **un'immagine** e cercano la vicina, questo parte
-         * dall'indirizzo di una **pagina**, che è un altro ingresso e non un altro
-         * tentativo. Per questo [around] lo salta ([GUESSED] è la lista che percorre) e ci
-         * si arriva solo da [fromPage]. Stava scritto così anche nella proposta approvata
-         * il 2026-08-31: *prima va cambiato il modo di condividere verso l'app, è una
-         * decisione a sé, non un gradino di questa scala*.
-         * ⚠️⚠️ **LA PORTA D'INGRESSO NON È NUOVA, ed è la ragione per cui questo gradino si
-         * è potuto fare adesso** (istruzione dell'utente, 2026-09-03: *inizia a
-         * lavorarci*): il dialogo 'Apri un indirizzo' esiste dalla `0.41`, e un indirizzo
-         * che non porta a un'immagine là dentro era un vicolo cieco (*L'URL non punta a
-         * un'immagine*, con l'esempio `esempio.it/pagina` scritto nel commento). Adesso
-         * quel vicolo prova la pagina. ⚠️ **Niente filtro nuovo nel manifesto e nessun
-         * bersaglio di condivisione in più**: la strada che l'avrebbe voluto è quella che
-         * l'utente ha rifiutato (voce `brave-link`, *dovrebbe accettare qualunque testo
-         * condiviso* -> **no**), e con lei AIV comparirebbe nel pannello di ogni frase
-         * condivisa.
-         * ⚠️ Come [FOLDER_INDEX] dà la serie **intera**, quindi non si rifà a ogni passo.
+         * ⚠️ **Non è nella cascata**: gli altri partono dall'indirizzo di un'immagine e cercano
+         * la vicina, questo parte da una pagina, che è un altro ingresso. [around] lo salta
+         * ([GUESSED]) e ci si arriva solo da [fromPage], cioè dal dialogo 'Apri un indirizzo'
+         * quando l'indirizzo non porta a un'immagine.
+         * Niente filtro nuovo nel manifesto né bersaglio di condivisione in più: l'utente ha
+         * rifiutato che AIV accetti qualunque testo condiviso (voce `brave-link`).
+         * Come [FOLDER_INDEX] dà la serie intera, quindi non si rifà a ogni passo.
          */
         PAGE_LINKS
     }
@@ -98,15 +76,14 @@ object WebSeries {
     /**
      * I criteri che [around] percorre: tutti tranne quelli che partono da una pagina.
      *
-     * ⚠️ Si ricava per **esclusione** e non elencando i cinque: così un criterio nuovo
-     * entra nella cascata da sé, che è il caso normale, e chi ne aggiunge uno che parte da
-     * altro deve nominarlo qui, cioè accorgersene.
+     * Si ricava per esclusione: un criterio nuovo entra nella cascata da sé, e chi ne aggiunge
+     * uno che parte da altro deve nominarlo qui.
      */
     private val GUESSED = Rule.entries - Rule.PAGE_LINKS
 
     /**
-     * I criteri che danno la serie **intera**, e per cui non si rifà la finestra a ogni
-     * passo: rifarla vorrebbe dire riscaricare la stessa pagina a ogni fotografia.
+     * I criteri che danno la serie intera, per cui non si rifà la finestra a ogni passo:
+     * rifarla vorrebbe dire riscaricare la stessa pagina a ogni immagine.
      */
     val WHOLE = setOf(Rule.FOLDER_INDEX, Rule.PAGE_LINKS)
 
@@ -119,18 +96,13 @@ object WebSeries {
     /**
      * Lo stesso indirizzo in sicuro, perché in chiaro non si aprirebbe affatto.
      *
-     * ⚠️⚠️ **Android BLOCCA il traffico in chiaro per impostazione predefinita** da
-     * `targetSdk 28` in su, e qui non c'è nessun `usesCleartextTraffic` né configurazione
-     * di rete: un indirizzo `http://` arriva fino al caricatore e si ferma lì. Il manifesto
-     * però dichiara i filtri per `http`, quindi l'app **si offre** di aprire una cosa che
-     * non sa aprire, ed è un difetto che nessuno vedeva.
-     * ⚠️ **La correzione è riscrivere, non aprire il chiaro** (decisione dell'utente,
-     * 2026-08-31): quasi tutti i siti oggi rispondono anche in sicuro o reindirizzano da
-     * soli, quindi la riscrittura recupera quasi tutti quei collegamenti; permettere il
-     * traffico in chiaro nel manifesto varrebbe invece per gli indirizzi di chiunque, e
-     * questa app apre gli indirizzi che le passa il mondo.
-     * ⚠️ Chi resta in chiaro per davvero non riceve un errore muto: il modello sa di aver
-     * riscritto, e lo dice.
+     * ⚠️ **Android blocca il traffico in chiaro di serie** da `targetSdk 28`, e qui non c'è
+     * `usesCleartextTraffic`: un indirizzo `http://` si fermerebbe al caricatore, mentre il
+     * manifesto dichiara i filtri per `http`.
+     * Si riscrive, senza permettere il chiaro (decisione dell'utente): quasi tutti i siti
+     * rispondono anche in sicuro, e permettere il chiaro nel manifesto varrebbe per gli
+     * indirizzi di chiunque. Chi resta in chiaro davvero non riceve un errore muto: il modello
+     * sa di aver riscritto, e lo dice.
      */
     fun secured(uri: Uri): Uri =
         if (uri.scheme.equals("http", ignoreCase = true)) {
@@ -142,19 +114,17 @@ object WebSeries {
     /**
      * La finestra attorno a [uri]: la vicina di prima, lei, e la vicina di dopo.
      *
-     * [locked] è il criterio già scelto per questa serie, quando ce n'è uno: passandolo si
-     * salta la cascata, che è tutto il senso del blocco.
+     * [locked] è il criterio già scelto per questa serie, quando c'è: passandolo si salta la
+     * cascata.
      *
-     * ⚠️ Le due verifiche partono **insieme**: sono due attese di rete indipendenti, e
-     * metterle in fila raddoppierebbe il tempo prima che la strisciata risponda.
-     * ⚠️ Un criterio che non produce nemmeno un candidato **non costa niente** e si salta
-     * senza toccare la rete: è la ragione per cui la cascata può essere lunga.
+     * Le due verifiche partono insieme: in fila raddoppierebbero l'attesa. Un criterio che non
+     * produce nemmeno un candidato si salta senza toccare la rete, e per questo la cascata può
+     * essere lunga.
      */
     suspend fun around(uri: Uri, locked: Rule? = null): Window = withContext(Dispatchers.IO) {
         val rules = if (locked != null) listOf(locked) else GUESSED
         for (rule in rules) {
-            // ⚠️ L'indice non produce una vicina: produce la serie intera, quindi salta
-            // tutto il giro dei candidati e delle due verifiche.
+            // L'indice produce la serie intera, quindi salta i candidati e le due verifiche.
             if (rule == Rule.FOLDER_INDEX) {
                 val whole = fromIndex(uri) ?: continue
                 return@withContext Window(whole, rule)
@@ -172,27 +142,24 @@ object WebSeries {
             val found = Folder.Lookup.Found(Folder.Series(items, if (previous != null) 1 else 0))
             return@withContext Window(found, rule)
         }
-        // ⚠️ `Alone` e non `Lost`: nessun criterio ha trovato una vicina, che è
-        // esattamente 'questa fotografia non ha nessuno accanto', cioè il caso che la
-        // riga dei dettagli e la strisciata sanno già trattare.
+        // `Alone` e non `Lost`: nessun criterio ha trovato una vicina, cioè l'immagine non ha
+        // nessuno accanto, il caso che la riga dei dettagli e la strisciata sanno trattare.
         Window(Folder.Lookup.Alone, null)
     }
 
     /**
      * L'indirizzo che verrebbe spostandosi di [delta] posti secondo [rule], se ha senso.
      *
-     * È una funzione **pura**: non tocca la rete e non sa se quello che produce esista.
-     * Serve così, perché è l'unica parte che si può leggere e correggere guardandola.
+     * È una funzione pura: non tocca la rete e non sa se quello che produce esista.
      */
     fun candidate(uri: Uri, rule: Rule, delta: Int): Uri? = when (rule) {
         Rule.NAME_NUMBER -> onFileName(uri) { stem -> bumped(stem, delta) }
         Rule.PATH_NUMBER -> onFolderPath(uri, delta)
         Rule.QUERY_NUMBER -> onQuery(uri, delta)
         Rule.NAME_LETTER -> onFileName(uri) { stem -> lettered(stem, delta) }
-        // ⚠️ I due che danno la serie intera ([WHOLE]) non hanno un vicino da calcolare:
-        // la loro serie nasce in [fromIndex] e in [fromPage]. Questi due rami esistono
-        // perché il `when` sia completo invece di avere un `else` che un domani
-        // inghiottirebbe un criterio nuovo.
+        // I due che danno la serie intera ([WHOLE]) non hanno un vicino da calcolare: la loro
+        // serie nasce in [fromIndex] e in [fromPage]. Niente `else`, che assorbirebbe in
+        // silenzio un criterio nuovo.
         Rule.FOLDER_INDEX, Rule.PAGE_LINKS -> null
     }
 
@@ -201,25 +168,15 @@ object WebSeries {
     /**
      * Le immagini di una **pagina**, nell'ordine in cui vi compaiono.
      *
-     * ⚠️⚠️ **L'ORDINE È QUELLO DEL DOCUMENTO e non quello naturale dei nomi**, al contrario
-     * di [fromIndex], e la differenza è il senso del gradino: l'indice di una cartella è un
-     * elenco che il server genera, quindi l'ordine vero è quello dei numeri nei nomi; una
-     * pagina invece è **impaginata da qualcuno**, e quell'ordine è l'informazione che si
-     * sta andando a prendere. Riordinare per nome butterebbe via la sola cosa che una
-     * pagina sa e una cartella no.
-     * ⚠️ **Si guardano `src` e `href` insieme**: le miniature stanno negli `img` e le
-     * versioni grandi nei collegamenti che le avvolgono, e prendere solo gli uni darebbe
-     * una galleria di francobolli. La `distinct` tiene la **prima** apparizione, cioè
-     * l'ordine in cui la pagina le presenta.
-     * ⚠️⚠️ **NIENTE LETTORE DI HTML, come in [fromIndex]**: qui non si interpreta una
-     * pagina, si raccolgono due attributi. Un lettore vero sarebbe una libreria in più
-     * nell'APK per fare le stesse due espressioni.
-     * ⚠️ **Serve almeno una immagine, non due**: una pagina con una sola immagine grande è
-     * il caso di quasi tutti i siti di scansioni, e aprirla è già quello che si voleva. È
-     * il contrario di [fromIndex], che ne vuole due perché là una sola vorrebbe dire
-     * 'l'elenco non è il suo'.
-     * ⚠️ **Il tetto di lettura è quello di [fetch]**, mezzo megabyte: se le immagini non
-     * sono nella prima parte del documento, quella non è una galleria.
+     * ⚠️ **L'ordine è quello del documento, non quello naturale dei nomi** come in
+     * [fromIndex]: una pagina è impaginata da qualcuno, e quell'ordine è l'informazione che si
+     * va a prendere.
+     * Si guardano `src` e `href` insieme: le miniature sono negli `img` e le versioni grandi nei
+     * collegamenti che le avvolgono. `distinct` tiene la prima apparizione.
+     * Niente lettore di HTML, come in [fromIndex]: si raccolgono due attributi.
+     * Basta un'immagine sola, al contrario di [fromIndex]: una pagina con una sola immagine
+     * grande è il caso di quasi tutti i siti di scansioni.
+     * Il tetto di lettura è quello di [fetch].
      */
     suspend fun fromPage(uri: Uri): Folder.Series? = withContext(Dispatchers.IO) {
         val page = fetch(uri) ?: return@withContext null
@@ -236,15 +193,11 @@ object WebSeries {
     /**
      * Se questo indirizzo risponde con una immagine.
      *
-     * ⚠️⚠️ **Un solo secondo tentativo, e poi è no.** La rete che non risponde non è la
-     * rete che dice di no, ma per la strisciata le due cose devono finire allo stesso
-     * posto: la decisione presa è che senza una risposta il gesto non fa niente, e un
-     * 'forse' ripetuto all'infinito sarebbe un dito che aspetta.
-     * ⚠️ **La funzione gemella [ImageActions.leadsToImage] davanti a un errore di rete
-     * risponde SÌ**, ed è giusto per un indirizzo che una persona ha digitato: quella
-     * concede il beneficio del dubbio a una richiesta esplicita. Qui il dubbio va
-     * dall'altra parte, perché questa vicina non l'ha chiesta nessuno. Stessa forma,
-     * verdetto opposto, e va tenuto così.
+     * Un solo secondo tentativo, poi è no: senza una risposta il gesto non fa niente, e un
+     * 'forse' ripetuto sarebbe un dito che aspetta.
+     * ⚠️ **[ImageActions.leadsToImage] davanti a un errore di rete risponde sì**, ed è giusto
+     * per un indirizzo digitato da una persona; questa vicina invece non l'ha chiesta nessuno.
+     * Stessa forma, verdetto opposto, e va tenuto così.
      */
     suspend fun exists(uri: Uri): Boolean = withContext(Dispatchers.IO) {
         probe(uri) ?: probe(uri) ?: false
@@ -255,13 +208,11 @@ object WebSeries {
     /**
      * Applica [change] al nome del file, lasciando stare percorso ed estensione.
      *
-     * ⚠️⚠️ **L'estensione si stacca PRIMA di cercare il numero**, e non è pignoleria:
-     * esistono estensioni con una cifra dentro (`.jp2`, `.mp4`), e senza questo taglio
-     * l'ultimo numero del nome sarebbe quello, cioè si sfoglierebbe cambiando formato.
-     * ⚠️ Si lavora sul percorso **codificato**: le cifre non si codificano mai, quindi il
-     * conto torna lo stesso, e tutto ciò che sta attorno resta byte per byte com'era.
-     * Passando dal percorso decodificato, un indirizzo con uno spazio o un accento
-     * tornerebbe indietro riscritto.
+     * ⚠️ **L'estensione si stacca prima di cercare il numero**: esistono estensioni con una
+     * cifra (`.jp2`, `.mp4`), e si sfoglierebbe cambiando formato.
+     * Si lavora sul percorso codificato: le cifre non si codificano mai, e tutto il resto resta
+     * byte per byte com'era; dal percorso decodificato un indirizzo con uno spazio o un accento
+     * tornerebbe riscritto.
      */
     private fun onFileName(uri: Uri, change: (String) -> String?): Uri? {
         val path = uri.encodedPath ?: return null
@@ -278,9 +229,8 @@ object WebSeries {
     /**
      * Il numero nel percorso, **escluso** l'ultimo segmento.
      *
-     * ⚠️ L'esclusione è ciò che tiene separati i due criteri: senza, questo troverebbe
-     * sempre il numero del nome del file e il primo criterio non servirebbe a niente.
-     * Serve ai siti che numerano la pagina invece del file.
+     * L'esclusione tiene separati i due criteri: senza, questo troverebbe sempre il numero del
+     * nome del file. Serve ai siti che numerano la pagina e non il file.
      */
     private fun onFolderPath(uri: Uri, delta: Int): Uri? {
         val path = uri.encodedPath ?: return null
@@ -293,13 +243,11 @@ object WebSeries {
     /**
      * Il numero nella coda dell'indirizzo, scegliendo quale con due regole in fila.
      *
-     * ⚠️⚠️ **Con due numeri e nessun nome riconosciuto il criterio PASSA**, invece di
-     * tirare a indovinare: in una coda come `?id=4821&w=800` cambiare quello sbagliato
-     * darebbe la stessa fotografia larga 801 pixel, cioè un doppione presentato come una
-     * vicina. Meglio lasciar provare il criterio dopo.
-     * ⚠️ Si lavora sulla coda **codificata** e si ricuce a mano invece di ricostruirla coi
-     * parametri: `Uri.Builder` rimette in fila e ricodifica tutto, e un indirizzo firmato
-     * (le firme stanno spesso nella coda) non sopravvive a una riscrittura.
+     * ⚠️ **Con due numeri e nessun nome riconosciuto il criterio passa**: in `?id=4821&w=800`
+     * cambiare quello sbagliato darebbe la stessa immagine larga 801 pixel, un doppione
+     * presentato come vicina.
+     * Si lavora sulla coda codificata e si ricuce a mano: `Uri.Builder` riordina e ricodifica
+     * tutto, e un indirizzo firmato (le firme sono spesso nella coda) non resisterebbe.
      */
     private fun onQuery(uri: Uri, delta: Int): Uri? {
         val query = uri.encodedQuery ?: return null
@@ -319,14 +267,11 @@ object WebSeries {
     }
 
     /**
-     * L'ultimo numero di [text] spostato di [delta], **conservando gli zeri davanti**.
+     * L'ultimo numero di [text] spostato di [delta], conservando gli zeri davanti.
      *
-     * ⚠️⚠️ **Il riempimento di zeri è la parte che sbaglia chi va di fretta**: da `007` si
-     * va a `008` e non a `8`, perché su un server quei due sono due file diversi e il
-     * secondo non esiste. La larghezza si conserva finché il numero ci sta dentro, e
-     * quando cresce di una cifra si lascia crescere: da `999` a `1000`.
-     * ⚠️ Sotto zero non si va: `foto_0.jpg` all'indietro non produce `foto_-1.jpg`, che
-     * non è mai un file.
+     * ⚠️ **Da `007` si va a `008`, non a `8`**: su un server sono due file diversi. La
+     * larghezza si conserva finché il numero vi entra, poi cresce: da `999` a `1000`.
+     * Sotto zero non si va: `foto_-1.jpg` non è mai un file.
      */
     private fun bumped(text: String, delta: Int): String? {
         val hit = DIGITS.findAll(text).lastOrNull() ?: return null
@@ -340,12 +285,10 @@ object WebSeries {
     /**
      * La lettera in coda al nome spostata di [delta]: `tavola_a` -> `tavola_b`.
      *
-     * ⚠️ **Solo dove non c'è nessuna cifra**, e solo dopo un `_` o un `-`: senza queste due
-     * condizioni il criterio prenderebbe l'ultima lettera di una parola qualunque, e
-     * `tramonto.jpg` diventerebbe `tramontp.jpg`. È la convenzione delle scansioni a due
-     * pagine e dei fumetti, non una regola generale sui nomi.
-     * ⚠️ Dall'ultima lettera dell'alfabeto non si prosegue: `_z` non diventa `_aa`, che
-     * sarebbe una convenzione inventata da noi.
+     * Solo dove non c'è nessuna cifra, e solo dopo un `_` o un `-`: senza queste due condizioni
+     * `tramonto.jpg` diventerebbe `tramontp.jpg`. È la convenzione delle scansioni a due pagine
+     * e dei fumetti.
+     * Dall'ultima lettera dell'alfabeto non si prosegue: `_z` non diventa `_aa`.
      */
     private fun lettered(stem: String, delta: Int): String? {
         if (stem.length < 3 || stem.any { it.isDigit() }) return null
@@ -361,18 +304,14 @@ object WebSeries {
     /**
      * La serie intera, letta dall'elenco che il server dà per la cartella.
      *
-     * ⚠️⚠️ **La fotografia aperta DEVE comparire nell'elenco, o il criterio passa**, ed è
-     * questa condizione a rendere sicuro tutto il resto. All'indirizzo di una cartella un
-     * server può rispondere con l'elenco dei file, ma può anche rispondere con la pagina
-     * di copertina del sito, che di immagini ne ha (i loghi, le miniature di altri
-     * articoli) e non c'entrano niente. Se fra quelle non c'è quella che si sta
-     * guardando, l'elenco non è il suo, e sfogliarlo porterebbe altrove.
-     * ⚠️ **Niente lettore di HTML**, e non è pigrizia: qui non si interpreta una pagina, si
-     * raccolgono i suoi collegamenti, che è l'unica cosa che serve. Un lettore vero
-     * sarebbe una libreria in più nell'APK per fare la stessa riga.
-     * ⚠️ L'ordine è quello **naturale** e non quello in cui i collegamenti compaiono: un
-     * indice generato dal server è quasi sempre già ordinato, ma quando non lo è la
-     * sequenza salterebbe, e `foto10` verrebbe prima di `foto9`.
+     * ⚠️ **L'immagine aperta deve comparire nell'elenco, o il criterio passa**: all'indirizzo
+     * di una cartella un server può rispondere anche con la pagina di copertina del sito, che
+     * ha immagini sue (loghi, miniature di altri articoli). Se fra quelle non c'è l'immagine
+     * aperta, l'elenco non è il suo.
+     * Niente lettore di HTML: si raccolgono i collegamenti, e una libreria in più nell'APK
+     * farebbe la stessa riga.
+     * L'ordine è quello naturale dei nomi: un indice non ordinato farebbe venire `foto10`
+     * prima di `foto9`.
      */
     private fun fromIndex(uri: Uri): Folder.Lookup.Found? {
         val path = uri.encodedPath ?: return null
@@ -408,11 +347,10 @@ object WebSeries {
         address.substringBefore('?').substringBefore('#').substringAfterLast('/')
 
     /**
-     * La pagina della cartella, come testo, **fino a un tetto**.
+     * Una pagina, come testo, fino a un tetto ([PAGE_CAP]).
      *
-     * ⚠️ Il tetto c'è perché all'indirizzo di una cartella può rispondere qualunque cosa,
-     * compreso un file da cento megabyte: qui si stanno cercando dei collegamenti, e se
-     * non sono nei primi mezzo megabyte quella non è la pagina che cerchiamo.
+     * All'indirizzo può rispondere qualunque cosa, anche un file da cento megabyte: se i
+     * collegamenti non sono nel primo mezzo megabyte, quella non è la pagina cercata.
      */
     private fun fetch(uri: Uri): String? {
         var connection: HttpURLConnection? = null
@@ -436,11 +374,10 @@ object WebSeries {
      *
      * I tre casi che contano, e perché sono trattati così:
      * - **2xx con un tipo che comincia per `image/`**: esiste, ed è l'unico sì pieno.
-     * - **2xx con `text/html`**: è la pagina d'errore travestita da successo, e capita
-     *   spesso. Senza il controllo sul tipo, ogni indirizzo di quei server risponderebbe
-     *   di sì e la strisciata aprirebbe pagine HTML come se fossero fotografie.
-     * - **405 o 501**: il server rifiuta il metodo, non l'indirizzo, e dire di no qui
-     *   spegnerebbe lo sfogliatore su un sito intero. Si guardano i primi byte.
+     * - **2xx con `text/html`**: è la pagina d'errore travestita da successo, e capita spesso;
+     *   senza il controllo sul tipo la strisciata aprirebbe pagine HTML come immagini.
+     * - **405 o 501**: il server rifiuta il metodo, non l'indirizzo, e un no qui spegnerebbe la
+     *   strisciata su un sito intero. Si guardano i primi byte.
      */
     private fun probe(uri: Uri): Boolean? {
         var connection: HttpURLConnection? = null
@@ -461,13 +398,10 @@ object WebSeries {
     /**
      * I primi byte, per i server che non rispondono a HEAD.
      *
-     * ⚠️ Si chiede un **pezzetto** con `Range`, non il file: verificare l'esistenza di una
-     * vicina scaricando una fotografia intera sarebbe più costoso della fotografia che si
-     * sta guardando. Un server che ignora `Range` risponde comunque tutto, ma noi
-     * leggiamo i primi byte e chiudiamo.
-     * ⚠️ **La firma nei byte è l'ultima parola**, dopo il tipo dichiarato: alcuni server
-     * mandano `application/octet-stream` per qualunque file, e su quelli il tipo non
-     * distingue una fotografia da un archivio.
+     * Si chiede un pezzetto con `Range`, non il file intero; un server che ignora `Range`
+     * risponde tutto, ma si leggono i primi byte e si chiude.
+     * La firma nei byte decide dopo il tipo dichiarato: alcuni server mandano
+     * `application/octet-stream` per qualunque file.
      */
     private fun sniff(uri: Uri): Boolean {
         var connection: HttpURLConnection? = null
@@ -501,10 +435,10 @@ object WebSeries {
     }
 
     /**
-     * Se questi primi byte sono la testa di una fotografia.
+     * Se questi primi byte sono la testa di un'immagine.
      *
      * Le firme sono quelle dei formati che il decodificatore sa aprire, e non una di più:
-     * riconoscere un formato che poi non si apre sposterebbe l'errore, non lo toglierebbe.
+     * riconoscere un formato che poi non si apre sposterebbe l'errore.
      */
     private fun signed(head: ByteArray, size: Int): Boolean {
         fun at(index: Int): Int = if (index < size) head[index].toInt() and 0xFF else -1
@@ -523,8 +457,7 @@ object WebSeries {
      * La connessione, con le stesse intestazioni del caricatore vero.
      *
      * ⚠️ Stesso `User-Agent` e stesso `Accept` di [ImageSource]: un server che risponde
-     * diversamente a due clienti diversi direbbe di sì alla verifica e di no al
-     * caricamento, e il difetto sarebbe invisibile da qui.
+     * diversamente a due clienti direbbe sì alla verifica e no al caricamento.
      */
     private fun open(uri: Uri): HttpURLConnection =
         (URL(uri.toString()).openConnection() as HttpURLConnection).apply {
@@ -543,21 +476,18 @@ object WebSeries {
     /**
      * `src` e `href` insieme, per [fromPage].
      *
-     * ⚠️ **Una espressione sola e non due passate**: l'ordine del documento è quello che
-     * questo gradino va a prendere, e due ricerche separate darebbero prima tutti gli
-     * `href` e poi tutti gli `src`, cioè un ordine inventato da noi. ⚠️ **`src` prima di
-     * `href` nell'alternativa** non cambia l'ordine dei risultati (`findAll` scorre il
-     * testo), e serve solo a leggersi come 'l'immagine, o il collegamento che la avvolge'.
-     * ⚠️ Prende anche `data-src` e simili per via del `[\w-]*`: i siti che caricano le
-     * immagini a scorrimento mettono l'indirizzo vero là, e senza quel pezzo una galleria
-     * moderna risponderebbe 'nessuna immagine'.
+     * ⚠️ **Un'espressione sola**: due ricerche separate darebbero prima tutti gli `href` e poi
+     * tutti gli `src`, perdendo l'ordine del documento. L'ordine dell'alternativa non cambia
+     * quello dei risultati (`findAll` scorre il testo).
+     * Il `[\w-]*` prende anche `data-src` e simili: i siti che caricano le immagini durante lo
+     * scorrimento mettono là l'indirizzo vero.
      */
     private val SOURCES = Regex(
         """(?:[\w-]*src|href)\s*=\s*["']([^"']+)["']""",
         RegexOption.IGNORE_CASE
     )
 
-    /** I nomi che in una coda significano 'quale della serie', in ordine di quanto sono chiari. */
+    /** I nomi che in una coda significano 'quale della serie'. */
     private val SEQUENCE_KEYS = setOf("id", "page", "p", "n", "num", "index", "offset", "start")
 
     private const val PROBE_MS = 8_000

@@ -44,32 +44,16 @@ import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 /**
- * Le parti di un backup, cioè le caselle della pagina 'Esporta e importa'.
+ * Le aree del file di impostazioni: le voci del formato.
  *
- * ⚠️⚠️ **SONO MACRO-AREE, ED È LA SUA RIGA ALLA LETTERA** (terza richiesta del campo libero del
- * giro della `2.91`: *per non fare un elenco troppo lungo di checkbox, si selezionerà per
- * macro-aree*). Le prime tre sono le sezioni della schermata delle impostazioni, cioè i posti in
- * cui quelle preferenze si toccano; le altre sono le cose che l'app ricorda fuori da quella
- * schermata.
- * ⚠️⚠️ **LA TERZA NON PORTA PIÙ IL TITOLO DELLA SUA SEZIONE, DALLA `2.95`, ED È LA SUA NOTA SU
- * `d-backup-aree`** (*`Modifica e backup` → `Impostazioni dell'editor`*): dentro una pagina di backup
- * quel titolo faceva pensare che la casella portasse il backup stesso. ⚠️ **La sezione delle
- * impostazioni resta com'è**, perché la nota parla della casella: a cambiare è l'etichetta di qui, e
- * il token no.
- * ⚠️ **Il token è il formato e l'etichetta è la pagina**, e vivono nella stessa riga perché
- * l'elenco delle aree è uno: un'area nuova scritta in due tabelle comparirebbe nel file e non fra
- * le caselle, o il contrario. Il token non si traduce e non cambia mai, perché lo leggono anche i
- * file già salvati.
- * ⚠️ **L'ordine è quello delle caselle**, e il cestino viene per ultimo: è la sola parte che pesa
- * quanto le immagini che contiene, e la sola che all'importazione si aggiunge invece di prendere
- * il posto di quello che c'è.
- * ⚠️⚠️ **LE CARTELLE NASCOSTE HANNO UN'AREA SUA DALLA `2.96`, ED È SUA RICHIESTA** (campo libero del
- * giro della `2.93` e della `2.94`: *ovviamente serve una nuova sezione di esportazione 'Cartelle
- * nascoste'*). Vive accanto alle altre due parti che parlano di cartelle, e porta l'etichetta della sua pagina nelle
- * impostazioni. Fino alla `2.95` l'elenco viaggiava dentro 'Aspetto e navigazione', e un file di
- * allora lo porta ancora là: il perché vive su [PREF_RETIRED].
- * ⚠️⚠️ **FROM THE `5.80` THE PAGE NO LONGER SHOWS THESE AREAS, BUT [BackupGroup]**: the areas stay
- * the format, with the same tokens, so every file written before still imports (his answer `A1`).
+ * ⚠️⚠️ **La pagina 'Esporta e importa' non mostra le aree ma i gruppi di [BackupGroup]** (risposta
+ * A1 dell'utente, 5.80). Le aree restano il formato, coi loro token, così ogni file scritto prima
+ * si importa ancora.
+ * ⚠️ **Il token non si traduce e non cambia mai**: lo leggono anche i file già salvati.
+ * Il cestino viene per ultimo: è la sola area che pesa quanto le sue immagini, e all'importazione
+ * si aggiunge a quello che c'è.
+ * Le cartelle nascoste hanno un'area loro (`hidden`, richiesta dell'utente, 2.96); un file più
+ * vecchio porta il loro elenco dentro `view` ([PREF_RETIRED]).
  */
 internal enum class BackupArea(val token: String) {
     VIEW("view"),
@@ -84,25 +68,21 @@ internal enum class BackupArea(val token: String) {
 }
 
 /**
- * The parts of the 'Esporta e importa' page, from the `5.80`: six groups that gather the areas of
- * the file.
+ * Le parti della pagina 'Esporta e importa', cioè le sue caselle: sei gruppi che raccolgono le
+ * aree del file, nell'ordine della risposta A1 dell'utente (5.80).
  *
- * ⚠️⚠️ **THEY ARE HIS REQUEST OF 2026-10-12, IN THE ORDER OF HIS ANSWER `A1`**: 'Comandi e
- * indicatori' is gone, its commands joined 'Aspetto e navigazione' and the indicator of the last
- * media joined 'Cartelle e percorsi', with colours, covers, included and excluded folders, order and
- * favourites.
- * ⚠️⚠️ **A GROUP GATHERS AREAS AND NEVER RENAMES THEM**: the file keeps writing `view`, `buttons`,
- * `hidden` and the others, so an older AIV reads a new file and a new AIV reads an old one. The one
- * key that changed group without changing area is in [PREF_REGROUPED].
- * ⚠️ **The token is written in the manifest** (see [Backup.Manifest.groups]), so the confirmation
- * names what the file really carries; an older version ignores it, as it ignores every field it does
- * not know.
+ * ⚠️⚠️ **Un gruppo raccoglie aree e non le rinomina mai**: il file continua a scrivere `view`,
+ * `buttons`, `hidden` e le altre, così un AIV più vecchio legge un file nuovo e viceversa. La sola
+ * chiave che ha cambiato gruppo senza cambiare area è in [PREF_REGROUPED].
+ * Il token si scrive nel resoconto ([Backup.Manifest.groups]), così la conferma nomina quello che
+ * il file contiene davvero; una versione più vecchia lo ignora, come ogni campo che non conosce.
+ * L'etichetta di `EDITOR` non è il titolo della sua sezione (nota dell'utente su
+ * `d-backup-aree`): dentro una pagina di esportazione quel titolo sembrava indicare il file stesso.
  */
 internal enum class BackupGroup(val token: String, @StringRes val label: Int, val areas: Set<BackupArea>) {
     LOOK("look", R.string.backup_area_view, setOf(BackupArea.VIEW, BackupArea.BUTTONS)),
-    // ⚠️ From 6.02 the group takes the name of its settings section, 'File e cartelle' (his request:
-    // *anche nell'esportazione delle impostazioni la voce `Cartelle` diventa `File e cartelle`*), and
-    // its own string 'Cartelle e percorsi' is gone: one name in one place.
+    // Il gruppo prende il nome della sua sezione delle impostazioni, 'File e cartelle'
+    // (richiesta dell'utente, 6.02): un nome in un posto solo.
     FOLDERS(
         "folders", R.string.settings_group_browse,
         setOf(BackupArea.TINTS, BackupArea.COVERS, BackupArea.HIDDEN)
@@ -113,20 +93,20 @@ internal enum class BackupGroup(val token: String, @StringRes val label: Int, va
     BIN("bin", R.string.bin_title, setOf(BackupArea.BIN));
 
     companion object {
-        /** The group an area belongs to: each area is in exactly one. */
+        /** Il gruppo di un'area: ogni area è in uno solo. */
         fun of(area: BackupArea): BackupGroup = entries.first { area in it.areas }
 
         /**
-         * The areas a file needs to carry [groups]: theirs, and the area of every key that moved
-         * into one of them ([PREF_REGROUPED]).
+         * Le aree che servono a un file per contenere [groups]: le loro, più l'area di ogni chiave
+         * spostata in uno di loro ([PREF_REGROUPED]).
          */
         fun areasOf(groups: Set<BackupGroup>): Set<BackupArea> =
             groups.flatMap { it.areas }.toSet() + PREF_KEYS.filter { it.group in groups }.map { it.area }
 
         /**
-         * The groups an older file carries, which has no list of its own: those with an area in
-         * the file, or with a key living in one. ⚠️ Exact, because before the `5.80` every
-         * `prefs/<area>.json` named all the keys of its area.
+         * I gruppi di un file più vecchio, che non ha un elenco suo: quelli con un'area nel file, o
+         * con una chiave che vive in una di quelle. ⚠️ È esatto, perché nei file di allora ogni
+         * `prefs/<area>.json` nominava tutte le chiavi della sua area.
          */
         fun carriedBy(areas: Set<BackupArea>): Set<BackupGroup> =
             entries.filter { g -> g.areas.any { it in areas } || PREF_KEYS.any { it.group == g && it.area in areas } }
@@ -152,40 +132,35 @@ internal enum class PrefType(val token: String) {
     }
 }
 
-/** Una preferenza che il backup porta: il suo nome nell'archivio, il suo tipo, la sua area. */
+/** Una preferenza del file di impostazioni: il suo nome nell'archivio, il suo tipo, la sua area. */
 internal class PrefKey(val name: String, val type: PrefType, val area: BackupArea) {
-    /** The part of the page that carries it: the group of its area, unless it moved ([PREF_REGROUPED]). */
+    /** La parte della pagina che la contiene: il gruppo della sua area, salvo [PREF_REGROUPED]. */
     val group: BackupGroup get() = PREF_REGROUPED[name] ?: BackupGroup.of(area)
 }
 
 /**
- * The keys that the page puts in a group other than the one of their area, from the `5.80`.
+ * Le chiavi che la pagina mette in un gruppo diverso da quello della loro area.
  *
- * ⚠️⚠️ **THE AREA OF A KEY NEVER CHANGES (see [PREF_KEYS]), SO A KEY THAT MOVES ON THE PAGE MOVES
- * HERE**: `last-mark`, the indicator of the last media, keeps travelling in `buttons`, where every
- * version looks for it, and follows 'Cartelle e percorsi', which is his request.
+ * ⚠️ **L'area di una chiave non cambia mai ([PREF_KEYS]), quindi una chiave che si sposta nella
+ * pagina si sposta qui**: `last-mark`, l'indicatore dell'ultimo media, viaggia ancora in `buttons`,
+ * dove ogni versione lo cerca, e segue 'File e cartelle' (richiesta dell'utente).
  */
 internal val PREF_REGROUPED: Map<String, BackupGroup> = mapOf("last-mark" to BackupGroup.FOLDERS)
 
 /**
- * Tutte le preferenze che un backup porta, ognuna con la sua area.
+ * Tutte le preferenze del file di impostazioni, ognuna con la sua area.
  *
- * ⚠️⚠️ **È UN ELENCO SCRITTO A MANO, E LO TIENE ONESTO UNA PROVA E NON LA MEMORIA**: le chiavi
- * vivono in cinque oggetti diversi di `Settings.kt`, e una chiave nuova che qualcuno dimenticasse
- * qui resterebbe fuori da ogni backup senza che niente dia errore. `BackupTest` scrive l'archivio
- * con tutti i suoi scrittori e pretende che ogni chiave che trova sia qui o in [PREF_OUTSIDE], col
- * tipo giusto; e che ogni chiave di qui, tranne le due che non si scrivono più, venga scritta
- * davvero.
- * ⚠️ **Le due chiavi vecchie ci sono di proposito**, `veil` e `mark-air`: nessuno le scrive, ma
- * l'app le legge ancora come ripiego, quindi su un telefono che non ha mai salvato da quando sono
- * state sostituite sono loro a dire il valore. Un backup senza di loro rimetterebbe quello di
- * fabbrica.
- * ⚠️ **Gli avvisi entrano da [Hint]**, e non per nome: un avviso nuovo arriva nel backup per
- * costruzione.
- * ⚠️⚠️ **L'AREA DI UNA CHIAVE NON CAMBIA MAI, ANCHE SE LA SUA VOCE SI SPOSTA DI PAGINA**: un
- * backup scritto prima e uno scritto dopo la metterebbero in due voci diverse, e una versione
- * vecchia la cercherebbe in quella sbagliata. Il posto nell'interfaccia e l'area nel backup sono
- * due cose indipendenti, come il posto e la chiave nell'archivio.
+ * ⚠️⚠️ **È un elenco scritto a mano, presidiato da `BackupTest`**: le chiavi sono in cinque
+ * oggetti di `Settings.kt`, e una chiave dimenticata qui resterebbe fuori senza errori. La prova
+ * scrive l'archivio con tutti i suoi scrittori e pretende che ogni chiave sia qui o in
+ * [PREF_OUTSIDE], col tipo giusto, e che ogni chiave di qui, tranne le due vecchie, sia scritta.
+ * ⚠️ **Le due chiavi vecchie, `veil` e `mark-air`, ci sono di proposito**: nessuno le scrive, ma
+ * l'app le legge ancora come ripiego, e su un telefono che non ha più salvato sono loro a dire il
+ * valore.
+ * Gli avvisi entrano da [Hint], e non per nome: un avviso nuovo entra per costruzione.
+ * ⚠️⚠️ **L'area di una chiave non cambia mai, anche se la sua voce si sposta di pagina**: una
+ * versione vecchia la cercherebbe nella voce sbagliata. Il posto nell'interfaccia e l'area nel
+ * file sono indipendenti.
  */
 internal val PREF_KEYS: List<PrefKey> = buildList {
     fun area(area: BackupArea, type: PrefType, vararg names: String) {
@@ -233,7 +208,7 @@ internal val PREF_KEYS: List<PrefKey> = buildList {
     area(BackupArea.TINTS, PrefType.STRING, "folder-colour")
     area(BackupArea.TINTS, PrefType.SET, "folder-tints")
     area(BackupArea.HIDDEN, PrefType.SET, "hidden-relative", "hidden-only", "included-relative")
-    // ⚠️ 'feed-date' (6.02) goes with 'folder-order', its sibling on the settings page.
+    // 'feed-date' va con 'folder-order', la voce accanto nelle impostazioni.
     area(BackupArea.HIDDEN, PrefType.STRING, "folder-mode", "folder-order", "favourite-folders", "feed-date")
     Hint.entries.forEach { add(PrefKey(it.token, PrefType.BOOLEAN, BackupArea.HINTS)) }
 }
@@ -241,8 +216,7 @@ internal val PREF_KEYS: List<PrefKey> = buildList {
 /**
  * Una preferenza che le versioni di prima scrivevano e questa non scrive più, e come si traduce.
  *
- * @property area dove la portano i file di allora. ⚠️ Non cambia mai, per la stessa ragione di
- *   quella di [PrefKey].
+ * @property area dove la scrivono i file di allora. Non cambia mai, come quella di [PrefKey].
  * @property into la chiave di adesso che la prende.
  * @property convert come un valore di allora diventa uno di adesso.
  */
@@ -254,18 +228,13 @@ internal class RetiredKey(
 )
 
 /**
- * Le preferenze ritirate, cioè quelle che un file di un'altra versione può ancora portare.
+ * Le preferenze ritirate, cioè quelle che un file di un'altra versione può ancora contenere.
  *
- * ⚠️⚠️ **SENZA DI LORO UN FILE PIÙ VECCHIO SI LEGGEREBBE COME UNO PIÙ NUOVO**: una chiave che questa
- * versione non conosce viene contata fra quelle saltate, e la notifica finale direbbe che il file
- * arriva da una versione più recente di AIV mentre arriva da una più vecchia. Con la traduzione il
- * valore entra, e non si conta niente.
- * ⚠️⚠️ **L'ELENCO DELLE NASCOSTE DI ALLORA VIVE DENTRO 'ASPETTO E NAVIGAZIONE', E SI DICHIARA**: è la
- * sola casella che un file della `2.95` porta per lui, perché l'area 'Cartelle nascoste' ancora non
- * c'era. Quindi da un file di allora le nascoste arrivano spuntando quella, e la finestra di conferma
- * non elenca 'Cartelle nascoste' fra le parti del file.
- * ⚠️ **Una ritirata assente non si traduce**: la sua chiave di adesso si fonde, e fondere niente
- * lascia quello che c'è (vedi [PREF_MERGED]).
+ * ⚠️ **Senza di loro un file più vecchio sembrerebbe più nuovo**: una chiave sconosciuta si conta
+ * fra le saltate, e l'avviso finale direbbe che il file viene da una versione più recente. Con la
+ * traduzione il valore entra, e non si conta niente.
+ * ⚠️ **L'elenco delle nascoste di un file della 2.95 è nell'area `view`**: quel file lo importa la
+ * casella 'Aspetto e navigazione', e la conferma non elenca le cartelle nascoste fra le sue parti.
  */
 internal val PREF_RETIRED: Map<String, RetiredKey> = mapOf(
     "hidden-folders" to RetiredKey(
@@ -274,16 +243,16 @@ internal val PREF_RETIRED: Map<String, RetiredKey> = mapOf(
         into = PREF_KEYS.first { it.name == "hidden-relative" },
         convert = { vecchie -> (vecchie as Set<*>).map { portablePath(it.toString()) }.toSet() }
     ),
-    // ⚠️ L'interruttore della pillola dalla `4.02` alla `4.05`: acceso vuol dire la pillola, spento
-    // il FAB. Il perché della chiave nuova vive su `MainControl`.
+    // Il vecchio interruttore della pillola: acceso vuol dire la pillola, spento il FAB. Il perché
+    // della chiave nuova è su `MainControl`.
     "phone-pill-on" to RetiredKey(
         area = BackupArea.BUTTONS,
         type = PrefType.BOOLEAN,
         into = PREF_KEYS.first { it.name == "main-control" },
         convert = { acceso -> if (acceso == true) MainControl.PILL.token else MainControl.FAB.token }
     ),
-    // ⚠️ La 'Luminosità' col segno della `4.20`: dalla `4.25` lo 'Scostamento' non ha segno, e
-    // scurisce o schiarisce secondo il tema (risposta C2). Il perché vive su `GlassTune.shift`.
+    // La vecchia 'Luminosità' col segno: lo 'Scostamento' non ha segno, e scurisce o schiarisce
+    // secondo il tema (risposta C2 dell'utente). Il perché è su `GlassTune.shift`.
     "glass-light" to RetiredKey(
         area = BackupArea.BUTTONS,
         type = PrefType.INT,
@@ -293,17 +262,15 @@ internal val PREF_RETIRED: Map<String, RetiredKey> = mapOf(
 )
 
 /**
- * Le preferenze che un backup **non** porta, e il perché di ognuna.
+ * Le preferenze che il file di impostazioni non contiene, e il perché di ognuna.
  *
- * ⚠️⚠️ **SONO PROMEMORIA DI QUESTO TELEFONO, NON SCELTE DELL'UTENTE**, e portate su un altro
- * direbbero una cosa falsa: `all-files-asked` dice che il permesso a questo telefono è già stato
- * chiesto, `download-tree` è una cartella che vale col permesso persistente di questo telefono e
- * senza di lui non si apre, `clipboard-done` e `clipboard-when` dicono quale indirizzo degli
- * appunti è già stato aperto qui, `download-seen` che cosa c'è nella cartella Download di qui.
- * `included-initialized` records that this phone already seeded its factory folder list;
- * importing a modern folder list sets it so removed factory entries never reappear.
- * The other phone reminders are untouched by import; only the initialization flag is set
- * when a modern included list arrives.
+ * ⚠️ **Sono promemoria di questo telefono, non scelte dell'utente**, e su un altro direbbero il
+ * falso: `all-files-asked` dice che il permesso è già stato chiesto qui, `download-tree` vale col
+ * permesso persistente di questo telefono, `clipboard-done` e `clipboard-when` dicono quale
+ * indirizzo degli appunti è già stato aperto qui, `download-seen` che cosa c'è nella cartella
+ * Download di qui. `included-initialized` dice che questo telefono ha già scritto il suo elenco di
+ * cartelle di fabbrica: l'importazione non lo copia, ma lo accende quando arriva un elenco di
+ * incluse, così le voci di fabbrica tolte non ricompaiono.
  */
 internal val PREF_OUTSIDE: Set<String> = setOf(
     "all-files-asked", "download-tree", "clipboard-done", "clipboard-when", "download-seen", "included-initialized"
@@ -313,23 +280,15 @@ internal val PREF_OUTSIDE: Set<String> = setOf(
 internal val PREF_AREAS: Set<BackupArea> = PREF_KEYS.map { it.area }.toSet()
 
 /**
- * Le preferenze che all'importazione si **fondono** con quelle di adesso invece di prenderne il posto,
- * e come.
+ * Le preferenze che all'importazione si fondono con quelle di adesso, e come.
  *
- * ⚠️⚠️ **È LA SUA RISPOSTA `fonde` A `d-backup-importa`** (giro della `2.93` e della `2.94`: *Copertine,
- * colori e stili del file si aggiungono ai tuoi, e dove si sovrappongono (la stessa cartella, lo stesso
- * nome) vince il file*). Delle tre parti, i colori sono la sola fatta di preferenze, e di quelle una
- * sola si fonde: l'elenco delle tinte, cartella per cartella. Lo **stile** con cui il colore si vede
- * (`folder-colour`) invece è un valore solo, e la domanda del giro lo diceva (*le impostazioni no,
- * perché ognuna ha un valore solo*).
- * ⚠️ **Una chiave che si fonde non torna mai al valore di fabbrica**: un file che la dichiara assente
- * dice che là non c'era niente da aggiungere, e fondere niente lascia quello che c'è.
- * ⚠️ **Sono tutte insiemi di stringhe**, e il banco lo controlla: la fusione riceve i due insiemi, e una
- * chiave d'altro tipo qui dentro sarebbe un valore letto col tipo sbagliato.
- * ⚠️⚠️ **DALLA `2.96` SI FONDE ANCHE L'ELENCO DELLE CARTELLE NASCOSTE**, ed è la stessa risposta letta
- * sulla parte nuova: le nascoste del file si aggiungono alle tue, e una cartella nascosta qui resta
- * nascosta. Due elenchi di percorsi si fondono sommandoli, perché una voce non ha niente da far
- * vincere.
+ * ⚠️ **Risposta `fonde` dell'utente a `d-backup-importa`** (2.95): copertine, colori e stili del
+ * file si aggiungono, e dove si sovrappongono vince il file. Dei colori si fonde l'elenco delle
+ * tinte, cartella per cartella; lo stile (`folder-colour`) è un valore solo e si sostituisce. Gli
+ * elenchi delle cartelle nascoste e incluse si sommano.
+ * ⚠️ **Una chiave che si fonde non torna mai al valore di fabbrica**: assente nel file vuol dire
+ * niente da aggiungere.
+ * Sono tutte insiemi di stringhe, e il banco lo controlla.
  */
 internal val PREF_MERGED: Map<String, (Set<String>, Set<String>) -> Set<String>> = mapOf(
     "folder-tints" to FolderTints::merged,
@@ -339,72 +298,43 @@ internal val PREF_MERGED: Map<String, (Set<String>, Set<String>) -> Set<String>>
 )
 
 /**
- * Il backup delle impostazioni: un file che solo AIV sa leggere, e che porta quello che l'app
- * ricorda, un'area per volta.
+ * Il file di impostazioni: un file che solo AIV sa leggere, con quello che l'app ricorda, un'area
+ * per volta (richiesta dell'utente, giro della 2.91: uno ZIP cifrato, leggibile solo da AIV, a
+ * richiesta protetto da password).
  *
- * ⚠️⚠️ **NASCE NELLA `2.93`, ED È LA TERZA RICHIESTA DEL CAMPO LIBERO DEL GIRO DELLA `2.91`**
- * (*uno o più file di testo ... ed eventuali file accessori, strutturati in modo ottimale e
- * compressi in uno ZIP criptato (leggibile solo da AIV, su richiesta anche protetto da password)*,
- * e *deve contenere letteralmente TUTTE le impostazioni dell'app che possono essere salvate, ma
- * ogni cosa su richiesta con apposita checkbox*). Il formato l'ha lasciato scegliere a me.
+ * ⚠️⚠️ **È uno ZIP dentro un contenitore cifrato, non uno ZIP con la password**: la cifratura
+ * classica dello ZIP è debole, e quella AES di WinZip in `java.util.zip` non c'è. Lo ZIP passa da
+ * [SealingStream], che lo taglia in segmenti da [SEGMENT] byte e li cifra uno per uno con AES-GCM,
+ * come i flussi cifrati di Tink e di `age`, con le sole classi della piattaforma.
+ * - A segmenti: su Android un GCM non restituisce un byte finché il tag non è verificato, e un
+ *   cestino da un gigabyte andrebbe letto tutto in memoria.
+ * - ⚠️ **L'ultimo segmento si dichiara nel nonce**: un file troncato fra due segmenti sarebbe
+ *   fatto di segmenti validi e sembrerebbe completo.
+ * - L'intestazione entra in ogni segmento come dato autenticato: cambiare modo, iterazioni o sale
+ *   rompe la lettura.
  *
- * ⚠️⚠️ **È UNO ZIP DENTRO UN CONTENITORE CIFRATO, E NON UNO ZIP CON LA PASSWORD**: la cifratura
- * classica dello ZIP si rompe in pochi minuti, e quella AES di WinZip in `java.util.zip` non c'è,
- * cioè vorrebbe una libreria. Qui lo ZIP si scrive com'è e passa da [SealingStream], che lo taglia
- * in segmenti da [SEGMENT] byte e li cifra uno per uno con AES-GCM. È la costruzione dei flussi
- * cifrati di Tink e di `age`, con le sole classi della piattaforma.
- * - ⚠️ **A segmenti e non in un colpo solo**: su Android un GCM non restituisce un byte finché il
- *   tag non è verificato, quindi un cestino da un gigabyte andrebbe letto tutto in memoria. Un
- *   segmento si verifica prima che ne esca un byte, e niente di quello che arriva allo ZIP è stato
- *   toccato.
- * - ⚠️⚠️ **L'ULTIMO SEGMENTO SI DICHIARA NEL NONCE, ED È QUELLO CHE FA VEDERE UN FILE TAGLIATO**:
- *   un file troncato proprio fra due segmenti sarebbe fatto di segmenti tutti validi, e senza quel
- *   segno si leggerebbe come completo. Con il segno, un file che finisce prima dell'ultimo o
- *   continua dopo di lui non si apre.
- * - ⚠️ **L'intestazione entra in ogni segmento come dato autenticato**: cambiare il modo, le
- *   iterazioni o il sale rompe la lettura invece di cambiarne il significato.
+ * ⚠️ **Senza password è un sigillo, non una protezione, e la pagina lo dice**: la chiave nasce da
+ * una costante nell'APK, quindi chiunque abbia AIV lo importa. La protezione vera è la password,
+ * con PBKDF2 a [ROUNDS] iterazioni.
  *
- * ⚠️⚠️ **SENZA PASSWORD È UN SIGILLO E NON UNA PROTEZIONE, E LA PAGINA LO DICE**: la chiave nasce
- * da una costante che vive nell'APK, quindi un altro programma non lo apre, ma chiunque abbia AIV
- * lo importa. È il *leggibile solo da AIV* della sua richiesta; la protezione vera è la password,
- * e là la chiave nasce da PBKDF2 con [ROUNDS] iterazioni.
- *
- * ⚠️⚠️ **L'IMPORTAZIONE PRIMA LEGGE TUTTO E POI SCRIVE TUTTO**: le voci si mettono da parte in due
+ * ⚠️⚠️ **L'importazione prima legge tutto e poi scrive tutto**: le voci si mettono da parte in due
  * cartelle d'appoggio, si controllano, e il file si legge fino all'ultimo segmento; solo allora
- * qualcosa dell'app cambia. Un file tagliato o storto si scopre quando non è ancora cambiato
- * niente.
- * ⚠️ **Ogni area prende il posto di quella di adesso, tranne il cestino e la cronologia dei
- * ripristini**, che si aggiungono: sostituirli vorrebbe dire cancellare per sempre dei file, cioè
- * l'unica cosa che il cestino esiste per non fare.
- * ⚠️⚠️ **E DALLA `2.95` SI FONDONO ANCHE LE COPERTINE, I COLORI DELLE CARTELLE E GLI STILI SALVATI, ED
- * È LA SUA RISPOSTA `fonde` A `d-backup-importa`**: quello del file si aggiunge a quello che c'è, e
- * dove si sovrappongono (la stessa cartella, lo stesso nome) vince il file. Le preferenze restano una
- * sostituzione, perché ognuna ha un valore solo; si fondono l'elenco delle tinte e, dalla `2.96`,
- * quello delle cartelle nascoste, e il perché vive su [PREF_MERGED].
+ * l'app cambia.
+ * Ogni area sostituisce quella di adesso, tranne il cestino e la cronologia dei ripristini, che si
+ * aggiungono (sostituirli cancellerebbe dei file), e copertine, tinte e stili, che si fondono
+ * ([PREF_MERGED]).
  *
- * ⚠️⚠️ **VALE FRA VERSIONI DIVERSE DI AIV, NEI DUE VERSI, ED È SUA RICHIESTA** (2026-09-26, a
- * lavoro iniziato: *una versione di AIV più recente di quella che ha generato il backup troverà
- * 'vuote' alcune impostazioni nate dopo ... una versione di AIV più datata ... ignorerà alcune voci
- * di importazione non sapendo come trattarle, ma teoricamente potrà importare tutto ciò che è
- * importabile*). Lo tengono in piedi quattro regole.
- * - **Il formato cresce solo aggiungendo**: una voce, un campo o una chiave non cambiano mai forma
- *   né significato, e quello che cambia prende un nome nuovo. Così una versione più vecchia salta
- *   quello che non conosce e prende il resto.
- * - ⚠️⚠️ **UNA PREFERENZA CHE IL FILE NON NOMINA NON SI TOCCA**: per ogni area il file dice tutte le
- *   chiavi che conosceva, col valore oppure come assenti, cioè al valore di fabbrica. All'arrivo una
- *   chiave nata dopo il backup resta com'era sul telefono, e una che il file dichiara assente torna
- *   al valore di fabbrica: senza l'elenco delle assenti le due cose non si distinguerebbero.
- * - **L'unico cancello è la versione del contenitore**, il quinto byte dell'intestazione: sale solo
- *   il giorno che una versione vecchia non potrebbe leggere niente (un'altra cifratura, un'altra
- *   chiave), e allora la risposta giusta è 'aggiorna l'app'. Il resoconto non porta un numero di
- *   versione, perché con la prima regola non ne ha bisogno.
- * - ⚠️ **Quello che non si sa leggere non cancella niente**: un logo o una copertina in un formato
- *   che questa versione non conosce lasciano al suo posto quello che c'era. E quello che si salta
- *   si dice, nella notifica finale.
- * ⚠️ **Gli archivi del cestino e della cronologia non crescono per colonne**: le loro righe si
- *   leggono a numero fisso di campi, e un percorso ci sta in mezzo senza nessuna protezione, quindi
- *   una colonna in più le farebbe scartare a una versione vecchia. Un dato nuovo lì prende una voce
- *   sua.
+ * ⚠️⚠️ **Vale fra versioni diverse di AIV, nei due versi** (richiesta dell'utente). Quattro regole:
+ * - il formato cresce solo aggiungendo: quello che cambia prende un nome nuovo, e una versione
+ *   più vecchia salta quello che non conosce;
+ * - ⚠️ **una preferenza che il file non nomina non si tocca**: per ogni area il file elenca tutte
+ *   le chiavi che conosceva, col valore o come assenti. Una chiave nata dopo resta com'era, una
+ *   dichiarata assente torna al valore di fabbrica;
+ * - l'unico cancello è la versione del contenitore, il quinto byte dell'intestazione, che sale
+ *   solo quando una versione vecchia non potrebbe leggere niente;
+ * - quello che non si sa leggere non cancella niente, e quello che si salta si dice nell'avviso.
+ * Gli archivi del cestino e della cronologia non crescono per colonne: le loro righe hanno un
+ * numero fisso di campi, e una colonna in più le farebbe scartare a una versione vecchia.
  */
 internal object Backup {
 
@@ -420,18 +350,18 @@ internal object Backup {
     /**
      * Le iterazioni di PBKDF2 con cui nasce la chiave di una password.
      *
-     * ⚠️ **È la cifra che OWASP indica per PBKDF2 con SHA-256**, e sta nell'intestazione invece
-     * che nel codice: un backup scritto oggi si apre anche il giorno che questo numero sale.
-     * ⚠️ **Quanto costa su un telefono non è misurato**: la finestra mostra l'avanzamento mentre la
-     * chiave nasce, perché sono i secondi in cui l'app sembra ferma.
+     * La cifra che OWASP indica per PBKDF2 con SHA-256. È scritta nell'intestazione: un file di
+     * oggi si apre anche quando questo numero sale.
+     * Il costo su un telefono non è misurato: la pagina mostra l'avanzamento mentre la chiave si
+     * calcola.
      */
     const val ROUNDS = 600_000
 
     /**
      * Il tetto delle iterazioni in lettura.
      *
-     * ⚠️ **Serve contro un file fatto apposta**: senza tetto, un'intestazione con due miliardi di
-     * iterazioni terrebbe il telefono a contare per ore prima di dire che la password è sbagliata.
+     * ⚠️ Contro un file fatto apposta: un'intestazione con due miliardi di iterazioni terrebbe il
+     * telefono a contare per ore.
      */
     const val ROUNDS_MAX = 5_000_000
 
@@ -440,15 +370,12 @@ internal object Backup {
 
     /** Perché un file non si apre. */
     enum class Reason {
-        /** Non è un backup di AIV, o è stato scritto a mano in un modo che AIV non scrive. */
+        /** Non è un file di impostazioni di AIV, o è scritto in un modo che AIV non scrive. */
         BAD,
 
         /**
          * Il contenitore viene da una versione più nuova, che lo scrive in un modo che questa non sa
-         * aprire.
-         *
-         * ⚠️ **Solo il contenitore**: un contenuto più nuovo si legge per quello che si conosce, ed è
-         * la seconda regola in testa a questo oggetto.
+         * aprire. Solo il contenitore: un contenuto più nuovo si legge per quello che si conosce.
          */
         NEWER,
 
@@ -478,11 +405,11 @@ internal object Backup {
     class Opened internal constructor(val head: Head, internal val key: SecretKeySpec)
 
     /**
-     * Che cosa dice un backup di sé, prima di aprirlo tutto.
+     * Che cosa dice un file di sé, prima di aprirlo tutto.
      *
      * @property foreign quante aree del file questa versione non conosce: vengono da una più nuova.
-     * @property groups the parts of the page the file carries: its own list from the `5.80`, worked
-     *   out from [areas] for an older file ([BackupGroup.carriedBy]).
+     * @property groups le parti della pagina che il file contiene: il suo elenco, o per un file più
+     *   vecchio quelle ricavate da [areas] ([BackupGroup.carriedBy]).
      */
     class Manifest(
         val app: String,
@@ -493,38 +420,30 @@ internal object Backup {
     )
 
     /**
-     * Com'è andata un'importazione: le aree da rimettere, quelle che sono entrate davvero, e se il
-     * file portava qualcosa che questa versione non sa trattare.
+     * Com'è andata un'importazione: le aree da rimettere, quelle entrate davvero, e se il file
+     * conteneva qualcosa che questa versione non sa trattare.
      *
-     * ⚠️ **Le prime due si confrontano**, ed è la differenza fra 'importato' e 'importato a metà':
-     * una copia che non riesce (lo spazio finito, un logo che non si disegna) toglie la sua area
-     * dalla seconda e non dalla prima.
-     * ⚠️ **[skipped] non fa un'importazione a metà**: quello che si salta non si poteva importare,
-     * e le aree sono entrate con tutto quello che si sapeva leggere. Lo si dice lo stesso, perché
-     * aggiornando l'app quelle voci si potrebbero importare.
+     * Le prime due si confrontano: è la differenza fra 'importato' e 'importato a metà'.
+     * [skipped] non fa un'importazione a metà: quello che si salta non si poteva importare, ma lo si
+     * dice, perché aggiornando l'app si potrebbe.
      */
     class Outcome(val wanted: Set<BackupArea>, val applied: Set<BackupArea>, val skipped: Boolean)
 
     /**
      * Il tipo del file per il selettore di sistema: un formato suo, che nessun'altra app apre.
      *
-     * ⚠️⚠️ **È QUESTO TIPO CHE LASCIA IN PACE L'ESTENSIONE**: un fornitore di documenti ritocca il
-     * suffisso quando non va d'accordo col tipo dichiarato, e l'unico tipo col quale un suffisso che
-     * nessuno conosce resta com'è è questo. Con un tipo vero il file uscirebbe `.aivsettings.json`.
+     * ⚠️ **È questo tipo che lascia l'estensione com'è**: un fornitore di documenti ritocca il
+     * suffisso che non va d'accordo col tipo dichiarato, e con un tipo vero il file risulterebbe
+     * `.aivsettings.json`.
      */
     const val MIME = "application/octet-stream"
 
     /**
      * Il nome proposto per un file di impostazioni scritto oggi.
      *
-     * ⚠️⚠️ **L'ESTENSIONE È `.aivsettings` DALLA `2.95`, ED È SUA** (campo libero del giro della `2.93`
-     * e della `2.94`: *File di backup (lo chiamo sempre, coerentemente 'file di impostazioni'): voglio
-     * l'estensione `.aivsettings`*). Fino alla `2.94` era `.aivbackup`, e un file con quel suffisso si
-     * importa lo stesso: a dire che cosa è ci pensa la sua intestazione, non il nome.
-     * ⚠️⚠️ **DALLA `2.99` IL NOME È `AIV_20260927.aivsettings`, ED È SUO** (nota sulla voce
-     * `impostazioni-file` del giro della `2.98`: *Non avevo visto la ripetizione di aivsettings tra
-     * nome ed estensione*): dalla `2.95` alla `2.98` era `AIV-settings-<data>.aivsettings`, cioè la
-     * parola dell'estensione scritta due volte.
+     * Nome ed estensione sono dell'utente (estensione `.aivsettings`, giro della 2.94; nome
+     * `AIV_<data>`, voce `impostazioni-file`, 2.99). Un file col vecchio suffisso `.aivbackup` si
+     * importa lo stesso: che cosa è lo dice l'intestazione, non il nome.
      */
     fun fileName(now: Long): String =
         "AIV_${SimpleDateFormat("yyyyMMdd", Locale.ROOT).format(Date(now))}.aivsettings"
@@ -532,24 +451,20 @@ internal object Backup {
     // ── Scrittura ────────────────────────────────────────────────────────────
 
     /**
-     * Scrive un backup delle aree scelte su [out], e lo chiude.
+     * Scrive un file di impostazioni con le aree scelte su [out], e lo chiude.
      *
-     * ⚠️⚠️ **SE QUALCOSA VA STORTO, L'ULTIMO SEGMENTO NON SI SCRIVE**: il file resta com'è arrivato
-     * fin lì, e un file senza il suo ultimo segmento non si apre. Chi chiama lo cancella; se non ci
-     * riesce, quello che resta è un file che dice di essere rotto invece di un backup a metà che si
-     * importa come se fosse intero.
-     * ⚠️ **Un file del cestino che sparisce mentre si copia si salta**: il cestino si può svuotare
-     * da un'altra schermata nel frattempo, e un backup che fallisse per questo non si potrebbe fare
-     * mai con un cestino che cambia.
+     * ⚠️ **Se qualcosa va storto, l'ultimo segmento non si scrive**: un file senza il suo ultimo
+     * segmento non si apre. Chi chiama lo cancella; se non ci riesce, resta un file che si dichiara
+     * rotto, non uno a metà che si importa come intero.
+     * Un file del cestino che sparisce durante la copia si salta: il cestino può cambiare intanto.
      *
-     * @param password `null` per il solo sigillo. ⚠️ **Non vuota**: una chiave di HMAC vuota non
-     *   esiste, e la finestra lo impedisce prima.
-     * @param rounds le iterazioni di PBKDF2: di serie [ROUNDS]. ⚠️ **Le prove ne usano meno**, o
-     *   ogni caso costerebbe un secondo per niente.
+     * @param password `null` per il solo sigillo. Non vuota: una chiave HMAC vuota non esiste, e la
+     *   finestra lo impedisce prima.
+     * @param rounds le iterazioni di PBKDF2: di fabbrica [ROUNDS]; le prove ne usano meno.
      * @param onBytes quanti byte sono già usciti, per l'avanzamento.
-     * @param groups the parts ticked on the page, which also choose key by key what an area carries
-     *   ([PREF_REGROUPED]); `null` writes [areas] whole, as the tests do. ⚠️ With groups, [areas]
-     *   is [BackupGroup.areasOf] of them.
+     * @param groups le parti spuntate nella pagina, che scelgono chiave per chiave che cosa entra in
+     *   un'area ([PREF_REGROUPED]); `null` scrive [areas] intere, come nelle prove. Coi gruppi,
+     *   [areas] è il loro [BackupGroup.areasOf].
      */
     suspend fun write(
         context: Context,
@@ -589,11 +504,9 @@ internal object Backup {
      * Sigilla quello che [body] scrive in uno ZIP, e chiude [out]: il contenitore, senza il
      * contenuto.
      *
-     * ⚠️⚠️ **È UNA FUNZIONE A SÉ PERCHÉ LE PROVE CI METTONO VOCI SCRITTE A MANO**, cioè i file che
-     * una versione più nuova potrebbe scrivere (un'area, una chiave o un formato di copertina che
-     * questa non conosce). Con un secondo contenitore scritto nelle prove, quelle misurerebbero un
-     * file che l'app non fa; con questo, la sola cosa finta è il contenuto.
-     * ⚠️ **Se [body] va storto l'ultimo segmento non si scrive**, e il perché è su [write].
+     * È una funzione a sé perché le prove ci mettono voci scritte a mano, come quelle di una versione
+     * più nuova: il contenitore è quello vero, e solo il contenuto è finto.
+     * Se [body] va storto l'ultimo segmento non si scrive ([write]).
      */
     internal suspend fun pack(
         out: OutputStream,
@@ -622,10 +535,9 @@ internal object Backup {
     }
 
     /**
-     * Quanti byte un backup delle aree scelte peserà, più o meno: per l'avanzamento.
+     * Quanti byte peserà il file con le aree scelte, più o meno: per l'avanzamento.
      *
-     * ⚠️ **Più o meno**: i testi si comprimono e i file no, quindi la stima sta un poco sopra, e la
-     * barra arriva in fondo un poco prima di dove la mette.
+     * I testi si comprimono e i file no, quindi la stima è un poco abbondante.
      */
     suspend fun estimate(context: Context, areas: Set<BackupArea>): Long {
         var total = ESTIMATE_BASE
@@ -637,10 +549,10 @@ internal object Backup {
     }
 
     /**
-     * Quanto pesano i file di un'area, cioè la parte di un backup che non è testo.
+     * Quanto pesano i file di un'area, cioè la parte del file di impostazioni che non è testo.
      *
-     * ⚠️ **Serve anche alla pagina**, che lo scrive accanto al cestino: è la sola casella che può
-     * valere un gigabyte, e chi la spunta per mandare un backup su Drive lo deve sapere prima.
+     * Serve anche alla pagina, che lo scrive accanto al cestino: è la sola casella che può valere un
+     * gigabyte.
      */
     suspend fun weight(context: Context, area: BackupArea): Long = withContext(Dispatchers.IO) {
         when (area) {
@@ -652,11 +564,10 @@ internal object Backup {
     }
 
     /**
-     * Il resoconto: che cosa è il file, chi l'ha scritto e quando, e quali aree porta.
+     * Il resoconto: che cosa è il file, chi l'ha scritto e quando, e quali aree contiene.
      *
-     * ⚠️ **Nessun numero di versione**, e non è una dimenticanza: il contenuto cresce solo
-     * aggiungendo, quindi non c'è niente che un numero debba fermare (vedi la testa di questo
-     * oggetto). La versione dell'app c'è, e serve a chi legge la conferma.
+     * Nessun numero di versione del formato: il contenuto cresce solo aggiungendo. La versione
+     * dell'app c'è, per la conferma.
      */
     private fun manifestJson(areas: Set<BackupArea>, groups: Set<BackupGroup>?): JSONObject = JSONObject()
         .put("format", FORMAT)
@@ -670,25 +581,20 @@ internal object Backup {
     /**
      * Le preferenze di un'area come testo: quelle che hanno un valore, e quelle che non ce l'hanno.
      *
-     * ⚠️⚠️ **LE CHIAVI SENZA VALORE SI ELENCANO IN `absent`, ED È QUELLO CHE RENDE IL FILE LEGGIBILE
-     * DA UNA VERSIONE PIÙ NUOVA**: una chiave che manca dall'archivio vale il valore di fabbrica, e
-     * all'arrivo deve tornare tale; una chiave nata dopo il backup invece non c'è né di qua né di là,
-     * e all'arrivo deve restare com'è. Senza l'elenco, per chi importa le due cose sarebbero lo stesso
-     * silenzio.
-     * ⚠️⚠️ **I NUMERI VIAGGIANO COME STRINGHE**: un numero JSON lo tipizza chi legge (`org.json`
-     * ridà lo stesso intero come `Int` o come `Long` secondo la grandezza, e un decimale come
-     * `Double`), e altri lettori arrotondano gli interi oltre i cinquantatré bit. Una stringa torna
-     * com'è, e il tipo lo dice il campo accanto.
-     * ⚠️ **Un valore col tipo sbagliato si scrive come assente**, e non capita: la prova sulla
-     * copertura delle chiavi confronta proprio i tipi. Se capitasse, l'app quel valore non lo sa
-     * leggere, e all'arrivo il valore di fabbrica è l'unica cosa sensata da rimettere.
+     * ⚠️⚠️ **Le chiavi senza valore si elencano in `absent`**: una chiave assente dall'archivio
+     * vale il valore di fabbrica e all'arrivo deve tornare tale; una chiave nata dopo invece non è
+     * nominata, e all'arrivo resta com'è. Senza l'elenco le due cose non si distinguerebbero.
+     * ⚠️ **I numeri viaggiano come stringhe**: un numero JSON lo tipizza chi legge (`org.json`
+     * restituisce `Int` o `Long` secondo la grandezza, e `Double` per un decimale), e altri lettori
+     * arrotondano gli interi oltre i 53 bit. Il tipo lo dice il campo accanto.
+     * Un valore col tipo sbagliato si scrive come assente (la prova sulle chiavi confronta i tipi):
+     * l'app non lo saprebbe leggere.
      */
     private fun prefsJson(stored: Map<String, Any>, area: BackupArea, groups: Set<BackupGroup>?): String {
         val keys = JSONArray()
         val absent = JSONArray()
         for (k in PREF_KEYS) {
-            // ⚠️ A key of a part that is not ticked is not named at all, neither present nor absent:
-            // on arrival it stays as it is, which is what an unticked part means.
+            // Una chiave di una parte non spuntata non si nomina affatto: all'arrivo resta com'è.
             if (k.area != area || (groups != null && k.group !in groups)) continue
             val value = stored[k.name]
             if (value == null || PrefType.of(value) != k.type) {
@@ -723,11 +629,9 @@ internal object Backup {
     /**
      * Una voce che copia un file, senza comprimerlo.
      *
-     * ⚠️⚠️ **SENZA COMPRESSIONE, E NON PER RISPARMIARE TEMPO**: immagini e video sono già compressi,
-     * e un file che esce della misura con cui entra è quello che permette all'importazione di
-     * accorgersi di una voce gonfiata apposta (vedi [Meter]).
-     * ⚠️ **Il file si apre prima della voce**: uno sparito nel frattempo non lascia nello ZIP una
-     * voce vuota con il suo nome.
+     * ⚠️ **Senza compressione**: immagini e video sono già compressi, e una voce che pesa quanto il
+     * suo file permette all'importazione di accorgersi di una voce gonfiata apposta ([Meter]).
+     * Il file si apre prima della voce: uno sparito intanto non lascia una voce vuota.
      */
     private suspend fun putFile(zip: ZipOutputStream, name: String, source: File) {
         val input = runCatching { source.inputStream() }.getOrNull() ?: return
@@ -744,13 +648,10 @@ internal object Backup {
     /**
      * L'intestazione di un file, e il primo giudizio su di lui.
      *
-     * ⚠️ **La versione si guarda prima del resto**: un file scritto da una versione più nuova può
-     * avere un'intestazione che questa non capisce, e la risposta giusta è 'aggiorna l'app', non
-     * 'non è un backup'.
-     * ⚠️⚠️ **È L'UNICO CANCELLO DI VERSIONE DEL FORMATO, E SI ALZA DI RADO**: quel numero sale solo
-     * quando cambia il modo di aprire il file (la cifratura, la chiave, i segmenti), cioè quando una
-     * versione vecchia non potrebbe leggere niente. Una voce nuova, un campo nuovo o un'area nuova
-     * non lo toccano.
+     * La versione si guarda prima del resto: un file di una versione più nuova può avere
+     * un'intestazione che questa non capisce, e la risposta giusta è 'aggiorna l'app'.
+     * ⚠️ **È l'unico cancello di versione del formato**: sale solo quando cambia il modo di aprire
+     * il file (cifratura, chiave, segmenti). Voci, campi e aree nuove non lo toccano.
      */
     fun head(input: InputStream): Head {
         val b = ByteArray(HEAD)
@@ -785,10 +686,10 @@ internal object Backup {
     /**
      * La chiave di un file, dalla sua intestazione e dalla password.
      *
-     * ⚠️ **È il passo lento**, PBKDF2, e per questo è a sé: il resoconto e l'importazione leggono
-     * il file due volte, e la chiave nasce una volta sola.
-     * ⚠️ **Non dice se la password è giusta**: lo dice il primo segmento, che con la chiave
-     * sbagliata non si verifica.
+     * È il passo lento, PBKDF2, e per questo è a sé: resoconto e importazione leggono il file due
+     * volte, e la chiave si calcola una volta.
+     * Non dice se la password è giusta: lo dice il primo segmento, che con la chiave sbagliata non
+     * si verifica.
      */
     fun open(head: Head, password: String?): Opened {
         if (head.locked && password.isNullOrEmpty()) throw Failure(Reason.WRONG)
@@ -796,10 +697,9 @@ internal object Backup {
     }
 
     /**
-     * Che cosa dice un backup di sé: la prima voce, e nient'altro.
+     * Che cosa dice un file di sé: la prima voce, e nient'altro.
      *
-     * ⚠️ **Legge solo l'inizio**, quindi non dice se il file è intero: quello lo scopre [restore],
-     * che lo legge tutto prima di toccare qualcosa.
+     * Legge solo l'inizio, quindi non dice se il file è intero: lo scopre [restore].
      */
     fun manifest(input: InputStream, opened: Opened): Manifest {
         val plain = unseal(input, opened)
@@ -810,21 +710,20 @@ internal object Backup {
     }
 
     /**
-     * Rimette le aree scelte di un backup, che devono essere anche nel suo resoconto.
+     * Rimette le aree scelte di un file, che devono essere anche nel suo resoconto.
      *
-     * ⚠️⚠️ **IN DUE TEMPI, E IL SECONDO NON SI INTERROMPE**: prima si legge e si controlla tutto
-     * (e lì annullare lascia l'app com'era), poi si applica, e quel passo va fino in fondo anche se
-     * chi aspetta se ne va, perché un'importazione fermata a metà sarebbe un'app fatta di due
-     * backup.
-     * ⚠️ **Un'area che il resoconto nomina e il file non porta non si tocca**, e resta fra quelle
-     * attese: il riscontro dice 'a metà' invece di tacere. Le copertine sono l'eccezione, perché
-     * non hanno una voce che ne dica la presenza: un backup senza copertine dice che non ce n'erano,
-     * e dalla `2.95` fondere niente lascia quelle che ci sono.
+     * ⚠️⚠️ **In due tempi, e il secondo non si interrompe**: prima si legge e si controlla tutto
+     * (e lì annullare lascia l'app com'era), poi si applica fino in fondo, perché un'importazione
+     * fermata a metà lascerebbe l'app fatta di due file.
+     * Un'area che il resoconto nomina e il file non contiene non si tocca, e resta fra quelle
+     * attese: l'avviso dice 'a metà'. Le copertine fanno eccezione, perché non hanno una voce che ne
+     * dica la presenza: un file senza copertine non ne aveva, e fondere niente lascia quelle che ci
+     * sono.
      *
-     * @param chosen le caselle spuntate. ⚠️ Si importano quelle che sono anche nel resoconto.
+     * @param chosen le caselle spuntate: si importano quelle che sono anche nel resoconto.
      * @param onBytes quanti byte del file sono già stati letti, per l'avanzamento.
-     * @param groups the parts ticked on the page, which choose key by key what enters; `null` takes
-     *   [chosen] whole. The same pairing as in [write].
+     * @param groups le parti spuntate nella pagina, che scelgono chiave per chiave che cosa entra;
+     *   `null` prende [chosen] intere. Come in [write].
      */
     suspend fun restore(
         context: Context,
@@ -848,9 +747,8 @@ internal object Backup {
     /**
      * Toglie le cartelle d'appoggio di un'importazione.
      *
-     * ⚠️ **Si chiama anche all'avvio dell'app**: un'importazione che il sistema ha ucciso a metà
-     * lascerebbe là dentro delle copie che nessuno legge più, e il cestino di un altro telefono può
-     * pesare quanto le sue immagini.
+     * Si chiama anche all'avvio dell'app: un'importazione interrotta dal sistema lascerebbe copie
+     * che nessuno legge, e il cestino di un altro telefono può pesare quanto le sue immagini.
      */
     suspend fun sweep(context: Context) = withContext(Dispatchers.IO) {
         runCatching { stageHome(context).deleteRecursively() }
@@ -862,8 +760,8 @@ internal object Backup {
      * Le preferenze di un'area lette dal file: quelle da scrivere, quelle da riportare al valore di
      * fabbrica, e quante il file ne porta che questa versione non sa trattare.
      *
-     * ⚠️ **Le chiavi che non compaiono in nessuno dei due elenchi non si toccano**: sono nate dopo
-     * il backup, ed è la metà della sua richiesta sulle versioni (vedi la testa di questo oggetto).
+     * Le chiavi che non compaiono in nessuno dei due elenchi non si toccano: sono nate dopo il file
+     * (le regole sulle versioni, in testa a [Backup]).
      */
     private class Prefs(
         val values: List<Pair<PrefKey, Any>>,
@@ -878,24 +776,23 @@ internal object Backup {
         val covers = ArrayList<File>()
         var logo: File? = null
 
-        /** Se il file porta un logo in un formato che qui non si conosce. */
+        /** Se il file contiene un logo in un formato che qui non si conosce. */
         var logoForeign = false
         var records: List<Bin.Record>? = null
         val binFiles = ArrayList<File>()
         var restored: List<History.Row> = emptyList()
 
-        /** Quante cose il file porta che questa versione non sa trattare. */
+        /** Quante cose del file questa versione non sa trattare. */
         var skipped = 0
     }
 
     /**
      * Legge il file intero, e mette da parte le voci delle aree da rimettere.
      *
-     * ⚠️⚠️ **QUELLO CHE QUESTA VERSIONE NON CONOSCE SI SALTA, QUELLO CHE NESSUNA VERSIONE SCRIVE
-     * NO**: una voce, un'area, una chiave o un tipo sconosciuti vengono da una versione più nuova, che
-     * ha il diritto di aggiungere, e si saltano contandoli. Un nome che esce dalla sua cartella, un
-     * doppione o una struttura che non si legge invece non li scrive nessuna versione, cioè vogliono
-     * dire un file fatto a mano, e allora non si importa niente.
+     * ⚠️ **Quello che questa versione non conosce si salta, quello che nessuna versione scrive
+     * no**: voci, aree, chiavi o tipi sconosciuti vengono da una versione più nuova, e si saltano
+     * contandoli. Un nome che esce dalla sua cartella, un doppione o una struttura illeggibile
+     * vogliono dire un file fatto a mano, e allora non si importa niente.
      */
     private suspend fun gather(
         context: Context,
@@ -938,9 +835,8 @@ internal object Backup {
                     if (FolderCovers.named(file)) {
                         found.covers += stage(zip, File(stageHome(context), name), COVER_MAX, meter)
                     } else {
-                        // ⚠️ Un formato di copertina che questa versione non conosce: si salta, e la
-                        // copertina che quella cartella ha qui resta dov'è, perché le copertine si
-                        // fondono e questa non copre la sua cartella.
+                        // Un formato di copertina sconosciuto: si salta, e la copertina di quella
+                        // cartella resta, perché le copertine si fondono.
                         found.skipped++
                     }
                 }
@@ -951,8 +847,8 @@ internal object Backup {
                         if (found.logo != null) throw Failure(Reason.BAD)
                         found.logo = stage(zip, File(stageHome(context), name), Watermark.MAX_BYTES, meter)
                     } else {
-                        // ⚠️ Un formato di logo che questa versione non conosce: si salta, e il logo
-                        // di qui non si cancella (vedi [apply]).
+                        // Un formato di logo sconosciuto: si salta, e il logo di qui non si
+                        // cancella ([apply]).
                         found.skipped++
                         found.logoForeign = true
                     }
@@ -974,20 +870,19 @@ internal object Backup {
                 name.startsWith(BIN_FILES) -> if (BackupArea.BIN in want) {
                     val file = name.removePrefix(BIN_FILES)
                     if (!simple(file)) throw Failure(Reason.BAD)
-                    // ⚠️ Una cartella numerata per file: la casa del cestino vive su un archivio che
-                    // può non distinguere le maiuscole, e due nomi che differiscono solo per quelle
-                    // finirebbero sullo stesso file d'appoggio.
+                    // ⚠️ Una cartella numerata per file: il cestino può essere su un archivio che
+                    // non distingue le maiuscole, e due nomi diversi solo per quelle finirebbero
+                    // sullo stesso file d'appoggio.
                     val slot = File(File(stageBin(context), "files"), found.binFiles.size.toString())
                     found.binFiles += stage(zip, File(slot, file), -1L, meter)
                 }
-                // ⚠️ Una voce che questa versione non conosce viene da una più nuova: si salta, e si
-                // conta. ⚠️ Le voci delle aree non scelte invece non contano, perché le ha lasciate
-                // fuori chi importa.
+                // Una voce sconosciuta viene da una versione più nuova: si salta e si conta. Le voci
+                // delle aree non scelte non contano: le ha lasciate fuori chi importa.
                 else -> found.skipped++
             }
         }
-        // ⚠️⚠️ Il resto del file si legge fino in fondo, ed è qui che un file tagliato si scopre:
-        // lo ZIP si ferma al suo indice, e senza questo giro l'ultimo segmento non si guarderebbe.
+        // ⚠️ Il resto del file si legge fino in fondo, ed è qui che un file tagliato si scopre: lo
+        // ZIP si ferma al suo indice, e senza questo giro l'ultimo segmento non si guarderebbe.
         val rest = ByteArray(BUFFER)
         while (plain.read(rest) >= 0) currentCoroutineContext().ensureActive()
         if (!plain.ended) throw Failure(Reason.BROKEN)
@@ -997,12 +892,11 @@ internal object Backup {
     /**
      * Applica quello che [gather] ha messo da parte, e dice quali aree sono entrate.
      *
-     * ⚠️ **Prima i file e poi le preferenze**, in una transazione sola: le preferenze sono quello
-     * che l'app rilegge da sé appena cambiano, e un'app che si ridisegna con le impostazioni nuove
-     * deve trovare già al loro posto le copertine e il logo di cui parlano.
-     * ⚠️ **Un'area che non riesce non ferma le altre**, e manca dal risultato.
-     * ⚠️⚠️ **GLI STILI, LE COPERTINE E LE TINTE SI FONDONO DALLA `2.95`**, ed è la sua risposta `fonde`
-     * a `d-backup-importa`: le tre strade sono [Presets.merge], [FolderCovers.adopt] e [PREF_MERGED].
+     * ⚠️ **Prima i file e poi le preferenze**, in una transazione sola: l'app rilegge le preferenze
+     * appena cambiano, e ridisegnandosi deve trovare già al loro posto copertine e logo.
+     * Un'area che non riesce non ferma le altre, e manca dal risultato.
+     * Stili, copertine e tinte si fondono (risposta `fonde`): [Presets.merge], [FolderCovers.adopt]
+     * e [PREF_MERGED].
      */
     private suspend fun apply(context: Context, found: Found): Set<BackupArea> {
         val done = HashSet<BackupArea>()
@@ -1015,16 +909,16 @@ internal object Backup {
             val entrate = runCatching { FolderCovers.adopt(context, found.covers) }.getOrDefault(false)
             if (entrate) done += BackupArea.COVERS
         }
-        // ⚠️ Il logo va con le preferenze dell'editor, e solo se quelle ci sono: rimesse senza di
-        // lui direbbero 'firma accesa' su un'app senza firma, o il contrario.
+        // Il logo va con le preferenze dell'editor, e solo se ci sono: senza di lui direbbero
+        // 'filigrana accesa' su un'app senza logo, o il contrario.
         var logoOk = true
         if (BackupArea.EDITOR in found.prefs) {
             val logo = found.logo
             logoOk = runCatching {
                 when {
                     logo != null -> Watermark.adopt(context, Uri.fromFile(logo))
-                    // ⚠️ Un logo che questa versione non sa leggere non cancella quello che c'è:
-                    // il file un logo ce l'aveva, e toglierlo vorrebbe dire rimettere un'altra cosa.
+                    // Un logo che questa versione non sa leggere non cancella quello che c'è: il
+                    // file un logo l'aveva.
                     found.logoForeign -> true
                     else -> Watermark.forget(context).let { true }
                 }
@@ -1040,11 +934,11 @@ internal object Backup {
         if (found.prefs.isNotEmpty()) {
             val written = runCatching {
                 rewritePreferences(context) { p ->
-                    // ⚠️⚠️ Si tolgono le sole chiavi che il file dichiara assenti, e non tutte quelle
-                    // dell'area: una chiave che il file non nomina è nata dopo il backup, e resta
-                    // com'è (è la sua richiesta sulle versioni, in testa a questo oggetto).
-                    // ⚠️ Una chiave che si fonde non si toglie e non si sostituisce: il perché vive
-                    // su [PREF_MERGED].
+                    // ⚠️ Si tolgono le sole chiavi che il file dichiara assenti, non tutte quelle
+                    // dell'area: una chiave non nominata è nata dopo il file, e resta com'è. Una
+                    // chiave che si fonde non si toglie e non si sostituisce ([PREF_MERGED]).
+                    // Un file con un elenco di nascoste ma senza `folder-mode` viene da prima delle
+                    // incluse, e vuol dire la modalità delle escluse.
                     for ((area, letto) in found.prefs) {
                         val legacyFolders = area == BackupArea.HIDDEN ||
                             (area == BackupArea.VIEW && (letto.values.any { it.first.name == "hidden-relative" } ||
@@ -1058,9 +952,9 @@ internal object Backup {
                         if (area == BackupArea.HIDDEN && (letto.values.any { it.first.name == "included-relative" } ||
                             letto.absent.any { it.name == "included-relative" })) p[INCLUDED_INITIALIZED] = true
                     }
-                    // ⚠️ Un indicatore mancante lo deciderebbe la migrazione al prossimo avvio, e
-                    // su un archivio pieno direbbe 'angolo': scriverlo adesso fa dire la stessa cosa
-                    // a questo avvio e al prossimo. Un backup di AIV lo porta sempre.
+                    // Un indicatore mancante lo deciderebbe la migrazione al prossimo avvio, che su
+                    // un archivio pieno direbbe 'angolo': scriverlo adesso fa dire la stessa cosa a
+                    // questo avvio e al prossimo.
                     if (p[LAST_MARK] == null) p[LAST_MARK] = LastMark.CORNER.token
                 }
             }.isSuccess
@@ -1073,8 +967,8 @@ internal object Backup {
     }
 
     private fun remove(p: MutablePreferences, key: PrefKey) {
-        // ⚠️ Una chiave si riconosce dal nome e non dal tipo: questa toglie il valore qualunque
-        // tipo abbia nell'archivio.
+        // Una chiave si riconosce dal nome e non dal tipo: questa toglie il valore qualunque tipo
+        // abbia nell'archivio.
         p.remove(booleanPreferencesKey(key.name))
     }
 
@@ -1098,19 +992,15 @@ internal object Backup {
     /**
      * Le preferenze di un'area lette da una voce, già controllate.
      *
-     * ⚠️⚠️ **SI SALTA TUTTO QUELLO CHE QUESTA VERSIONE NON SA METTERE AL SUO POSTO, E SI CONTA**:
-     * una chiave sconosciuta, una di un'altra area, una col tipo diverso o un valore che non si
-     * legge vengono da una versione più nuova, e il resto dell'area entra lo stesso. Il tipo che
-     * cambia in questa app prende una chiave nuova, quindi un tipo diverso qui vuol dire un'altra
-     * versione e non un file toccato.
-     * ⚠️ **Un'assente sconosciuta invece non conta**: è un'impostazione di un'altra versione rimasta
-     * al valore di fabbrica, e saltarla non perde niente.
-     * ⚠️ **Un nome che compare due volte, nei due elenchi o nello stesso, resta un rifiuto**: nessuna
-     * versione lo scrive, e dei due valori non si saprebbe quale vale.
-     * ⚠️ **Una chiave ritirata si traduce e non si conta** (vedi [PREF_RETIRED]): viene da una versione
-     * più vecchia, e contarla farebbe dire alla notifica il contrario.
-     * ⚠️ **A key of a part that is not ticked is left out without being counted**, like the entries
-     * of an area that is not ticked: the person importing left it out, and the file is not newer.
+     * ⚠️ **Si salta, contandolo, quello che questa versione non sa mettere al suo posto**: chiave
+     * sconosciuta, di un'altra area, di un altro tipo o con un valore illeggibile vengono da una
+     * versione più nuova (un tipo che cambia prende una chiave nuova), e il resto dell'area entra.
+     * Un'assente sconosciuta non si conta: è al valore di fabbrica, e saltarla non perde niente.
+     * Un nome ripetuto, nei due elenchi o nello stesso, è un rifiuto: nessuna versione lo scrive.
+     * Una chiave ritirata si traduce e non si conta ([PREF_RETIRED]): viene da una versione più
+     * vecchia.
+     * Una chiave di una parte non spuntata si lascia fuori senza contarla, come le voci di un'area
+     * non spuntata.
      */
     private fun readPrefs(text: String, area: BackupArea, groups: Set<BackupGroup>?): Prefs {
         fun wanted(key: PrefKey) = groups == null || key.group in groups
@@ -1141,14 +1031,14 @@ internal object Backup {
             }
             if (wanted(known)) values += known to value
         }
-        // ⚠️ Un elenco che manca vale vuoto: il file dice soltanto meno cose.
+        // Un elenco che manca vale vuoto: il file dice soltanto meno cose.
         o.optJSONArray("absent")?.let { list ->
             for (i in 0 until list.length()) {
                 val name = list.opt(i) as? String ?: throw Failure(Reason.BAD)
                 if (name.isEmpty() || !names.add(name)) throw Failure(Reason.BAD)
                 PREF_KEYS.firstOrNull { it.name == name && it.area == area }
                     ?.takeIf { wanted(it) }?.let { absent += it }
-                // An empty legacy hidden list still identifies the previous excluded mode.
+                // Anche un vecchio elenco di nascoste vuoto indica la modalità delle escluse.
                 PREF_RETIRED[name]?.takeIf { it.area == area && it.into.name == "hidden-relative" }
                     ?.takeIf { wanted(it.into) }?.let { absent += it.into }
             }
@@ -1170,12 +1060,10 @@ internal object Backup {
     /**
      * Il resoconto letto.
      *
-     * ⚠️⚠️ **NON C'È NESSUN CANCELLO DI VERSIONE, E FINO A QUI C'ERA**: un resoconto scritto da una
-     * versione più nuova si legge per quello che si conosce, che è la sua richiesta (una versione
-     * più vecchia *potrà importare tutto ciò che è importabile*). Un campo `version`, se c'è, non si
-     * guarda.
-     * ⚠️ **Un'area sconosciuta viene da una versione più nuova**: non si importa, non ferma le altre,
-     * e si conta in [Manifest.foreign].
+     * ⚠️ **Nessun cancello di versione qui**: un resoconto di una versione più nuova si legge per
+     * quello che si conosce. Un campo `version`, se c'è, non si guarda.
+     * Un'area sconosciuta viene da una versione più nuova: non si importa, non ferma le altre, e si
+     * conta in [Manifest.foreign].
      */
     private fun readManifest(text: String): Manifest {
         val o = json(text)
@@ -1184,8 +1072,8 @@ internal object Backup {
         val tokens = (0 until list.length()).map { list.optString(it) }
         val areas = tokens.mapNotNull { t -> BackupArea.entries.firstOrNull { it.token == t } }.toSet()
         val foreign = tokens.count { t -> BackupArea.entries.none { it.token == t } }
-        // ⚠️ A group this version does not know comes from a newer one: its areas are already
-        // counted in `foreign`, so it is only left out.
+        // Un gruppo sconosciuto viene da una versione più nuova: le sue aree sono già contate in
+        // `foreign`, quindi si lascia solo fuori.
         val groups = o.optJSONArray("groups")?.let { g ->
             (0 until g.length()).mapNotNull { i -> BackupGroup.entries.firstOrNull { it.token == g.optString(i) } }.toSet()
         } ?: BackupGroup.carriedBy(areas)
@@ -1201,9 +1089,9 @@ internal object Backup {
     /**
      * La voce dopo, con gli errori dello ZIP tradotti.
      *
-     * ⚠️ **Un errore del contenitore passa com'è**: dice se la password è sbagliata o se il file è
-     * tagliato, e tradotto in 'non è un backup' direbbe una cosa falsa. Un errore dello ZIP invece
-     * arriva da dentro un segmento già verificato, cioè da un file scritto apposta.
+     * Un errore del contenitore passa com'è: dice se la password è sbagliata o se il file è
+     * tagliato. Un errore dello ZIP invece arriva da un segmento già verificato, cioè da un file
+     * scritto apposta.
      */
     private fun nextEntry(zip: ZipInputStream): ZipEntry? = try {
         zip.nextEntry
@@ -1259,8 +1147,8 @@ internal object Backup {
     /**
      * Una lettura dalla voce in corso, con gli errori dello ZIP tradotti come in [nextEntry].
      *
-     * ⚠️ **Anche la fine anticipata**: dentro un contenitore intero, uno ZIP che finisce a metà di
-     * una voce l'ha scritto qualcuno apposta, e `ZipInputStream` lo dice con un `EOFException`.
+     * Anche la fine anticipata: in un contenitore intero, uno ZIP che finisce a metà di una voce è
+     * scritto apposta, e `ZipInputStream` lo dice con un `EOFException`.
      */
     private fun readZip(zip: ZipInputStream, buffer: ByteArray): Int = try {
         zip.read(buffer)
@@ -1283,10 +1171,9 @@ internal object Backup {
     /**
      * Se un'origine del cestino è un posto in cui 'Ripristina' può rimettere un file.
      *
-     * ⚠️⚠️ **LE CARTELLE DELL'APP SONO FUORI**, ed è la ragione per cui questa riga esiste: il
-     * ripristino scrive dove l'origine dice, e un file scritto apposta potrebbe mandare un'immagine
-     * dentro la casa dell'app, cioè accanto agli stili e alle preferenze. Un backup di AIV non lo
-     * fa mai, perché là dentro il MediaStore non guarda e niente ne esce verso il cestino.
+     * ⚠️ **Le cartelle dell'app sono escluse**: il ripristino scrive dove l'origine dice, e un file
+     * scritto apposta potrebbe mandare un'immagine accanto agli stili e alle preferenze. Un file di
+     * AIV non lo fa mai: da quelle cartelle niente finisce nel cestino.
      */
     private fun safeOrigin(context: Context, origin: String): Boolean {
         if (!origin.startsWith('/') || origin.contains('\u0000')) return false
@@ -1297,8 +1184,8 @@ internal object Backup {
             context.getExternalFilesDir(null)?.parentFile?.absolutePath,
             "/data/data/${context.packageName}"
         )
-        // ⚠️ La casa esterna ha più di un nome (`/sdcard`, `/storage/emulated/0`), e tutti finiscono
-        // con la stessa coda: quella si riconosce qualunque sia il volume.
+        // La cartella esterna dell'app ha più di un nome (`/sdcard`, `/storage/emulated/0`), con la
+        // stessa coda: si riconosce quella, qualunque sia il volume.
         if (origin.contains("/Android/data/${context.packageName}/")) return false
         return homes.none { origin == it || origin.startsWith("$it/") }
     }
@@ -1306,8 +1193,8 @@ internal object Backup {
     private fun stageHome(context: Context): File = File(context.filesDir, STAGE_HOME)
 
     /**
-     * L'appoggio del cestino, **accanto** al cestino: sullo stesso volume lo spostamento finale è
-     * una rinomina, mentre da un altro sarebbe una seconda copia di tutto.
+     * L'appoggio del cestino, accanto al cestino: sullo stesso volume lo spostamento finale è una
+     * rinomina, da un altro sarebbe una seconda copia di tutto.
      */
     private fun stageBin(context: Context): File = File(Bin.dir(context).parentFile, STAGE_BIN)
 
@@ -1315,7 +1202,7 @@ internal object Backup {
 
     private fun unseal(input: InputStream, opened: Opened): OpeningStream {
         val head = head(input)
-        // ⚠️ Il file letto adesso deve essere quello di cui si ha la chiave: cambiato fra le due
+        // Il file letto adesso deve essere quello di cui si ha la chiave: se è cambiato fra le due
         // letture, non si apre.
         if (!head.bytes.contentEquals(opened.head.bytes)) throw Failure(Reason.BROKEN)
         return OpeningStream(input, opened.key, head)
@@ -1346,9 +1233,9 @@ internal object Backup {
     /**
      * La password come byte.
      *
-     * ⚠️⚠️ **NFC E POI UTF-8, SEMPRE**: la stessa lettera accentata arriva da una tastiera come un
-     * carattere solo e da un'altra come lettera più accento, e senza la normalizzazione sarebbero
-     * due password diverse per chi le ha scritte uguali.
+     * ⚠️ **NFC e poi UTF-8, sempre**: la stessa lettera accentata arriva da una tastiera come un
+     * carattere e da un'altra come lettera più accento, e senza normalizzazione sarebbero due
+     * password diverse.
      */
     internal fun passwordBytes(password: String): ByteArray =
         Normalizer.normalize(password, Normalizer.Form.NFC).toByteArray(Charsets.UTF_8)
@@ -1356,13 +1243,12 @@ internal object Backup {
     /**
      * PBKDF2 con HMAC-SHA256, per una chiave da 32 byte.
      *
-     * ⚠️⚠️ **SCRITTO A MANO E NON PRESO DA `SecretKeyFactory`, E LA RAGIONE È LA CODIFICA**: quella
-     * strada riceve la password come caratteri e decide lei come farli diventare byte, e su Android
-     * lo ha già cambiato una volta (la 4.4 ha dovuto aggiungere `PBKDF2WithHmacSHA1And8bit` per chi
-     * aveva cifrato con gli otto bit bassi). Qui i byte li decide [passwordBytes], e il conto è
-     * quello della RFC 8018, che il banco confronta coi vettori pubblicati.
-     * ⚠️ **Un blocco solo**: la chiave è lunga quanto un HMAC-SHA256, quindi il contatore del
-     * blocco vale sempre uno.
+     * ⚠️ **Scritto a mano e non preso da `SecretKeyFactory`, per la codifica**: quella strada
+     * riceve la password come caratteri e decide lei come farne byte, e su Android lo ha già
+     * cambiato una volta (Android 4.4 ha dovuto aggiungere `PBKDF2WithHmacSHA1And8bit`). Qui i byte
+     * li decide [passwordBytes], e il conto è quello della RFC 8018, che il banco confronta coi
+     * vettori pubblicati.
+     * Un blocco solo: la chiave è lunga quanto un HMAC-SHA256.
      */
     internal fun pbkdf2(password: ByteArray, salt: ByteArray, rounds: Int): ByteArray {
         val mac = Mac.getInstance(HMAC)
@@ -1379,7 +1265,7 @@ internal object Backup {
         return t
     }
 
-    /** La chiave del sigillo: dal sale del file e da una costante che vive in AIV. */
+    /** La chiave del sigillo: dal sale del file e da una costante scritta in AIV. */
     private fun sealKey(salt: ByteArray): ByteArray {
         val base = MessageDigest.getInstance("SHA-256").digest(SEAL_LABEL.toByteArray(Charsets.US_ASCII))
         val mac = Mac.getInstance(HMAC)
@@ -1390,8 +1276,8 @@ internal object Backup {
     /**
      * Il nonce di un segmento: il prefisso del file, il contatore, e se è l'ultimo.
      *
-     * ⚠️ **Il contatore non gira mai su sé stesso**: quattro byte sono quattro miliardi di segmenti,
-     * cioè 256 TiB, e oltre si ferma invece di riusare un nonce.
+     * ⚠️ **Il contatore non ricomincia mai da capo**: quattro byte sono quattro miliardi di
+     * segmenti (256 TiB), e oltre si va in errore, senza riusare un nonce.
      */
     private fun nonce(prefix: ByteArray, counter: Long, last: Boolean): ByteArray {
         if (counter > 0xFFFF_FFFFL) throw IOException("segmenti")
@@ -1407,9 +1293,7 @@ internal object Backup {
 
     private fun random(size: Int): ByteArray = ByteArray(size).also { SecureRandom().nextBytes(it) }
 
-    /**
-     * Copia un flusso in un altro, e si ferma se chi aspetta se ne è andato.
-     */
+    /** Copia un flusso in un altro, e si ferma se chi aspetta se ne è andato. */
     private suspend fun pour(input: InputStream, out: OutputStream, meter: Meter?) {
         val buffer = ByteArray(BUFFER)
         while (true) {
@@ -1424,12 +1308,10 @@ internal object Backup {
     /**
      * Cifra quello che riceve, a segmenti.
      *
-     * ⚠️⚠️ **UN SEGMENTO PIENO SI CHIUDE SOLO QUANDO ARRIVA UN BYTE IN PIÙ**: fino a quel momento
-     * non si sa se sarà l'ultimo, e l'ultimo porta il suo segno nel nonce. Così un file che finisce
-     * a un multiplo esatto del segmento non ha un segmento vuoto in coda, e un backup vuoto ne ha
-     * uno solo, fatto del solo tag.
-     * ⚠️ **`flush` non chiude un segmento**: chiuderlo a metà vorrebbe dire un segmento corto nel
-     * mezzo, che la lettura prenderebbe per l'ultimo.
+     * ⚠️ **Un segmento pieno si chiude solo quando arriva un byte in più**: prima non si sa se sarà
+     * l'ultimo, che ha il suo segno nel nonce. Così un file lungo un multiplo esatto del segmento
+     * non ha un segmento vuoto in coda, e un file vuoto ne ha uno, fatto del solo tag.
+     * ⚠️ **`flush` non chiude un segmento**: un segmento corto nel mezzo sembrerebbe l'ultimo.
      */
     private class SealingStream(
         private val out: OutputStream,
@@ -1494,10 +1376,10 @@ internal object Backup {
     /**
      * Decifra a segmenti, e restituisce un byte solo dopo che il suo segmento è verificato.
      *
-     * ⚠️⚠️ **UN BYTE D'ANTICIPO DICE SE UN SEGMENTO È L'ULTIMO**: il segno vive nel nonce, quindi va
-     * saputo prima di decifrare, e l'unico modo di saperlo è guardare se dopo c'è ancora qualcosa.
+     * ⚠️ **Un byte d'anticipo dice se un segmento è l'ultimo**: il segno è nel nonce, quindi va
+     * saputo prima di decifrare, guardando se dopo c'è ancora qualcosa.
      * ⚠️ **La fine si dichiara solo dopo l'ultimo segmento verificato** ([ended]): un file che
-     * finisce prima non restituisce mai `-1`, restituisce un errore.
+     * finisce prima non restituisce `-1` ma un errore.
      */
     private class OpeningStream(
         private val input: InputStream,
@@ -1577,12 +1459,10 @@ internal object Backup {
     /**
      * Quanti byte escono verso i file d'appoggio, contro quanti ne sono entrati dal file.
      *
-     * ⚠️⚠️ **SERVE CONTRO UNA VOCE GONFIATA APPOSTA**: un gigabyte di zeri compresso pesa un
-     * megabyte, e un file che lo portasse fra le voci del cestino riempirebbe il telefono prima di
-     * essere scoperto. AIV quelle voci le scrive senza compressione, quindi quello che esce non
-     * supera quello che è entrato: con una tolleranza per i buffer, uscire di più vuol dire un file
-     * che AIV non ha scritto.
-     * ⚠️ **I testi non contano qui**, perché si comprimono davvero: hanno il loro tetto a testa.
+     * ⚠️ **Contro una voce gonfiata apposta**: un gigabyte di zeri compresso pesa un megabyte, e fra
+     * le voci del cestino riempirebbe il telefono. AIV quelle voci le scrive senza compressione,
+     * quindi quello che esce non supera quello che è entrato, salvo i buffer ([SLACK]).
+     * I testi non contano qui, perché si comprimono davvero: ognuno ha il suo tetto.
      */
     private class Meter(private val raw: CountingIn) {
         private var poured = 0L

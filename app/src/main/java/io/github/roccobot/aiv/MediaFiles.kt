@@ -2,7 +2,7 @@ package io.github.roccobot.aiv
 
 import java.util.Locale
 
-/** Media formats explicitly excluded by the user, even when MediaStore calls them images. */
+/** I formati che l'utente ha escluso, anche quando il MediaStore li dichiara immagini. */
 internal object MediaFiles {
     private val psdTypes = setOf(
         "image/vnd.adobe.photoshop", "image/x-photoshop", "image/photoshop",
@@ -14,7 +14,7 @@ internal object MediaFiles {
         name?.endsWith(".psd", ignoreCase = true) == true ||
             mime?.lowercase(Locale.ROOT) in psdTypes
 
-    // COALESCE preserves rows from providers that do not know a name, path or MIME type.
+    // `COALESCE` tiene le righe dei fornitori che non conoscono il nome, il percorso o il tipo MIME.
     @Suppress("DEPRECATION")
     val selection: String = listOf(
         android.provider.MediaStore.Images.Media.DISPLAY_NAME,

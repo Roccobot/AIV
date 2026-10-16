@@ -13,44 +13,44 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 
 /*
- * 'Rinomina' in AIV Play, through the MediaStore (5.50).
+ * 'Rinomina' in AIV Play, attraverso il MediaStore.
  *
  * Author: Rocco Casadei, a.k.a. Roccobot
  *
- * ⚠️⚠️ **The same rename as AIV GitHub's, with the MediaStore doing the writing**: the order is
- * alphabetical (`FileTree.ordered`, which the dialog's preview reads too), the numbers come from
- * the template (`renderName`), and the extension is the file's own. Only the way a name changes is
- * different: a new `DISPLAY_NAME` on the file's row, which the system turns into a rename on disk.
- * ⚠️⚠️ **Android's window is the confirmation**, as for 'Elimina' (his choice A1 of the 5.20 round):
- * `createWriteRequest` asks once for all the files, those of other apps included, and AIV adds no
- * window of its own after its rename dialog. A 'no' touches nothing and says nothing.
- * ⚠️ **From Android 11 only** (`Store.renames`): below, `createWriteRequest` does not exist.
- * ⚠️ **The extension never changes here**: AIV Play has no 'Estensione' key (`Store.fit`, his
- * choice of the 5.20 round), and the MediaStore would add the type's extension to a name that
- * disagrees with it.
+ * La stessa rinomina di AIV GitHub: l'ordine è alfabetico (`FileTree.ordered`, che legge anche
+ * l'anteprima della finestra), i numeri vengono dal modello (`renderName`) e l'estensione è quella
+ * del file. Cambia solo il modo: un nuovo `DISPLAY_NAME` sulla riga del file, che il sistema
+ * trasforma in una rinomina sul disco.
+ * ⚠️ **La conferma è la finestra di Android**, come per 'Elimina' (scelta A1 dell'utente, giro
+ * della 5.20): `createWriteRequest` chiede una volta per tutti i file, anche quelli di altre app,
+ * e AIV non aggiunge finestre sue. Un 'no' non tocca niente e non dice niente.
+ * Solo da Android 11 (`Store.renames`): sotto, `createWriteRequest` non esiste.
+ * ⚠️ **L'estensione qui non cambia mai**: AIV Play non ha il tasto 'Estensione' (`Store.fit`,
+ * scelta dell'utente, giro della 5.20), e il MediaStore aggiungerebbe l'estensione del tipo a un
+ * nome che non le corrisponde.
  */
 object MediaRename {
 
-    /** The system's window that lets AIV write [rows], files of other apps included. */
+    /** La finestra di sistema che permette ad AIV di scrivere [rows], anche file di altre app. */
     @RequiresApi(Build.VERSION_CODES.R)
     fun writeRequest(context: Context, rows: List<Uri>): IntentSender =
         MediaStore.createWriteRequest(context.contentResolver, rows).intentSender
 
     /**
-     * Renames [uris] with [template], numbered from [start], after Android's window says yes.
+     * Rinomina [uris] col modello [template], numerati da [start], dopo il sì della finestra di
+     * Android.
      *
-     * ⚠️⚠️ **TWO PHASES, as in `FileTree.rename`, and for the same reason**: renumbering a series
-     * that is already numbered makes cycles between the names, and renaming one by one would
-     * find the wanted name still taken by a file of the same selection. So every file goes to a
-     * temporary name first, and takes its real one only when none of them holds a wanted name.
-     * ⚠️ **The temporary name does not start with a dot**, unlike `FileTree.rename`'s: a hidden
-     * name is a file the MediaStore stops listing, and the second phase needs the row it renames.
-     * If the app is stopped between the two phases, the files keep a name like `aiv-<time>-<n>`,
-     * and stay in the gallery.
-     * ⚠️ **A name taken by a file outside the selection gets a free one** (`FileTree.freeName`),
-     * and a file whose second step fails goes back to its old name.
-     * ⚠️ **The names kept in memory are forgotten** ([Names.forget]): the row keeps its address
-     * through the rename, so the grid would go on showing the old name.
+     * ⚠️ **Due fasi, come in `FileTree.rename`**: rinumerare una serie già numerata crea cicli
+     * fra i nomi, e una rinomina alla volta troverebbe il nome voluto ancora occupato da un file
+     * della stessa selezione. Ogni file passa prima da un nome provvisorio.
+     * ⚠️ **Il nome provvisorio non comincia col punto**, a differenza di `FileTree.rename`: un
+     * nome nascosto è un file che il MediaStore smette di elencare, e la seconda fase ha bisogno
+     * della sua riga. Se l'app si ferma fra le due fasi, i file restano col nome
+     * `aiv-<ora>-<n>`, visibili in galleria.
+     * Un nome occupato da un file fuori dalla selezione ne riceve uno libero
+     * (`FileTree.freeName`), e un file la cui seconda fase fallisce torna al nome vecchio.
+     * I nomi in memoria si dimenticano ([Names.forget]): la riga conserva l'indirizzo anche dopo
+     * la rinomina, e la griglia mostrerebbe il nome vecchio.
      */
     @RequiresApi(Build.VERSION_CODES.R)
     suspend fun rename(
@@ -77,13 +77,13 @@ object MediaRename {
             var done = 0
             val touched = ArrayList<String>(plan.size * 2)
 
-            // Phase 1: every file under a name that cannot be anybody's.
+            // Fase 1: ogni file sotto un nome che non può essere di nessun altro.
             val parked = plan.filter { step ->
                 val tail = if (step.file.extension.isEmpty()) "" else ".${step.file.extension}"
                 named(context, step.row, "aiv-$stamp-${step.at}$tail").also { if (!it) failed++ }
             }
 
-            // Phase 2: the real name. A name taken now belongs to a file outside the selection.
+            // Fase 2: il nome vero. Un nome occupato adesso è di un file fuori dalla selezione.
             for (step in parked) {
                 touched += step.file.absolutePath
                 val target = step.file.parentFile?.let { FileTree.freeName(it, step.wanted) }
@@ -104,12 +104,12 @@ object MediaRename {
         }
     }
 
-    /** Gives [row] the name [name], and says whether the MediaStore took it. */
+    /** Dà a [row] il nome [name], e dice se il MediaStore l'ha accettato. */
     private fun named(context: Context, row: Uri, name: String): Boolean = runCatching {
         val values = ContentValues().apply { put(MediaStore.MediaColumns.DISPLAY_NAME, name) }
         context.contentResolver.update(row, values, null, null) > 0
     }.getOrDefault(false)
 
-    /** One file of the rename: where it is, its row, its place in the order and the name it wants. */
+    /** Un file della rinomina: dov'è, la sua riga, il posto nell'ordine e il nome che vuole. */
     private class Step(val file: File, val row: Uri, val at: Int, val wanted: String)
 }

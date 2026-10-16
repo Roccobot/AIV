@@ -5,24 +5,23 @@ import java.time.Instant
 import java.time.ZoneId
 
 /**
- * The Feed: every photo and video of the visible folders in one stream, the newest first,
- * grouped by month. His request of 2026-10-13, his choices of 2026-10-14 (C1 by month, D1 the
- * folders the grid shows, without the bin), for both variants, from 6.02.
+ * Il Feed: tutte le immagini e i video delle cartelle visibili in un solo flusso, dal più recente,
+ * raggruppati per mese (scelte C1 e D1 dell'utente, 6.02), in tutte e due le varianti.
  *
- * ⚠️⚠️ **The order is a pure function of the rows**, and the MediaStore only supplies them
- * ([Folder.feed]): the bench checks the order and the months without a phone.
+ * ⚠️ **L'ordine è una funzione pura delle righe**, e il MediaStore si limita a fornirle
+ * ([Folder.feed]): il banco di prova controlla ordine e mesi senza un telefono.
  *
  * Author: Rocco Casadei, a.k.a. Roccobot
  */
 object Feed {
 
     /**
-     * One row as the MediaStore gives it.
+     * Una riga come la dà il MediaStore.
      *
-     * @param taken when the picture was taken, in milliseconds, or `null` when the file does not
-     *   say (screenshots, downloads, edited copies often do not).
-     * @param modified when the file was last written, in **seconds**, as `DATE_MODIFIED` is.
-     * @param dir the folder the file lives in, for [shown], or `null` when the row does not say.
+     * @param taken il momento dello scatto, in millisecondi, o `null` quando il file non lo dice
+     *   (spesso le schermate, i download e le copie modificate).
+     * @param modified l'ultima scrittura del file, in **secondi**, come `DATE_MODIFIED`.
+     * @param dir la cartella del file, per [shown], o `null` quando la riga non la dice.
      */
     data class Row(
         val uri: Uri,
@@ -32,21 +31,20 @@ object Feed {
         val dir: String? = null
     )
 
-    /** A month of the stream: its first item's place in [Page.items]. */
+    /** Un mese del flusso: la posizione del suo primo elemento in [Page.items]. */
     data class Month(val year: Int, val month: Int, val start: Int)
 
-    /** The stream, in order, and where each month starts. */
+    /** Il flusso, in ordine, e dove comincia ogni mese. */
     data class Page(val items: List<Uri>, val months: List<Month>) {
         val series: Folder.Series get() = Folder.Series(items, 0)
     }
 
     /**
-     * The moment a row sorts by, in milliseconds.
+     * Il momento su cui si ordina una riga, in millisecondi.
      *
-     * ⚠️⚠️ **[FeedDate.TAKEN] falls back on the modification date** (his wording: *usare la data
-     * di scatto e ripiegare sulla data di modifica*): a screenshot has no date of taking, and
-     * without the fallback it would sink to the bottom of the stream, at 1970.
-     * ⚠️ **A taken date of zero or below counts as missing**: some apps write 0 instead of nothing.
+     * ⚠️ **[FeedDate.TAKEN] ripiega sulla data di modifica** (scelta dell'utente): una schermata
+     * non ha data di scatto, e senza il ripiego finirebbe in fondo al flusso, al 1970.
+     * Una data di scatto pari a zero o negativa vale come assente: alcune app scrivono 0.
      */
     fun moment(row: Row, date: FeedDate): Long = when (date) {
         FeedDate.TAKEN -> row.taken?.takeIf { it > 0 } ?: (row.modified * 1000)
@@ -54,21 +52,20 @@ object Feed {
     }
 
     /**
-     * The rows of the folders the grid shows: the filter of [FolderSelection.visible], the same as
-     * the grid's and the search's (his choice D1).
+     * Le righe delle cartelle che la griglia mostra: lo stesso filtro di
+     * [FolderSelection.visible] della griglia e della ricerca (scelta D1 dell'utente).
      *
-     * ⚠️ **[peeking] lets the hidden folders in**, from 6.03 (his request: *`Mostra nascoste` deve
-     * far apparire nel feed anche gli elementi di quelle cartelle*): for the minute of 'Mostra
-     * nascoste' their pictures are in the stream, as their folders are in the grid.
+     * [peeking] fa entrare le cartelle nascoste: finché 'Mostra nascoste' è attivo le loro
+     * immagini sono nel flusso, come le cartelle sono nella griglia (richiesta dell'utente, 6.03).
      */
     fun shown(rows: List<Row>, selection: FolderSelection, peeking: Boolean): List<Row> =
         rows.filter { selection.visible(it.dir, peeking) }
 
     /**
-     * The rows in stream order, newest first, and the months they fall in, read in [zone].
+     * Le righe nell'ordine del flusso, dalla più recente, e i mesi in cui cadono, letti in [zone].
      *
-     * ⚠️ **Ties go to the higher id**, the most recently indexed, as in a folder: two shots of the
-     * same second keep a stable order between one reading and the next.
+     * A parità di momento vince l'id più alto, l'ultimo indicizzato, come in una cartella: due
+     * scatti dello stesso secondo tengono lo stesso ordine da una lettura all'altra.
      */
     fun order(rows: List<Row>, date: FeedDate, zone: ZoneId = ZoneId.systemDefault()): Page {
         val sorted = rows.sortedWith(

@@ -59,66 +59,57 @@ import androidx.compose.ui.unit.min
 import kotlin.math.roundToInt
 
 /*
- * The bottom menu: the commands of a phone held upright in a bar across the bottom of the screen.
+ * Il Menu basso: i comandi del telefono in verticale, in una barra lungo il fondo dello schermo.
  *
  * Author: Rocco Casadei, a.k.a. Roccobot
  *
- * ⚠️⚠️ Since 4.15 (the user's note D on the 4.04 round, with the mockup `bottom_menu_full.png`, and
- * his answers in chat): the third 'Elemento interattivo principale', next to the FAB and the pill.
- * The bar spans the whole width down to the glass, in the accent, and lies OVER the grid (answer
- * G5: *sovrapporre il menu alla griglia*), so a transparent or translucent look shows the pictures
- * underneath.
- * ⚠️ Two forms, on the same value as the pill ([PhonePill]): sliding ([PhonePill.SLIDE]), where at
- * rest only a vertical pill of two keys is left in the FAB's corner, and fixed, always open.
- * ⚠️⚠️ It enters from below like a sheet, and fast (his answer M1: *talmente veloce che le due voci
- * a destra prendono 'naturalmente' e quasi istantaneamente il posto delle due icone di destra*):
- * the stretching animation of the sliding pill, which he described first, is not used here.
- * ⚠️⚠️ The two keys in the corner are the jump (answer M2): on the folded pill the upper one is
- * always 'in cima', and the lower one, the app's mark, turns into 'in fondo' while scrolling; in the
- * open bar the two keys where the pill was turn into the two arrows.
+ * È il terzo 'Elemento interattivo principale', accanto al FAB e alla pillola (nota D del giro della
+ * 4.04, mockup `bottom_menu_full.png`). La barra occupa tutta la larghezza fino al vetro, nel colore
+ * d'accento, ed è SOPRA la griglia (risposta G5), così un aspetto trasparente o traslucido lascia
+ * vedere le immagini sotto.
+ * Due forme, sullo stesso valore della pillola ([PhonePill]): a scomparsa ([PhonePill.SLIDE]), dove a
+ * riposo resta solo una pillola verticale di due tasti nell'angolo del FAB, e fissa, sempre aperta.
+ * Entra dal basso come una scheda, e veloce (risposta M1): i suoi tasti prendono quasi subito il
+ * posto di quelli della pillola piegata.
+ * I due tasti nell'angolo sono il salto (risposta M2): sulla pillola piegata quello in alto è sempre
+ * 'in cima', e quello in basso, il marchio dell'app, diventa 'in fondo' durante lo scorrimento; nella
+ * barra aperta i due tasti dove era la pillola diventano le due frecce.
  */
 
-/** The height of the bar's row of keys, above the gesture area it also covers. */
+/** L'altezza della riga di tasti della barra, sopra l'area dei gesti che copre anche lei. */
 internal val BAR_ROW = 56.dp
 
 /**
- * How much of the gesture area the bar's row of keys takes, since 4.33: the row sits this much
- * lower than the top of the system's navigation inset (note B on the 4.32 round: *la modalità Menu
- * deve avere il menu più basso di 7/8dp*). With a navigation inset smaller than this the row stops
- * on the screen's edge.
+ * Quanto dell'area dei gesti prende la riga di tasti della barra: la riga è più bassa di tanto
+ * rispetto alla cima dell'inset di navigazione (nota B del giro della 4.32). Con un inset più
+ * piccolo la riga si ferma sul bordo dello schermo.
  */
 internal val BAR_DROP = 8.dp
 
-/** From how many keys the bar spreads them across its width: five (note N2). */
+/** Da quanti tasti la barra li distribuisce su tutta la larghezza: cinque (nota N2). */
 internal const val BAR_SPREAD = 5
 
 /**
- * How far the pills and their round key keep from the glass, sideways: three margins of the grid,
- * 24dp, the same inset as the menus ([MENU_INSET]).
+ * La distanza laterale delle pillole e del loro tondo dal vetro: tre margini della griglia, 24dp,
+ * lo stesso dei menu ([MENU_INSET]).
  *
- * ⚠️⚠️ **SINCE 4.25, HIS CHOICE A2** (after the preview of the two widths, note A on the 4.20
- * round): the pill that spans the row stays shorter than the thumbnails, inside their edges, and the
- * round key moves in by the same 8dp so it coincides with the open pill's edge. Until 4.20 both kept
- * the FAB's 16dp, and an open pill ended neither on the thumbnails' edge nor on its own key's.
- * ⚠️ **Sideways only**: from the bottom they keep the FAB's margin, and the FAB keeps its corner.
+ * Scelta A2 dell'utente (nota A del giro della 4.20): la pillola che occupa la riga resta dentro i
+ * bordi delle miniature, e il tondo rientra degli stessi 8dp per coincidere col bordo della pillola
+ * aperta. Vale solo di lato: dal basso resta il margine del FAB.
  */
 internal val PILL_SIDE = MENU_INSET
 
 /**
- * Where the pills and their round key sit, in the home and in every grid: the system's insets,
- * [PILL_SIDE] sideways and the FAB's 16dp ([HUB_PAD]) from the bottom.
+ * Dove sono le pillole e il loro tondo, nella casa e in ogni griglia: gli inset di sistema,
+ * [PILL_SIDE] di lato e i 16dp del FAB ([HUB_PAD]) dal basso.
  *
- * ⚠️⚠️ **ONE PLACE FOR BOTH SCREENS, SINCE 4.30, AND IT IS HIS NOTE** (B on the 4.25 round: *tra home
- * e cartelle il tondo col glifo salta da una posizione all'altra ... Vanno unificate posizioni e
- * dimensioni del tondo*): until 4.25 the home wrote 16dp from the bottom and a grid its own 12dp
- * plus 8, so the key jumped by 4dp between the two.
- * ⚠️⚠️ **AND SINCE 4.31 THE ROUND KEY'S CENTRE IS EVERY MAIN CONTROL'S CENTRE, HIS RULE** (after the
- * 4.30: *tutti i posizionamenti di tutti i menu devono usare quel punto di riferimento. Anche il
- * centro del FAB dev'essere centrato sul centro di quel tondo*): a control of another [side] keeps
- * the same centre, so the 40dp FAB stands 2dp further in on both axes. Until 4.30 the FAB kept its
- * own corner, 16dp from the glass in the home and 16 by 20 in a grid.
+ * ⚠️ **Un posto solo per le due schermate** (nota B del giro della 4.25): con due posti il tondo
+ * saltava fra casa e cartelle.
+ * ⚠️ **Il centro del tondo è il centro di ogni elemento principale** (regola dell'utente, 4.31): un
+ * elemento di un altro [side] tiene lo stesso centro, quindi il FAB da 40dp rientra di 2dp su
+ * tutti e due gli assi.
  *
- * @param side the control's side: the round key's ([PILL_KEY]) unless it is the FAB.
+ * @param side il lato dell'elemento: quello del tondo ([PILL_KEY]), salvo il FAB.
  */
 internal fun Modifier.pillCorner(side: Dp = PILL_KEY): Modifier = composed {
     windowInsetsPadding(steadyDrawing())
@@ -126,37 +117,37 @@ internal fun Modifier.pillCorner(side: Dp = PILL_KEY): Modifier = composed {
 }
 
 /**
- * How far a main control of [side] keeps from the glass sideways, inside the system's insets: what
- * [pillCorner] writes, and what a menu anchored to the FAB reads ([rememberMenuSpot]).
+ * La distanza laterale dal vetro di un elemento principale di [side], dentro gli inset di sistema:
+ * quella che [pillCorner] scrive, e che legge un menu ancorato al FAB ([rememberMenuSpot]).
  */
 internal fun cornerSide(side: Dp): Dp = PILL_SIDE + (PILL_KEY - side) / 2
 
 /**
- * The margin of a bar with few keys from the side it leans on: the pills' ([PILL_SIDE]), so the
- * corner key falls under the folded pill's.
+ * Il margine di una barra con pochi tasti dal lato a cui si appoggia: quello delle pillole
+ * ([PILL_SIDE]), così il tasto d'angolo cade sotto quello della pillola piegata.
  */
 internal val BAR_SIDE = PILL_SIDE
 
 /**
- * How long the bar takes to come in or go: a third less than the pill's 160 ms (answer M1).
+ * Quanto ci mette la barra a entrare o a uscire: un terzo meno dei 160 ms della pillola (risposta M1).
  *
- * ⚠️ **With the pill's curve**, which covers most of the way in the first third: at 110 ms the bar
- * is nearly up after three frames, which is what lets its keys take the place of the folded pill's.
+ * Con la curva della pillola, che copre quasi tutta la strada nel primo terzo: dopo tre fotogrammi
+ * la barra è quasi su, e i suoi tasti prendono il posto di quelli della pillola piegata.
  */
 private const val BAR_IN_MS = 110
 
 /**
- * How much room the main control takes above the bottom edge, besides the system's inset: what a
- * grid leaves under its last row so that it can scroll above it.
+ * Lo spazio che l'elemento principale prende sopra il bordo inferiore, oltre all'inset di sistema:
+ * quello che una griglia lascia sotto l'ultima riga per poterla scorrere sopra.
  *
- * ⚠️ **The folded pill of the bottom menu is two keys tall**, so it asks for one key more than the
- * horizontal pill; the open or fixed bar asks for its row.
+ * La pillola piegata del Menu basso è alta due tasti, quindi chiede un tasto in più della pillola
+ * orizzontale; la barra aperta o fissa chiede la sua riga.
  */
 @Composable
 internal fun controlRoom(): Dp {
     val look = LocalPillLook.current
     return when {
-        // ⚠️ The corner menu folds into the same two-key pill as the sliding bottom menu.
+        // Il Menu 'Start' si piega nella stessa pillola di due tasti del Menu basso a scomparsa.
         look.corner -> PILL_KEY * 2 + PILL_AIR * 2
         !look.bar -> PILL_KEY + PILL_AIR * 2
         look.mode == PhonePill.SLIDE -> PILL_KEY * 2 + PILL_AIR * 2
@@ -165,19 +156,18 @@ internal fun controlRoom(): Dp {
 }
 
 /**
- * Which surfaces lie under the gesture line, so that the activity paints it white.
+ * Quali superfici sono sotto la linea dei gesti, perché l'attività la dipinga bianca.
  *
- * ⚠️⚠️ **THE LINE IS COLOURED BY THE SYSTEM, WHOLE** (the analysis given in chat for note D): the
- * app can only ask for light or dark icons on the navigation bar. On the accent of the bar the dark
- * line of the light theme would almost vanish, so while a bar is up the activity asks for the light
- * one, as his mockup shows.
- * ⚠️ **A map and not a flag**, like [FootStage]: during the crossfade between two screens two bars
- * are on stage, and the one that leaves must not take the other's request with it.
+ * ⚠️ **La linea la colora il sistema**: l'app può chiedere solo icone chiare o scure sulla barra
+ * di navigazione. Sull'accento della barra la linea scura del tema chiaro quasi sparirebbe, quindi
+ * con una barra su l'attività chiede quella chiara, come nel mockup.
+ * Una mappa e non un interruttore, come [FootStage]: durante la dissolvenza fra due schermate le
+ * barre in scena sono due, e quella che esce non deve togliere la richiesta dell'altra.
  */
 internal object BarStage {
     private val sotto = mutableStateMapOf<Any, Unit>()
 
-    /** Whether a bar is under the gesture line now. */
+    /** Se adesso una barra è sotto la linea dei gesti. */
     val under: Boolean get() = sotto.isNotEmpty()
 
     fun on(chi: Any) { sotto[chi] = Unit }
@@ -186,13 +176,13 @@ internal object BarStage {
 }
 
 /**
- * The bottom menu, in the form the setting asks for.
+ * Il Menu basso, nella forma che l'impostazione chiede.
  *
- * @param entries the commands, already in the order of the preferred side (`mirrored`).
- * @param corner where the folded pill sits: the insets and margins the FAB had.
- * @param modifier the bar's place, across the bottom of the screen.
- * @param mark the folded pill's lower key at rest: the FAB's glyph without its own chevron, because
- *   the arrow that replaces it here is always 'in fondo'.
+ * @param entries i comandi, già nell'ordine del lato preferito (`mirrored`).
+ * @param corner dove è la pillola piegata: gli inset e i margini del FAB.
+ * @param modifier il posto della barra, lungo il fondo dello schermo.
+ * @param mark il tasto in basso della pillola piegata, a riposo: il glifo del FAB senza la sua
+ *   freccia, perché la freccia che lo sostituisce qui è sempre 'in fondo'.
  */
 @Composable
 internal fun BottomMenu(
@@ -214,7 +204,7 @@ internal fun BottomMenu(
         return
     }
     var open by rememberSaveable { mutableStateOf(false) }
-    // ⚠️ Back folds the bar, as it would close the FAB's menu: an open bar is a menu.
+    // Indietro piega la barra, come chiuderebbe il menu del FAB: una barra aperta è un menu.
     BackHandler(enabled = open) { open = false }
     val p by animateFloatAsState(
         targetValue = if (open) 1f else 0f,
@@ -222,7 +212,7 @@ internal fun BottomMenu(
         label = "bar"
     )
     val close = PillEntry(icon = Icons.Default.Close, label = stringResource(R.string.pick_close)) { open = false }
-    // ⚠️ A key folds the bar before acting, as a menu row closes its menu.
+    // Un tasto piega la barra prima di agire, come una riga di menu chiude il suo menu.
     val keys = entries.map { e -> e.copy(onTap = { open = false; e.onTap() }) }
         .let { if (atEnd) it + close else listOf(close) + it }
     Box(
@@ -254,34 +244,28 @@ internal fun BottomMenu(
 }
 
 /**
- * The corner menu: the commands in a panel of three columns in the preferred corner.
+ * Il Menu 'Start': i comandi in un pannello a colonne nell'angolo preferito.
  *
- * ⚠️⚠️ **SINCE 4.20, AND EVERY SHAPE OF IT IS HIS** (note D on the 4.04 round, `bottom_menu_corner.png`,
- * and the answers G1, C1, C2 and C3): always sliding (*il menu angolare sempre*), from the same
- * vertical pill as the sliding bottom menu; open, a grid of three columns in the home (3x3: the three
- * views, then 'Mostra nascoste', Cerca and Indirizzo, then Cestino, Impostazioni and the ×) and of
- * two in a folder (2x2). It stops above the gesture line (G1), so the line keeps its colour.
- * ⚠️ **The × takes the place of the mark**: the panel stands on the folded pill's corner, and its
- * corner cell is where the pill's lower key was. A left-handed panel mirrors every row.
- * ⚠️ **While scrolling, the corner cell and the one above it turn into the jump** (answer M2, read
- * on the panel): they are where the folded pill's two keys were.
- * ⚠️ **It grows out of its corner**, in the bottom menu's time and curve: it is the same gesture.
- * ⚠️⚠️ **SINCE 4.25 IT CLOSES AFTER EVERY TAP, AND IT IS HIS RULE** (`4.20-01`: *al contrario della
- * pillola a scomparsa, che rimane aperta, il menu angolare deve chiudersi dopo ogni interazione*):
- * open, it covers a thumbnail of the grid. In 4.20 a tap on the current view left it open.
- * ⚠️⚠️ **AND AT REST IT IS A SINGLE ROUND KEY, unless he chose the pill** (`4.20-01`, R2-R4, and
- * [PillLook.cornerRound]).
- * ⚠️⚠️ **SINCE 6.03 THE ROUND KEY BEHAVES AS THE SLIDING PILL'S, AND IT IS HIS REQUEST** (2026-10-15:
- * *rendi il comportamento del tondo identico a quello della pillola a scomparsa (non diventa pillola
- * verticale al movimento)*): while scrolling it stays one key, its glyph turns into the FAB's
- * chevron and a tap jumps the way the chevron points ([RoundRest]). From 4.25 to 6.02 it stretched
- * upwards into the vertical pill of the two jumps. The pill rest ([PillLook.cornerRound] `false`)
- * keeps its two keys.
+ * Ogni sua forma è dell'utente (nota D del giro della 4.04, `bottom_menu_corner.png`, risposte G1,
+ * C1, C2 e C3): sempre a scomparsa; aperto, una griglia di tre colonne nella casa e di due in una
+ * cartella (decisione C3, [CORNER_SMALL]). Si ferma sopra la linea dei gesti (G1), che tiene il suo
+ * colore.
+ * La × prende il posto del marchio: la cella d'angolo è dove era il tasto in basso della pillola
+ * piegata. Per i mancini ogni riga è specchiata.
+ * Durante lo scorrimento la cella d'angolo e quella sopra diventano il salto (risposta M2).
+ * Cresce dal suo angolo, coi tempi e la curva del Menu basso.
+ * ⚠️ **Si chiude dopo ogni tocco** (voce `4.20-01`): aperto, copre una miniatura della griglia.
+ * A riposo è un tondo solo, salvo la pillola scelta dall'utente ([PillLook.cornerRound]).
+ * ⚠️ **Il tondo a riposo si comporta come quello della pillola a scomparsa** (richiesta
+ * dell'utente, 6.03): durante lo scorrimento resta un tasto, il glifo diventa la freccia del FAB e
+ * un tocco salta dove la freccia punta ([RoundRest]). La pillola a riposo
+ * ([PillLook.cornerRound] `false`) tiene i suoi due tasti.
  *
- * @param entries the cells in the right-handed reading order, without the ×.
- * @param roundLabel what the round key does now, following the FAB's chevron, as the sliding pill's.
- * @param onLeap the round key's jump while scrolling: the FAB's own ([JumpArm.leap]).
- * @param fabGlyph the round key's glyph: the app's mark, or the chevron while armed.
+ * @param entries le celle nell'ordine di lettura dei destri, senza la ×.
+ * @param roundLabel che cosa fa adesso il tondo, secondo la freccia del FAB, come quello della
+ *   pillola a scomparsa.
+ * @param onLeap il salto del tondo durante lo scorrimento: quello del FAB ([JumpArm.leap]).
+ * @param fabGlyph il glifo del tondo: il marchio dell'app, o la freccia quando il salto è armato.
  */
 @Composable
 internal fun CornerMenu(
@@ -407,21 +391,18 @@ internal fun CornerMenu(
 }
 
 /**
- * Who wants to know about every press on the app, wherever it lands: the open Start menu, which
- * closes when the finger goes down outside it.
+ * Chi vuole sapere di ogni tocco sull'app, ovunque cada: il Menu 'Start' aperto, che si chiude
+ * quando il dito scende fuori (nota su `4.25-02`: qualsiasi tocco fuori, anche un trascinamento).
  *
- * ⚠️⚠️ **SINCE 4.30, HIS NOTE** (on `4.25-02`: *QUALSIASI tocco fuori, anche un trascinamento sulla
- * griglia ad esempio, o un tocco in un'area vuota*): until 4.25 only its own cells closed it.
- * ⚠️ **The root watches and does not consume**, so the drag that closes the menu also scrolls the
- * grid.
- * ⚠️⚠️ **AND SINCE 4.33 THE WATCHER IS ALWAYS IN THE TREE** (item `4.30-03` on the 4.32 round: *al
- * primo tocco si chiude il menu e al secondo posso agire. Dev'essere un unico gesto*). Until 4.32 it
- * was there only while somebody listened, so the press that closed the menu took it out of the root
- * in the middle of the gesture, and the change to the root's modifiers cancelled the drag below.
- * Measured by `MenuInferioreTest` with a drag in steps; a drag in one block never saw it.
- * ⚠️ It is not a node over the screen (`Rules.md`, § 'Che cosa fa il tocco FUORI da una
- * finestra'): it is a modifier of the root, which every touch crosses anyway, and with nobody
- * listening it does nothing.
+ * La radice osserva e non consuma, quindi il trascinamento che chiude il menu scorre anche la
+ * griglia.
+ * ⚠️ **L'osservatore è sempre nell'albero** (voce `4.30-03`: un gesto unico): se ci fosse solo
+ * mentre qualcuno ascolta, il tocco che chiude il menu lo toglierebbe dalla radice a metà gesto, e
+ * il cambio dei modificatori della radice annullerebbe il trascinamento. Presidiato da
+ * `MenuInferioreTest`, con un trascinamento a passi.
+ * Non è un nodo sopra lo schermo (`Rules.md` § '👆 Che cosa fa il tocco FUORI da una finestra'):
+ * è un modificatore della radice, che ogni tocco attraversa comunque, e senza ascoltatori non fa
+ * niente.
  */
 internal object OutsideTouch {
     private val listeners = mutableStateMapOf<Any, (Offset) -> Unit>()
@@ -430,31 +411,28 @@ internal object OutsideTouch {
 
     fun off(who: Any) { listeners.remove(who) }
 
-    /** A press at [at], in the root's coordinates. */
+    /** Un tocco in [at], nelle coordinate della radice. */
     fun press(at: Offset) { listeners.values.toList().forEach { it(at) } }
 }
 
 /**
- * The corner menu's cells in rows, the corner cell last: what the menu and its copy on the first
- * start's hint ([CornerMenuCopy]) both lay out.
+ * Le celle del Menu 'Start' in righe, la cella d'angolo per ultima: le dispongono così il menu e la
+ * sua copia nell'aiuto del primo avvio ([CornerMenuCopy]).
  *
- * ⚠️ **The rows are filled from the top**, so that the last one, with the corner cell, is always
- * full: a gap left by an odd count goes to the top row, away from the thumb.
- * ⚠️⚠️ **So the top row can be the shortest, and the panel's size is counted on the widest**
- * (5.10 round, his note on AIV Play's squashed Start menu): until 5.10 the callers counted the
- * columns on the first row, which with seven cells in the home held one, and the rows came out a
- * third of their height. AIV GitHub's 'Cartelle di sistema', with 'Crea', had the same fault.
+ * Le righe si riempiono dal basso, così l'ultima, con la cella d'angolo, è sempre piena: il vuoto di
+ * un numero dispari va alla riga in alto, lontano dal pollice.
+ * ⚠️ **Quindi la riga in alto può essere la più corta, e la misura del pannello si conta sulla più
+ * larga** (giro della 5.10): contata sulla prima riga, con sette celle nella casa le righe
+ * risultavano alte un terzo.
  */
 private fun <T> cornerRows(cells: List<T>, atEnd: Boolean, short: (T) -> String?): List<List<T>> {
     val columns = if (cells.size > CORNER_SMALL) 3 else 2
     val rows = cells.reversed().chunked(columns).map { it.reversed().toMutableList() }.reversed()
     /*
-     * ⚠️⚠️ **THE LONGEST LABEL NEVER TAKES THE ROUNDED CORNER OF THE BOTTOM ROW, SINCE 4.35** (item
-     * `4.34-01`: *'Impostazioni' non deve mai apparire in basso, perché l'arrotondamento ruba prezioso
-     * spazio orizzontale ... e fare lo stesso qualora ci fossero casi simili*). That corner is the
-     * bottom row's first cell, read right-handed; the entry there swaps with the one above the ×,
-     * as his arrow in `settings.png` draws it. In a folder 'Impostazioni' and 'Cestino' swap; in the
-     * home and in the bin the corner already holds a short label. The length is counted in characters, which is what makes a label long here.
+     * ⚠️ **L'etichetta più lunga non prende mai l'angolo arrotondato della riga in basso** (voce
+     * `4.34-01`): l'arrotondamento ruba spazio orizzontale. Quell'angolo è la prima cella della riga
+     * in basso, letta da destri; la voce che c'è si scambia con quella sopra la ×. In una cartella
+     * si scambiano 'Impostazioni' e 'Cestino'. La lunghezza si conta in caratteri.
      */
     if (rows.size > 1) {
         val longest = cells.maxByOrNull { short(it)?.length ?: 0 }
@@ -469,15 +447,14 @@ private fun <T> cornerRows(cells: List<T>, atEnd: Boolean, short: (T) -> String?
 }
 
 /**
- * The open Start menu as the first start's hint draws it, in the hint's orange, with [key] (the
- * hint's copy of the round key) in the corner cell where the open menu has its ×.
+ * Il Menu 'Start' aperto come lo disegna l'aiuto del primo avvio, nell'arancio dell'aiuto, con [key]
+ * (la copia del tondo) nella cella d'angolo dove il menu aperto ha la ×.
  *
- * ⚠️⚠️ **SINCE 4.31, HIS REQUEST** (after the 4.30: *se il predefinito di fabbrica è il menu Start, è
- * fondamentale che al primo avvio il micro-onboarding mostri quello, magari espanso*): the first hint
- * of the home showed the round key alone, which says nothing about the commands behind it.
- * ⚠️ **The cells are a drawing and only the key answers**, as in every [HintVeil]: the key teaches its
- * two gestures, and a cell that acted would leave the hint by a door it does not explain.
- * ⚠️ **The corner cell is the round key's own place**, so the copy lies over the real key.
+ * Richiesta dell'utente (4.31): se il menu di fabbrica è il Menu 'Start', il primo avvio lo mostra
+ * aperto, perché il tondo da solo non dice niente dei comandi dietro.
+ * Le celle sono un disegno e risponde solo il tasto, come in ogni [HintVeil]: il tasto insegna i
+ * suoi due gesti, e una cella che agisse uscirebbe dall'aiuto per una porta che l'aiuto non spiega.
+ * La cella d'angolo è il posto del tondo, quindi la copia è sopra il tasto vero.
  */
 @Composable
 internal fun CornerMenuCopy(entries: List<PillEntry>, atEnd: Boolean, key: @Composable () -> Unit) {
@@ -492,7 +469,7 @@ internal fun CornerMenuCopy(entries: List<PillEntry>, atEnd: Boolean, key: @Comp
             .startRoom(atEnd, rows.size, columns)
     ) {
         rows.forEach { row ->
-            // ⚠️ A short top row sits on the corner's side, as in the open menu.
+            // Una riga in alto più corta si appoggia al lato dell'angolo, come nel menu aperto.
             Row(horizontalArrangement = if (atEnd) Arrangement.End else Arrangement.Start) {
                 row.forEach { cell ->
                     StartCell(tall) {
@@ -508,88 +485,78 @@ internal fun CornerMenuCopy(entries: List<PillEntry>, atEnd: Boolean, key: @Comp
     }
 }
 
-/** The tag of [CornerMenuCopy], which the bench reads: its cells are drawings, without semantics. */
+/** L'etichetta di [CornerMenuCopy] che legge il banco: le sue celle sono disegni, senza semantica. */
 internal const val CORNER_COPY_TAG = "corner-copy"
 
-/** The tag of the open Start menu's panel, whose bounds the bench reads. */
+/** L'etichetta del pannello del Menu 'Start' aperto, di cui il banco legge i confini. */
 internal const val START_PANEL_TAG = "start-panel"
 
-/** Up to how many cells, the × included, the corner menu is a 2x2 (decision C3). */
+/** Fino a quante celle, × compresa, il Menu 'Start' è un 2x2 (decisione C3). */
 private const val CORNER_SMALL = 4
 
 /**
- * The height of a Start menu's cell, and the side of its key.
+ * L'altezza di una cella del Menu 'Start', e il lato del suo tasto.
  *
- * ⚠️⚠️ **SINCE 4.33 LARGER THAN A PILL'S KEY, A USABILITY TEST OF HIS** (note F on the 4.32 round:
- * *le icone appaiano nello stessa disposizione, ma più grandi e più distanziate, con un testo
- * piccolo e abbreviato*). Until 4.32 it was [PILL_KEY], so the corner cell was the folded pill's
- * key; now the panel moves out ([startShift]) and the × keeps the round key's centre.
+ * Più grande del tasto di una pillola (nota F del giro della 4.32: icone più grandi e più
+ * distanziate): il pannello si sposta in fuori ([startShift]) e la × tiene il centro del tondo.
  */
 private val CORNER_CELL = 64.dp
 
 /**
- * The width of a Start menu's column, wider than the key so a label has room beside it.
- *
- * ⚠️⚠️ **SINCE 4.34, HIS NOTE** (item `4.33-07` B: *le icone restano grandi uguali, il testo
- * 'Impostazioni' assume le stesse dimensioni degli altri testi e ci sta per intero*): in 4.33 the
- * column was the 64dp key, and 'Impostazioni' shrank or lost its edges.
+ * La larghezza di una colonna del Menu 'Start', più larga del tasto perché l'etichetta abbia
+ * spazio: 'Impostazioni' entra intera, alla misura delle altre (voce `4.33-07` B).
  */
 private val START_COLUMN = 72.dp
 
 /**
- * How much the Start menu's panel grows past its cells: towards the glass, down and up.
- *
- * ⚠️⚠️ **SINCE 4.34, HIS NOTE** (item `4.33-07` B, `startMenu.png`: *le linee verticali e orizzontali
- * non devono avvicinarsi troppo a quelle sottostanti ... l'intero menu deve ingrandirsi a destra, un
- * poco verso il basso e di ~10dp verso l'alto*). Measured on the bench at 393dp in 4.33: the panel's
- * side fell 14dp from the glass, 2dp inside the home's thumbnails (12dp) and 6dp inside a grid's
- * (8dp). With [START_EDGE] it falls 4dp from the glass, outside both.
- * ⚠️ Rejected: the edge flush with a grid's thumbnails, which is the optical fault itself.
+ * Quanto il pannello del Menu 'Start' sporge oltre le celle: verso il vetro, in basso e in alto
+ * (voce `4.33-07` B, `startMenu.png`: i bordi del pannello non devono avvicinarsi troppo a quelli
+ * delle miniature sotto).
+ * Con [START_EDGE] il lato del pannello cade a 4dp dal vetro (misurato sul banco a 393dp), fuori
+ * dai bordi delle miniature della casa (12dp) e di una griglia (8dp). Un bordo a filo con le
+ * miniature di una griglia è proprio il difetto ottico da evitare.
  */
 private val START_EDGE = 6.dp
 private val START_FOOT = 4.dp
 private val START_HEAD = 10.dp
 
-/** The glyph's side, larger than a pill's ([PILL_GLYPH]) with the cell. */
+/** Il lato del glifo, più grande di quello di una pillola ([PILL_GLYPH]) come la cella. */
 private val START_GLYPH = 28.dp
 
-/** The room between a Start menu cell's glyph and its label. */
+/** Lo spazio fra il glifo di una cella del Menu 'Start' e la sua etichetta. */
 private val START_LABEL_GAP = 3.dp
 
-/** The short label's largest and smallest size: it shrinks to fit a long word in its column. */
+/** Il corpo massimo e minimo dell'etichetta corta: si riduce perché una parola lunga entri. */
 private val START_LABEL = 10.sp
 private val START_LABEL_MIN = 7.sp
 
 /**
- * How tall a Start menu's row is, so that the panel is as tall as it is wide.
+ * L'altezza di una riga del Menu 'Start', perché il pannello sia alto quanto è largo (voce
+ * `4.34-01`: il menu sempre quadrato, ancorato in basso).
  *
- * ⚠️⚠️ **SINCE 4.35 THE PANEL IS ALWAYS SQUARE, HIS NOTE** (item `4.34-01`: *mi sembra più largo che
- * alto: fa' in modo che il menu sia sempre quadrato (ancoraggio in basso, perciò eventualmente si
- * alzerà un altro po'). Con più spazio verticale, va introdotta una maggiore spaziatura verticale
- * tra le righe e anche tra icone ed etichette*). The rows share what the width leaves after the
- * panel's room above and below: 68dp in the home's 3x3 and in a 2x2, where in 4.34 they were the
- * key's 64. The bottom stays where the round key is, so the panel grows upwards.
- * ⚠️ **An even number of dp, and the rest goes to the room above** ([startHead]): a third of 208 is
- * 69.33dp, and rounded to the pixel it left the panel short of square; at 69 the cell's centre fell
- * on half a pixel, and the × a pixel off the round key's centre. Measured on the bench.
+ * Le righe si dividono quello che la larghezza lascia dopo gli spazi sopra e sotto: 68dp nel 3x3
+ * della casa e in un 2x2. Il fondo resta dov'è il tondo, quindi il pannello cresce verso l'alto.
+ * ⚠️ **Un numero pari di dp, e il resto va allo spazio sopra** ([startHead]): un terzo di 208 è
+ * 69,33dp, che arrotondato al pixel lascia il pannello non quadrato; a 69 il centro della cella
+ * cade su mezzo pixel, e la × un pixel fuori dal centro del tondo. Misurato sul banco.
  */
 private fun startRow(rows: Int, columns: Int): Dp =
     ((START_COLUMN * columns + START_EDGE - START_HEAD - START_FOOT) / rows).value.toInt().let { it - it % 2 }.dp
 
-/** The room above the Start menu's rows: [START_HEAD] and what [startRow] leaves of the width. */
+/** Lo spazio sopra le righe del Menu 'Start': [START_HEAD] e quello che [startRow] lascia della larghezza. */
 private fun startHead(rows: Int, columns: Int): Dp =
     START_COLUMN * columns + START_EDGE - START_FOOT - startRow(rows, columns) * rows
 
 /**
- * Moves the Start menu's panel out, sideways towards the glass and down, so the corner cell's
- * centre is the round key's: every main control's centre since 4.31 ([pillCorner]).
+ * Sposta il pannello del Menu 'Start' in fuori, di lato verso il vetro e in basso, così il centro
+ * della cella d'angolo è quello del tondo, il centro di ogni elemento principale ([pillCorner]).
  */
 private fun Modifier.startShift(atEnd: Boolean, row: Dp): Modifier {
     val x = START_EDGE + START_COLUMN / 2 - PILL_KEY / 2
     return offset(x = if (atEnd) x else -x, y = START_FOOT + (row - PILL_KEY) / 2)
 }
 
-/** The room [START_EDGE], [START_FOOT] and [startHead] give the panel, inside its fill. */
+/** Lo spazio che [START_EDGE], [START_FOOT] e [startHead] danno al pannello, dentro il fondo. */
 private fun Modifier.startRoom(atEnd: Boolean, rows: Int, columns: Int): Modifier = padding(
     start = if (atEnd) 0.dp else START_EDGE,
     end = if (atEnd) START_EDGE else 0.dp,
@@ -597,30 +564,30 @@ private fun Modifier.startRoom(atEnd: Boolean, rows: Int, columns: Int): Modifie
     bottom = START_FOOT
 )
 
-/** One cell of a Start menu, the menu's or the hint's copy: its key in the middle of the column. */
+/** Una cella del Menu 'Start', del menu o della copia dell'aiuto: il tasto al centro della colonna. */
 @Composable
 private fun StartCell(row: Dp, content: @Composable () -> Unit) {
     Box(contentAlignment = Alignment.Center, modifier = Modifier.size(START_COLUMN, row)) { content() }
 }
 
 /**
- * A Start menu cell's face: the glyph, and under it the short label when the entry has one
- * ([PillEntry.short]). The × has none, and keeps its glyph alone in the middle.
+ * La faccia di una cella del Menu 'Start': il glifo, e sotto l'etichetta corta quando la voce ne
+ * ha una ([PillEntry.short]). La × non ce l'ha, e tiene il glifo da solo al centro.
  */
 @Composable
 private fun StartFace(entry: PillEntry) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(imageVector = entry.icon, contentDescription = null, modifier = Modifier.size(START_GLYPH))
         entry.short?.let { label ->
-            // ⚠️ Since 4.35 more room between icon and label, with the taller rows (item `4.34-01`).
+            // Lo spazio fra icona ed etichetta, con le righe più alte (voce `4.34-01`).
             Spacer(Modifier.height(START_LABEL_GAP))
             BasicText(
                 text = label,
                 style = TextStyle(color = LocalContentColor.current, textAlign = TextAlign.Center),
                 maxLines = 1,
                 autoSize = TextAutoSize.StepBased(START_LABEL_MIN, START_LABEL, 0.5.sp),
-                // ⚠️ Wider than the key, which the label overflows: the key draws no clip since
-                // 4.34 ([PillKey]).
+                // Più larga del tasto, oltre il quale l'etichetta sporge: il tasto non ritaglia
+                // ([PillKey]).
                 modifier = Modifier.requiredWidth(START_COLUMN - 4.dp)
             )
         }
@@ -628,11 +595,12 @@ private fun StartFace(entry: PillEntry) {
 }
 
 /**
- * The bar itself: every key on one row, spread across the width, over the gesture area.
+ * La barra: tutti i tasti su una riga, distribuiti sulla larghezza, sopra l'area dei gesti.
  *
- * ⚠️ **The two keys at the preferred corner turn into the jump while scrolling** (answer M2): on the
- * right the last two, on the left the first two, which are where the folded pill's two keys were.
- * ⚠️ **The fill is the main buttons' look** ([buttonFill]), as his text for that setting says.
+ * Durante lo scorrimento i due tasti dell'angolo preferito diventano il salto (risposta M2): a
+ * destra gli ultimi due, a sinistra i primi due, dove erano i due tasti della pillola piegata.
+ * Il fondo è l'aspetto dei pulsanti principali ([buttonFill]), come dice il testo di
+ * quell'impostazione.
  */
 @Composable
 private fun Bar(
@@ -664,13 +632,11 @@ private fun Bar(
     ) {
         val key = min(PILL_KEY, maxWidth / count.coerceAtLeast(1))
         /*
-         * ⚠️⚠️ **WITH FEW KEYS THEY GATHER ON THE PREFERRED SIDE, SINCE 4.20, AND IT IS HIS RULE**
-         * (note N2 on the 4.15 round: *quando le icone sono 5, 6 o 7 ... si distribuiscono per tutta
-         * la larghezza disponibile. Ma se sono 2, 3 o 4 devono stare sul lato preferito*), with the
-         * pill's own spacing, and the × counts (*le tre (4 a scomparsa)*). In 4.15 every bar spread
-         * its keys, and the bin's three were lost across the screen.
-         * ⚠️ **The margin is the FAB's corner** ([BAR_SIDE]), so the corner key lands where the
-         * folded pill's key was.
+         * Da [BAR_SPREAD] tasti in su si distribuiscono su tutta la larghezza; con meno si
+         * raccolgono sul lato preferito, con la spaziatura della pillola, e la × conta (regola
+         * dell'utente, nota N2 del giro della 4.15).
+         * Il margine è quello dell'angolo del FAB ([BAR_SIDE]), così il tasto d'angolo cade dove era
+         * quello della pillola piegata.
          */
         val spread = count >= BAR_SPREAD
         val navBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -706,16 +672,15 @@ private fun Bar(
 }
 
 /**
- * What is left of the sliding bar at rest: a vertical pill of two keys in the FAB's corner.
+ * Quello che resta della barra a scomparsa a riposo: una pillola verticale di due tasti
+ * nell'angolo del FAB.
  *
- * ⚠️ **The upper key is always 'in cima'**, and the lower one is the app's mark, which opens the bar
- * and keeps the FAB's long press; while scrolling it turns into 'in fondo' with the jump's own
- * crossfade (answer M2: *quella sopra è già ⌃ (in cima), l'altra (glifo) deve diventare 'in fondo'
- * con il solito meccanismo*).
- * ⚠️ **Where the screen has no jump only the mark is left**: an upper key that does nothing would
- * be a command that lies.
- * ⚠️ **The corner menu's round rest is not this one since 6.03** ([RoundRest]): from 4.25 to 6.02 it
- * was this pill with the upper key growing out of the round one while scrolling.
+ * Il tasto in alto è sempre 'in cima'; quello in basso è il marchio dell'app, che apre la barra e
+ * tiene il tocco lungo del FAB, e durante lo scorrimento diventa 'in fondo' con la dissolvenza del
+ * salto (risposta M2).
+ * Dove la schermata non ha il salto resta solo il marchio: un tasto in alto che non fa niente
+ * sarebbe un comando che mente.
+ * Il tondo a riposo del Menu 'Start' è un'altra cosa ([RoundRest]).
  */
 @Composable
 private fun FoldedPill(
@@ -758,12 +723,12 @@ private fun FoldedPill(
 }
 
 /**
- * The corner menu's round key at rest, since 6.03: the sliding pill's round key, closed (his request:
- * *rendi il comportamento del tondo identico a quello della pillola a scomparsa*).
+ * Il tondo a riposo del Menu 'Start': lo stesso tondo della pillola a scomparsa, chiusa
+ * (richiesta dell'utente, 6.03).
  *
- * ⚠️ **One key while scrolling too**: the glyph is the FAB's ([glyph]), which turns into the chevron
- * while the jump is armed, and the tap jumps the way it points ([onLeap]); otherwise it opens the
- * menu. The long press is the FAB's, as on the sliding pill's round key.
+ * Un tasto solo anche durante lo scorrimento: il glifo è quello del FAB ([glyph]), che diventa la
+ * freccia quando il salto è armato, e il tocco salta dove punta ([onLeap]); altrimenti apre il
+ * menu. Il tocco lungo è quello del FAB, come sul tondo della pillola a scomparsa.
  */
 @Composable
 private fun RoundRest(
@@ -791,8 +756,8 @@ private fun RoundRest(
 }
 
 /**
- * Declares the whole bottom band as taken, up to this node's top: a notice rises above the bar, as
- * it rises above the selection's sheet ([FootStage.cover]).
+ * Dichiara occupata tutta la fascia in basso, fino alla cima di questo nodo: un avviso sale sopra
+ * la barra, come sopra la scheda della selezione ([FootStage.cover]).
  */
 @Composable
 private fun Modifier.declaresBand(): Modifier {

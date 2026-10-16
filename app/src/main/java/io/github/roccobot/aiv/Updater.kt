@@ -33,68 +33,67 @@ import java.security.MessageDigest
 import java.time.LocalDate
 
 /*
- * The self-update of AIV GitHub, since 5.60.
+ * L'aggiornamento da sé di AIV GitHub.
  *
  * Author: Rocco Casadei, a.k.a. Roccobot
  *
- * ⚠️⚠️ **His request and his two choices** (2026-10-11): *quella di GitHub dovrà avere un sistema
- * di auto-aggiornamento, perché scaricare ogni volta manualmente la release è troppo scomodo e non
- * tutti usano Obtainium*. C1: AIV downloads and installs, with his confirmation. D1: it checks when
- * the app opens, at most once a day, with no background work and no notification.
- * ⚠️ **Only AIV GitHub** ([Store.updates]): AIV Play is updated by the Play Store.
+ * Scelte C1 e D1 dell'utente, 5.60: AIV scarica e installa con la sua conferma; controlla
+ * all'apertura dell'app, al massimo una volta al giorno, senza lavoro in sottofondo e senza
+ * notifiche.
+ * Solo AIV GitHub ([Store.updates]): AIV Play lo aggiorna il Play Store.
  */
 object Updater {
 
-    /** The latest release of the repository, as the GitHub API serves it without a token. */
+    /** L'ultima release del repository, come la serve l'API di GitHub senza token. */
     private const val LATEST = "https://api.github.com/repos/Roccobot/AIV/releases/latest"
 
     /**
-     * The APK of AIV GitHub among the assets of a release.
+     * L'APK di AIV GitHub fra gli asset di una release.
      *
-     * ⚠️ **A release has two APKs since 5.10**, and `AIV-Play-x.xx.apk` must never be picked:
-     * it is another app, with another identifier. The name is the one `release.yml` writes.
+     * ⚠️ **Una release ha due APK**, e `AIV-Play-x.xx.apk` non va mai scelto: è un'altra app, con
+     * un altro identificativo. Il nome è quello che scrive `release.yml`.
      */
     private val APK = Regex("""^AIV-\d+\.\d+\.apk$""")
 
-    /** A release newer than the installed app, with what is needed to download and check it. */
+    /** Una release più nuova dell'app installata, con quello che serve a scaricarla e verificarla. */
     data class Release(
         val version: String,
         val url: String,
         val size: Long,
-        /** The SHA-256 GitHub declares for the asset, in lowercase hexadecimal. */
+        /** Lo SHA-256 che GitHub dichiara per l'asset, in esadecimale minuscolo. */
         val sha256: String
     )
 
     /**
-     * The release offered to him, which `UpdateDialog` shows at the root of the app.
+     * La release offerta, che `UpdateDialog` mostra alla radice dell'app.
      *
-     * ⚠️ **It lives here and not in a screen**, because both the automatic check at opening and
-     * 'Controlla ora' in the settings put it on stage, and the window must survive the screen.
+     * È qui e non in una schermata perché la mettono in scena sia il controllo all'apertura sia
+     * 'Controlla ora' nelle impostazioni, e la finestra deve sopravvivere alla schermata.
      */
     var offer by mutableStateOf<Release?>(null)
 
     /**
-     * Where the download and the installer run, for the life of the process.
+     * Dove girano lo scaricamento e l'installatore, per tutta la vita del processo.
      *
-     * ⚠️⚠️ **NOT IN THE WINDOW, and 5.70 is why** (`5.70-01` not approved: *è stato anche
-     * scaricato, ma poi non succede niente*). Until 5.70 the work ran in the window's own scope,
-     * and the first thing it did was close the window: the scope was cancelled with it, the
-     * download still reached its end (a blocking read does not stop), and the installer never
-     * opened, with no notice. `AggiornaTest` is the proof.
+     * ⚠️ **Non nello scope della finestra**: la prima cosa che il lavoro fa è chiuderla, e con lei
+     * si annullerebbe lo scope; lo scaricamento arriverebbe comunque in fondo (una lettura
+     * bloccante non si ferma) e l'installatore non si aprirebbe, senza avvisi. Presidiato da
+     * `AggiornaTest`.
      */
     private val work = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
-    /** Starts [install] where closing the window cannot stop it. */
+    /** Avvia [install] dove la chiusura della finestra non può fermarlo. */
     fun start(context: Context, release: Release) {
         val app = context.applicationContext
         work.launch { install(app, release) }
     }
 
     /**
-     * Reads the latest release from the API answer: `null` when it has no usable APK.
+     * Legge l'ultima release dalla risposta dell'API: `null` quando non ha un APK utilizzabile.
      *
-     * ⚠️⚠️ **Without a digest there is no release**: the check he chose is the signature *and*
-     * the digest, and an APK that cannot be compared with what GitHub declares is not installed.
+     * ⚠️ **Senza impronta non c'è release**: la verifica scelta dall'utente è la firma e
+     * l'impronta, e un APK che non si può confrontare con quello che GitHub dichiara non si
+     * installa.
      */
     internal fun parse(json: String): Release? {
         val root = JSONObject(json)
@@ -117,11 +116,10 @@ object Updater {
     }
 
     /**
-     * Whether [remote] is newer than [local], both SlimVer (`x.xx`).
+     * Se [remote] è più nuova di [local], tutte e due SlimVer (`x.xx`).
      *
-     * ⚠️ **Compared as decimals, not as text**: SlimVer always has two decimals, so `5.10` comes
-     * before `5.90` either way, but `10.00` and `9.99` would compare the wrong way as strings. A
-     * number that cannot be read is never newer.
+     * ⚠️ **Si confrontano come decimali, non come testo**: come stringhe `10.00` verrebbe prima
+     * di `9.99`. Un numero illeggibile non è mai più nuovo.
      */
     internal fun newer(remote: String, local: String): Boolean {
         val a = remote.toBigDecimalOrNull() ?: return false
@@ -132,10 +130,10 @@ object Updater {
     private fun String.toBigDecimalOrNull(): BigDecimal? = runCatching { BigDecimal(this) }.getOrNull()
 
     /**
-     * Whether the automatic check is due: once a calendar day, his D1.
+     * Se tocca al controllo automatico: una volta per giorno di calendario (scelta D1).
      *
-     * ⚠️ **The calendar day and not 24 hours**: who opens the app every morning at about the same
-     * time would otherwise skip one day out of two, a minute before the 24 hours run out.
+     * Il giorno di calendario e non 24 ore: chi apre l'app ogni mattina all'incirca alla stessa
+     * ora salterebbe un giorno su due, aprendo un minuto prima dello scadere.
      */
     internal fun due(last: Long?, today: Long): Boolean = last != today
 
@@ -143,11 +141,11 @@ object Updater {
         context.getSharedPreferences("updates", Context.MODE_PRIVATE)
 
     /**
-     * Asks GitHub for the latest release, and offers it when it is newer than this app.
+     * Chiede a GitHub l'ultima release, e la offre quando è più nuova di questa app.
      *
-     * @param asked `true` for 'Controlla ora': it runs even if today's check was done, and it says
-     *   the outcome ('AIV è aggiornata', or the failure). The automatic check says nothing unless
-     *   there is something to offer: a phone offline at opening is not news.
+     * @param asked `true` per 'Controlla ora': gira anche se il controllo di oggi è già fatto, e
+     *   dice l'esito ('AIV è aggiornata', o il fallimento). Il controllo automatico tace se non
+     *   c'è niente da offrire: un telefono senza rete all'apertura non è una notizia.
      */
     suspend fun check(context: Context, asked: Boolean) {
         if (!Store.updates) return
@@ -172,14 +170,14 @@ object Updater {
     }
 
     /**
-     * Downloads [release], checks it, and hands it to Android's installer.
+     * Scarica [release], la verifica e la passa all'installatore di Android.
      *
-     * ⚠️⚠️ **The two checks he chose come before the installer**: the SHA-256 of the file must be
-     * the one GitHub declares, and the APK must be signed with the key of the installed app. A file
-     * that fails either is deleted and never reaches the installer, which would otherwise show an
-     * error of its own with no word on why.
-     * ⚠️ **The permission to install apps is asked before the download**: Android grants it on its
-     * own page, and the window stays where it is, so he taps 'Aggiorna' again when he is back.
+     * ⚠️ **Le due verifiche vengono prima dell'installatore**: lo SHA-256 del file deve essere
+     * quello che GitHub dichiara, e l'APK deve essere firmato con la chiave dell'app installata.
+     * Un file che ne fallisce una si cancella, e l'installatore non lo vede: darebbe un errore suo
+     * senza dire perché.
+     * Il permesso di installare app si chiede prima dello scaricamento: Android lo concede da una
+     * sua pagina e la finestra resta, quindi al ritorno si tocca di nuovo 'Aggiorna'.
      */
     suspend fun install(context: Context, release: Release) {
         val pm = context.packageManager
@@ -235,15 +233,15 @@ object Updater {
 
     private enum class Outcome { READY, FAILED, UNTRUSTED }
 
-    /** The name of the downloaded APK of [version] in the cache. */
+    /** Il nome dell'APK scaricato di [version] nella cache. */
     internal fun apkName(version: String): String = "AIV-$version.apk"
 
     /**
-     * The files of the update cache that nobody needs any more, since 6.29.
+     * I file della cache degli aggiornamenti che non servono più.
      *
-     * ⚠️ **An APK stays only while it can still be installed**: one of a version newer than this
-     * app, or the one being downloaded ([keep]). The others are the update already installed and
-     * the ones before it, about eleven megabytes each, and until 6.28 nothing removed them.
+     * Un APK resta finché si può ancora installare: quello di una versione più nuova di questa
+     * app, o quello che si sta scaricando ([keep]). Gli altri sono gli aggiornamenti già
+     * installati, circa undici megabyte l'uno.
      */
     internal fun stale(names: List<String>, current: String, keep: String?): List<String> =
         names.filter { name ->
@@ -253,14 +251,14 @@ object Updater {
             name == version || !newer(version, current)
         }
 
-    /** Deletes the [stale] files of the update cache. */
+    /** Cancella i file [stale] della cache degli aggiornamenti. */
     internal fun sweep(context: Context, keep: String?) {
         val dir = File(context.cacheDir, DIR)
         val names = dir.list()?.toList() ?: return
         stale(names, BuildConfig.VERSION_NAME, keep).forEach { File(dir, it).delete() }
     }
 
-    /** The body of [url], as text. */
+    /** Il corpo di [url], come testo. */
     private fun read(url: String): String {
         val link = URL(url).openConnection() as HttpURLConnection
         try {
@@ -275,10 +273,9 @@ object Updater {
     }
 
     /**
-     * Writes [url] into [file], and returns the SHA-256 of what it wrote.
+     * Scrive [url] in [file], e risponde con lo SHA-256 di quello che ha scritto.
      *
-     * ⚠️ **The digest is computed while the bytes arrive**: reading the file a second time would
-     * cost a second pass over eleven megabytes for the same number.
+     * L'impronta si calcola mentre i byte arrivano, senza una seconda lettura del file.
      */
     private fun download(url: String, file: File): String {
         val link = URL(url).openConnection() as HttpURLConnection
@@ -305,10 +302,11 @@ object Updater {
     }
 
     /**
-     * Whether the APK in [file] is this app, signed with the key of the installed one.
+     * Se l'APK in [file] è questa app, firmata con la chiave di quella installata.
      *
-     * ⚠️ **The package name is checked too**: a file signed with the same key but carrying AIV
-     * Play's identifier would be another app, and the installer would put it beside this one.
+     * ⚠️ **Si controlla anche il nome del pacchetto**: un file con la stessa chiave ma
+     * l'identificativo di AIV Play sarebbe un'altra app, e l'installatore la metterebbe accanto a
+     * questa.
      */
     @Suppress("DEPRECATION")
     private fun sameSigner(pm: PackageManager, name: String, file: File): Boolean {
@@ -320,17 +318,18 @@ object Updater {
     }
 
     /**
-     * The signers of a package.
+     * I firmatari di un pacchetto.
      *
-     * ⚠️ **`signingInfo` first, `signatures` as the fallback**: on some Android versions the info of
-     * an archive leaves `signingInfo` empty, and the old field still says who signed it.
+     * Prima `signingInfo`, poi `signatures` come ripiego: su alcune versioni di Android le
+     * informazioni di un archivio lasciano vuoto `signingInfo`, e il campo vecchio dice ancora chi
+     * l'ha firmato.
      */
     @Suppress("DEPRECATION")
     private fun signers(info: PackageInfo): Set<Signature> =
         info.signingInfo?.apkContentsSigners?.toSet()?.takeIf { it.isNotEmpty() }
             ?: info.signatures?.toSet().orEmpty()
 
-    /** Whether two sets of signers are the same, and not empty. */
+    /** Se due insiemi di firmatari sono uguali e non vuoti. */
     internal fun sameSigners(a: Set<Signature>, b: Set<Signature>): Boolean = a.isNotEmpty() && a == b
 
     private const val LAST = "checked-day"
@@ -340,14 +339,13 @@ object Updater {
 }
 
 /**
- * The window that offers a newer release: 'AIV x.xx è disponibile', with 'Aggiorna' and 'Più
+ * La finestra che offre una release più nuova: 'AIV x.xx è disponibile', con 'Aggiorna' e 'Più
  * tardi'.
  *
- * ⚠️ **Not a modal one** (`lowered` with a closing gesture): it asks for no input, and a tap
- * outside means 'più tardi', the same as the button. The rule lives in `Rules.md`, § '👆 Che cosa
- * fa il tocco FUORI da una finestra'.
- * ⚠️ **'Più tardi' waits for tomorrow**: the automatic check has already counted today, so the
- * offer comes back at the next day's opening, or at once with 'Controlla ora'.
+ * Non è modale (`lowered` con un gesto di chiusura): non chiede un input, e un tocco fuori vale
+ * 'Più tardi' (`Rules.md` § '👆 Che cosa fa il tocco FUORI da una finestra').
+ * 'Più tardi' aspetta domani: il controllo automatico ha già contato oggi, quindi l'offerta
+ * torna all'apertura del giorno dopo, o subito con 'Controlla ora'.
  */
 @Composable
 fun UpdateDialog() {

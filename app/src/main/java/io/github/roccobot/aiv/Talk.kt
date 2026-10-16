@@ -16,22 +16,16 @@ import androidx.compose.ui.unit.dp
  * I pezzi condivisi di quello che l'app **dice a un lettore di schermo**, e il bersaglio minimo
  * di un comando.
  *
- * ⚠️⚠️ **NASCE DAL CENSIMENTO DELLA UI DEL 2026-09-05, che di rilievi di accessibilità ne ha
- * contati quindici**, cioè la famiglia più numerosa dopo i commenti invecchiati. Il fatto che li
- * tiene insieme è uno: l'app cura con precisione la **voce** di ogni comando (chi porta la
- * descrizione fra icona e testo è discusso in tre KDoc diversi) e tace su tutto il resto, cioè
- * su che **cosa** quel comando è, se è **scelto**, se è un **titolo** e quanto è **grande** da
- * toccare. Un lettore di schermo di quelle quattro cose ha bisogno quanto della prima.
+ * Oltre alla voce di un comando, un lettore di schermo ha bisogno di sapere che cosa quel comando
+ * è, se è scelto, se è un titolo e quanto è grande da toccare: questo file dichiara le ultime
+ * quattro.
  *
- * ⚠️ **Perché un file condiviso e non una riga per chiamante**: le stesse quattro dichiarazioni
- * servivano in sette schermate e in nove componenti, e scritte a mano sarebbero state sedici
- * occasioni di dimenticarne una. Il precedente in casa è `lowered()`, che porta con sé il velo
- * per la stessa ragione: chi chiama ottiene la cosa giusta, non due righe da ricordare.
+ * Un file condiviso perché le stesse dichiarazioni servono in molte schermate e componenti, e
+ * scritte a mano a ogni chiamata sarebbero altrettante occasioni di dimenticarne una (come
+ * `lowered()` con la Sfocatura dietro i pannelli).
  *
- * ⚠️⚠️ **E NON SI PUÒ PROVARE COL TELEFONO SPENTO, ma il banco vede tutto quello che serve**:
- * l'albero semantico è un dato, quindi un'intestazione mancante, un ruolo sbagliato o un
- * bersaglio troppo piccolo sono misure e non impressioni. È la ragione per cui questo lotto
- * porta `SemanticheTest`.
+ * L'albero semantico è un dato, quindi un'intestazione mancante, un ruolo sbagliato o un
+ * bersaglio troppo piccolo si misurano sul banco: presidiato da `SemanticheTest`.
  */
 
 /**
@@ -41,31 +35,28 @@ import androidx.compose.ui.unit.dp
  * un testo cliccabile a corpo `labelMedium` viene alto 16dp di riga più i suoi margini, cioè
  * poco più della metà.
  *
- * ⚠️⚠️ **`minimumInteractiveComponentSize()` DI MATERIAL NON FA QUESTO LAVORO, ed è misurato sul
- * bytecode**: `MinimumInteractiveModifierNode` implementa il solo `LayoutModifierNode`, quindi
- * **riserva lo spazio** e centra il contenuto, ma il bersaglio dei tocchi resta quello del nodo
- * di layout che sta **dentro** la catena. In `FilterKey` è usato per quello che sa fare, cioè
- * tenere lontani due tasti vicini, e là il tocco è già 40dp per la sua `size`.
- * - **Quindi la forma che funziona è l'ordine**: il gesto si installa **prima** della misura, e
- *   così il suo riquadro è quello allargato. È lo stesso fatto per cui in casa il `clickable`
- *   precede il `padding`, che è scritto in due KDoc del pannello delle impostazioni.
+ * ⚠️ **`minimumInteractiveComponentSize()` di Material non allarga il bersaglio** (misurato sul
+ * bytecode): `MinimumInteractiveModifierNode` è solo un `LayoutModifierNode`, quindi riserva lo
+ * spazio e centra il contenuto, ma il bersaglio dei tocchi resta quello del nodo di layout più
+ * interno. In `FilterKey` serve a tenere lontani due tasti vicini, e là il tocco è già 40dp per
+ * la sua `size`.
+ * Quindi conta l'ordine: il gesto si installa prima della misura, e così il suo riquadro è quello
+ * allargato (per la stessa ragione il `clickable` precede il `padding`).
  */
 internal val TAP_MIN = 48.dp
 
 /**
  * Dichiara un **titolo di schermata** come intestazione, cioè come punto in cui un lettore di
  * schermo si fermi navigando per intestazioni.
- *
- * ⚠️ **Nessuno dei sette titoli dell'app lo dichiarava**, e per TalkBack erano testo qualunque:
- * la navigazione per intestazioni non trovava niente, quindi l'unico modo di arrivare in fondo
- * a una schermata era scorrere voce per voce.
+ * Senza, per TalkBack un titolo è testo qualunque, e la navigazione per intestazioni non trova
+ * niente.
  */
 internal fun Modifier.heading(): Modifier = semantics { heading() }
 
 /**
  * Riserva a un comando il [TAP_MIN] in altezza, centrandoci il contenuto.
  *
- * ⚠️ **Va DOPO il gesto nella catena**, o non serve a niente: il perché è su [TAP_MIN].
+ * ⚠️ Va dopo il gesto nella catena, o non allarga il bersaglio: il perché è su [TAP_MIN].
  */
 internal fun Modifier.tapRoom(): Modifier =
     sizeIn(minHeight = TAP_MIN).wrapContentHeight(Alignment.CenterVertically)
@@ -73,21 +64,19 @@ internal fun Modifier.tapRoom(): Modifier =
 /**
  * Dichiara che le voci dentro sono una **scelta sola**, cioè che ne vale una per volta.
  *
- * ⚠️ **Da sola non basta, e va sempre insieme a [picked] sulle voci**: dice che il gruppo è una
- * scelta e quanto è lungo, non quale voce sia scelta né che genere di voce sia.
+ * Va sempre insieme a [picked] sulle voci: dice che il gruppo è una scelta e quanto è lungo, e
+ * [picked] dice quale voce è scelta e che genere di voce è.
  */
 internal fun Modifier.oneOf(): Modifier = selectableGroup()
 
 /**
  * Dichiara una voce di una scelta esclusiva: il **ruolo** giusto e se è quella **scelta**.
  *
- * ⚠️⚠️ **IL RUOLO DEL CHIAMANTE VINCE SU QUELLO DEL COMPONENTE, ed è misurato dal banco**: un
- * `FilterChip` di Material si scrive addosso `Role.Checkbox` (letto nel bytecode di `ChipKt`),
- * cioè si annuncia come una casella che si spunta da sola, mentre le sei chiamate dell'app sono
- * tutte scelte a risposta unica. Con questa riga il ruolo che arriva è `RadioButton`.
- * - ⚠️ **Non si usa `clearAndSetSemantics`**, che sarebbe l'altra via per riscrivere un ruolo:
- *   quello cancella anche l'azione di tocco del componente, cioè renderebbe la pastiglia
- *   inattivabile proprio per chi usa il lettore di schermo.
+ * Il ruolo del chiamante vince su quello del componente (misurato dal banco): un `FilterChip` di
+ * Material si dichiara `Role.Checkbox`, cioè una casella che si spunta da sola, mentre nell'app
+ * le scelte sono a risposta unica. Con questa riga il ruolo è `RadioButton`.
+ * ⚠️ `clearAndSetSemantics` cancellerebbe anche l'azione di tocco del componente, e la pastiglia
+ * non si attiverebbe più col lettore di schermo.
  */
 internal fun Modifier.picked(chosen: Boolean): Modifier = semantics {
     role = Role.RadioButton

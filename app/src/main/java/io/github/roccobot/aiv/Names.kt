@@ -19,38 +19,20 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.roundToInt
 
 /**
- * Il nome accorciato quanto basta a starci in [lines] righe, con l'estensione salva, in
- * grassetto e mai spezzata.
+ * Il nome accorciato quanto basta a entrare in [lines] righe, con l'estensione salva, in
+ * grassetto e mai spezzata. Lo usano la pastiglia di 'Info dettagliate sul file' (tre righe), il
+ * nome sotto la miniatura in griglia (due) e la barra del visualizzatore (una).
  *
- * ⚠️⚠️ **STA IN UN FILE A SÉ DALLA 0.82, quando i posti che accorciano un nome sono diventati
- * più di uno**: la pastiglia di 'Info dettagliate sul file' (tre righe), il nome sotto la
- * miniatura in griglia (due, richiesta dell'utente) e la riga del nome nella barra del
- * visualizzatore (una). Il numero di righe è quindi un parametro e non più una costante: è la
- * sola cosa che cambia fra loro.
- *
- * ⚠️⚠️ **SI MISURA, non si conta**: un tetto di caratteri sarebbe sbagliato tre volte, perché
- * le lettere non hanno tutte la stessa larghezza (`WWW` occupa il triplo di `iii`), perché il
- * grassetto è più largo del peso normale, e perché la larghezza utile cambia col riquadro. Qui
- * si chiede al misuratore se il testo sfora, che è la stessa domanda che si farà il layout, e
- * gliela si chiede sul testo **già impaginato coi suoi pesi**.
- * ⚠️ **Ricerca binaria e non un ciclo che toglie una lettera per volta**: su un nome di
- * duecento caratteri sarebbero duecento misure a ogni composizione. Così sono otto.
- * ⚠️⚠️ **Il GIUNTORE DI PAROLE (`U+2060`) dentro l'estensione è l'unico modo di rispettare
- * il 'mai'**: un nome di file non ha spazi, quindi il layout può andare a capo fra due
- * caratteri qualunque, e `.HEIC` finirebbe a cavallo di due righe come `.HE` più `IC`.
- * Quel carattere è invisibile e dice al layout 'qui non si rompe'. Scritto per codepoint,
- * come vuole la regola del repo sui caratteri invisibili.
- * ⚠️ **Lo spazio dopo l'ellissi, invece, è un punto in cui il layout PUÒ andare a capo**, e
- * va bene: il vincolo era che l'estensione non si spezzi, non che stia sulla stessa riga del
- * nome.
- * ⚠️⚠️ **`TextOverflow.Ellipsis` NON serve e farebbe il danno esatto che si vuole evitare**:
- * mette i tre punti alla **fine**, cioè mangia proprio l'estensione, che è la parte che
- * l'utente ha chiesto di salvare sempre.
- * ⚠️⚠️ **E `TextOverflow.MiddleEllipsis` ESISTE, ma non basta: fino alla `1.78` questa nota
- * diceva che Compose l'ellissi in mezzo non ce l'ha, ed era falso.** L'app la usa già in due
- * finestre (l'indirizzo e la destinazione). Quello che non fa è il resto del lavoro di questa
- * funzione: divide sulla **larghezza** e non garantisce l'estensione intera, non stringe il
- * corpo per non lasciare un carattere orfano, e non tiene il grassetto sul suffisso.
+ * ⚠️⚠️ **Si misura, non si contano i caratteri**: le lettere non hanno la stessa larghezza, il
+ * grassetto è più largo, e la larghezza utile cambia col riquadro. Si chiede al misuratore se il
+ * testo già impaginato coi suoi pesi sfora, la stessa domanda che farà il layout. Ricerca binaria:
+ * su un nome di duecento caratteri sono otto misure e non duecento.
+ * L'estensione è legata dal giuntore di parole ([WORD_JOINER]) e preceduta da un appiglio
+ * ([BREAK_HERE]): vedi le loro note. Lo spazio dopo l'ellissi è un punto in cui il layout può
+ * andare a capo, ed è ammesso: il vincolo è che l'estensione non si spezzi.
+ * ⚠️ **`TextOverflow.Ellipsis` toglierebbe proprio l'estensione**, perché mette i tre punti in
+ * fondo. `TextOverflow.MiddleEllipsis` divide sulla larghezza senza garantire l'estensione
+ * intera, non stringe il corpo e non tiene il grassetto sul suffisso.
  */
 fun fitName(
     name: String,
@@ -63,19 +45,9 @@ fun fitName(
         append(testa)
         if (coda.isNotEmpty()) {
             /*
-             * ⚠️⚠️ **L'APPIGLIO PRIMA DELL'ESTENSIONE MANCAVA QUI FINO ALLA `1.81`, e da lì
-             * veniva il difetto che l'utente ha visto due volte** (riscontro del giro della
-             * `1.80`, punto C: *accade ancora che le estensioni dei file siano spezzate*, col
-             * nome `whale-watercolor-illustration-png.png.webp` reso `...png.w` a capo `ebp`).
-             * Il giuntore dentro [glue] **vieta** di rompere dentro l'estensione, e quel
-             * divieto vale finché il layout ha un altro posto in cui andare a capo: un nome
-             * senza spazi che non ne ha nemmeno uno il layout lo rompe per forza, e quando è
-             * costretto rompe dove capita, giuntori compresi.
-             * ⚠️⚠️ **LA `1.59` LO AVEVA GIÀ CAPITO, E LO AVEVA MESSO NELL'ALTRA FUNZIONE**: la
-             * nota su [BREAK_HERE] descrive questo esatto rimedio da allora, ma [nameWithExt]
-             * è la via dei nomi che **non** si accorciano, cioè le pastiglie della rinomina.
-             * Dove il nome si accorcia (la pastiglia di 'Info' e il nome sotto la miniatura)
-             * l'appiglio non c'era, e il difetto è rimasto vivo esattamente là.
+             * ⚠️⚠️ **L'appiglio prima dell'estensione serve anche qui**, come in [nameWithExt]:
+             * senza, un nome senza spazi si rompe dove capita, giuntori compresi (vedi
+             * [BREAK_HERE]).
              */
             append(BREAK_HERE)
             withStyle(EXT_BOLD) { append(coda) }
@@ -90,27 +62,17 @@ fun fitName(
     ).hasVisualOverflow
 
     val punto = name.lastIndexOf('.')
-    // ⚠️ `punto > 0` e non `>= 0`: un nome che comincia col punto è un file nascosto, e là
-    // quel punto non introduce un'estensione, fa parte del nome.
+    // ⚠️ `punto > 0`: un nome che comincia col punto è un file nascosto, e quel punto fa parte
+    // del nome.
     val coda = if (punto > 0) glue(name.substring(punto)) else ""
     val corpo = if (punto > 0) name.substring(0, punto) else name
 
     /*
-     * ⚠️⚠️ **SI PROVA PRIMA A STRINGERE, E SOLO POI SI ACCORCIA, DALLA `1.62`** (riscontro del
-     * giro della `1.60`: *queste soluzioni in ordine di priorità, incluso il nuovo metodo che
-     * prevede di ridurre il testo, devono valere in generale per tutti i casi analoghi in cui
-     * non vanno spezzate le righe. La riduzione è utile specialmente nei casi-limite, quando un
-     * solo carattere rischia di essere tagliato fuori*). Fino alla `1.61` il rimpicciolimento
-     * viveva nella sola anteprima della rinomina, dove era nato, e qui si accorciava e basta: un
-     * nome che sforava di due lettere perdeva un pezzo di sé anche quando un corpo del 5% più
-     * stretto lo avrebbe fatto stare intero.
-     * ⚠️ **Un nome intero un filo più piccolo vale più di un nome accorciato**, ed è l'ordine di
-     * priorità che ha dettato. Le strette da provare, e in che ordine, stanno su [strette].
-     * ⚠️⚠️ **E SE NEMMENO L'ULTIMA BASTA, SI ACCORCIA AL CORPO PIENO**: la stretta serve ai
-     * **casi-limite**, come dice il riscontro, e su un nome lunghissimo il taglio arriva
-     * comunque; portarselo dietro costerebbe leggibilità senza salvare niente.
-     * ⚠️ **Costa una misura in più per gradino**, e solo per i nomi che sforano: quello che sta
-     * alla misura piena esce alla prima, come prima.
+     * ⚠️ **Prima si stringe, poi si accorcia** (ordine di priorità dell'utente): un nome intero un
+     * filo più piccolo vale più di un nome accorciato. Le strette da provare sono in [strette].
+     * Se nemmeno l'ultima basta, si accorcia al corpo pieno: la stretta serve ai casi limite, e su
+     * un nome lunghissimo il taglio arriva comunque. Un nome che entra alla misura piena costa una
+     * misura sola.
      */
     val intero = comporre(corpo, coda)
     for (stile in strette(style)) {
@@ -129,37 +91,23 @@ fun fitName(
 /**
  * Le strette da provare, dalla meno visibile alla più visibile.
  *
- * ⚠️⚠️ **LA SPAZIATURA VIENE PRIMA DEL CORPO, DALLA `1.81`, ED È UNA SUA APERTURA** (riscontro
- * del giro della `1.80`, punto C: *puoi anche AUMENTARE la dimensione del testo, oppure
- * aumentare/diminuire la spaziatura tra caratteri, se ciò aiuta ad andare a capo in modo
- * migliore*). Stringere la spaziatura di [NAME_TIGHT] guadagna circa quanto un gradino di corpo
- * e **si vede molto meno**: un corpo più piccolo si nota accanto a un altro testo della stessa
- * specie (due nomi in due celle vicine della griglia), le lettere un filo più vicine no.
- * ⚠️ **E una volta stretta resta stretta mentre il corpo scende**: rimettere la spaziatura larga
- * a corpo ridotto vorrebbe dire tornare indietro sulla leva meno visibile per spendere quella
- * che si nota, cioè il contrario dell'ordine di priorità che ha dettato.
+ * ⚠️ **La spaziatura viene prima del corpo**: stringerla di [NAME_TIGHT] guadagna circa quanto
+ * un gradino di corpo e si vede molto meno, perché un corpo più piccolo si nota accanto a un altro
+ * nome della griglia. Una volta stretta resta stretta mentre il corpo scende.
  *
- * ⚠️ **È `internal` e non privata perché il banco di prova la misura**, ed è la stessa ragione di
- * `pinTop` in `Centred.kt`: sulla piattaforma finta il misuratore di testo dà a **ogni**
- * carattere un pixel di larghezza (misurato), quindi né il corpo né la spaziatura cambiano una
- * riga, e una prova che passasse da [fitName] non eserciterebbe questo ordine affatto.
+ * È `internal` perché il banco di prova la misuri (come `pinTop` in `Centred.kt`): sulla
+ * piattaforma finta ogni carattere è largo un pixel, quindi una prova che passasse da [fitName]
+ * non eserciterebbe quest'ordine.
  *
- * ⚠️⚠️ **QUELLO CHE NON C'È È L'INGRANDIMENTO, e la ragione è misurabile invece che di gusto**:
- * un corpo più **grande** non può creare un punto in cui andare a capo che a corpo minore non
- * c'era, quindi non può evitare nessuna rottura; la sua condizione (*se ciò aiuta ad andare a
- * capo in modo migliore*) non si verifica mai. Riempire meglio la pastiglia quando il nome sta
- * comodo è un'altra cosa, e sarebbe un cambiamento di aspetto su tutti i nomi corti: se lo vuole
- * si fa, ma è una sua decisione e non un effetto collaterale di questa.
+ * Non c'è l'ingrandimento, che l'utente aveva ammesso se aiutava ad andare a capo meglio: un
+ * corpo più grande non crea nessun punto in cui andare a capo, quindi non evita nessuna rottura.
  */
 internal fun strette(style: TextStyle): Sequence<TextStyle> = sequence {
     yield(style)
     /*
-     * ⚠️⚠️ **I GRADINI SI CONTANO INTERI, E SOTTRARLI IN VIRGOLA MOBILE COSTAVA L'ULTIMO**
-     * (difetto trovato dal banco alla prima corsa, e vivo dalla `1.62`): partendo da 1 e
-     * togliendo [NAME_STEP] ogni volta, l'errore di arrotondamento fa scattare il confronto col
-     * minimo un gradino prima, quindi la corsa si fermava all'85% mentre l'80% era quello
-     * dichiarato. Con un contatore intero il valore si **ricostruisce** invece di accumularsi, e
-     * l'ultimo gradino è quello scritto.
+     * ⚠️ **I gradini si contano interi**: sottraendo [NAME_STEP] in virgola mobile, l'errore di
+     * arrotondamento fermerebbe la corsa all'85% e non all'80%. Col contatore il valore si
+     * ricostruisce a ogni passo, e l'ultimo gradino è quello scritto.
      */
     val gradini = ((1f - NAME_FLOOR) / NAME_STEP).roundToInt()
     for (passo in 0..gradini) {
@@ -168,29 +116,21 @@ internal fun strette(style: TextStyle): Sequence<TextStyle> = sequence {
 }
 
 /**
- * Il nome impaginato e **lo stile a cui è stato misurato**.
+ * Il nome impaginato e lo stile a cui è stato misurato.
  *
- * ⚠️⚠️ **PORTA LO STILE E NON UN NUMERO, DALLA `1.81`, e non è un ritocco di comodo**: fino alla
- * `1.80` qui c'era la sola scala, e chi disegnava doveva ricordarsi di riapplicarla
- * (`style.shrunk(shown.scale)`) in ognuno dei due posti che accorciano un nome. Con due leve
- * invece di una quel patto diventa 'ricordati di riapplicarne due', e una dimenticata dà un
- * testo che sfora **dopo** essere stato dichiarato dentro. Portando lo stile, chi disegna non ha
- * niente da ricomporre.
+ * ⚠️ **Contiene lo stile e non una scala**: chi disegna non deve riapplicare le strette, e una
+ * dimenticata darebbe un testo che sfora dopo essere stato misurato dentro.
  */
 data class Fitted(val text: AnnotatedString, val style: TextStyle)
 
 /**
  * Lo stesso stile, col corpo e l'interlinea stretti di [k] e, se [tight], le lettere più vicine.
  *
- * ⚠️ **Sta qui e non in due posti**: lo usano il misuratore di [fitName] e la pastiglia
- * dell'anteprima della rinomina, e due copie di questo conto vorrebbero dire misurare a un
- * corpo e scrivere a un altro, cioè un testo che sfora dopo essere stato dichiarato dentro.
- * ⚠️ **Le due misure si guardano prima di moltiplicarle**: un corpo o un'interlinea non
- * dichiarati valgono `Unspecified`, che non è un numero e non si scala.
- * ⚠️ **La spaziatura si SOSTITUISCE invece di essere sottratta**, ed è la sola via: quella di
- * partenza è dichiarata in `sp` dagli stili di Material e questa è in `em`, cioè due unità che
- * non si sommano. Quello che si perde è pochissimo (un decimo di `sp` su un corpo di quattordici,
- * cioè meno di un centesimo di em), e in cambio la stretta vale lo stesso su ogni corpo.
+ * ⚠️ **Una copia sola**: la usano il misuratore di [fitName] e la pastiglia dell'anteprima della
+ * rinomina, e due copie vorrebbero dire misurare a un corpo e scrivere a un altro.
+ * Le due misure si guardano prima di moltiplicarle: un valore `Unspecified` non si scala.
+ * La spaziatura si sostituisce: quella di partenza è in `sp` negli stili di Material e questa in
+ * `em`, due unità che non si sommano. Si perde meno di un centesimo di em.
  */
 internal fun TextStyle.shrunk(k: Float, tight: Boolean = false): TextStyle {
     if (k >= 1f && !tight) return this
@@ -205,11 +145,9 @@ internal fun TextStyle.shrunk(k: Float, tight: Boolean = false): TextStyle {
 /**
  * Di quanto si stringe il corpo a ogni passata, e fin dove.
  *
- * ⚠️ **L'80% è 'entro una certa soglia' tradotto in un numero**, ed è quello che l'anteprima
- * della rinomina usa dalla `1.60`: sotto, due nomi vicini smettono di leggersi come una coppia
- * perché hanno due corpi diversi.
- * ⚠️ **Il gradino è del 5%**: più fine vorrebbe dire più misure per un guadagno che a occhio non
- * si vede, più grosso salterebbe la misura giusta.
+ * Sotto l'80% due nomi vicini smettono di leggersi come una coppia, perché hanno due corpi
+ * diversi. Il gradino del 5%: più fine vorrebbe più misure per un guadagno che non si vede, più
+ * grosso salterebbe la misura giusta.
  */
 internal const val NAME_STEP = 0.05f
 internal const val NAME_FLOOR = 0.80f
@@ -217,39 +155,23 @@ internal const val NAME_FLOOR = 0.80f
 /**
  * Di quanto si avvicinano le lettere quando la spaziatura è la leva in uso.
  *
- * ⚠️⚠️ **IN `em` E NON IN `sp`, PERCHÉ DEVE VALERE LO STESSO SU OGNI CORPO**: un valore in `sp`
- * stringerebbe un testo piccolo molto più di uno grande, e questa stretta la chiedono la
- * pastiglia di 'Info' (`titleSmall`) e il nome sotto la miniatura (`labelSmall`), che hanno due
- * corpi diversi.
- * ⚠️ **Il 2% dell'em guadagna circa quanto un gradino di corpo, ed è il conto per cui è quello**:
- * la larghezza media di un carattere sta intorno a mezzo em, quindi togliere il 2% dell'em per
- * carattere stringe la riga del 4% circa, che è quanto vale il 5% del corpo. Il doppio comincerebbe
- * a far toccare le lettere.
+ * ⚠️ **In `em`, perché valga lo stesso su ogni corpo**: in `sp` stringerebbe un testo piccolo
+ * molto più di uno grande, e i corpi in gioco sono due (`titleSmall` e `labelSmall`).
+ * Il 2% dell'em, su un carattere largo in media mezzo em, stringe la riga del 4% circa, quanto un
+ * gradino di corpo; il doppio comincerebbe a far toccare le lettere.
  */
 internal val NAME_TIGHT = (-0.02).em
 
 /**
  * Il nome col punto e l'estensione **in grassetto** e **mai spezzati** andando a capo.
  *
- * ⚠️⚠️ **L'ESTENSIONE NON SI SPEZZA, ED È UNA REGOLA GENERALE** (riscontro dell'utente,
- * 2026-09-02, sulla rinomina: *il nome del file va a capo spezzando l'estensione (nella mia
- * prova: `.a` a capo `vif`) -> da mettere a posto: è una regola generale*). Un nome di file si
- * legge come **corpo più estensione**, e un'estensione tagliata in due smette di essere
- * riconoscibile. Il giuntore dentro [glue] è l'unica cosa che dice al layout dove non può
- * tagliare, e il punto entra nel pezzo saldato: senza, si andrebbe a capo **dopo** il punto,
- * che è il caso che l'utente ha visto.
- * ⚠️⚠️ **E IL GRASSETTO È DELLA 1.37** (riscontro `ext-griglia`: *sia nel nome corrente che
- * nell'anteprima della rinomina, evidenzia l'estensione (punto incluso) mettendola in
- * grassetto*). Fino alla 1.36 questa funzione si chiamava `unbroken` e ritornava una `String`
- * nuda, quindi nell'anteprima della rinomina il peso lo dava la pastiglia a tutto il testo.
- * ⚠️ **Il punto entra nel grassetto**, come chiede la richiesta: quello che si legge è
- * `nome` più `.avif`, non `nome.` più `avif`.
- * ⚠️⚠️ **NEGLI ALTRI POSTI C'ERA GIÀ, e non è una svista di questa nota**: la pastiglia di
- * 'Info', il nome sotto la miniatura in griglia e quello nella barra del visualizzatore
- * passano tutti da [fitName], che compone l'estensione con lo stesso grassetto dalla 0.82.
- * Questa funzione serve dove il nome **non** si accorcia, cioè dove [fitName] non arriva.
- * ⚠️ **Grassetto e giuntore sono due cose indipendenti**: il peso non impedisce al layout di
- * andare a capo, e il giuntore non si vede. Servono insieme e per due ragioni diverse.
+ * Serve dove il nome non si accorcia, cioè dove [fitName] non arriva (le pastiglie della rinomina).
+ *
+ * ⚠️⚠️ **L'estensione non si spezza, ed è una regola generale dell'utente**: un nome di file si
+ * legge come corpo più estensione, e un'estensione tagliata in due non si riconosce. Il punto
+ * entra nel pezzo saldato da [glue], o si andrebbe a capo dopo il punto, ed entra anche nel
+ * grassetto (riscontro `ext-griglia`): si legge `nome` più `.avif`. Grassetto e giuntore sono
+ * indipendenti: il peso non impedisce di andare a capo, e il giuntore non si vede.
  */
 fun nameWithExt(name: String): AnnotatedString {
     val punto = name.lastIndexOf('.')
@@ -262,23 +184,12 @@ fun nameWithExt(name: String): AnnotatedString {
 }
 
 /**
- * Il peso dell'estensione, **uno per tutta l'app**.
+ * Il peso dell'estensione, uno per tutta l'app (griglia, barra del visualizzatore, pastiglia di
+ * 'Info', anteprima della rinomina): copie diverse divergerebbero al primo ritocco.
  *
- * ⚠️⚠️ **ERA SCRITTO IN QUATTRO POSTI E ADESSO IN UNO, e la ragione non è l'eleganza**: le due
- * funzioni qui sopra ricevevano il peso come parametro, e i quattro che chiamavano passavano
- * quattro `SpanStyle(FontWeight.Bold)` identici (griglia, barra del visualizzatore, pastiglia
- * di 'Info', anteprima della rinomina). Quattro copie della stessa scelta divergono al primo
- * ritocco, ed è successo alla **prima** occasione utile: alzarne una sola avrebbe fatto due
- * estensioni di peso diverso nella stessa app.
- *
- * ⚠️⚠️ **`Black` E NON `Bold`, DALLA 1.38** (riscontro `ext-grassetto`, 2026-09-02: *si può
- * aumentare ulteriormente il peso del grassetto sia nel nome corrente che nell'anteprima?*).
- * ⚠️ **E NON `ExtraBold`, che è il gradino intermedio, per una ragione di FONT e non di
- * gusto**: prima di Android 12 il Roboto di sistema sono file separati (Thin 100, Light 300,
- * Regular 400, Medium 500, Bold 700, Black 900) e **l'800 non ha una faccia sua**. La regola di
- * abbinamento, per un peso sopra il 500, cerca prima verso l'alto: quindi l'800 diventerebbe
- * comunque 900 su quei telefoni e 800 vero su quelli nuovi, cioè un aumento che dipende dalla
- * versione di Android. Il 900 è lo stesso dappertutto.
+ * `Black` per il riscontro `ext-grassetto`. ⚠️ **Non `ExtraBold`**: prima di Android 12 il Roboto
+ * di sistema non ha una faccia per l'800, e la regola di abbinamento lo porterebbe a 900 su quei
+ * telefoni e a 800 su quelli nuovi. Il 900 è lo stesso dappertutto.
  */
 val EXT_BOLD = SpanStyle(fontWeight = FontWeight.Black)
 
@@ -288,72 +199,54 @@ private fun glue(ext: String): String = ext.toCharArray().joinToString(WORD_JOIN
 /**
  * `U+200B ZERO WIDTH SPACE`: invisibile, e **concede** al layout di andare a capo in quel punto.
  *
- * ⚠️⚠️ **IL GIUNTORE DA SOLO NON BASTAVA, ED È IL DIFETTO DELLA `1.59`** (riscontro del giro:
- * *nelle due pillole prima/dopo, si spezza ancora l'estensione. Con il nome
- * 'io.sono.flemd_3977405121263291276.mp4', il finale è '.mp' a capo '4'*). Il giuntore vieta di
- * spezzare **dentro** l'estensione, e il divieto vale finché il layout ha un altro posto in cui
- * andare a capo. Un nome come quello non ne ha nemmeno uno: per la grammatica delle
- * interruzioni di riga un punto fra due lettere, o fra una cifra e una lettera, **non** apre un
- * punto d'appiglio, quindi tutto il nome è una parola sola. Una parola più larga della riga il
- * layout la deve rompere per forza, e quando è costretto rompe dove capita, giuntori compresi:
- * non è indulgenza, è l'unico modo di posarla.
- * ⚠️ **Il rimedio è dare un appiglio invece di toglierne**: con questo carattere prima del
- * punto, il layout ha un posto legale in cui andare a capo, e allora l'estensione scende
- * **intera** sulla riga dopo. È la terza delle tre vie che lui ha indicato (*a capo con TUTTA
- * l'estensione*), ed è quella che garantisce di non spezzarla mai.
- * ⚠️ **Scritto per codepoint e non incollato**, come [WORD_JOINER] e per la stessa ragione:
- * incollato, questo file conterrebbe un carattere che a schermo non si vede e che nessuno
- * saprebbe di aver toccato.
- * ⚠️ **Solo per la resa, mai in un nome vero**: chi lo mette dentro un dato scrive un nome di
- * file che porta un carattere invisibile.
+ * ⚠️⚠️ **Il giuntore da solo non basta**: vieta di spezzare dentro l'estensione finché il layout
+ * ha un altro posto in cui andare a capo. In un nome come `io.sono.flemd_3977.mp4` un punto fra
+ * due lettere o fra una cifra e una lettera non apre un appiglio, quindi tutto il nome è una
+ * parola sola, e una parola più larga della riga il layout la rompe dove capita, giuntori
+ * compresi. Con questo carattere prima del punto c'è un posto legale in cui andare a capo, e
+ * l'estensione scende intera sulla riga dopo.
+ * Scritto per codepoint, come [WORD_JOINER]. ⚠️ Solo per la resa, mai in un nome vero, che
+ * conterrebbe un carattere invisibile.
  */
 private const val BREAK_HERE = "\u200B"
 
 /**
  * Il taglio: i tre punti e **uno spazio**.
  *
- * ⚠️ I tre punti si scrivono così e non col carattere unico, che il repo vieta. Lo spazio
- * è la correzione dell'utente al difetto dei quattro punti di fila: senza di lui l'ellissi
- * si salda al punto dell'estensione e si legge `....HEIC`.
+ * Tre punti e non il carattere unico, che il repo vieta. Lo spazio (correzione dell'utente)
+ * evita che l'ellissi si saldi al punto dell'estensione e si legga `....HEIC`.
  */
 private const val CUT = "... "
 
 /**
  * `U+2060 WORD JOINER`: invisibile, e vieta al layout di andare a capo in quel punto.
  *
- * ⚠️ Scritto per **codepoint** e non incollato, come vuole la regola del repo sui caratteri
- * invisibili: incollato, questo file conterrebbe un carattere che a schermo non si vede e
- * che nessuno saprebbe di aver toccato.
- * ⚠️ **Non è lo spazio insecabile** (`U+00A0`), che è vietato: quello è uno spazio e si
- * vede, questo non occupa larghezza e serve solo a legare due caratteri.
+ * Un nome di file non ha spazi, quindi senza questo carattere il layout potrebbe andare a capo
+ * fra due lettere qualunque e spezzare `.HEIC` in `.HE` e `IC`.
+ * Scritto per codepoint, come vuole la regola del repo sui caratteri invisibili. Non è lo spazio
+ * insecabile (`U+00A0`), che è vietato: questo non occupa larghezza.
  */
 private const val WORD_JOINER = "\u2060"
 
 /**
  * I nomi dei file già letti, uno per indirizzo.
  *
- * ⚠️⚠️ **ESISTE PER LA GRIGLIA, dove il nome si legge una miniatura per volta** (impostazione
- * 'Nome del file in vista griglia', dalla `0.82`): il nome di un `content://` non si ricava
- * dall'indirizzo, va chiesto al MediaStore, e una cartella da trecento foto scorsa avanti e
- * indietro farebbe quella domanda centinaia di volte per la stessa fotografia.
- * ⚠️ **La serie NON porta i nomi, ed è la ragione per cui questa memoria esiste**: `Folder.
- * Series` è una lista di indirizzi, e farle portare anche i nomi vorrebbe dire cambiarne la
- * forma e con lei il visualizzatore, la ricerca e il cestino, per un'impostazione che di
- * fabbrica è **spenta**. Il baratto è dichiarato: una domanda per fotografia, una volta sola.
- * ⚠️ **Vive quanto il processo e non si svuota**: un nome sta in poche decine di byte, e la
- * cosa peggiore che può fare una voce vecchia è descrivere un file rinominato. Chi rinomina
- * passa da `FileTree`, che fa rileggere la cartella, e la griglia chiede di nuovo con
- * l'indirizzo **nuovo**.
+ * ⚠️ **Esiste per la griglia** (impostazione 'Nome del file in vista griglia'): il nome di un
+ * `content://` va chiesto al MediaStore, e scorrendo una cartella grande la domanda si
+ * ripeterebbe centinaia di volte per la stessa immagine. `Folder.Series` è una lista di soli
+ * indirizzi, e farle contenere i nomi cambierebbe il visualizzatore, la ricerca e il cestino per
+ * un'impostazione spenta di fabbrica: una domanda per immagine, una volta sola.
+ * Vive quanto il processo e non si svuota: un nome occupa poche decine di byte. Una rinomina di
+ * AIV GitHub cambia l'indirizzo; quella di AIV Play lo lascia uguale, e chiama [forget].
  */
 object Names {
 
     /**
      * Il nome se è già stato letto, e `null` se non lo si sa ancora.
      *
-     * ⚠️ **Serve a non far lampeggiare la griglia**: senza, ogni miniatura che rientra in
-     * vista comparirebbe un fotogramma senza nome anche quando il nome è lì da un pezzo,
-     * perché una lettura sospesa vale comunque una ricomposizione. Con questa, il primo
-     * disegno ha già il testo e la ricomposizione non serve.
+     * ⚠️ **Evita che la griglia lampeggi**: una lettura sospesa vale comunque una
+     * ricomposizione, quindi senza questa ogni miniatura che rientra in vista avrebbe un
+     * fotogramma senza nome. Così il primo disegno ha già il testo.
      */
     fun cached(uri: Uri): String? = known[uri]
 
@@ -368,9 +261,8 @@ object Names {
     /**
      * Dimentica il nome di [uri], quando il file dietro di lui ne ha uno nuovo.
      *
-     * ⚠️ **Serve alla rinomina di AIV Play** (dalla `5.50`, `MediaRename`): il MediaStore rinomina
-     * il file sul posto, quindi l'indirizzo resta lo stesso e il nome tenuto qui descriverebbe il
-     * file di prima. AIV GitHub rinomina sul disco, e i suoi file tornano con un indirizzo nuovo.
+     * Serve alla rinomina di AIV Play (`MediaRename`): il MediaStore rinomina il file sul posto,
+     * e l'indirizzo resta lo stesso.
      */
     fun forget(uri: Uri) {
         known.remove(uri)

@@ -43,42 +43,28 @@ import kotlin.math.roundToInt
 /**
  * Un elenco che si riordina **trascinando**, con la manopola a destra di ogni riga.
  *
- * ⚠️⚠️ **PRENDE IL POSTO DELLE DUE FRECCE, ed è una richiesta dell'utente** (*i tastini su e giù
- * sono scomodi*). Le frecce non spariscono del tutto: restano come **azioni di accessibilità**
- * sulla riga, perché un trascinamento con un lettore di schermo non si può fare, e togliere le
- * frecce senza rimetterle là vorrebbe dire togliere la funzione a chi non vede.
+ * Le frecce su e giù restano come azioni di accessibilità sulla riga: col lettore di schermo un
+ * trascinamento non si può fare.
  *
- * ⚠️⚠️ **LE RIGHE SONO TUTTE ALTE UGUALE, e non è una comodità grafica: è quello che rende il
- * conto ESATTO.** Sapendo l'altezza, la riga di arrivo è la partenza più lo spostamento diviso
- * quell'altezza, arrotondato. Con righe di altezze diverse servirebbe misurare ognuna e
- * ricalcolare a ogni pixel, cioè molto codice per elenchi che qui sono di quattro o dieci voci.
- * Chi mettesse qui dentro una riga di due righe di testo romperebbe il conto, e per questo
- * l'altezza è imposta da qui e non lasciata al contenuto.
+ * ⚠️ **Le righe sono tutte alte uguale, ed è quello che rende il conto esatto**: la riga di
+ * arrivo è la partenza più lo spostamento diviso l'altezza, arrotondato. Con altezze diverse
+ * servirebbe misurare ogni riga e ricalcolare a ogni pixel; per questo l'altezza la impone
+ * questo componente e non il contenuto.
  *
- * ⚠️ **Niente `LazyColumn`**: le righe restano tutte composte, perché una lista pigra
- * riciclerebbe proprio quelle che si stanno spostando.
+ * Niente `LazyColumn`: una lista pigra riciclerebbe proprio le righe che si stanno spostando.
  *
- * ⚠️⚠️ **IL DITO SUL BORDO FA SCORRERE LA PAGINA, DALLA `1.81`, E FINO ALLA `1.80` QUESTA KDOC
- * ASSUMEVA CHE NON SERVISSE** (censimento della UI del 2026-09-05). Diceva che *questi elenchi
- * si vedono tutti insieme*, e per l'unico chiamante che il componente ha era falso: tredici
- * righe da [ROW] fanno più di settecento dp di solo elenco, su una finestra che di posto ne
- * lascia intorno ai seicento. Quindi l'ultima riga non si poteva raggiungere trascinando: il
- * gesto **consuma** gli eventi, quindi finché il dito è giù il guscio che scorre non si muove
- * da sé.
- * ⚠️ **Lo schema è quello della selezione da/a della griglia**, che lo stesso problema lo aveva
- * già risolto: la spinta si aggiorna a ogni **fotogramma** e non a ogni evento del dito (con la
- * pagina che scorre sotto un dito fermo non arriva nessun evento), e cresce avvicinandosi al
- * bordo invece di essere un interruttore.
- * ⚠️⚠️ **E LO SCARTO CRESCE DI QUANTO LA PAGINA È SCORSA**: il dito resta fermo **sullo
- * schermo**, quindi sotto di lui passa contenuto nuovo, e senza quella somma la riga presa
- * scapperebbe via da sotto il dito nel verso opposto.
- * ⚠️ **Questo pezzo il banco di prova non lo vede**, e va detto: vuole un gesto continuo e un
- * viewport vero, cioè le due cose che su una macchina senza telefono non ci sono.
+ * ⚠️ **Il dito sul bordo fa scorrere la pagina**: l'elenco può essere più alto della finestra, e
+ * il gesto consuma gli eventi, quindi finché il dito è giù il guscio che scorre non si muove da
+ * sé. Lo schema è quello della selezione da/a della griglia: la spinta si aggiorna a ogni
+ * fotogramma (con la pagina che scorre sotto un dito fermo non arriva nessun evento) e cresce
+ * avvicinandosi al bordo.
+ * Lo scarto cresce di quanto la pagina è scorsa: il dito resta fermo sullo schermo, e senza
+ * quella somma la riga presa scapperebbe da sotto il dito nel verso opposto.
+ * Lo scorrimento il banco non lo vede: vuole un gesto continuo e un viewport vero.
  *
- * @param fixed quante righe in testa **non** si spostano e non si possono scavalcare.
- * @param scroll il guscio che scorre, quando il chiamante ne ha uno. ⚠️ Senza, il
- *   trascinamento resta quello di prima e non scorre niente: è un valore di serie che **spegne**
- *   una funzione, non uno che la finge.
+ * @param fixed quante righe in testa non si spostano e non si possono scavalcare.
+ * @param scroll il guscio che scorre, quando il chiamante ne ha uno; senza, il trascinamento non
+ *   fa scorrere niente.
  */
 @Composable
 fun <T> Reorderable(
@@ -93,20 +79,17 @@ fun <T> Reorderable(
     val altaPx = with(LocalDensity.current) { ROW.toPx() }
     val edgePx = with(LocalDensity.current) { EDGE_BAND.toPx() }
     val speedPx = with(LocalDensity.current) { EDGE_SPEED.toPx() }
-    // ⚠️ L'altezza della FINESTRA e non quella del riquadro: la banda che fa scorrere è quella
-    // vicina al bordo dello schermo, cioè dove il dito non ha più strada.
+    // L'altezza della finestra, non del riquadro: in basso la banda che fa scorrere è quella
+    // vicina al bordo dello schermo, dove il dito non ha più strada.
     val alta = LocalWindowInfo.current.containerSize.height.toFloat()
     // Dove comincia questo riquadro dentro la finestra: serve a sapere dov'è il dito.
     var testa by remember { mutableFloatStateOf(0f) }
-    /*
-     * ⚠️ **Le due etichette si leggono QUI e non dentro `semantics`**: quel blocco non è un
-     * ambito composabile, quindi una risorsa letta là dentro non si compila. Sono le stringhe
-     * delle frecce di ieri, non due nuove: la funzione è la stessa.
-     */
+    // Le due etichette si leggono qui: `semantics` non è un ambito composabile, e una risorsa
+    // letta là dentro non si compila.
     val su = stringResource(R.string.settings_facts_up)
     val giu = stringResource(R.string.settings_facts_down)
-    // ⚠️ Da dove si è partiti, e `-1` quando nessuno si sta muovendo: serve a distinguere la
-    // riga sollevata da tutte le altre, che intanto si scansano.
+    // Da dove si è partiti, `-1` quando nessuna riga si muove: distingue la riga sollevata da
+    // tutte le altre, che intanto si scansano.
     var da by remember { mutableIntStateOf(-1) }
     var scarto by remember { mutableFloatStateOf(0f) }
     val a = if (da < 0) -1 else
@@ -119,15 +102,11 @@ fun <T> Reorderable(
             if (da < 0) break
             val dito = testa + da * altaPx + scarto + altaPx / 2f
             /*
-             * ⚠️⚠️ **IN ALTO LA SOGLIA È LA CIMA DELL'ELENCO, NON IL BORDO DELLO SCHERMO, DALLA
-             * `1.82`** (riscontro del giro della `1.81`, voce `riordino-scorre`, con la riga
-             * disegnata sopra la prima voce). Sopra questo elenco vivono il titolo della pagina e
-             * la sua spiegazione, cioè un centinaio di dp in cui la riga presa **non può
-             * entrare**: misurando dal bordo della finestra, la banda che fa scorrere cadeva
-             * quasi tutta là dentro e all'insù non scorreva quasi niente.
-             * ⚠️ **In basso resta il bordo della finestra**, e non è un'asimmetria dimenticata:
-             * là sotto l'elenco arriva fino in fondo alla pagina, quindi il bordo è già la fine
-             * della strada.
+             * ⚠️ **In alto la soglia è la cima dell'elenco, non il bordo dello schermo** (voce
+             * `riordino-scorre`): sopra l'elenco ci sono il titolo della pagina e la sua
+             * spiegazione, dove la riga presa non può entrare, e misurando dal bordo all'insù non
+             * scorreva quasi niente. In basso l'elenco arriva fino in fondo alla pagina, quindi
+             * il bordo della finestra è già la fine della strada.
              */
             val cima = testa.coerceAtLeast(0f)
             val spinta = when {
@@ -147,11 +126,8 @@ fun <T> Reorderable(
     ) {
         items.forEachIndexed { at, item ->
             val preso = at == da
-            /*
-             * ⚠️ **Le righe fra la partenza e l'arrivo si scansano di UNA posizione**, così
-             * quello che si vede mentre il dito è giù è già il risultato: senza, l'elenco
-             * resterebbe fermo e il posto di arrivo sarebbe da indovinare.
-             */
+            // Le righe fra la partenza e l'arrivo si scansano di una posizione, così mentre il
+            // dito è giù si vede già il risultato.
             val scansa = when {
                 da < 0 || preso -> 0f
                 da < a && at in (da + 1)..a -> -altaPx
@@ -163,28 +139,19 @@ fun <T> Reorderable(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(ROW)
-                    // ⚠️ La riga presa sta SOPRA le altre mentre si muove, o passerebbe sotto
-                    // la vicina proprio nel momento in cui la scavalca.
+                    // La riga presa si disegna sopra le altre mentre si muove, o passerebbe
+                    // sotto la vicina proprio nel momento in cui la scavalca.
                     .zIndex(if (preso) 1f else 0f)
                     .graphicsLayer { translationY = if (preso) scarto else scansa }
                     .semantics {
                         /*
-                         * ⚠️ Le due frecce di prima, come azioni: sono l'unica via al riordino
-                         * per chi usa un lettore di schermo.
-                         * ⚠️⚠️ **OGNUNA DELLE DUE VA OFFERTA SOLO SE HA DOVE ANDARE, e fino
-                         * alla `1.80` la prima riga mobile offriva 'sposta su'** (censimento
-                         * della UI del 2026-09-05). Il trascinamento le righe fisse le
-                         * rispetta da sempre (`coerceIn(fixed, ...)`), l'azione parlata no:
-                         * `moved` accettava lo spostamento, quindi l'oggetto in memoria
-                         * portava davvero il nome del file in seconda posizione, e a
-                         * rimetterlo in testa era **solo** il giro dall'archivio. Cioè un
-                         * comando di accessibilità faceva una cosa che le dita non possono
-                         * fare, e la disfaceva un salvataggio.
-                         * ⚠️ **Il gemello di sotto invece è innocuo e si chiude per
-                         * simmetria**: sull'ultima riga `moved(lastIndex, lastIndex + 1)`
-                         * torna la lista intatta, quindi l'azione c'era e non faceva niente.
-                         * Annunciare un comando che non fa niente è un difetto più piccolo,
-                         * ma dello stesso genere.
+                         * Le frecce come azioni: sono l'unica via al riordino per chi usa un
+                         * lettore di schermo.
+                         * ⚠️ **Ognuna si offre solo se ha dove andare**: 'sposta su' sulla prima
+                         * riga mobile scavalcherebbe le righe fisse, che il trascinamento
+                         * rispetta (`coerceIn(fixed, ...)`) e `moved` no. 'Sposta giù'
+                         * sull'ultima riga non farebbe niente, e un comando annunciato che non
+                         * fa niente è un difetto dello stesso genere.
                          */
                         val salire = at > fixed
                         val scendere = at < items.lastIndex
@@ -204,36 +171,21 @@ fun <T> Reorderable(
                 row(item, at)
                 if (fermo) return@Box
                 Icon(
-                    /*
-                     * ⚠️⚠️ **SEI PUNTI E NON TRE RIGHE, dalla `1.57`** (riscontro dell'utente,
-                     * giro della `1.56`: *usa una maniglia come questa*, con in allegato la
-                     * griglia di sei punti). Le tre righe sono il segno della bottomsheet che
-                     * si tira giù; i sei punti sono il segno di una cosa che si sposta, ed è
-                     * quello che questa riga fa.
-                     */
+                    // Sei punti (scelta dell'utente, 1.57): le tre righe sono il segno della
+                    // scheda che si tira giù, i sei punti quello di una cosa che si sposta.
                     imageVector = Icons.Default.DragIndicator,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .size(HANDLE)
-                        /*
-                         * ⚠️⚠️ **IL DISEGNO È PIÙ PICCOLO DEL BERSAGLIO, DALLA `1.82`**
-                         * (riscontro del giro della `1.81`, voce `riordino-scorre`: *maniglie
-                         * più piccole e al 60%*). Fino alla `1.81` il glifo riempiva tutti e 40
-                         * i dp del bersaglio, cioè era grande la metà più di ogni altra icona
-                         * dell'app. Il rientro rimpicciolisce il **disegno** e lascia intero il
-                         * posto in cui si può prendere: rimpicciolire la scatola avrebbe
-                         * ridotto anche quello.
-                         */
+                        // Il rientro rimpicciolisce il disegno e lascia intero il bersaglio
+                        // (voce `riordino-scorre`: maniglie più piccole e al 60%).
                         .padding((HANDLE - HANDLE_GLYPH) / 2)
                         /*
-                         * ⚠️ Mentre una riga è in viaggio le altre manopole si spengono a
-                         * vista: due dita su due manopole darebbero due partenze e un conto
-                         * solo.
-                         * ⚠️ **A riposo non è più piena**: [HANDLE_INK] è il 60% che ha chiesto
-                         * lui, e serve a far pesare meno una fila di manopole accanto a una fila
-                         * di nomi, che sono la cosa da leggere.
+                         * Mentre una riga è in viaggio le altre manopole si spengono: due dita su
+                         * due manopole darebbero due partenze e un conto solo. A riposo la
+                         * manopola è al 60% ([HANDLE_INK]), così pesa meno dei nomi accanto.
                          */
                         .alpha(if (da < 0 || preso) HANDLE_INK else GHOST)
                         .pointerInput(at, items.size) {
@@ -249,12 +201,11 @@ fun <T> Reorderable(
                                 },
                                 onDragEnd = {
                                     /*
-                                     * ⚠️⚠️ **L'ARRIVO SI RICALCOLA QUI, e non si legge quello
-                                     * disegnato**: questo blocco vive dentro `pointerInput`,
-                                     * cioè viene ricordato, e un valore preso dalla
-                                     * composizione in cui è nato resterebbe quello del primo
-                                     * fotogramma. Gli stati invece si leggono vivi, perché il
-                                     * delegato legge al momento della chiamata.
+                                     * ⚠️ **L'arrivo si ricalcola qui**: il blocco vive in
+                                     * `pointerInput`, che lo ricorda, e il valore `a` preso
+                                     * dalla composizione resterebbe quello del primo
+                                     * fotogramma. Gli stati invece il delegato li legge al
+                                     * momento della chiamata.
                                      */
                                     val arrivo = (da + (scarto / altaPx).roundToInt())
                                         .coerceIn(fixed, items.lastIndex)
@@ -277,43 +228,39 @@ fun <T> Reorderable(
 /**
  * L'altezza di ogni riga.
  *
- * ⚠️ **56dp è la riga di elenco di Material**, e qui è anche il passo con cui si conta lo
- * spostamento: cambiarla è lecito, cambiarla per una riga sola no.
+ * 56dp è la riga di elenco di Material, ed è anche il passo con cui si conta lo spostamento:
+ * vale per tutte le righe, mai per una sola.
  */
 private val ROW = 56.dp
 
 /**
  * La manopola: un bersaglio comodo, non un glifo da 24.
  *
- * ⚠️ **Non è privata perché il rientro della riga si RICAVA da lei** (`SettingsScreen`, la
- * pagina dei campi delle info): quel rientro esiste solo per lasciarle posto, e fino alla
- * `1.80` erano due numeri in due file che non si nominavano (44 qui e 40 là). Chi allargasse
- * la manopola non aveva nessun modo di trovare il numero da correggere.
+ * Non è privata perché il rientro della riga in `SettingsScreen` (la pagina dei campi delle
+ * info) si ricava da lei: esiste solo per lasciarle posto, e così il numero è uno solo.
  */
 internal val HANDLE: Dp = 40.dp
 
 /**
  * Quanto è grande il **disegno** dentro il bersaglio.
  *
- * ⚠️ **24dp è la misura di ogni altra icona dell'app**, e la manopola non ha nessuna ragione di
- * essere più grande: quello che deve restare grande è il posto in cui si prende, cioè [HANDLE].
+ * 24dp, come ogni altra icona dell'app: quello che deve restare grande è il bersaglio, [HANDLE].
  */
 private val HANDLE_GLYPH: Dp = 24.dp
 
 /** Quanto si spengono le manopole delle righe ferme mentre una viaggia. */
 private const val GHOST = 0.3f
 
-/** Quanto si vede una manopola a riposo: il 60% che ha chiesto lui nel giro della `1.81`. */
+/** Quanto si vede una manopola a riposo: il 60% chiesto dall'utente (voce `riordino-scorre`). */
 private const val HANDLE_INK = 0.6f
 
 /**
  * La stessa lista con un elemento spostato.
  *
- * ⚠️ Si toglie e si rimette invece di scambiare i due: lo scambio funziona solo fra vicini,
- * e un trascinamento vero attraversa più di una posizione per volta.
- * ⚠️ **Sta qui e non in una delle due schermate** perché la usano tutti e due i riordini,
- * l'elenco dei campi e la replica a griglia dei tasti: due copie divergerebbero il giorno
- * che una delle due impara a spostare più di un elemento.
+ * L'elemento si toglie e si rimette: uno scambio funziona solo fra vicini, e un trascinamento
+ * attraversa più di una posizione per volta.
+ * È qui perché la usano tutti e due i riordini, l'elenco dei campi e la replica a griglia dei
+ * tasti, e due copie potrebbero divergere.
  */
 internal fun <T> List<T>.moved(from: Int, to: Int): List<T> {
     if (from !in indices || to !in indices || from == to) return this

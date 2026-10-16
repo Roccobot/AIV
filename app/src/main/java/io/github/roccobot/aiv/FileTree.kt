@@ -16,39 +16,28 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.resume
 
 /**
- * Le cartelle del telefono come le vede il **filesystem**, non come le racconta la
- * galleria, e le operazioni che ci si fanno sopra.
+ * Le cartelle del telefono come le vede il filesystem, non come le racconta la galleria, e le
+ * operazioni che ci si fanno sopra.
  *
- * ⚠️⚠️ **È UN'ALTRA COSA DA `Folder`, e la differenza è il motivo per cui questo file
- * esiste** (precisazione dell'utente, 2026-08-29: la destinazione di copia e sposta deve
- * essere *una vista del filesystem, NON degli album di foto*). `Folder` interroga il
- * MediaStore, quindi per costruzione conosce **solo le cartelle che contengono già
- * fotografie**: come elenco di destinazioni è esattamente l'insieme sbagliato, perché
- * lascia fuori le cartelle vuote, quelle che l'utente ha escluso e quelle che di immagini
- * non ne hanno mai viste.
- * ⚠️ **Serve il permesso pesante**, che l'app ha già: senza `MANAGE_EXTERNAL_STORAGE` una
- * `listFiles` sulla memoria condivisa torna `null`, e non per un errore ma per progetto.
+ * ⚠️ **Non è `Folder`**: la destinazione di copia e sposta è una vista del filesystem e non
+ * degli album (precisazione dell'utente). `Folder` interroga il MediaStore, quindi conosce solo
+ * le cartelle che contengono già immagini, e lascerebbe fuori quelle vuote o escluse.
+ * Serve `MANAGE_EXTERNAL_STORAGE`: senza, `listFiles` sulla memoria condivisa risponde `null`.
  *
- * ⚠️⚠️ **LE QUATTRO OPERAZIONI SONO `NonCancellable`, e non è eccesso di zelo**: girano
- * nello scope della schermata, quindi uscire dalla cartella mentre lavorano le
- * annullerebbe. I cicli non hanno punti di sospensione e arriverebbero comunque in fondo,
- * ma l'avviso al MediaStore, che sta dopo, no: la galleria resterebbe con le foto appena
- * cancellate e senza quelle appena copiate, e nessuno saprebbe perché. Le letture
- * ([children], [namesOf]) restano annullabili, perché di una lettura buttata via non
- * resta niente.
+ * ⚠️ **Le operazioni che scrivono sono `NonCancellable`**: girano nello scope della schermata, e
+ * uscendo dalla cartella si annullerebbe l'avviso al MediaStore, che viene dopo i cicli. La
+ * galleria resterebbe indietro. Le letture ([children], [namesOf]) restano annullabili.
  */
 object FileTree {
 
     /**
      * Da dove si comincia a navigare: la memoria condivisa, più le schede se ce ne sono.
      *
-     * ⚠️⚠️ **Le schede si ricavano dalle cartelle DELL'APP e non da `StorageManager`**, ed
-     * è la via che funziona su tutte le versioni: `StorageVolume.getDirectory` esiste solo
-     * da Android 11, mentre `getExternalFilesDirs` torna una voce per ogni volume montato
-     * da sempre. Il punto in cui tagliare è `/Android/`, che sta in mezzo per definizione:
-     * il percorso è `<radice>/Android/data/<pacchetto>/files`.
-     * ⚠️ Insieme ordinato e non lista: sui telefoni senza scheda le due strade dànno la
-     * **stessa** cartella, e senza questo comparirebbe due volte.
+     * ⚠️ **Le schede si ricavano dalle cartelle dell'app e non da `StorageManager`**:
+     * `StorageVolume.getDirectory` esiste solo da Android 11, `getExternalFilesDirs` risponde
+     * con una voce per volume su tutte le versioni. Si taglia a `/Android/`, perché il percorso
+     * è `<radice>/Android/data/<pacchetto>/files`.
+     * Insieme ordinato e non lista: senza scheda le due strade danno la stessa cartella.
      */
     fun roots(context: Context): List<File> {
         val found = LinkedHashSet<File>()
@@ -67,16 +56,10 @@ object FileTree {
      * Le sottocartelle di una cartella, in ordine alfabetico e senza distinguere le
      * maiuscole.
      *
-     * ⚠️ **Solo cartelle**: qui si sceglie una destinazione, e un elenco che mostrasse
-     * anche i file costringerebbe a scorrere trecento fotografie per trovare la cartella
-     * sotto.
-     * ⚠️ **Le nascoste (quelle col punto) restano fuori**: sono cartelle di servizio, e in
-     * un elenco di destinazioni sono rumore. Chi un domani ne avesse bisogno tolga questo
-     * filtro, che è una riga sola e non una struttura.
-     * ⚠️ `listFiles` torna `null` su una cartella che non si può leggere, e succede anche
-     * col permesso pesante (`/storage/emulated/0/Android/data`, per dirne una): là si
-     * mostra una cartella **vuota**, non un errore, perché non poterci entrare non è un
-     * guasto dell'app.
+     * Solo cartelle, perché qui si sceglie una destinazione; le nascoste (col punto) restano
+     * fuori, perché sono cartelle di servizio.
+     * `listFiles` risponde `null` su una cartella illeggibile, anche col permesso pieno
+     * (`/storage/emulated/0/Android/data`): là si mostra una cartella vuota, non un errore.
      */
     suspend fun children(dir: File): List<File> = withContext(Dispatchers.IO) {
         runCatching { dir.listFiles() }.getOrNull().orEmpty()
@@ -87,16 +70,11 @@ object FileTree {
     /**
      * Copia le immagini scelte dentro [dest], e dice com'è andata.
      *
-     * ⚠️⚠️ **NON SOVRASCRIVE MAI: un nome già preso diventa `nome (2).ext`.** Una copia
-     * che sovrascrive è una cancellazione travestita, e questa funzione è nata proprio
-     * perché la copia doveva essere l'operazione che non può far danni.
-     * ⚠️ **Una copia andata storta non ferma le altre**: su cinquanta file, un permesso
-     * negato o un disco pieno a metà strada non deve buttare via il lavoro fatto. Il conto
-     * dei falliti torna a chi chiama, che lo dice.
-     * ⚠️ **Passa dal resolver e non dal `File`**, al contrario di sposta e rinomina: qui
-     * l'origine si deve solo **leggere**, e un flusso si apre anche su un indirizzo che
-     * non ha un percorso sul disco. Le altre due il percorso ce l'hanno per forza, perché
-     * devono toccare il file dov'è.
+     * ⚠️ **Non sovrascrive mai**: un nome già preso diventa `nome (2).ext` ([freeName]). Una
+     * copia che sovrascrive è una cancellazione.
+     * Una copia fallita non ferma le altre; il conto dei falliti torna a chi chiama.
+     * Passa dal resolver e non dal `File`, a differenza di sposta e rinomina: l'origine si deve
+     * solo leggere, e un flusso si apre anche su un indirizzo senza percorso sul disco.
      */
     suspend fun copy(context: Context, uris: List<Uri>, dest: File): Outcome =
         withContext(Dispatchers.IO + NonCancellable) {
@@ -116,37 +94,26 @@ object FileTree {
                 if (ok) done++ else failed++
             }
             scan(context, written)
-            // ⚠️ Quello che si è scritto è anche quello che si disfa: la copia si annulla
-            // cancellando, e l'originale non si è mosso.
+            // La copia si disfa cancellando quello che si è scritto: l'originale non si è mosso.
             Outcome(done, failed, written.map { Undoable(made = it) })
         }
 
     /**
-     * Duplica le immagini scelte **dove sono**, senza chiedere una destinazione.
+     * Duplica le immagini scelte dove sono, senza chiedere una destinazione (il tocco lungo su
+     * 'Copia').
      *
-     * ⚠️⚠️ **NASCE DALLA 0.79 dal tocco lungo su 'Copia'** (richiesta dell'utente): copiare
-     * chiede dove, duplicare no, ed è la ragione per cui è un'operazione a sé e non la copia
-     * con la cartella corrente già scelta.
-     * ⚠️⚠️ **CHIAMA [copy] UN FILE PER VOLTA invece di rifarne il corpo**, e il baratto è
-     * dichiarato: la destinazione qui è **diversa per ogni file** (ognuno torna nella sua
-     * cartella, che in una ricerca possono essere venti diverse), mentre `copy` ne prende una
-     * per tutti. Rifare il ciclo dei byte qui vorrebbe dire una seconda copia della logica che
-     * non sovrascrive e che rimedia a metà strada, cioè il posto in cui le due divergono. Il
-     * prezzo è una scansione del MediaStore per file invece di una per lotto: è asincrona e su
-     * un duplicato per volta non si vede.
-     * ⚠️ **Il nome lo sceglie `freeName`**, quindi il duplicato è `nome (2).ext` e non
-     * sovrascrive niente: è la stessa anti-collisione del cestino, che l'utente ha indicato.
-     * ⚠️ **Un'immagine senza file non si duplica**: una fotografia arrivata da una chat non ha
-     * una cartella in cui mettere la copia, e inventarne una (i Download? la galleria?)
-     * sarebbe una destinazione che nessuno ha chiesto.
+     * ⚠️ **Chiama [copy] un file per volta**, perché qui la destinazione è diversa per ogni
+     * file (in una ricerca le cartelle possono essere venti): così la logica che non sovrascrive
+     * e che rimedia a metà strada esiste una volta sola. Il prezzo è una scansione del
+     * MediaStore per file.
+     * Il nome lo sceglie [freeName], quindi il duplicato è `nome (2).ext`.
+     * Un'immagine senza file (arrivata da una chat) non si duplica: non ha una cartella.
      */
     suspend fun duplicate(context: Context, uris: List<Uri>): Outcome =
         withContext(Dispatchers.IO + NonCancellable) {
             var done = 0
             var failed = 0
-            // ⚠️ I passi da disfare si sommano come i conti: un duplicato è una copia, e
-            // dimenticarli qui darebbe un'operazione che non si annulla senza che nessuno lo
-            // dica.
+            // I passi da disfare si sommano come i conti, o il duplicato non si annullerebbe.
             val undo = ArrayList<Undoable>(uris.size)
             for (uri in uris) {
                 val here = fileOf(context, uri)?.parentFile
@@ -163,27 +130,17 @@ object FileTree {
         }
 
     /**
-     * Sposta le immagini scelte dentro [dest].
+     * Sposta le immagini scelte dentro [dest], con [carry].
      *
-     * ⚠️⚠️ **PRIMA PROVA A RINOMINARE, e non è un'ottimizzazione**: dentro la stessa
-     * memoria un `renameTo` è istantaneo e non tocca i byte, mentre copiare e cancellare
-     * trenta fotografie da dieci megabyte vuol dire trecento megabyte letti e riscritti,
-     * con la finestra in cui esistono due volte. Il ripiego serve **solo** quando si
-     * cambia volume, dove `renameTo` fallisce per costruzione.
-     * ⚠️⚠️ **Nel ripiego l'originale si cancella solo a copia RIUSCITA, e se la
-     * cancellazione fallisce si butta via la copia**: il contrario lascerebbe o un file
-     * perso o due file uguali, e il secondo è quello che si scopre sei mesi dopo.
-     * ⚠️ **Spostare dentro la cartella in cui si è già non fa niente**, e va detto qui:
-     * senza questo controllo `freeName` inventerebbe `nome (2).ext` e lo spostamento
-     * diventerebbe una duplicazione col nome storpiato.
+     * ⚠️ **Spostare nella cartella in cui si è già non fa niente**: senza il controllo,
+     * [freeName] inventerebbe `nome (2).ext` e lo spostamento diventerebbe un duplicato.
      */
     suspend fun move(context: Context, uris: List<Uri>, dest: File): Outcome =
         withContext(Dispatchers.IO + NonCancellable) {
             var done = 0
             var failed = 0
             val touched = ArrayList<String>(uris.size * 2)
-            // ⚠️ Chi è tornato indietro **non** ha un passo da disfare: quello che resta dov'era
-            // (lo spostamento dentro la cartella in cui si è già) non ha toccato niente.
+            // Un file rimasto nella sua cartella non ha un passo da disfare.
             val passi = ArrayList<Undoable>(uris.size)
             for (uri in uris) {
                 val from = fileOf(context, uri)
@@ -213,15 +170,10 @@ object FileTree {
     /**
      * Cancella le immagini scelte, per davvero.
      *
-     * ⚠️⚠️ **NON C'È UN CESTINO, e chi chiama deve averlo chiesto prima.** Il MediaStore
-     * ne ha uno dall'API 30 (`IS_TRASHED`), ma ci si finisce solo passando dal provider
-     * con la richiesta apposita; un file cancellato dal disco sparisce e basta. Qui si
-     * cancella dal disco, quindi l'operazione è irreversibile e la conferma non è una
-     * cortesia.
-     * ⚠️ **Prima il file e poi, come ripiego, la riga**: `contentResolver.delete` su una
-     * riga del MediaStore porta via anche il file, ma vale solo per gli indirizzi che una
-     * riga ce l'hanno, e nella griglia ne girano anche di `file://` (vedi il ripiego sul
-     * disco di `Folder`). Il `File` invece li copre tutti e due.
+     * ⚠️ **Non passa da nessun cestino** (né da [Bin] né da `IS_TRASHED` del MediaStore): il file
+     * sparisce dal disco, quindi chi chiama deve aver chiesto conferma.
+     * Prima il file e poi, come ripiego, la riga: `contentResolver.delete` vale solo per gli
+     * indirizzi del MediaStore, e nella griglia girano anche indirizzi `file://`.
      */
     suspend fun delete(context: Context, uris: List<Uri>): Outcome =
         withContext(Dispatchers.IO + NonCancellable) {
@@ -250,26 +202,17 @@ object FileTree {
      * Rinomina in blocco: [template] con i cancelletti al posto del numero, e [start] come
      * primo numero.
      *
-     * ⚠️⚠️ **L'ORDINE È ALFABETICO E NON QUELLO DELLA GRIGLIA** (istruzione dell'utente,
-     * 2026-08-29: *l'ordine NON deve dipendere dall'ordine di visualizzazione in griglia,
-     * bensì sempre e comunque ordine alfabetico A-Z*). La griglia ordina per data, quindi
-     * numerare nel suo ordine darebbe una sequenza che dipende da quando le foto sono
-     * state scattate invece che da come si chiamano.
-     * ⚠️⚠️ **DUE FASI, e senza la prima si perderebbero dei file.** Rinominando uno per
-     * uno, `b.jpg -> a.jpg` sovrascriverebbe l'`a.jpg` che deve ancora diventare
-     * `c.jpg`, e i cicli fra i nomi non sono un caso di laboratorio: succedono ogni volta
-     * che si rinumera una serie già numerata. Quindi prima tutti i file vanno su un nome
-     * temporaneo, e solo dopo prendono quello definitivo, quando nessuno dei nomi voluti
-     * è più occupato da uno di loro.
-     * ⚠️ **I nomi temporanei cominciano col punto**, cioè sono nascosti: se qualcosa
-     * interrompesse l'app fra le due fasi, resterebbero dei file di servizio invece di
-     * comparire nella galleria come fotografie senza nome.
-     * ⚠️ **Il numero è legato alla POSIZIONE, non al giro**: si calcola tutto prima, così
-     * un file che non si riesce a spostare lascia il suo numero vuoto invece di far
-     * slittare di uno tutti quelli dopo.
-     * ⚠️ **L'estensione non si tocca mai** (istruzione dell'utente): viene dal file, non
-     * dal template, e chi scrive un punto nel template si ritrova quel punto **prima**
-     * dell'estensione vera.
+     * ⚠️ **L'ordine è alfabetico, non quello della griglia** (istruzione dell'utente): la
+     * griglia ordina per data. L'ordine è in [ordered].
+     * ⚠️⚠️ **Due fasi, o si perderebbero dei file**: una rinomina alla volta, `b.jpg -> a.jpg`
+     * sovrascriverebbe l'`a.jpg` che deve ancora diventare `c.jpg`, e i cicli succedono ogni volta
+     * che si rinumera una serie numerata. Prima tutti vanno su un nome provvisorio, poi su quello
+     * vero.
+     * I nomi provvisori cominciano col punto: se l'app si ferma fra le due fasi, restano file
+     * nascosti e non immagini senza nome in galleria.
+     * Il numero è legato alla posizione: un file che non si riesce a spostare lascia il suo numero
+     * vuoto, senza far slittare quelli dopo.
+     * L'estensione viene dal file e non dal modello (istruzione dell'utente), salvo [extension].
      */
     suspend fun rename(
         context: Context,
@@ -277,13 +220,11 @@ object FileTree {
         template: String,
         start: Int,
         /**
-         * L'estensione da mettere a **tutti**, senza il punto, o `null` per tenere quella
-         * che ogni file ha già.
+         * L'estensione da mettere a tutti, senza il punto, o `null` per tenere quella di ogni
+         * file.
          *
-         * ⚠️⚠️ **CAMBIA IL NOME E NON IL FORMATO**, e chi la usa deve saperlo: rinominare
-         * `foto.jpg` in `foto.png` lascia dentro un JPEG con l'etichetta sbagliata. Il
-         * pannellino che la raccoglie lo scrive; qui resta scritto perché questa funzione
-         * non ha modo di impedirlo e non deve provarci.
+         * ⚠️ **Cambia il nome e non il formato**: `foto.jpg` rinominato `foto.png` resta un
+         * JPEG. Il pannello che la raccoglie lo dice.
          */
         extension: String? = null
     ): Outcome = withContext(Dispatchers.IO + NonCancellable) {
@@ -310,8 +251,8 @@ object FileTree {
             }
         }
 
-        // Fase 2: il nome vero. Un nome già preso adesso è per forza di un file ESTRANEO
-        // alla selezione, e allora vale la stessa regola della copia.
+        // Fase 2: il nome vero. Un nome già preso adesso è di un file fuori dalla selezione, e
+        // vale la regola della copia.
         for ((temp, job) in parked) {
             val (origin, wanted) = job
             touched += origin.absolutePath
@@ -321,8 +262,7 @@ object FileTree {
                 touched += target.absolutePath
             } else {
                 failed++
-                // ⚠️ Si rimette com'era: lasciare un file col nome temporaneo, cioè
-                // nascosto, vorrebbe dire farlo sparire dalla galleria senza dirlo.
+                // Si rimette com'era: col nome provvisorio, nascosto, sparirebbe dalla galleria.
                 runCatching { temp.renameTo(origin) }
             }
         }
@@ -332,11 +272,8 @@ object FileTree {
     }
 
     /**
-     * I nomi delle immagini scelte, **nell'ordine in cui la rinomina le numererà**.
-     *
-     * ⚠️ Esiste per l'anteprima del dialogo, e deve usare lo stesso ordinamento di
-     * [rename] o l'anteprima mentirebbe. Per questo l'ordine sta in [ordered], che è una
-     * funzione sola usata da tutte e due.
+     * I nomi delle immagini scelte, nell'ordine in cui la rinomina le numererà: per l'anteprima
+     * della finestra, che usa lo stesso [ordered] di [rename].
      */
     suspend fun namesOf(context: Context, uris: List<Uri>): List<String> =
         withContext(Dispatchers.IO) { ordered(context, uris).map { it.name } }
@@ -344,14 +281,11 @@ object FileTree {
     /**
      * Quante ne sono passate e quante no: la risposta di ogni operazione su un gruppo.
      *
-     * @property undo i passi per **tornare indietro**, quando l'operazione si può disfare.
-     *   Vuoto vuol dire che non si disfa: o perché l'operazione non è reversibile (una
-     *   cancellazione definitiva), o perché non ha toccato niente.
-     * @property freed quanti byte di archivio sono tornati liberi, contati sui soli file andati
-     *   via davvero. ⚠️ **Lo misura il solo svuotamento del cestino, dalla `2.86`**, ed è sua
-     *   richiesta (2026-09-21: *quando si svuota il cestino, oltre al numero di file eliminati,
-     *   l'avviso deve dire anche quanti KB/MB/GB di archivio sono stati liberati*). Zero vuol dire
-     *   'non misurato', e allora la frase è quella di sempre (vedi `outcomeText`).
+     * @property undo i passi per tornare indietro. Vuoto vuol dire che non si disfa: operazione
+     *   irreversibile, o niente di toccato.
+     * @property freed i byte liberati, contati sui soli file cancellati davvero. Lo misura solo lo
+     *   svuotamento del cestino (richiesta dell'utente, 2.86); zero vuol dire 'non misurato', e
+     *   la frase resta quella senza peso (`outcomeText`).
      */
     data class Outcome(
         val done: Int,
@@ -363,16 +297,10 @@ object FileTree {
     /**
      * Un file che si può rimettere com'era, e come.
      *
-     * ⚠️⚠️ **DUE CASI IN UN TIPO SOLO, E LI DISTINGUE [from]** (campo libero del giro della
-     * `1.82`, punto B: *aggiungi degli 'Annulla' temporizzati (avvisi in basso) anche per le
-     * operazioni di copia e spostamento*): disfare una **copia** vuol dire cancellare quello che
-     * è stato scritto, disfare uno **spostamento** vuol dire riportare il file da dov'è venuto.
-     * Sono la stessa struttura con un campo in più, e due tipi separati avrebbero voluto due
-     * rami identici in chi disfa.
-     * ⚠️⚠️ **SI TIENE IL PERCORSO E NON L'INDIRIZZO, ed è obbligatorio**: l'indirizzo nel
-     * MediaStore di un file appena scritto arriva dopo la scansione, cioè **dopo** che questa
-     * offerta è già in scena, mentre il percorso lo si conosce nell'istante in cui si scrive. È
-     * la stessa ragione per cui `copy` e `move` raccolgono percorsi da dare a `scan`.
+     * Due casi in un tipo solo, distinti da [from]: una copia si disfa cancellando quello che è
+     * stato scritto, uno spostamento riportando il file da dove veniva.
+     * ⚠️ **Si tiene il percorso e non l'indirizzo**: l'indirizzo nel MediaStore di un file appena
+     * scritto arriva dopo la scansione, quando 'Annulla' è già in scena.
      *
      * @property made il file che l'operazione ha creato: quello che c'è adesso.
      * @property from da dove veniva, per uno spostamento; `null` per una copia, dove l'originale
@@ -383,17 +311,12 @@ object FileTree {
     /**
      * Rimette com'erano i file di [steps], e dice come è andata.
      *
-     * ⚠️⚠️ **UNA COPIA SI DISFA CANCELLANDO, UNO SPOSTAMENTO RIPORTANDO**: sono le due
-     * operazioni inverse, e la seconda passa dallo stesso [carry] dell'andata, quindi si comporta
-     * allo stesso modo anche fra due volumi.
-     * ⚠️⚠️ **UN FILE CHE NON C'È PIÙ NON È UN GUASTO, ED È IL CASO CHE CONTA**: fra l'operazione
-     * e il tocco su 'Annulla' passano dei secondi, e in quei secondi la persona può aver
-     * cancellato la copia da un'altra app. Contarlo come fallito direbbe che qualcosa non ha
-     * funzionato, mentre il risultato voluto (quel file non c'è) è esattamente quello che si è
-     * ottenuto.
-     * ⚠️ **La destinazione di un ritorno può essere occupata**, se nel frattempo è arrivato un
-     * file con lo stesso nome: si sceglie un nome libero come fa l'andata, invece di
-     * sovrascrivere qualcosa che nessuno ha chiesto di toccare.
+     * Il ritorno di uno spostamento passa dallo stesso [carry] dell'andata, quindi funziona anche
+     * fra due volumi.
+     * ⚠️ **Un file che non c'è più conta come riuscito**: fra l'operazione e 'Annulla' qualcuno
+     * può averlo cancellato da un'altra app, e il risultato voluto c'è già.
+     * La destinazione di un ritorno può essere occupata: si sceglie un nome libero come
+     * all'andata.
      */
     suspend fun revert(context: Context, steps: List<Undoable>): Outcome =
         withContext(Dispatchers.IO + NonCancellable) {
@@ -432,13 +355,10 @@ object FileTree {
         }
 
     /**
-     * I file dietro gli indirizzi scelti, in ordine alfabetico.
+     * I file dietro gli indirizzi scelti, in ordine naturale ([naturalCompare]).
      *
-     * ⚠️ Gli indirizzi che non arrivano a un file sul disco **cadono**, e chi chiama conta
-     * la differenza come fallita: non c'è modo di rinominare qualcosa che non si sa dov'è.
-     * ⚠️ Il percorso rompe i pareggi, perché due file con lo stesso nome in due cartelle
-     * diverse non devono ordinarsi a caso: la selezione viene da una cartella sola, ma
-     * questo non è un motivo per lasciare l'ordine indefinito.
+     * Gli indirizzi senza un file sul disco restano fuori, e chi chiama conta la differenza come
+     * fallita. Il percorso rompe i pareggi fra file omonimi in cartelle diverse.
      */
     internal fun ordered(context: Context, uris: List<Uri>): List<File> =
         uris.mapNotNull { fileOf(context, it) }
@@ -448,20 +368,13 @@ object FileTree {
             }
 
     /**
-     * Porta un file da una parte all'altra, e dice se ce l'ha fatto.
+     * Sposta un file da una parte all'altra, e dice se ci è riuscito. La usano anche il cestino
+     * e l'annullamento.
      *
-     * ⚠️⚠️ **PRIMA PROVA A RINOMINARE, e non è un'ottimizzazione**: dentro la stessa
-     * memoria un `renameTo` è istantaneo e non tocca i byte, mentre copiare e cancellare
-     * trenta fotografie da dieci megabyte vuol dire trecento megabyte letti e riscritti,
-     * con la finestra in cui esistono due volte. Il ripiego serve **solo** quando si
-     * cambia volume, dove `renameTo` fallisce per costruzione.
-     * ⚠️⚠️ **Nel ripiego l'originale si cancella solo a copia RIUSCITA, e se la
-     * cancellazione fallisce si butta via la copia**: il contrario lascerebbe o un file
-     * perso o due file uguali, e il secondo è quello che si scopre sei mesi dopo.
-     * ⚠️ **Sta in una funzione sua dalla `0.64`, e la ragione è il cestino**: mandare una
-     * foto nel cestino e ripristinarla sono due spostamenti come questo, e una seconda
-     * copia di queste dieci righe sarebbe una seconda copia del ragionamento sul volume e
-     * sul rollback, cioè il posto dove le due prima o poi divergono.
+     * Prima prova a rinominare: nella stessa memoria `renameTo` è istantaneo e non tocca i byte.
+     * Il ripiego (copia e cancellazione) serve quando si cambia volume, dove `renameTo` fallisce.
+     * ⚠️ **Nel ripiego l'originale si cancella solo a copia riuscita, e se la cancellazione
+     * fallisce si cancella la copia**: altrimenti resterebbe un file perso o due file uguali.
      */
     internal fun carry(from: File, to: File): Boolean = runCatching {
         if (from.renameTo(to)) return@runCatching true
@@ -478,11 +391,9 @@ object FileTree {
      * La cartella [name] dentro [parent], creata se non c'è, oppure `null` se non si è potuta
      * creare. La usano le due 'Nuova cartella', quella dell'albero e quella della destinazione.
      *
-     * ⚠️⚠️ **UN NOME GIÀ PRESO DÀ LA CARTELLA CHE C'È, dalla `6.26`** (rilievi D10 ed E29 della
-     * revisione della 6.25): `mkdirs` risponde `false` anche quando la cartella esiste, e le due
-     * finestre si chiudevano senza fare niente e senza dire niente. Chi crea una cartella ci vuole
-     * entrare, e quella col suo nome c'è già.
-     * ⚠️ **Su `Dispatchers.IO`**: prima si scriveva sul disco nel richiamo del tocco.
+     * ⚠️ **Un nome già preso risponde con la cartella che c'è** (rilievi D10 ed E29 della
+     * revisione Setaccio): `mkdirs` risponde `false` anche quando la cartella esiste, e chi crea
+     * una cartella ci vuole entrare.
      */
     suspend fun makeFolder(parent: File, name: String): File? = withContext(Dispatchers.IO) {
         val folder = File(parent, name)
@@ -492,11 +403,9 @@ object FileTree {
     /**
      * Versa [input] in [target], che non esiste ancora, e dice se è arrivato in fondo.
      *
-     * ⚠️⚠️ **UNA COPIA INTERROTTA NON LASCIA NIENTE** (rilievo D31 della revisione della 6.25):
-     * con la memoria piena a metà strada, il file di arrivo restava troncato col nome giusto,
-     * cioè un'immagine rotta in più nella cartella di destinazione, e la copia contata come
-     * fallita. Qui non serve [AtomicWrite]: [target] è un nome libero, quindi non c'è un file
-     * vecchio da proteggere, solo uno nuovo da togliere.
+     * ⚠️ **Una copia interrotta non lascia niente** (rilievo D31): con la memoria piena a metà,
+     * resterebbe un'immagine troncata col nome giusto. [AtomicWrite] non serve: [target] è un
+     * nome libero, e non c'è un file vecchio da proteggere.
      */
     internal fun pour(input: InputStream, target: File): Boolean {
         val ok = runCatching { target.outputStream().use { input.copyTo(it) } }.isSuccess
@@ -507,12 +416,11 @@ object FileTree {
     /**
      * Un nome libero dentro [dir], partendo da [name].
      *
-     * ⚠️ **L'estensione non si tocca e il contatore va prima di lei**: `foto (2).jpg` e non
-     * `foto.jpg (2)`, o il file smetterebbe di essere una fotografia per il sistema.
-     * ⚠️ Il tetto esiste perché questo è un ciclo su un disco che qualcun altro può
-     * scrivere: senza, un caso patologico girerebbe per sempre invece di fallire.
-     * ⚠️ **Non è più privato dalla `0.64`**: il cestino sceglie i nomi da sé, perché deve
-     * sapere quale nome ha ottenuto per ricordarsi da dove veniva quel file.
+     * Il contatore va prima dell'estensione: `foto (2).jpg` e non `foto.jpg (2)`, o il file
+     * smetterebbe di essere un'immagine per il sistema.
+     * Il tetto c'è perché il disco lo può scrivere anche qualcun altro: un caso patologico non
+     * deve girare per sempre.
+     * È `internal` perché lo usa anche il cestino, che deve sapere quale nome ha ottenuto.
      */
     internal fun freeName(dir: File, name: String): File {
         val first = File(dir, name)
@@ -527,13 +435,11 @@ object FileTree {
         return File(dir, "$stem (${System.currentTimeMillis()})$tail")
     }
 
-    /** Il nome del file dietro un indirizzo, che è quello che la copia deve conservare. */
     /**
-     * Il nome che il sistema dà a un indirizzo.
+     * Il nome che il sistema dà a un indirizzo: quello che la copia conserva.
      *
-     * ⚠️ **Non è più privata dalla 0.82**: la usa anche [Names], per il nome sotto le
-     * miniature. Una seconda lettura scritta là avrebbe voluto dire due modi di rispondere
-     * alla stessa domanda, e il ripiego sull'ultimo pezzo dell'indirizzo in uno solo dei due.
+     * È `internal` perché la usa anche [Names], per il nome sotto le miniature: una sola
+     * risposta, col ripiego sull'ultimo pezzo dell'indirizzo.
      */
     internal fun displayName(context: Context, uri: Uri): String? {
         if (uri.scheme?.lowercase() == "file") return uri.lastPathSegment
@@ -550,35 +456,16 @@ object FileTree {
     }
 
     /**
-     * Il file vero dietro un indirizzo, e `null` quando non ce n'è uno.
+     * Le cartelle in cui sono [uris], nella forma di [portablePath]: le origini di una copia o
+     * di uno spostamento, che la finestra della destinazione disattiva (nota C dell'utente, 4.45).
      *
-     * ⚠️⚠️ **`DATA` è deprecata e serve lo stesso**, come già in `Folder`: è la sola
-     * colonna che dice **dove** sta il file, e spostare o rinominare vuol dire toccare il
-     * file dov'è. Con l'accesso a tutti i file quel percorso è scrivibile, ed è la ragione
-     * per cui queste operazioni possono esistere.
-     * ⚠️ **Si controlla che sia davvero un file**: una riga del MediaStore può restare
-     * dopo che il file è sparito, e agire su un percorso che non esiste più conterebbe come riuscito.
-     */
-    /**
-     * Il file vero dietro un indirizzo, o `null` se non ce n'è uno raggiungibile.
-     *
-     * ⚠️ **Non è più privato dalla `0.63`**, e la ragione è buona: le informazioni sul file
-     * hanno bisogno dello stesso percorso, e per una ragione in più che vale la pena
-     * sapere. Da Android 10 il MediaStore **censura la posizione** nei dati EXIF che serve
-     * attraverso un `content://`; leggendo il file vero, che questa app può aprire perché
-     * ha l'accesso a tutti i file, le coordinate arrivano intere. Vedi `factsOf`.
-     */
-    /**
-     * The folders [uris] live in, in the form of [portablePath]: the sources of a copy or a move,
-     * which the destination window greys out (`4.45`, his note C).
-     *
-     * ⚠️ A file whose path cannot be read adds nothing: the window then leaves its folder
-     * pickable, and the copy itself still works as before.
-     * ⚠️⚠️ **ONE QUESTION PER [SOURCES_BATCH] ROWS, SINCE 6.28** (finding E8 of the 6.25 review):
-     * the window waits for this answer before it appears, and one question per file meant,
-     * with three thousand files chosen, seconds of a touch with no answer (measured in
-     * `OriginiTest`). Addresses of the MediaStore, `<collection>/<number>`, are asked by
-     * collection with `_id IN (...)`; any other address goes on its own, as before.
+     * Un file il cui percorso non si legge non aggiunge niente: la finestra lascia sceglibile la
+     * sua cartella, e la copia funziona comunque.
+     * ⚠️ **Una domanda ogni [SOURCES_BATCH] righe** (rilievo E8 della revisione Setaccio): la
+     * finestra aspetta questa risposta prima di comparire, e una domanda per file, con tremila
+     * file scelti, voleva dire secondi senza risposta al tocco (misurato in `OriginiTest`). Gli
+     * indirizzi del MediaStore (`<collezione>/<numero>`) si chiedono per collezione con
+     * `_id IN (...)`; gli altri uno alla volta.
      */
     internal fun sourcesOf(context: Context, uris: List<Uri>): Set<String> {
         val folders = mutableSetOf<String>()
@@ -607,7 +494,7 @@ object FileTree {
                             while (at >= 0 && c.moveToNext()) add(c.getString(at))
                         }
                     }
-                    // ⚠️ A provider that refuses the question is asked one address at a time.
+                    // Un fornitore che rifiuta la domanda si interroga un indirizzo alla volta.
                     if (read.isFailure || read.getOrNull() == null) {
                         batch.forEach { add(fileOf(context, it)?.absolutePath) }
                     }
@@ -616,9 +503,21 @@ object FileTree {
         return folders
     }
 
-    /** How many rows one question of [sourcesOf] asks for: well below SQLite's 999 arguments. */
+    /** Quante righe chiede una domanda di [sourcesOf]: ben sotto i 999 argomenti di SQLite. */
     private const val SOURCES_BATCH = 500
 
+    /**
+     * Il file vero dietro un indirizzo, o `null` se non ce n'è uno raggiungibile.
+     *
+     * ⚠️ **`DATA` è deprecata e serve lo stesso**, come in `Folder`: è la sola colonna che dice
+     * dov'è il file, e spostare o rinominare vuol dire toccarlo dov'è. Con l'accesso a tutti i
+     * file quel percorso è scrivibile.
+     * Si controlla che sia davvero un file: una riga del MediaStore può sopravvivere al file, e
+     * agire su un percorso inesistente conterebbe come riuscito.
+     * È `internal` anche per le informazioni sul file: da Android 10 il MediaStore nasconde la
+     * posizione EXIF servita da un `content://`, e dal file vero le coordinate arrivano intere
+     * (`factsOf`).
+     */
     internal fun fileOf(context: Context, uri: Uri): File? {
         val path = when (uri.scheme?.lowercase()) {
             "file" -> uri.path
@@ -635,42 +534,22 @@ object FileTree {
     }
 
     /**
-     * Avvisa il MediaStore dei percorsi toccati, e **aspetta** che abbia finito.
+     * Avvisa il MediaStore dei percorsi toccati, e aspetta che abbia finito.
      *
-     * ⚠️⚠️ **SENZA L'AVVISO LA GALLERIA RESTA INDIETRO**: scrivendo i file a mano il
-     * provider non se ne accorge, quindi le copie non comparirebbero e le cancellate
-     * resterebbero, finché il sistema non rifà una scansione per conto suo, cioè quando
-     * vuole lui. Vale sui **due** percorsi di uno spostamento o di una rinomina, la
-     * partenza e l'arrivo: il primo toglie la riga vecchia, il secondo mette quella nuova.
-     * ⚠️⚠️ **E SI ASPETTA, o la schermata si ricaricherebbe sui dati di prima.** La
-     * scansione è asincrona: chi rilegge la cartella un istante dopo averla chiesta si
-     * ritrova ancora le foto appena cancellate, che è precisamente il difetto che
-     * l'operazione doveva togliere.
-     * ⚠️ Il tetto di attesa non è pessimismo: un richiamo che non arriva mai
-     * bloccherebbe la selezione per sempre, e una galleria in ritardo di qualche secondo
-     * è un guaio molto più piccolo.
+     * ⚠️ **Senza l'avviso la galleria resta indietro**: il provider non vede i file scritti a
+     * mano. Vale sui due percorsi di uno spostamento o di una rinomina: la partenza toglie la riga
+     * vecchia, l'arrivo mette quella nuova.
+     * ⚠️ **Si aspetta**, perché la scansione è asincrona e la schermata si ricaricherebbe sui dati
+     * di prima. Il tetto [SCAN_WAIT_MS] evita che un richiamo mai arrivato blocchi la selezione.
      *
-     * ⚠️⚠️ **E DALLA `2.24` BUTTA ANCHE LA MINIATURA CHE TENIAMO NOI PER QUELL'INDIRIZZO**
-     * (segnalazione dell'utente, punto A2 del campo libero del giro della `2.23`: *se si modifica
-     * una foto, poi si recupera la copia di backup dal cestino, questa ha la miniatura
-     * dell'immagine modificata, non la propria*). Chi fa scandire un percorso sta **dichiarando**
-     * che là il contenuto è cambiato, e la cache di [Thumbs] è indicizzata sull'indirizzo e non
-     * sul contenuto: quindi le due cose vanno insieme, e scritte qui un chiamante nuovo le prende
-     * per costruzione invece di doversi ricordare la seconda riga.
-     * - **Perché il ripristino era il caso che si vedeva**: `Bin.restore` rimette il file dove
-     *   stava, quindi un file che torna sopra l'indirizzo di uno appena riscritto si ritrova la
-     *   miniatura di quello. Chiamava già questa funzione, che rifà la miniatura **di sistema**
-     *   (la nota di [Thumbs.forget] lo dice da sempre): a mancare era la nostra.
-     * - ⚠️⚠️ **E DALLA `2.25` SI BUTTA ANCHE QUELLA DEL `file://`, che è un secondo indirizzo
-     *   per lo stesso file**: la vista 'Cartelle di sistema' legge il disco, quindi là le
-     *   immagini viaggiano come percorsi e non come righe del MediaStore, e la chiave della
-     *   loro miniatura è un'altra. Col solo richiamo dello scanner quella restava intatta, cioè
-     *   la stessa fotografia si correggeva in una vista e non nell'altra.
-     *   ⚠️ **Non aspetta il richiamo** e non può: il richiamo dice che cos'ha trovato il
-     *   sistema, questo indirizzo lo sappiamo già noi.
-     * - ⚠️ **Il caso in cui il MediaScanner non risponda con un indirizzo adesso è coperto a
-     *   metà**, e la nota di prima diceva che non lo era affatto: la chiave del `content://`
-     *   resta fuori portata, quella del percorso no.
+     * ⚠️ **Cancella anche le miniature di [Thumbs] dei percorsi toccati**: chi fa scandire un
+     * percorso dichiara che il contenuto è cambiato, e quella cache è indicizzata
+     * sull'indirizzo (segnalazione A2 dell'utente, giro della 2.23: un file ripristinato dal
+     * cestino mostrava la miniatura della versione modificata). Le chiavi sono due:
+     * - quella del `file://`, usata dalla vista 'Cartelle di sistema', si cancella subito, senza
+     *   aspettare il richiamo;
+     * - quella del `content://` si cancella nel richiamo; se lo scanner non risponde con un
+     *   indirizzo, resta.
      */
     internal suspend fun scan(context: Context, paths: List<String>) {
         val list = paths.distinct().filter { it.isNotBlank() }
@@ -696,18 +575,14 @@ object FileTree {
 /**
  * Il nome finale di un file rinominato: [template] coi cancelletti sostituiti da [number].
  *
- * ⚠️⚠️ **OGNI GRUPPO DI CANCELLETTI DIVENTA IL NUMERO, e la lunghezza del gruppo è il
- * numero di cifre**: due cancelletti dànno `01`, tre dànno `001`. Si sostituiscono
- * **tutti** i gruppi e non solo il primo, perché un cancelletto lasciato dentro un nome di
- * file si legge come un difetto, non come una scelta.
- * ⚠️ **Un numero più lungo del gruppo non si taglia**: con due cancelletti il file numero
- * 100 si chiama `100` e non `00`. Perdere una cifra vorrebbe dire due file con lo stesso
- * nome, cioè il contrario di quello che la numerazione serve a fare.
- * ⚠️ **La barra si ripulisce invece di essere rifiutata**, come nel dialogo della cartella
- * nuova: è l'unico carattere che su Android non può stare in un nome, e una incollata per
- * sbaglio trasformerebbe un file in una cartella inesistente.
- * ⚠️ **Punti e spazi in coda cadono**: un nome che finisce così è legale su ext4 e non lo
- * è su una scheda formattata FAT, e la rinomina fallirebbe solo su certi telefoni.
+ * Ogni gruppo di cancelletti diventa il numero, con tante cifre quanti cancelletti: `##` dà
+ * `01`. Si sostituiscono tutti i gruppi, perché un cancelletto rimasto nel nome sembra un
+ * difetto.
+ * ⚠️ **Un numero più lungo del gruppo non si taglia**: con `##` il file 100 si chiama `100` e
+ * non `00`, o due file avrebbero lo stesso nome.
+ * La barra si sostituisce con uno spazio, come nella finestra della cartella nuova: in un nome
+ * su Android non può esserci, e lo trasformerebbe in un percorso.
+ * Punti e spazi in coda si tolgono: sono legali su ext4 ma non su una scheda FAT.
  */
 internal fun renderName(template: String, number: Int, extension: String): String {
     val body = StringBuilder()
@@ -733,11 +608,8 @@ internal fun renderName(template: String, number: Int, extension: String): Strin
 /**
  * Quante cifre proporre per numerare [count] file a partire da [start].
  *
- * ⚠️ **Minimo due, e poi quante ne vuole il numero più alto** (istruzione dell'utente,
- * 2026-08-29: *il numero di # (cifre) dev'essere minimo 2, e poi proposto in base al totale
- * di file da rinominare: es. 84 -> ##, 124 -> ###*). Il minimo esiste perché `Foto 1` e
- * `Foto 2` si ordinano male appena si arriva a dieci, ed è il difetto che la numerazione
- * dovrebbe evitare.
+ * Minimo due, poi quante ne vuole il numero più alto (istruzione dell'utente). Il minimo
+ * esiste perché `Foto 1` e `Foto 10` si ordinano male come testo.
  */
 internal fun hashesFor(count: Int, start: Int): Int {
     val highest = start.toLong() + count.toLong() - 1L
@@ -745,15 +617,11 @@ internal fun hashesFor(count: Int, start: Int): Int {
 }
 
 /**
- * Il template da proporre, ricavato dal nome del **primo** file dell'ordine alfabetico.
+ * Il modello da proporre, ricavato dal nome del primo file in ordine alfabetico.
  *
- * ⚠️⚠️ **SI TAGLIA ALLA PRIMA CIFRA** (istruzione dell'utente, 2026-08-29: *il template di
- * base proposto per il nome dev'essere il nome del primo file senza parti extra. Es.
- * 'Museo1ABC_02' -> template proposto: `Museo ##`*). La parte davanti alle cifre è
- * quella che una persona ha scritto apposta; tutto quello che viene dopo è la numerazione
- * della macchina fotografica, cioè proprio quello che si sta per rifare.
- * ⚠️ **Un nome che comincia con una cifra si tiene intero**: tagliarlo darebbe un template
- * vuoto, e una proposta vuota è peggio di una proposta lunga.
+ * Si taglia alla prima cifra (istruzione dell'utente: `Museo1ABC_02` propone `Museo ##`): la
+ * parte davanti è quella scritta da una persona, il resto è la numerazione che si sta per rifare.
+ * Un nome che comincia con una cifra si tiene intero: tagliato, il modello sarebbe vuoto.
  */
 internal fun suggestTemplate(firstName: String, count: Int, start: Int): String {
     val stem = firstName.substringBeforeLast('.', firstName)
@@ -766,15 +634,11 @@ internal fun suggestTemplate(firstName: String, count: Int, start: Int): String 
  * Confronta due nomi come li ordinerebbe una persona: lettere in ordine alfabetico, e
  * gruppi di cifre confrontati come **numeri**.
  *
- * ⚠️⚠️ **NON È UN CONFRONTO LESSICOGRAFICO, e la differenza si vede subito**: in ordine di
- * carattere `IMG_10` viene prima di `IMG_9`, quindi una cartella di foto numerate si
- * rinumererebbe a casaccio, che è esattamente il caso per cui la rinomina in blocco esiste.
- * L'utente ha chiesto *ordine alfabetico A-Z* in contrapposizione all'ordine della griglia,
- * che è per data: questo è quell'ordine, con l'unica lettura che non tradisce le serie
- * numerate.
- * ⚠️ **Gli zeri iniziali non contano nel valore ma rompono i pareggi**: `foto 007` e
- * `foto 7` valgono lo stesso numero, e senza l'ultimo confronto sul testo grezzo il loro
- * ordine dipenderebbe da come la lista è arrivata.
+ * ⚠️ **Non è un confronto lessicografico**: per carattere `IMG_10` viene prima di `IMG_9`, e
+ * una serie numerata si rinumererebbe in disordine. È l'ordine alfabetico chiesto dall'utente,
+ * letto in modo che regga le serie numerate.
+ * Gli zeri iniziali non contano nel valore ma rompono i pareggi: `foto 007` e `foto 7` valgono
+ * lo stesso numero, e il confronto finale sul testo li ordina sempre allo stesso modo.
  */
 internal fun naturalCompare(a: String, b: String): Int {
     var i = 0

@@ -8,15 +8,14 @@ import java.io.OutputStream
  * Il modo unico di riscrivere un file che deve restare intero: o il contenuto nuovo per intero,
  * o quello vecchio com'era.
  *
- * ⚠️⚠️ **SI SCRIVE ACCANTO E POI SI RINOMINA SOPRA**: scrivere direttamente sul file lo tronca a
- * zero **prima** di scrivere, quindi un processo chiuso a metà o una memoria piena lasciano un
- * file vuoto o tagliato col nome giusto. Per l'archivio del cestino vuol dire perdere la
- * provenienza di **tutti** i file, non solo dell'ultimo (rilievi E12, B21, B36, C9 e C25 della
- * revisione della 6.25). Sullo stesso volume `renameTo` sostituisce il file in un passo solo.
- * ⚠️ **Il file accanto comincia col punto**: in una cartella dell'utente, come quella di un SVG
- * ripulito, per l'istante in cui esiste non compare fra le immagini.
- * ⚠️ **`sync` prima di rinominare**: senza, dopo uno spegnimento il nome nuovo può puntare a
- * byte che non sono ancora sul disco. Costa poco, perché qui passano file piccoli.
+ * ⚠️ **Si scrive accanto e poi si rinomina sopra**: scrivere direttamente sul file lo tronca a
+ * zero prima di scrivere, quindi un processo chiuso a metà o una memoria piena lasciano un file
+ * vuoto o tagliato col nome giusto; per l'archivio del cestino vuol dire perdere la provenienza
+ * di tutti i file. Sullo stesso volume `renameTo` sostituisce il file in un passo solo.
+ * Il file accanto comincia col punto, così in una cartella dell'utente non compare fra le
+ * immagini per l'istante in cui esiste.
+ * `sync` prima di rinominare: senza, dopo uno spegnimento il nome nuovo può puntare a byte che
+ * non sono ancora sul disco. Costa poco, perché qui passano file piccoli.
  *
  * Rocco Casadei, a.k.a. Roccobot
  */

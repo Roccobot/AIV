@@ -5,21 +5,16 @@ import java.io.InputStream
 /**
  * Come è codificata un'immagine, letto dai **byte del file** e non dai metadati.
  *
- * ⚠️⚠️ **PERCHÉ NON BASTA L'EXIF, che sarebbe stato la strada breve**: i tag TIFF che
- * descrivono la compressione (`Compression`, `BitsPerSample`) in un JPEG di telefono quasi
- * sempre **non ci sono**, o descrivono la miniatura invece dell'immagine. Le informazioni
- * vere stanno nell'intestazione del formato, che è il posto in cui il decodificatore stesso
- * le legge.
+ * ⚠️ **Non basta l'EXIF**: i tag TIFF della compressione (`Compression`, `BitsPerSample`) in
+ * un JPEG di telefono quasi sempre mancano, o descrivono la miniatura. Le informazioni vere sono
+ * nell'intestazione del formato, dove le legge il decodificatore stesso.
  *
- * ⚠️ **Solo JPEG e PNG, e il resto tace**: sono i due formati con un'intestazione che si
- * legge in poche righe e senza ambiguità. WebP e HEIF vivono dentro contenitori a scatole
- * (RIFF e ISO-BMFF), dove per arrivare alla stessa risposta si scrive un parser di
- * contenitore: quando non si sa, la riga non si scrive, che è la regola di tutta questa
- * schermata.
+ * Solo JPEG e PNG, che hanno un'intestazione leggibile in poche righe e senza ambiguità. WebP e
+ * HEIF sono dentro contenitori a scatole (RIFF e ISO-BMFF), che chiederebbero un parser di
+ * contenitore: quando non si sa, la riga non si scrive, ed è la regola di tutta la schermata.
  *
- * ⚠️ **I campi sono numeri e nomi propri, non parole**: 'JPEG', '8', '4:2:0' si leggono
- * uguali in ogni lingua, e l'unica parola ([interlaced]) la scrive l'interfaccia con la sua
- * stringa. Era la condizione per non dover ritradurre questa classe quindici volte.
+ * I campi sono numeri e nomi propri ('JPEG', '8', '4:2:0'), uguali in ogni lingua; l'unica
+ * parola ([interlaced]) la scrive l'interfaccia con la sua stringa.
  */
 class Encoding(
     /** `JPEG` o `PNG`: nome proprio del formato, non si traduce. */
@@ -29,8 +24,8 @@ class Encoding(
     /**
      * Il sottocampionamento del croma, nella notazione `4:2:0`.
      *
-     * ⚠️ Solo JPEG a tre componenti: su un'immagine in scala di grigi non vuol dire niente,
-     * e su PNG non esiste perché il PNG non sottocampiona.
+     * Solo JPEG a tre componenti: in scala di grigi non vuol dire niente, e il PNG non
+     * sottocampiona.
      */
     val chroma: String?,
     /** JPEG progressivo, o PNG interlacciato: due nomi per la stessa idea. */
@@ -41,11 +36,10 @@ class Encoding(
  * Legge l'intestazione e dice come è codificata l'immagine, o `null` se il formato non è
  * fra i due che si sanno leggere.
  *
- * ⚠️⚠️ **SI RICONOSCE IL FORMATO DAI BYTE E NON DAL TIPO MIME o dall'estensione**: quelli
- * dicono che cosa il file **dovrebbe** essere, i byte dicono che cos'è. Un `.jpg` che
- * contiene un PNG esiste, e sarebbe l'unico caso in cui questa riga mentirebbe.
+ * Il formato si riconosce dai byte: il tipo MIME e l'estensione dicono che cosa il file
+ * dovrebbe essere, e un `.jpg` che contiene un PNG esiste.
  * ⚠️ **Lo stream si consuma e non si riavvolge**: chi chiama ne apre uno nuovo per gli usi
- * successivi. Costa un'apertura e risparmia il buffer che servirebbe a tornare indietro.
+ * successivi.
  */
 fun encodingOf(input: InputStream): Encoding? {
     val head = ByteArray(2)
@@ -62,16 +56,13 @@ fun encodingOf(input: InputStream): Encoding? {
 /**
  * L'intestazione di un JPEG: si salta di segmento in segmento fino al SOF.
  *
- * ⚠️⚠️ **IL SOF PUÒ ESSERE MOLTO LONTANO DALL'INIZIO, ed è la ragione per cui questa
- * funzione salta i segmenti invece di leggere i primi mille byte**: un JPEG di telefono
- * porta in testa un `APP1` con l'EXIF e la miniatura, che da solo arriva a 64 KB. Chi
- * cercasse il marcatore in una finestra fissa lo troverebbe su alcune foto e non su altre,
- * cioè in modo che sembra casuale.
- * ⚠️ **I marcatori che contano sono più di uno**: `C0` è la sequenziale di base, `C1` la
- * sequenziale estesa, `C2` la **progressiva**, `C9` e `CA` le aritmetiche. Fermarsi al solo
- * `C0` direbbe 'formato ignoto' su ogni foto progressiva, che è metà di quelle scaricate.
- * ⚠️ **`C4`, `C8` e `CC` NON sono SOF**, e questo è l'errore classico: `C4` sono le tabelle
- * di Huffman, e prenderlo per un SOF darebbe misure e componenti inventate.
+ * ⚠️ **Il SOF può essere molto lontano dall'inizio**: un JPEG di telefono ha in testa un
+ * `APP1` con l'EXIF e la miniatura, fino a 64 KB. Una finestra fissa lo troverebbe su alcune
+ * foto e non su altre.
+ * I SOF sono più di uno: `C0` sequenziale di base, `C1` sequenziale estesa, `C2` progressiva,
+ * `C9` e `CA` aritmetiche. Col solo `C0` ogni foto progressiva risulterebbe ignota.
+ * ⚠️ **`C4`, `C8` e `CC` non sono SOF**: `C4` sono le tabelle di Huffman, e scambiarle per un
+ * SOF darebbe misure e componenti inventate.
  */
 private fun jpegEncoding(input: InputStream): Encoding? {
     val two = ByteArray(2)
@@ -111,12 +102,11 @@ private fun jpegEncoding(input: InputStream): Encoding? {
  * componenti, poi 3 byte per componente (identificativo, fattori di campionamento in due
  * mezzi byte, tabella di quantizzazione).
  *
- * ⚠️⚠️ **IL SOTTOCAMPIONAMENTO SI RICAVA DAL RAPPORTO fra i fattori del canale di luce e
- * quelli del croma, non dai fattori in sé**: `2x2` sulla luce con `1x1` sul croma è `4:2:0`,
- * ma `1x1` su tutti e tre è `4:4:4`. Leggere il solo primo canale direbbe `4:2:0` anche
- * quando il croma non è ridotto.
- * ⚠️ **Si dichiara solo per tre componenti**: con una sola (scala di grigi) il croma non
- * esiste, e con quattro (CMYK) la notazione a quattro cifre è un'altra cosa.
+ * ⚠️ **Il sottocampionamento si ricava dal rapporto** fra i fattori del canale di luce e
+ * quelli del croma: `2x2` sulla luce con `1x1` sul croma è `4:2:0`, ma `1x1` su tutti e tre è
+ * `4:4:4`.
+ * Si dichiara solo per tre componenti: in scala di grigi il croma non esiste, e per il CMYK
+ * la notazione a quattro cifre è un'altra cosa.
  */
 private fun sofEncoding(marker: Int, body: ByteArray): Encoding {
     val progressive = marker == 0xC2 || marker == 0xC6 || marker == 0xCA || marker == 0xCE
@@ -142,17 +132,14 @@ private fun sofEncoding(marker: Int, body: ByteArray): Encoding {
 }
 
 /**
- * L'intestazione di un PNG, che al contrario del JPEG sta sempre nello **stesso posto**:
- * la firma di 8 byte, poi il blocco `IHDR` con larghezza, altezza, profondità, tipo di
- * colore, compressione, filtro e interlacciamento.
+ * L'intestazione di un PNG, che è sempre nello stesso posto: la firma di 8 byte, poi il
+ * blocco `IHDR` con larghezza, altezza, profondità, tipo di colore, compressione, filtro e
+ * interlacciamento.
  *
- * ⚠️ **La profondità è per CANALE e non per pixel**: `8` su un RGBA vuol dire 32 bit per
- * pixel. Scritta come 'bit' accanto al nome del formato è la convenzione di tutti i
- * visualizzatori, e moltiplicarla per i canali darebbe un numero che non combacia con
- * quello che dicono gli altri programmi.
- * ⚠️ **Il PNG è senza perdita e non ha sottocampionamento**, quindi quel campo resta vuoto:
- * scriverci `4:4:4` sarebbe vero e fuorviante, perché suggerirebbe una scelta di codifica
- * dove non c'è nessuna scelta.
+ * La profondità è per canale, non per pixel (`8` su un RGBA vuol dire 32 bit per pixel): è la
+ * convenzione degli altri visualizzatori.
+ * Il sottocampionamento resta vuoto: `4:4:4` sarebbe vero, ma suggerirebbe una scelta di
+ * codifica che il PNG non ha.
  */
 private fun pngEncoding(input: InputStream): Encoding? {
     // I due byte della firma già letti sono `89 50`: ne restano sei, poi la lunghezza e il
@@ -169,16 +156,11 @@ private fun pngEncoding(input: InputStream): Encoding? {
 /**
  * Legge esattamente [count] byte, insistendo finché lo stream ne dà.
  *
- * ⚠️⚠️ **`read` PUÒ TORNARE MENO BYTE DI QUELLI CHIESTI senza che sia finito niente**, ed è
- * il difetto classico di questo genere di codice: su uno stream di rete o su un
- * `ContentResolver` capita per davvero, e un parser che si fida della prima lettura
- * sbaglierebbe l'intestazione una volta su cento, cioè nel modo più difficile da ritrovare.
- */
-/*
- * ⚠️ **Queste due sono `internal` e non private dalla 1.16**: le usa anche [coloursOf], che
- * legge le stesse intestazioni per un'altra ragione. Copiarle di là avrebbe dato due
- * versioni della stessa insidia (un `read` può tornare meno byte di quelli chiesti senza che
- * il flusso sia finito), e la seconda copia è quella che prima o poi dimentica il ciclo.
+ * ⚠️ **`read` può tornare meno byte di quelli chiesti senza che lo stream sia finito**: su uno
+ * stream di rete o di un `ContentResolver` capita davvero, e un parser che si fida della prima
+ * lettura sbaglierebbe l'intestazione una volta ogni tanto.
+ * Questa e [skipFully] sono `internal` perché le usa anche [coloursOf]: una seconda copia
+ * rischierebbe di perdere il ciclo.
  */
 internal fun InputStream.readFully(into: ByteArray, count: Int): Int {
     var got = 0

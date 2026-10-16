@@ -6,57 +6,46 @@ import org.json.JSONObject
 import java.io.File
 
 /**
- * Un **preset**: un nome e i cinque moduli di colore che quel nome porta con sé.
+ * Uno **stile**: un nome e i sei moduli che lo stile governa (Luce, Colore, HSL, Dettaglio, Curve
+ * ed Effetti, come dice `docs/Editor.md`).
  *
- * ⚠️⚠️ **UN PRESET NON PORTA LA POSA, IL RITAGLIO E LA GEOMETRIA, E NON È UNA SEMPLIFICAZIONE**:
- * quei tre dipendono da **come è stata scattata quella fotografia** (da che parte sta il cielo,
- * dove finisce il soggetto, quanto pende l'orizzonte), mentre un preset è un aspetto che si porta
- * da un'immagine all'altra. Applicarne uno che raddrizza di tre gradi girerebbe anche le
- * fotografie dritte.
- * - ⚠️ **Quindi i moduli sono cinque e non otto**, e coincidono esattamente con quelli che i
- *   preset di Lightroom sanno dire: Luce, Colore, HSL, Dettaglio e Curve.
+ * ⚠️ **Uno stile non contiene la posa, il ritaglio e la geometria**: dipendono da come è stata
+ * scattata quell'immagine (dov'è il cielo, dove finisce il soggetto, quanto pende l'orizzonte),
+ * mentre uno stile passa da un'immagine all'altra. Uno che raddrizza di tre gradi girerebbe anche
+ * le immagini dritte.
  *
- * ⚠️⚠️ **IL NOME NON SI TRADUCE, NEMMENO QUELLO DEI DIECI DI CASA**: è un nome proprio, come
- * quello di una cartella, e la cosa che lo distingue è che sia sempre lo stesso. Tradurlo
- * vorrebbe dire dieci stringhe per ventotto lingue per dei nomi che chi li ha scritti riconosce
- * così come sono.
+ * Il nome non si traduce, nemmeno quello dei dieci di casa: è un nome proprio, come quello di una
+ * cartella.
  */
 data class Preset(
     val name: String,
     val look: Look,
     /**
-     * Con che cosa questo preset si nomina nell'archivio.
+     * Con che cosa questo stile si nomina nell'archivio.
      *
-     * ⚠️⚠️ **NASCE CON LA `2.50`, E SENZA DI LEI UN PRESET DI CASA NON SI POTREBBE RINOMINARE**
-     * (sua richiesta, giro della `2.40`: *si possono riordinare, rinominare e cancellare a
-     * piacere sia i predefiniti di fabbrica che quelli creati dall'utente*). Il nome è quello che
-     * si vede e adesso si può cambiare, quindi non può più essere anche l'identità: l'archivio
-     * tiene le rinomine, i cancellati e l'ordine, e li tiene **per chiave**.
-     * ⚠️ **Per i propri la chiave È il nome**, perché là l'identità non ha un secondo posto in cui
-     * vivere: due preset propri che si chiamano uguale sono indistinguibili nell'elenco, e per
-     * questo salvarne uno col nome di un altro lo sostituisce.
+     * ⚠️ **Il nome si può cambiare, quindi non è l'identità** (richiesta dell'utente, giro della
+     * 2.40: anche quelli di casa si riordinano, si rinominano e si cancellano): l'archivio tiene
+     * rinomine, cancellati e ordine per chiave.
+     * Per gli stili propri la chiave è il nome: due stili propri con lo stesso nome sarebbero
+     * indistinguibili nell'elenco, e per questo salvarne uno col nome di un altro lo sostituisce.
      */
     val key: String = name,
     /**
-     * Se è uno dei dieci che l'app porta con sé.
+     * Se è uno dei dieci che l'app ha di fabbrica.
      *
-     * ⚠️ **Serve a due cose**: il gruppo in cui compare ('Stili AIV' o 'Stili salvati'), e dove
-     * l'archivio scrive quello che di lui è cambiato (una rinomina fra le rinomine, una
-     * cancellazione fra i cancellati, invece del preset intero).
+     * Serve al gruppo in cui compare ('Stili AIV' o 'Stili salvati') e a dove l'archivio scrive
+     * quello che è cambiato (una rinomina fra le rinomine, una cancellazione fra i cancellati,
+     * mai lo stile intero).
      */
     val house: Boolean = false
 ) {
 
     /**
-     * [base] con sopra questo preset: i cinque moduli si sostituiscono, tutto il resto resta.
+     * [base] con sopra questo stile: i sei moduli si sostituiscono, tutto il resto resta. È il
+     * tocco; il tocco lungo somma ([addTo]).
      *
-     * ⚠️⚠️ **SOSTITUISCE INVECE DI SOMMARE, ED È LA SCELTA CHE RENDE UN PRESET PREVEDIBILE**: con
-     * una somma, applicare due volte lo stesso preset darebbe due immagini diverse, e applicarne
-     * uno sopra un altro darebbe qualcosa che nessuno dei due descrive. Così invece un preset
-     * dice **dove si arriva**, e per tornare indietro c'è 'Annulla', perché quello che ne esce è
-     * un [Look] come un altro.
-     * ⚠️ **Dalla `2.50` è quello che fa il TOCCO**, e il tocco lungo fa l'altra cosa: vedi
-     * [addTo].
+     * Sostituire rende lo stile prevedibile: dice dove si arriva, e due tocchi danno la stessa
+     * immagine. Per tornare indietro c'è 'Annulla', perché il risultato è un [Look] come un altro.
      */
     fun applyTo(base: Look): Look = base.copy(
         light = look.light,
@@ -68,27 +57,17 @@ data class Preset(
     )
 
     /**
-     * [base] con sopra questo preset **sommato**: il tocco lungo, dalla `2.50`, e somma dalla `4.97`.
-     *
-     * ⚠️⚠️ **È SUA RICHIESTA, E LE DUE RIGHE SONO SUE** (campo libero del giro della `2.40`:
-     * *tocco sullo stile = modifica assoluta (azzera tutto, poi modifica); tocco prolungato =
-     * modifica additiva (tocca i valori inclusi, non modifica gli altri)*). Il gesto lungo serve a
-     * **comporre** più stili.
-     * ⚠️⚠️ **DALLA `4.97` SOMMA CURSORE PER CURSORE, ED È LA SUA RISPOSTA `B1`** (giro della
-     * `4.96`, voce `4.96-01`: stili *additivi (ne posso usare più di uno e si sommino senza
-     * distruggersi a vicenda)*). Fino alla `4.96` un modulo nominato si sostituiva per intero, quindi
-     * due stili di luce si cancellavano a vicenda.
-     * - **I cursori principali si sommano**, col tetto della loro corsa: luce +10 sopra luce +10 dà
-     *   +20, e lo stesso stile toccato due volte conta due volte. Un cursore a riposo somma zero,
-     *   quindi quello che lo stile non nomina resta com'è.
+     * [base] con sopra questo stile **sommato**: il tocco lungo, che serve a comporre più stili
+     * (richiesta dell'utente, giro della 2.40; somma cursore per cursore, risposta `B1` alla voce
+     * `4.96-01`).
+     * - I cursori principali si sommano, entro la loro corsa: lo stesso stile toccato due volte
+     *   conta due volte, e un cursore a riposo somma zero.
      * - ⚠️ **I cursori secondari prendono il valore dello stile, se lo stile lo nomina** (filtro del
      *   bianco e nero, raggio e maschera della nitidezza, dimensione e luci della grana, sfumatura
-     *   della vignettatura): da soli non cambiano un pixel, sono la forma di un altro cursore, e la
-     *   somma di due forme non è una forma. Lettura della sessione, dichiarata nel DF.
-     * - **Il bianco e nero vale se lo è uno dei due**: è un interruttore, e spegnerlo per somma
-     *   sarebbe la cancellazione che la risposta esclude.
-     * - **Le curve si applicano una dopo l'altra**, quella dello stile sopra quella che c'è: vedi
-     *   [then].
+     *   della vignettatura): sono la forma di un altro cursore, e la somma di due forme non è una
+     *   forma. Lettura della sessione, dichiarata nel DF.
+     * - Il bianco e nero vale se lo è uno dei due: spegnerlo per somma sarebbe una cancellazione.
+     * - Le curve si applicano una dopo l'altra, quella dello stile sopra quella che c'è ([then]).
      */
     fun addTo(base: Look): Look = base.copy(
         light = base.light.let { a ->
@@ -147,7 +126,7 @@ data class Preset(
 
     companion object {
 
-        /** Quello che di [look] un preset porta con sé, cioè i cinque moduli di colore. */
+        /** Lo stile [name] con i sei moduli di [look] e nient'altro. */
         fun of(name: String, look: Look): Preset = Preset(
             name = name.trim(),
             look = Look(
@@ -162,36 +141,24 @@ data class Preset(
 }
 
 /**
- * Dove vivono i preset, e che cosa di loro l'utente ha cambiato.
+ * Dove vivono gli stili, e che cosa di loro l'utente ha cambiato.
  *
- * ⚠️⚠️ **L'ARCHIVIO È UN FILE E NON UNA PREFERENZA**, al contrario di quasi tutto il resto
- * dell'app: una preferenza tiene un valore, qui invece cresce un elenco di oggetti annidati (otto
- * fasce e quattro curve per ognuno), e scriverlo in un `DataStore` vorrebbe dire una stringa
- * lunghissima sotto una chiave sola, cioè un file travestito.
- * - ⚠️ **In `filesDir` e non in `cacheDir`**, per la stessa ragione delle copertine: quello che
- *   vive nella cache il sistema lo può buttare, e un preset salvato sparirebbe da solo.
+ * L'archivio è un file e non una preferenza: è un elenco di oggetti annidati (otto fasce e
+ * quattro curve per ognuno), che in un `DataStore` sarebbe una stringa lunghissima sotto una
+ * chiave sola. È in `filesDir`, come le copertine: da `cacheDir` il sistema può cancellare.
  *
- * ⚠️⚠️ **SI LEGGE E SI SCRIVE A MANO CON `org.json`, SENZA NESSUNA LIBRERIA**: quella classe è
- * nella piattaforma da sempre, quindi non aggiunge un byte all'APK, e il formato che ne esce si
- * apre con qualunque editor. Una libreria di serializzazione automatica avrebbe legato la forma
- * del file alla forma delle classi, e il giorno che un modulo prende un campo i preset salvati
- * non si leggerebbero più.
- * - ⚠️ **Ogni campo che manca vale il suo valore di riposo**, ed è quello che rende il formato
- *   compatibile in avanti e all'indietro: un file scritto oggi si legge domani anche se domani i
- *   cursori sono sei, e un file scritto domani si legge oggi perdendo quello che oggi non esiste.
+ * ⚠️ **Si legge e si scrive a mano con `org.json`**: è nella piattaforma, e il file si apre con
+ * qualunque editor. Una serializzazione automatica legherebbe la forma del file a quella delle
+ * classi. Ogni campo che manca vale il suo valore di riposo, e questo rende il formato compatibile
+ * in avanti e all'indietro.
  *
- * ⚠️⚠️ **DALLA `2.50` IL FILE È UN OGGETTO E NON PIÙ UN ELENCO, E IL VECCHIO SI LEGGE LO STESSO**:
- * finché i preset propri erano l'unica cosa che l'utente poteva toccare, l'archivio era il loro
- * elenco; adesso può **riordinare, rinominare e cancellare anche quelli di casa** (sua richiesta,
- * giro della `2.40`), e quelle tre cose non stanno dentro un elenco di preset propri. Un file
- * scritto prima comincia con `[`, e allora è l'elenco di prima e basta: senza quella riga,
- * aggiornare l'app porterebbe via a chi ce li ha tutti i preset salvati.
- * - **Che cosa tiene**: `mine` (i propri, nell'ordine scelto), `names` (le rinomine di quelli di
- *   casa, per chiave), `gone` (le chiavi di casa cancellate) e `house` (l'ordine di quelli di
- *   casa).
- * - ⚠️ **Di un preset di casa non si scrive mai il contenuto**, nemmeno rinominato: i suoi valori
- *   vivono nel programma, e copiarli nell'archivio vorrebbe dire che una taratura corretta in una
- *   versione futura non arriverebbe a chi lo ha rinominato.
+ * Il file è un oggetto con `mine` (gli stili propri, nell'ordine scelto), `names` (le rinomine di
+ * quelli di casa, per chiave), `gone` (le chiavi di casa cancellate) e `house` (l'ordine di quelli
+ * di casa). ⚠️ Un file che comincia con `[` è il formato di prima della 2.50, cioè il solo elenco
+ * degli stili propri, e si legge ancora: senza, un aggiornamento cancellerebbe gli stili salvati.
+ * ⚠️ **Di uno stile di casa non si scrive mai il contenuto**, nemmeno rinominato: i valori vivono
+ * nel programma, così una taratura corretta in una versione futura arriva anche a chi lo ha
+ * rinominato.
  */
 object Presets {
 
@@ -199,12 +166,11 @@ object Presets {
     fun all(context: Context): List<Preset> = house(context) + mine(context)
 
     /**
-     * I preset di casa, nell'ordine scelto, coi nomi effettivi e senza i cancellati.
+     * Gli stili di casa, nell'ordine scelto, coi nomi effettivi e senza i cancellati.
      *
-     * ⚠️ **L'ordine si applica alla lista del programma e non la sostituisce**: una chiave
-     * salvata che non esiste più (un preset tolto da una versione futura) si scarta, e una che
-     * l'archivio non nomina resta al suo posto di fabbrica. È lo stesso criterio di `padOrderOf`
-     * per i riquadri.
+     * L'ordine si applica alla lista del programma: una chiave salvata che non esiste più si
+     * scarta, e una che l'archivio non nomina resta al suo posto di fabbrica (come `padOrderOf`
+     * per i riquadri).
      */
     fun house(context: Context): List<Preset> {
         val book = read(context)
@@ -215,18 +181,14 @@ object Presets {
             .map { p -> book.names[p.key]?.let { p.copy(name = it) } ?: p }
     }
 
-    /** I soli preset salvati dall'utente, nell'ordine scelto. */
+    /** I soli stili salvati dall'utente, nell'ordine scelto. */
     fun mine(context: Context): List<Preset> = read(context).mine
 
     /**
      * Salva [look] col nome [name], e ridà l'elenco nuovo dei propri.
      *
-     * ⚠️ **Un nome già usato SOSTITUISCE invece di aggiungere**, e il confronto non guarda le
-     * maiuscole: due preset che si chiamano uguale sono indistinguibili nell'elenco, quindi
-     * l'unica cosa che si potrebbe fare con il secondo è cercare di capire quale sia.
-     * ⚠️ **Un nome nuovo va in CODA e non in cima, dalla `2.50`**: l'ordine adesso è una scelta
-     * dell'utente, e infilare l'ultimo arrivato davanti a quelli che lui ha disposto vorrebbe dire
-     * rifargli la fila a ogni salvataggio.
+     * Un nome già usato sostituisce, senza guardare le maiuscole: due stili con lo stesso nome
+     * sarebbero indistinguibili. Un nome nuovo va in coda: l'ordine è una scelta dell'utente.
      */
     fun save(context: Context, name: String, look: Look): List<Preset> {
         val fresco = Preset.of(name.take(Preset.NAME_MAX), look)
@@ -241,9 +203,8 @@ object Presets {
     /**
      * Toglie [p] dall'elenco, e ridà il posto da cui è uscito, per chi lo vuole rimettere.
      *
-     * ⚠️⚠️ **UN PRESET DI CASA NON SI CANCELLA DAVVERO: SI NASCONDE**, perché i suoi valori vivono
-     * nel programma e non nell'archivio. Quello che si scrive è la sua chiave fra i cancellati, e
-     * 'Ripristina' porta via quell'elenco insieme a tutto il resto.
+     * ⚠️ **Uno stile di casa si nasconde**, perché i suoi valori vivono nel programma: si scrive
+     * la sua chiave fra i cancellati, e 'Ripristina' cancella quell'elenco con tutto il resto.
      */
     fun remove(context: Context, p: Preset): Int {
         val book = read(context)
@@ -273,10 +234,9 @@ object Presets {
     /**
      * Cambia il nome di [p], e ridà il preset com'è adesso.
      *
-     * ⚠️ **Per un preset proprio il nome è anche la chiave**, quindi rinominarlo lo fa diventare
-     * un altro: se quel nome è già di un altro dei suoi, i due si fonderebbero, e per questo il
-     * doppione si scarta invece di sostituire (a sostituire è il salvataggio, dove l'utente ha
-     * appena scritto dei valori nuovi).
+     * ⚠️ **Per uno stile proprio il nome è anche la chiave**: se il nome nuovo è già di un altro
+     * stile proprio i due si fonderebbero, quindi la rinomina si scarta. A sostituire è solo il
+     * salvataggio, dove l'utente ha appena scritto valori nuovi.
      */
     fun rename(context: Context, p: Preset, name: String): Preset {
         val pulito = name.trim().take(Preset.NAME_MAX)
@@ -295,7 +255,7 @@ object Presets {
         return nuovo
     }
 
-    /** Sposta il preset che sta in [from] all'indice [to], dentro il suo gruppo. */
+    /** Sposta lo stile da [from] all'indice [to], dentro il suo gruppo. */
     fun move(context: Context, p: Preset, from: Int, to: Int) {
         val book = read(context)
         if (p.house) {
@@ -312,11 +272,8 @@ object Presets {
     }
 
     /**
-     * Butta via tutto quello che l'utente ha fatto: l'app torna ai dieci di casa, nell'ordine e
-     * coi nomi di fabbrica.
-     *
-     * ⚠️ **Si cancella il file invece di riscriverlo vuoto**: l'assenza è già il valore di
-     * fabbrica, e un file vuoto vorrebbe dire due modi di dire la stessa cosa.
+     * Cancella tutto quello che l'utente ha fatto: l'app torna ai dieci di casa, nell'ordine e
+     * coi nomi di fabbrica. Si cancella il file: l'assenza è già il valore di fabbrica.
      */
     fun reset(context: Context) {
         runCatching { store(context).delete() }
@@ -325,26 +282,20 @@ object Presets {
     /**
      * L'archivio come testo, per chi lo vuole salvare fuori dall'app.
      *
-     * ⚠️⚠️ **SI ESPORTA L'ARCHIVIO INTERO E NON I SOLI STILI PROPRI**, ed è la lettura della sua
-     * richiesta fino in fondo (*da dove si potrà salvare un XML o JSON con i propri stili
-     * personalizzati, o importarlo in seguito dopo una nuova installazione*): quello che si vuole
-     * ritrovare dopo un'installazione nuova non sono solo gli stili creati, sono anche le rinomine
-     * e l'ordine in cui li si era messi, cioè tutto quello che di quell'elenco era suo.
-     * ⚠️ **È lo stesso testo che vive su disco**, quindi non c'è un secondo formato da tenere
-     * allineato al primo, e un file esportato si può rimettere a mano.
+     * Si esporta l'archivio intero: dopo un'installazione nuova si vogliono ritrovare anche le
+     * rinomine e l'ordine, non solo gli stili creati (lettura della richiesta dell'utente).
+     * È lo stesso testo del disco: nessun secondo formato da tenere allineato.
      */
     fun export(context: Context): String = book(read(context)).toString(2)
 
     /**
      * Uno stile solo come testo, per il file `.aivstyle`.
      *
-     * ⚠️⚠️ **È LA SUA RISPOSTA `dopo` A `d-stile-singolo`** (giro della `2.98`): un comando sulla
-     * riga di uno stile, e un'importazione che lo aggiunge agli altri. Entra con la `4.96`.
-     * - ⚠️ **Il testo è l'oggetto che l'archivio scrive per ogni stile**, cioè [writeLook]: un
-     *   secondo formato vorrebbe dire due scritture da tenere allineate.
-     * - ⚠️ **Uno stile di casa esce col nome che ha adesso**, rinomina compresa, e dall'altra parte
-     *   arriva come uno stile proprio: la chiave di casa vive nel programma, e il file non può
-     *   promettere che l'altro telefono abbia la stessa versione.
+     * Risposta `dopo` a `d-stile-singolo`: un comando sulla riga di uno stile, e un'importazione
+     * che lo aggiunge agli altri. Il testo è l'oggetto che l'archivio scrive per ogni stile
+     * ([writeLook]), senza un secondo formato.
+     * Uno stile di casa esce col nome che ha adesso e arriva come stile proprio: il file non può
+     * promettere che l'altro telefono abbia la stessa versione dell'app.
      */
     fun exportOne(p: Preset): String = writeLook(p).toString(2)
 
@@ -355,16 +306,13 @@ object Presets {
      * Rimette un archivio esportato, o aggiunge uno stile solo, e dice quale dei due ha fatto;
      * `null` se il testo non si legge.
      *
-     * ⚠️⚠️ **LO STILE SOLO SI AGGIUNGE E NON SOSTITUISCE NIENTE** (risposta `dopo` a
-     * `d-stile-singolo`): passa da [save], quindi un nome già usato da uno dei propri ne prende i
-     * valori, e uno nuovo va in coda. Che cosa sia lo dice [one], prima di [parse].
-     *
-     * ⚠️ **Sostituisce invece di fondere**, ed è la scelta che rende il gesto prevedibile: un
-     * archivio importato è una fotografia di com'era l'elenco, e mescolarlo a quello che c'è
+     * Lo stile solo si aggiunge (risposta `dopo` a `d-stile-singolo`): passa da [save], quindi un
+     * nome già usato ne prende i valori, e uno nuovo va in coda. Lo riconosce [one], prima di
+     * [parse].
+     * L'archivio intero sostituisce quello che c'è: è un'istantanea dell'elenco, e mescolarlo
      * darebbe una terza cosa che nessuno dei due descrive. Chi vuole tenere tutti e due esporta
      * prima.
-     * ⚠️ **Un testo che non si legge non tocca niente**: la scrittura arriva dopo la lettura, e
-     * senza quell'ordine un file storto svuoterebbe l'archivio.
+     * ⚠️ **Un testo che non si legge non tocca niente**: la scrittura arriva dopo la lettura.
      */
     fun load(context: Context, text: String): Loaded? {
         val uno = one(text)
@@ -380,9 +328,9 @@ object Presets {
     /**
      * Lo stile che [text] contiene, se è il file di uno stile solo.
      *
-     * ⚠️ **Lo si riconosce da `name` senza `mine`**: un archivio scrive sempre `mine`, anche vuoto
-     * (vedi [book]), e uno stile ha sempre un nome. Un nome vuoto non è uno stile, e il testo passa
-     * a [parse], che lo rifiuta.
+     * Lo si riconosce da `name` senza `mine`: un archivio scrive sempre `mine`, anche vuoto
+     * ([book]), e uno stile ha sempre un nome. Con un nome vuoto il testo passa a [parse], che lo
+     * rifiuta.
      */
     private fun one(text: String): Preset? = runCatching {
         val o = JSONObject(text.trim())
@@ -395,23 +343,18 @@ object Presets {
      * Aggiunge a quello che c'è un archivio esportato, e dice se ci è riuscito: per il file di
      * impostazioni.
      *
-     * ⚠️⚠️ **È LA SUA RISPOSTA `fonde` A `d-backup-importa`** (giro della `2.93` e della `2.94`:
-     * *Copertine, colori e stili del file si aggiungono ai tuoi, e dove si sovrappongono (la stessa
-     * cartella, lo stesso nome) vince il file*). La risposta parla del file di impostazioni, quindi
-     * l'importazione della pagina degli stili resta [load], che sostituisce: il giro dopo gli chiede
-     * se la vuole uguale.
-     * - **Gli stili salvati**: uno che ha lo stesso nome di uno dei suoi ne prende i valori e resta al
-     *   suo posto, e gli altri si aggiungono in coda nell'ordine del file. Il nome si confronta senza
-     *   le maiuscole, come in [save].
-     * - ⚠️⚠️ **Di quelli di casa l'archivio tiene solo quello che è cambiato dalla fabbrica** (un nome,
-     *   un nascosto, un ordine), quindi fondere vuol dire aggiungere ai cambiamenti di qui quelli del
-     *   file, e dove tutti e due hanno cambiato la stessa cosa vince il file. Un nome o un ordine che il
-     *   file non scrive vuol dire che là nessuno li ha toccati, e non è una scelta da far valere sopra
-     *   una di qui; uno stile nascosto da una delle due parti resta nascosto.
-     * - ⚠️ **Su un telefono nuovo è la stessa cosa di [load]**: qui non c'è niente da tenere, e quello
-     *   che resta sono i cambiamenti del file. È il caso per cui un file di impostazioni esiste.
-     * ⚠️ **Un testo che non si legge non tocca niente**, come in [load]; e a differenza di [load]
-     * dice anche se la scrittura non è riuscita, perché il backup conta le aree che sono entrate.
+     * Risposta `fonde` a `d-backup-importa`: gli stili del file si aggiungono, e dove si
+     * sovrappongono vince il file. Vale per il file di impostazioni; l'importazione della pagina
+     * degli stili è [load], che sostituisce.
+     * - Gli stili salvati: uno con lo stesso nome (senza guardare le maiuscole, come in [save])
+     *   prende i valori del file e resta al suo posto; gli altri vanno in coda nell'ordine del file.
+     * - ⚠️ **Di quelli di casa l'archivio tiene solo i cambiamenti dalla fabbrica** (un nome, un
+     *   nascosto, un ordine): si sommano quelli di qui e quelli del file, e sulla stessa cosa vince
+     *   il file. Un nome o un ordine che il file non scrive non vale sopra uno di qui; uno stile
+     *   nascosto da una delle due parti resta nascosto.
+     * - Su un telefono nuovo equivale a [load].
+     * Un testo che non si legge non tocca niente, come in [load]; in più dice se la scrittura è
+     * riuscita, perché il backup conta le aree entrate.
      */
     fun merge(context: Context, text: String): Boolean {
         val arrivo = runCatching { parse(text) }.getOrNull() ?: return false
@@ -433,8 +376,8 @@ object Presets {
     /**
      * Se [text] è un archivio che [load] saprebbe leggere, senza scrivere niente.
      *
-     * ⚠️ **Serve al backup, che prima controlla tutto e poi scrive tutto**: con la sola [load],
-     * un archivio storto si scoprirebbe quando le altre parti sono già state rimesse.
+     * Serve al backup, che prima controlla tutto e poi scrive tutto: con la sola [load], un
+     * archivio storto si scoprirebbe con le altre parti già rimesse.
      */
     internal fun readable(text: String): Boolean = runCatching { parse(text) }.isSuccess
 
@@ -458,18 +401,17 @@ object Presets {
     /**
      * Legge un archivio, nel formato di oggi o in quello di prima della `2.50`.
      *
-     * ⚠️ **La forma si riconosce dal primo carattere e non si indovina**: un `[` è l'elenco di
-     * prima, tutto il resto passa da `JSONObject`, che su un testo storto va in errore, e quel
-     * caso lo prende chi chiama.
+     * La forma si riconosce dal primo carattere: un `[` è l'elenco di prima, il resto passa da
+     * `JSONObject`, che su un testo storto va in errore, e l'errore lo raccoglie chi chiama.
      */
     private fun parse(text: String): Book {
         val pulito = text.trim()
         if (pulito.startsWith("[")) return Book(mine = readMine(JSONArray(pulito)))
         val o = JSONObject(pulito)
         /*
-         * ⚠️⚠️ **Il file di uno stile solo NON è un archivio vuoto**: letto così darebbe un elenco
-         * senza stili propri, e [load] lo scriverebbe al posto di quello che c'è, cioè li
-         * cancellerebbe tutti. Lo stesso vale per il file di impostazioni, che chiede [readable].
+         * ⚠️ **Il file di uno stile solo non è un archivio vuoto**: letto così, [load] lo
+         * scriverebbe al posto di quello che c'è e cancellerebbe tutti gli stili propri. Vale
+         * anche per il file di impostazioni, che chiede [readable].
          */
         require(!(o.has(NAME) && !o.has(MINE))) { "one style, not a book" }
         val names = mutableMapOf<String, String>()
@@ -502,11 +444,10 @@ object Presets {
     }
 
     /**
-     * L'ordine dei preset di casa, completato con quello che l'archivio non nomina.
+     * L'ordine degli stili di casa, completato con quelli che l'archivio non nomina.
      *
-     * ⚠️ **Serve prima di uno spostamento e non alla lettura**: un archivio nato prima della
-     * `2.50` non ha nessun ordine, e muovere una riga dentro una lista vuota non vorrebbe dire
-     * niente.
+     * Serve prima di uno spostamento: un archivio può non avere ancora nessun ordine, e una riga
+     * non si sposta dentro una lista vuota.
      */
     private fun houseOrder(b: Book): List<String> {
         val vive = HOUSE.map { it.key }.filterNot { b.gone.contains(it) }
@@ -529,10 +470,8 @@ object Presets {
 
     // ── Andata e ritorno ─────────────────────────────────────────────────────
     //
-    // ⚠️⚠️ **UN CAMPO A RIPOSO NON SI SCRIVE**, e non è un risparmio di byte: un preset di sola
-    // Luce deve leggersi come tale, e con i moduli scritti per intero il file direbbe che tocca
-    // anche il colore e le curve, a zero. Chi lo apre vedrebbe un preset che fa tutto, e dalla
-    // `2.50` anche il tocco lungo leggerebbe il contrario del vero (vedi [Preset.addTo]).
+    // ⚠️ **Un campo a riposo non si scrive**: uno stile di sola Luce deve leggersi come tale, e
+    // con i moduli scritti per intero il file direbbe che tocca anche il colore e le curve, a zero.
 
     private fun writeLook(p: Preset): JSONObject {
         val o = JSONObject()
@@ -622,8 +561,7 @@ object Presets {
     /**
      * Scrive una curva come un elenco piatto di numeri: `at, to, at, to, ...`.
      *
-     * ⚠️ **Piatto e non un elenco di coppie**: un punto è sempre due numeri, quindi la forma
-     * annidata costerebbe due parentesi per punto senza dire niente di più.
+     * Piatto: un punto è sempre due numeri, e le coppie annidate non direbbero niente di più.
      */
     private fun JSONObject.curveOut(key: String, c: Curve) {
         if (c.idle) return
@@ -644,7 +582,7 @@ object Presets {
     /** Sotto questa soglia un valore non si scrive: è la stessa dei moduli. */
     private const val DEAD = 0.0005f
 
-    /** Come si chiama il file dei preset, dentro `filesDir`. */
+    /** Il nome del file degli stili, dentro `filesDir`. */
     private const val STORE = "presets.json"
 
     /** Il campo del nome di uno stile, che solo il file di uno stile solo ha in cima. */
@@ -663,12 +601,12 @@ private fun plus(a: Float, b: Float, low: Float = -1f, high: Float = 1f): Float 
 private fun over(a: Float, b: Float): Float = if (b != 0f) b else a
 
 /**
- * La curva [second] applicata dopo [first]: il tocco lungo con le curve, dalla `4.97`.
+ * La curva [second] applicata dopo [first]: il tocco lungo con le curve.
  *
- * ⚠️ **Se una delle due è a riposo la composizione è l'altra, esatta**, ed è il caso di quasi tutti
- * gli stili. Quando ci sono tutte e due, la curva che ne nasce si campiona nei nodi delle due e su
- * una griglia di nove punti, perché due curve monotone composte non sono una curva della stessa
- * famiglia: è un'approssimazione, dichiarata, entro il tetto di [Curve.MAX_KNOTS].
+ * Se una delle due è a riposo il risultato è l'altra, esatta, ed è il caso di quasi tutti gli
+ * stili. Con tutte e due, la curva composta si campiona nei nodi delle due e su una griglia di
+ * nove punti, perché due curve monotone composte non sono una curva della stessa famiglia: è
+ * un'approssimazione, entro il tetto di [Curve.MAX_KNOTS].
  */
 internal fun then(first: Curve, second: Curve): Curve {
     if (second.idle) return first
@@ -691,8 +629,7 @@ private const val COMPOSE_GAP = 1f / 32f
 // ── I dieci di casa ──────────────────────────────────────────────────────────
 
 /**
- * Una fascia per volta, invece di scrivere otto `Band` per ogni preset: quelle che non compaiono
- * sono a riposo.
+ * Le sole fasce nominate: quelle che non compaiono sono a riposo.
  */
 private fun mix(vararg bands: Pair<Int, Band>): Mix =
     Mix(List(Mix.COUNT) { i -> bands.firstOrNull { it.first == i }?.second ?: Band.NONE })
@@ -701,7 +638,7 @@ private fun mix(vararg bands: Pair<Int, Band>): Mix =
 private fun curve(vararg knots: Pair<Float, Float>): Curve =
     Curve(knots.map { Knot(it.first, it.second) })
 
-/** Un preset di casa, con la sua chiave e i suoi sei moduli facoltativi. */
+/** Uno stile di casa, con la sua chiave e i suoi sei moduli facoltativi. */
 private fun house(
     key: String,
     name: String,
@@ -722,40 +659,28 @@ private fun house(
 )
 
 /**
- * I dieci stili che l'app porta con sé, dalla `4.97`.
+ * I dieci stili di fabbrica, scritti dalla sessione (risposta `A1` alla voce `4.96-01`: dieci nomi
+ * fra cui 'Roccobot', onnicomprensivo, senza 'Bianco e nero', pensati per sommarsi).
  *
- * ⚠️⚠️ **LI HA SCRITTI LA SESSIONE, ED È LA SUA RISPOSTA `A1`** (giro della `4.96`, voce
- * `4.96-01`: *Proviamo un approccio diverso: scegli 10 nomi tra cui `Roccobot` (che dev'essere
- * 'onnicomprensivo') e senza `Bianco e nero`: creali tu come pensi che dovrebbero essere e fa' in
- * modo che siano più che altro additivi*). Fino alla `4.96` erano venti: quattordici convertiti dai
- * suoi XMP di Lightroom e sei scritti in casa, e la conversione, Effetti compresi, *non
- * corrispondeva granché*. La storia git li conserva (`git show 5816198:` su questo file).
- *
- * ⚠️⚠️ **SONO PENSATI PER SOMMARSI COL TOCCO LUNGO** ([Preset.addTo], risposta `B1`): ognuno
- * tranne 'Roccobot' lavora su un asse solo (la temperatura, il contrasto, le ombre, la nitidezza,
- * la grana...), con valori moderati, così due o tre insieme restano dentro le corse dei cursori e
- * non si cancellano a vicenda. 'Caldo' e 'Freddo' sono l'eccezione voluta: uno disfa l'altro.
- * - **'Roccobot' tocca tutti e sei i moduli**, perché lui lo vuole 'onnicomprensivo': luce
- *   aperta nelle ombre e trattenuta nelle luci, colore vivace senza forzare la saturazione, cieli
- *   più profondi e pelle più chiara nell'HSL, nitidezza con la maschera, un filo di foschia tolta,
- *   di grana e di vignettatura, e una curva a S leggera.
+ * ⚠️ **Sono pensati per sommarsi col tocco lungo** ([Preset.addTo]): ognuno tranne 'Roccobot'
+ * lavora su un asse solo, con valori moderati, così due o tre insieme restano dentro le corse e
+ * non si cancellano. 'Caldo' e 'Freddo' sono l'eccezione voluta: uno disfa l'altro.
+ * - 'Roccobot' tocca tutti e sei i moduli: luce aperta nelle ombre e trattenuta nelle luci, colore
+ *   vivace senza forzare la saturazione, cieli più profondi e pelle più chiara nell'HSL, nitidezza
+ *   con la maschera, un filo di foschia tolta, di grana e di vignettatura, una curva a S leggera.
  * - ⚠️ **Nessuno usa i cursori secondari**: col tocco lungo un secondario prende il valore dello
- *   stile invece di sommarsi, quindi uno stile che lo nominasse sovrascriverebbe la forma scelta da
- *   un altro.
- * - ⚠️ **Le curve sono tre** ('Roccobot', 'Contrasto', 'Pellicola'), e sommate si applicano una
- *   dopo l'altra ([then]).
+ *   stile, e sovrascriverebbe la forma scelta da un altro.
+ * - Le curve sono tre ('Roccobot', 'Contrasto', 'Pellicola'), e sommate si applicano una dopo
+ *   l'altra ([then]).
  *
- * ⚠️⚠️ **L'ORDINE È IL SUO, DALLA `2.50`** (campo libero del giro della `2.40`, punto 4: *gli altri
- * vanno elencati in ordine alfabetico*): 'Roccobot' è il primo e gli altri nove seguono in ordine
- * alfabetico, che è l'ordine in cui questa lista è scritta.
- * - ⚠️⚠️ **L'ORDINE SI SCRIVE E LO PRESIDIA IL BANCO, invece di ordinarlo a ogni lettura**: un
- *   `sortedBy` dipenderebbe da come la piattaforma confronta due stringhe (le maiuscole, gli
- *   accenti, la lingua del telefono), quindi la fila che l'utente vede cambierebbe col telefono.
- * - ⚠️ **La chiave non segue il nome**: quello che vive nell'archivio di chi aggiorna è la chiave
- *   (una rinomina, un nascosto, un ordine). 'Roccobot' tiene `combo`, quindi una sua rinomina
- *   resta; le chiavi dei diciannove tolti restano nell'archivio senza effetto, perché l'elenco
- *   applica solo quelle che esistono ([Presets.house]).
- * - **I nomi non si traducono**, come quelli di prima: sono nomi propri di uno stile.
+ * L'ordine è dell'utente (giro della 2.40): 'Roccobot' primo, gli altri in ordine alfabetico, cioè
+ * l'ordine in cui la lista è scritta.
+ * - ⚠️ **L'ordine si scrive e lo presidia il banco**: un `sortedBy` dipenderebbe da come la
+ *   piattaforma confronta due stringhe (maiuscole, accenti, lingua del telefono).
+ * - ⚠️ **La chiave non segue il nome**: nell'archivio di chi aggiorna vivono le chiavi (rinomine,
+ *   nascosti, ordine). 'Roccobot' tiene `combo`; le chiavi degli stili di casa tolti restano
+ *   nell'archivio senza effetto, perché l'elenco applica solo quelle che esistono
+ *   ([Presets.house]).
  */
 val HOUSE: List<Preset> = listOf(
     house("combo", "Roccobot",

@@ -56,19 +56,16 @@ import kotlinx.coroutines.withContext
 /**
  * Un'immagine animata mentre la si guarda: il fotogramma corrente e se sta andando.
  *
- * ⚠️⚠️ **LA DECODIFICA NON STA SUL FILO PRINCIPALE, e non è una precauzione teorica**:
- * comporre un fotogramma vuol dire decomprimere e disegnare una tela grande quanto
- * l'immagine, e farlo dove Compose disegna vorrebbe dire saltare fotogrammi **della
- * schermata**, non dell'animazione. Il ciclo gira su [Dispatchers.Default] e allo stato
- * arriva soltanto il risultato.
+ * La decodifica non è sul filo principale: comporre un fotogramma vuol dire decomprimere e
+ * disegnare una tela grande quanto l'immagine, e farlo dove Compose disegna farebbe saltare
+ * fotogrammi alla schermata. Il ciclo gira su [Dispatchers.Default] e allo stato arriva solo il
+ * risultato.
  *
- * ⚠️⚠️ **OGNI GIRO CREA UN INVOLUCRO NUOVO, ed è la trappola di questo file**: i due lettori
- * **riusano due `Bitmap` a turno** per non allocare venti tele al secondo (dalla `6.28`, prima
- * uno solo), quindi un fotogramma può arrivare sullo stesso oggetto di due giri fa, coi pixel
- * cambiati. Se si tenesse lo stesso [ImageBitmap], Compose non
- * vedrebbe nessun cambiamento e l'animazione starebbe **ferma pur girando**. `asImageBitmap()`
- * costruisce un involucro nuovo a ogni chiamata, ed è per questo che si chiama a ogni
- * fotogramma invece di ricordarlo.
+ * ⚠️⚠️ **Ogni giro crea un involucro nuovo**: i due lettori riusano due `Bitmap` a turno, quindi
+ * un fotogramma può arrivare sullo stesso oggetto di due giri fa, coi pixel cambiati. Con lo
+ * stesso [ImageBitmap] Compose non vedrebbe nessun cambiamento e l'animazione resterebbe ferma
+ * pur girando. Per questo `asImageBitmap()`, che crea un involucro nuovo, si chiama a ogni
+ * fotogramma.
  */
 @Stable
 class Animation(private val source: Animated) {
@@ -88,17 +85,12 @@ class Animation(private val source: Animated) {
     /**
      * Un comando per volta sul lettore.
      *
-     * ⚠️⚠️ **SENZA QUESTO IL CICLO DI RIPRODUZIONE E I DUE PASSI SI PESTANO I PIEDI, ed è il
-     * difetto che l'utente ha visto come 'scia' sulle GIF e rettangoli bianchi e neri sulle
-     * WebP** (riscontro del 2026-09-01). I due passi mettono in pausa, ma **la pausa non è
-     * istantanea**: il ciclo può essere già dentro `advance()` o dentro la composizione, e
-     * cancellarlo non lo ferma a metà di quelle. Per un istante due coroutine compongono
-     * sulla **stessa tela**, e quello che si vede è una tela scritta da due mani.
-     * ⚠️ **Il rimedio è la serializzazione e non un ritardo**: aspettare un attimo prima di
-     * fare il passo renderebbe il difetto raro invece di impossibile, e i difetti rari sono
-     * quelli che tornano dopo il rilascio.
-     * ⚠️ **Copre anche [snapshot]**, che legge il fotogramma corrente per esportarlo: senza
-     * il lucchetto potrebbe copiarne uno composto a metà.
+     * ⚠️⚠️ **Senza il lucchetto il ciclo di riproduzione e i due passi compongono insieme**
+     * sulla stessa tela (una scia sulle GIF, rettangoli bianchi e neri sulle WebP). I passi
+     * mettono in pausa, ma la pausa non è istantanea: il ciclo può essere già dentro `advance()`
+     * o dentro la composizione, e la cancellazione non lo ferma a metà. Un ritardo renderebbe il
+     * difetto raro, il lucchetto lo rende impossibile.
+     * Copre anche [snapshot], che altrimenti potrebbe copiare un fotogramma composto a metà.
      */
     private val turn = Mutex()
 
@@ -111,9 +103,8 @@ class Animation(private val source: Animated) {
     /**
      * Ferma la riproduzione, e se era già ferma non fa niente.
      *
-     * ⚠️ **Non è [toggle], ed è la differenza che conta**: la chiama il tocco lungo che apre
-     * il menu (richiesta dell'utente, 2026-09-01), e chi apre il menu su un'animazione già in
-     * pausa non se la deve vedere ripartire in faccia.
+     * Non è [toggle]: la chiama il tocco lungo che apre il menu, e un'animazione già in pausa
+     * non deve ripartire.
      */
     fun pause() {
         playing = false
@@ -122,8 +113,8 @@ class Animation(private val source: Animated) {
     /**
      * Un fotogramma avanti, e mette in pausa se stava andando.
      *
-     * ⚠️ **Mettere in pausa fa parte del comando**: chiedere un fotogramma preciso mentre
-     * l'animazione corre vorrebbe dire vederlo per un decimo di secondo e perderlo.
+     * La pausa fa parte del comando: un fotogramma chiesto ad animazione in corsa si vedrebbe per
+     * un decimo di secondo.
      */
     suspend fun stepForward() = guarded {
         playing = false
@@ -136,25 +127,17 @@ class Animation(private val source: Animated) {
     /**
      * Un fotogramma indietro.
      *
-     * ⚠️⚠️ **COSTA N E NON UNO, ed è una proprietà del FORMATO e non di questo codice**: in
-     * GIF come in WebP un fotogramma è una **toppa** disegnata sopra il precedente, quindi
-     * il fotogramma N esiste solo come risultato di tutti quelli prima. Per tornare indietro
-     * di uno bisogna rifare la pila da capo.
-     * ⚠️ **Gira fuori dal filo principale**, che è quello che lo rende sopportabile: su
-     * un'animazione di duecento fotogrammi il ritorno dal fondo è qualche decimo di secondo,
-     * e nel frattempo la schermata resta viva.
-     * ⚠️ **La cura, se dovesse servire, è una cache dei fotogrammi già composti**, non un
-     * `seek` dentro i lettori, che il formato non permette. Non c'è ancora perché costa
-     * memoria (larghezza per altezza per quattro byte a fotogramma) e potrebbe non servire.
+     * ⚠️ **Costa N passi e non uno, per il formato**: in GIF come in WebP un fotogramma è una
+     * toppa disegnata sopra il precedente, quindi per tornare indietro di uno si rifà la pila da
+     * capo. Gira fuori dal filo principale: su duecento fotogrammi è qualche decimo di secondo.
+     * Se servisse di più, la strada è una cache dei fotogrammi composti, che costa memoria.
      */
     suspend fun stepBack() = guarded {
         playing = false
         turn.withLock {
             val target = if (source.index <= 0) source.frameCount - 1 else source.index - 1
-            // ⚠️⚠️ **`seek` E NON `rewind` PIÙ N VOLTE `advance`, dalla 1.21**: quella era la
-            // scia. Spostare l'indice non compone niente, quindi il fotogramma d'arrivo
-            // finiva sopra tutti quelli già in scena. Il perché per esteso sta su
-            // [Animated.seek], che esiste per questo.
+            // ⚠️ `seek` e non lo spostamento dell'indice: spostare l'indice non compone niente,
+            // e il fotogramma d'arrivo finirebbe sopra quelli già in scena ([Animated.seek]).
             withContext(Dispatchers.Default) { source.seek(target) }
             draw()
         }
@@ -163,9 +146,8 @@ class Animation(private val source: Animated) {
     /**
      * Una copia del fotogramma corrente, da salvare su file.
      *
-     * ⚠️⚠️ **UNA COPIA E NON L'ORIGINALE, ed è obbligatorio**: il Bitmap che i lettori
-     * restituiscono è **loro** e viene riscritto al fotogramma dopo. Salvando quello si
-     * scriverebbe su file un'immagine che intanto cambia sotto le mani.
+     * ⚠️ **Una copia**: il Bitmap dei lettori è riscritto al fotogramma dopo, e salvarlo
+     * scriverebbe un'immagine che intanto cambia.
      */
     suspend fun snapshot(): android.graphics.Bitmap? = turn.withLock {
         withContext(Dispatchers.Default) {
@@ -178,16 +160,15 @@ class Animation(private val source: Animated) {
     /**
      * Il ciclo di riproduzione: aspetta il ritardo del fotogramma, avanza, ridisegna.
      *
-     * ⚠️ **La pausa NON ferma questo ciclo, lo lascia semplicemente non chiamato**: chi lo
-     * lancia lo rilancia al cambio di [playing], e riprendendo si riparte dal fotogramma
-     * dove si era, perché l'indice vive nel lettore e non qui.
-     * ⚠️ **[FLOOR] esiste perché un ritardo di zero è legale**: nelle GIF vuol dire 'il più
-     * in fretta possibile', e preso alla lettera sarebbe un ciclo stretto che scalda il
-     * telefono. I browser fanno la stessa cosa da vent'anni.
+     * Con la pausa il ciclo termina, e chi lo lancia lo rilancia al cambio di [playing]: si
+     * riparte dal fotogramma dove si era, perché l'indice è nel lettore.
+     * [FLOOR] esiste perché nelle GIF un ritardo di zero è legale e vuol dire 'il più in fretta
+     * possibile': preso alla lettera sarebbe un ciclo stretto che scalda il telefono. I browser
+     * fanno lo stesso.
      */
     private suspend fun run() {
-        // Il primo fotogramma si disegna subito, anche in pausa: senza, una GIF aperta e
-        // messa in pausa prima del primo scatto resterebbe un rettangolo vuoto.
+        // Il primo fotogramma si disegna subito, anche in pausa: senza, una GIF messa in pausa
+        // prima del primo scatto resterebbe un rettangolo vuoto.
         turn.withLock { draw() }
         while (playing) {
             delay(source.delayOf(source.index).coerceAtLeast(FLOOR).toLong())
@@ -201,27 +182,19 @@ class Animation(private val source: Animated) {
     /**
      * Il ciclo di riproduzione, con la sicura.
      *
-     * ⚠️⚠️ **UN ERRORE QUI DENTRO CHIUDE L'APP, e non è teorico: è successo nella `1.13`**
-     * (segnalazione dell'utente: *manda in crash 10 volte su 10*). Questo ciclo gira dentro
-     * una coroutine di composizione, e l'errore che ci nasce dentro non lo prende nessuno.
-     * ⚠️ **Fermare l'animazione è la risposta giusta**: sotto c'è sempre l'immagine ferma
-     * disegnata dal visualizzatore, quindi il peggio che si vede è una GIF che non si muove,
-     * e non un'app che se ne va. ⚠️ La causa vera della `1.13` è corretta a monte, in
-     * [rememberAnimation]: questa resta perché una funzione nuova non deve poter chiudere
-     * l'app, qualunque cosa le succeda dentro.
+     * ⚠️ **Un errore qui dentro chiuderebbe l'app**: il ciclo gira in una coroutine di
+     * composizione, dove nessuno prende l'errore. Fermare l'animazione basta: sotto c'è sempre
+     * l'immagine ferma disegnata dal visualizzatore.
      */
     suspend fun play() = guarded { run() }
 
-    /**
-     * Esegue [corpo] senza che un suo errore possa arrivare fino all'applicazione.
-     */
+    /** Esegue [corpo] senza che un suo errore possa arrivare fino all'applicazione. */
     private suspend fun guarded(corpo: suspend () -> Unit) {
         try {
             corpo()
         } catch (cancelled: CancellationException) {
-            // ⚠️ La cancellazione NON è un errore e va lasciata passare: è il modo in cui
-            // Compose spegne questo ciclo quando si cambia fotografia o si mette in pausa.
-            // Inghiottirla vorrebbe dire una coroutine che non si ferma quando le si chiede.
+            // ⚠️ La cancellazione non è un errore e va lasciata passare: è il modo in cui
+            // Compose ferma il ciclo quando si cambia immagine o si mette in pausa.
             throw cancelled
         } catch (failure: Throwable) {
             playing = false
@@ -245,45 +218,24 @@ class Animation(private val source: Animated) {
 }
 
 /**
- * Apre l'immagine animata che sta a [source], e la chiude quando si cambia fotografia.
+ * Apre l'immagine animata all'indirizzo [source], e la chiude quando si cambia immagine.
  *
- * ⚠️⚠️ **IL `DisposableEffect` È QUELLO CHE IMPEDISCE LA PERDITA DI MEMORIA**: ogni
- * animazione aperta tiene il file intero in memoria più una tela, e sfogliando una cartella
- * di GIF senza chiuderle si arriverebbe a decine di megabyte in una manciata di scorrimenti.
- * ⚠️ **La chiave è l'indirizzo**: cambiando fotografia il vecchio si chiude e il nuovo si
- * apre, che è esattamente quello che deve succedere.
- * ⚠️ **Torna `null` per tutto quello che animato non è**, ed è il caso normale: una fotografia
- * ferma non paga niente, perché [Animations.open] guarda i primi byte e se ne va.
+ * Il `DisposableEffect` evita la perdita di memoria: ogni animazione aperta tiene il file intero
+ * più una tela. Risponde `null` per tutto quello che animato non è: [Animations.open] guarda i
+ * primi byte e rinuncia.
  *
- * ⚠️⚠️ **L'ANIMAZIONE NON PUÒ STARE FRA LE CHIAVI DEL `DisposableEffect`, e metterla ci ha
- * fatto uscire una `1.13` che chiudeva l'app su ogni GIF** (segnalazione dell'utente,
- * 2026-09-01: *manda in crash 10 volte su 10*). `onDispose` non riceve il valore vecchio: legge
- * la variabile **nel momento in cui gira**. Con `animation` fra le chiavi, l'istante in cui
- * l'apertura la porta da `null` a un lettore fa scadere l'effetto, e il suo `onDispose`
- * chiude il lettore **appena creato**. Chiuderlo e continuare a usarlo è il difetto.
- * ⚠️⚠️ **E si è visto solo sulle GIF per un'asimmetria fra i due lettori**, che è la parte
- * che rendeva il sintomo incomprensibile: [AnimatedWebp.close] butta la tela e la rifà alla
- * prima richiesta, mentre [AnimatedGif.close] passa da `GifDecoder.clear()`, che azzera
- * l'intestazione, e da lì `frameCount`, `delayOf` e `advance` danno un errore di
- * riferimento nullo. La stessa identica chiusura sbagliata: una la sopporta, l'altra no.
- * ⚠️ **La chiave giusta è il solo indirizzo**: l'effetto scade quando si cambia fotografia o
- * si esce, e in quei due momenti la variabile porta davvero il lettore da chiudere.
- */
-/*
- * ⚠️⚠️ **[loaded] È NATO NELLA 1.45 PER LE IMMAGINI DI RETE, e senza di lui la GIF remota
- * restava ferma per una corsa persa** (segnalazione dell'utente, 2026-09-03). I byte di un
- * indirizzo remoto si leggono dalla cache (vedi `Animations.bytesOf`), e questa apertura parte
- * **insieme** al download: il primo tentativo trova la cache vuota, torna `null`, e con la
- * sola chiave `source` non ci sarebbe nessun secondo tentativo. Passando anche 'l'immagine è
- * pronta', l'effetto riparte una volta e allora i byte ci sono.
- * ⚠️ **È un BOOLEANO e non lo stato del visualizzatore**, e la differenza è il costo: quello
- * cambia a ogni pizzicata di zoom e a ogni punto percentuale del download, cioè farebbe
- * rileggere il file decine di volte; un booleano cambia **una volta sola** per immagine.
- * ⚠️⚠️ **E IL SECONDO GIRO NON PUÒ SOSTITUIRE UN LETTORE VIVO**: la riga che se ne accorge è
- * `if (animation != null) return`. Senza, l'effetto rifatto assegnerebbe un lettore nuovo sopra
- * quello in uso, e il vecchio resterebbe aperto (memoria) mentre il disegno potrebbe pescare
- * fra i due. È la stessa trappola della `1.13` descritta qui sotto, presa dall'altro verso:
- * là si chiudeva un lettore appena creato, qui si rischiava di perderne uno in uso.
+ * ⚠️⚠️ **La chiave del `DisposableEffect` è il solo indirizzo, mai l'animazione**: `onDispose`
+ * legge la variabile nel momento in cui gira, e con `animation` fra le chiavi il passaggio da
+ * `null` a un lettore farebbe chiudere il lettore appena creato. Sulle GIF l'app andrebbe in
+ * crash ([AnimatedGif.close] azzera l'intestazione), sulle WebP no ([AnimatedWebp.close] rifà la
+ * tela alla prima richiesta).
+ *
+ * ⚠️ **[loaded] serve alle immagini di rete**: i loro byte si leggono dalla cache
+ * (`Animations.bytesOf`), e l'apertura parte insieme allo scaricamento. Il primo tentativo trova
+ * la cache vuota; quando l'immagine è pronta l'effetto riparte una volta. È un booleano e non lo
+ * stato del visualizzatore, che cambia a ogni pizzicata di zoom e farebbe rileggere il file.
+ * ⚠️ **Il secondo giro non sostituisce un lettore aperto** (`if (animation != null) return`):
+ * il vecchio resterebbe aperto e il disegno potrebbe pescare fra i due.
  */
 @Composable
 fun rememberAnimation(source: Uri?, loaded: Boolean = true): Animation? {
@@ -299,21 +251,15 @@ fun rememberAnimation(source: Uri?, loaded: Boolean = true): Animation? {
     DisposableEffect(source) {
         onDispose { animation?.close() }
     }
-    // ⚠️ Rilanciato anche al cambio di `playing`: è cosi che la ripresa riparte, e la pausa
-    // lascia esaurire il ciclo invece di tenerlo in giro a controllare una bandierina.
+    // Rilanciato anche al cambio di `playing`: così la ripresa riparte, e con la pausa il ciclo
+    // termina.
     val current = animation
     /*
-     * ⚠️⚠️ **IL CICLO SI FERMA QUANDO L'APP VA IN FONDO, e fino alla `1.80` non si fermava**
-     * (censimento della UI del 2026-09-05): a schermo spento una GIF continuava a scandire i
-     * suoi fotogrammi, cioè a decodificare e a ricomporre per nessuno.
-     * ⚠️ **Perché non si fermava da sé**, che è il fatto da tenere: le animazioni di Compose si
-     * sospendono col clock dei fotogrammi, questa no, perché aspetta con `delay`, e il
-     * dispatcher della composizione consegna le riprese anche a finestra ferma (posta sul
-     * `Handler` oltre che sul `Choreographer`). E l'attività non muore andando in fondo, perché
-     * il manifesto non la dichiara `noHistory`: la composizione resta viva e il ciclo con lei.
-     * ⚠️ **`repeatOnLifecycle` e non un controllo dentro il ciclo**: quello che deve fermarsi è
-     * l'attesa, non un giro che continua a chiedersi se toccava a lui. Alla ripresa il ciclo
-     * riparte da capo, che è quello che già succede al cambio di [Animation.playing].
+     * ⚠️ **Il ciclo si ferma quando l'app va in sottofondo** (`repeatOnLifecycle`): da sé non si
+     * fermerebbe, perché aspetta con `delay` e non col clock dei fotogrammi, e il dispatcher
+     * della composizione consegna le riprese anche a finestra ferma (sull'`Handler` oltre che
+     * sul `Choreographer`). L'attività resta aperta in sottofondo, e a schermo spento la GIF
+     * continuerebbe a decodificare per nessuno. Alla ripresa il ciclo riparte da capo.
      */
     val owner = LocalLifecycleOwner.current
     LaunchedEffect(current, current?.playing, owner) {
@@ -327,25 +273,12 @@ fun rememberAnimation(source: Uri?, loaded: Boolean = true): Animation? {
 /**
  * La fila dei comandi dell'animazione.
  *
- * ⚠️⚠️ **STA SOPRA L'IMMAGINE E NON SOTTO LA BARRA DEI DETTAGLI**: i comandi si toccano
- * mentre si guarda, e mandarli in fondo allo schermo insieme alle informazioni vorrebbe dire
- * il pollice che copre proprio la cosa che si sta osservando cambiare.
- * ⚠️ **Il contatore sta nella fila e non altrove**: è l'unica cosa che dice se un comando ha
- * fatto effetto, e separato dai tasti si guarderebbe in due posti.
- * ⚠️ **E si può spegnere dalle impostazioni** ([Settings.animCounter], acceso di fabbrica):
- * è la sola parte della fila che non è un comando, quindi la sola che qualcuno possa voler
- * togliere per guardare e basta. Spento, la fila si stringe da sé: il numero è l'ultimo
- * elemento della riga e non lascia un vuoto.
- *
- * ⚠️⚠️ **IL TASTO DELL'ESPORTAZIONE SE N'È ANDATO NELLA 1.21, ed è una richiesta**
- * (utente, 2026-09-01: *si può togliere del tutto quel tasto e usare direttamente la
- * funzionalità 'Esporta' del menu a pressione lunga, che agisce sul fotogramma corrente*).
- * Il motivo che l'ha fatto nascere era evitare i tocchi accidentali: premendo 'avanti' più
- * volte di fila il dito finiva sul tasto accanto, che apriva un selettore di file. Adesso
- * quella funzione sta nel menu del tocco lungo, cioè dietro un gesto che non si fa per
- * sbaglio, e la fila torna a essere fatta di soli comandi di riproduzione.
- * ⚠️ **Con lui se ne sono andati il selettore, il fotogramma tenuto da parte e `onExported`**:
- * quel giro adesso lo fa `ConvertDialog`, che ha già il suo `onSaved`.
+ * È sopra l'immagine e non sotto la barra dei dettagli: i comandi si toccano mentre si guarda,
+ * e in fondo allo schermo il pollice coprirebbe quello che cambia.
+ * Il contatore è nella fila perché dice se un comando ha fatto effetto. Si spegne dalle
+ * impostazioni ([Settings.animCounter], acceso di fabbrica); spento, la fila si stringe da sé.
+ * L'esportazione del fotogramma è nel menu del tocco lungo (`ConvertDialog`), lontano dai
+ * tasti che si premono di fila.
  */
 @Composable
 fun AnimatedBar(
@@ -377,27 +310,13 @@ fun AnimatedBar(
         if (counter) {
             val stile = MaterialTheme.typography.labelMedium.copy(fontFeatureSettings = "tnum")
             /*
-             * ⚠️⚠️ **LARGHEZZA FISSA MISURATA SUL PIÙ LUNGO CHE POSSA CAPITARE, e il
-             * riempimento a spazi è uscito** (istruzione dell'utente, 2026-09-01: *allarga e
-             * prenditi lo spazio che basterebbe per 1000/1000, e fa' in modo che stia
-             * allineato a destra*). Il riempimento con lo spazio-cifra copriva il cambio di
-             * lunghezza ma non tutto il resto, perché quel carattere è largo come una cifra
-             * **per definizione tipografica**, non in ogni carattere che esiste: restava un
-             * ballo su un fotogramma su dieci, ed è esattamente quello che l'utente ha
-             * misurato provando.
-             * ⚠️ **Si misura, non si scrive in dp**: un numero fisso andrebbe storto appena
-             * qualcuno ingrandisce il testo di sistema, e [rememberTextMeasurer] dà la
-             * larghezza vera del carattere in uso adesso.
-             * ⚠️ **Le cifre tabulari restano**, e non sono un doppione: dentro una larghezza
-             * fissa tengono ferme anche le cifre **in mezzo** al numero.
-             */
-            /*
-             * ⚠️ **Ricordata, e fino alla `1.80` si rimisurava a ogni fotogramma** (censimento
-             * della UI del 2026-09-05): il corpo del contatore vive dentro la lambda di una
-             * `Row`, che è `inline` e quindi non forma un ambito di ricomposizione a sé, e
-             * quel corpo legge il fotogramma corrente. Il costo unitario era piccolo (il
-             * misuratore ha una cache), ma era lavoro fatto trenta volte al secondo per un
-             * numero che dipende solo dal carattere e dalla densità, cioè dalle due chiavi.
+             * ⚠️ **Larghezza minima misurata sul numero più lungo** ([COUNTER_WIDEST]),
+             * allineata a destra (istruzione dell'utente), così il contatore non balla.
+             * Si misura col carattere in uso e non si scrive in dp, che andrebbero storti col
+             * testo di sistema ingrandito. Le cifre tabulari tengono ferme anche le cifre in
+             * mezzo al numero.
+             * La misura è ricordata: la lambda della `Row` è `inline` e si ricompone a ogni
+             * fotogramma, mentre il numero dipende solo dal carattere e dalla densità.
              */
             val metro = rememberTextMeasurer()
             val density = LocalDensity.current
@@ -432,10 +351,8 @@ private fun Key(icon: ImageVector, @StringRes label: Int, onClick: () -> Unit) {
 /**
  * Il numero più lungo che il contatore possa dover mostrare.
  *
- * ⚠️ **Mille e non il totale vero**: la larghezza si prende una volta e non deve cambiare
- * fra un'animazione e l'altra, e un'animazione da più di mille fotogrammi in un
- * visualizzatore di fotografie non esiste. Se un giorno esistesse, il contatore si
- * allargherebbe da sé, perché il minimo è un minimo e non un taglio.
+ * Mille e non il totale vero: la larghezza non deve cambiare fra un'animazione e l'altra. Oltre
+ * mille fotogrammi il contatore si allarga da sé, perché è un minimo e non un taglio.
  */
 private const val COUNTER_WIDEST = "1000 / 1000"
 

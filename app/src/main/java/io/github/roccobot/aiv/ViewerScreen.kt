@@ -170,93 +170,77 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
-/** Below this, a picture is a speck: it is the floor of the pinch, not of the fit. */
+/** Sotto questa scala un'immagine è un puntino: è il minimo della pizzicata, non dell'adattamento. */
 private const val MIN_SCALE = 0.02f
 
 /**
- * How fast the one handed zoom moves: the scale is multiplied by `exp(dy * this)`
- * every frame, so 200dp of travel is a little more than a doubling.
+ * La velocità dello zoom a una mano: la scala si moltiplica per `exp(dy * questo)` a ogni
+ * fotogramma, quindi 200 dp di corsa sono poco più di un raddoppio.
  *
- * ⚠️⚠️ DOWN zooms IN, and it is the opposite of what this file used to do. The old
- * direction was argued from the userscript's `dv-wheel-up-in`, so that two viewers
- * of the same family would agree on which way is closer. That argument LOST against
- * a thumb: the user tried it on a phone and it went the wrong way (2026-08-26). Keep
- * this note, because the reasoning that produced the old direction still sounds
- * good on paper and someone will make it again.
- * - The reason the analogy fails is that a wheel and a thumb are not the same
- *   thing: the wheel pushes the picture away from you, while the thumb DRAGS the
- *   picture, and dragging it down is pulling it towards you.
+ * ⚠️ **Verso il basso si ingrandisce** (prova dell'utente sul telefono). L'analogia con la
+ * rotella dello userscript (`dv-wheel-up-in`) porterebbe al verso opposto, ed è sbagliata: la
+ * rotella allontana l'immagine, il pollice la trascina, e trascinarla in giù è tirarla verso di
+ * sé.
  */
 private const val DRAG_ZOOM_SENSITIVITY = 0.005f
 
-/** Side of one checkerboard square, in dp. */
+/** Il lato di un quadretto della scacchiera, in dp. */
 private val CHECKER = 12.dp
 
 /**
- * Lo stacco fra una foto e la sua vicina mentre si sfoglia.
- *
- * ⚠️ Serve a far leggere DUE fogli invece di un'immagine che si trasforma: senza, due
- * fotografie chiare di seguito sembrano una sola che scivola. È anche la ragione per cui
- * l'animazione di arrivo va a `larghezza + questo` e non a `larghezza`: così la vicina
- * atterra esattamente al centro.
+ * Lo stacco fra un'immagine e la sua vicina mentre si sfoglia: senza, due immagini chiare di
+ * seguito sembrerebbero una sola che scivola. Per questo l'arrivo va a `larghezza + questo`, e la
+ * vicina atterra al centro.
  */
 private val PAGE_GAP = 16.dp
 
 /**
  * Quanto deve essere rapido un colpo di pollice perché la pagina giri lo stesso.
  *
- * ⚠️ **La soglia di spazio da sola non basta a sembrare fluidi**: un buffetto veloce che
- * copre un decimo di schermo è chiaramente 'vai avanti', e senza questa via tornerebbe
- * indietro lasciando l'impressione che il gesto non sia stato capito. 400dp al secondo è
- * il punto di partenza: è sopra il minimo di sistema (50dp/s, che scatterebbe su ogni
- * sfioramento) e sotto il colpo secco.
+ * La soglia di spazio da sola non basta: un colpo veloce su un decimo di schermo vuol dire 'vai
+ * avanti'. 400 dp al secondo è sopra il minimo di sistema (50, che scatterebbe a ogni sfioramento)
+ * e sotto il colpo secco.
  */
 private val FLING_VELOCITY = 400.dp
 
 /**
  * Sotto questa velocità l'inerzia non parte, in dp al secondo (poi tradotti in pixel).
  *
- * ⚠️ 120 e non 50 come la soglia di lancio di Android: quella decide se un elenco **deve**
- * scorrere, qui la figura si è già mossa col dito e la domanda è un'altra, cioè se
- * continuare. Un dito che si alza da fermo lascia qualche decina di dp al secondo, e sotto
- * questa soglia lo scivolamento si leggerebbe come un sussulto.
+ * 120 e non i 50 della soglia di lancio di Android, che decide se un elenco deve scorrere: qui
+ * l'immagine si è già mossa col dito, e un dito che si alza da fermo lascia qualche decina di dp
+ * al secondo, che darebbe un sussulto.
  */
 private val GLIDE_FLOOR = 120.dp
 
 /**
  * Quanto dura l'arrivo a destinazione, o il ritorno al posto.
  *
- * ⚠️ Corta apposta: questa animazione parte quando il dito si è già alzato, quindi è
- * tempo in cui non si comanda più niente. Sotto i ~150ms sembra uno scatto, sopra i ~300
- * sembra che l'app ci pensi su.
+ * Corta: parte a dito alzato, quando non si comanda più niente. Sotto i 150 ms circa sembra uno
+ * scatto, sopra i 300 sembra che l'app esiti.
  */
 private const val SNAP_MS = 220
 
 /**
  * Quanto la pagina segue il dito quando di là non c'è niente.
  *
- * ⚠️ Non zero e non uno: bloccarla del tutto farebbe sembrare il gesto non ricevuto,
- * lasciarla libera prometterebbe una foto che non esiste. Un terzo è la frenata che si
- * legge come 'sei al capolinea'.
+ * Né zero né uno: bloccata sembrerebbe un gesto non ricevuto, libera prometterebbe un'immagine
+ * che non c'è. Un terzo si legge come 'sei in fondo'.
  */
 private const val END_RESISTANCE = 0.33f
 
 /**
  * Quanto si aspetta, fermi, prima di leggere il pezzo nitido.
  *
- * ⚠️ È il tempo che separa 'ho finito di muovermi' da 'sto ancora inquadrando'. Corto
- * abbastanza da non farsi notare come un ritardo, lungo abbastanza che una pinza non
- * faccia partire una lettura per ogni posizione attraversata.
+ * Separa 'ho finito di muovermi' da 'sto ancora inquadrando': corto da non sembrare un ritardo,
+ * lungo abbastanza che una pizzicata non faccia partire una lettura per ogni posizione.
  */
 private const val TILE_DELAY_MS = 200L
 
 /**
  * Quanto l'anello del caricamento aspetta prima di farsi vedere.
  *
- * ⚠️ **Mezzo secondo, e la soglia è quella del fastidio e non della prestazione**: sotto,
- * un indicatore comparso e sparito si legge come un lampeggio, non come un'informazione.
- * Sopra, chi sta aspettando davvero comincia a chiedersi se l'app è viva. Le foto del
- * telefono si decodificano molto prima, quindi sfogliando non lo si vede mai.
+ * Mezzo secondo: sotto, un indicatore che compare e sparisce sembra un lampeggio; sopra, chi
+ * aspetta si chiede se l'app risponde. Le immagini del telefono si decodificano prima.
  */
 private const val PROGRESS_GRACE_MS = 500L
 
@@ -272,57 +256,47 @@ fun ViewerScreen(
     /**
      * Il filmato in scena è partito da sé: la provenienza si consuma.
      *
-     * ⚠️ **Sale al modello e non si tiene qui** perché `ViewerState` ha il setter privato, e
-     * serve alla rotazione, che rifà la composizione e non il modello. Vedi
-     * `ViewerViewModel.clipStarted`.
+     * Sale al modello perché `ViewerState` ha il setter privato, e serve alla rotazione, che rifà
+     * la composizione e non il modello (`ViewerViewModel.clipStarted`).
      */
     onClipStarted: () -> Unit,
     /**
-     * La fotografia che si sta guardando non è più raggiungibile a quell'indirizzo: è stata
-     * spostata, rinominata o eliminata.
+     * L'immagine in scena non è più raggiungibile a quell'indirizzo: spostata, rinominata o
+     * eliminata.
      *
-     * ⚠️ **Vale anche per la rinomina**, e il perché sta in [FileKind]: il file c'è ancora,
-     * la sua riga nel MediaStore no. ⚠️ Si chiama **solo se qualcosa è andato a buon fine**:
-     * un'operazione fallita lascia tutto dov'era, e far ricaricare la cartella per niente
-     * farebbe perdere il posto senza motivo.
+     * Vale anche per la rinomina ([FileKind]): il file c'è ancora, la sua riga nel MediaStore no.
+     * Si chiama solo se qualcosa è riuscito, o la cartella si ricaricherebbe per niente.
      */
     onFileChanged: () -> Unit,
     /**
-     * Un file **nuovo** è comparso nella cartella: un fotogramma esportato, una conversione.
+     * Un file nuovo è comparso nella cartella: un fotogramma esportato, una conversione.
      *
-     * ⚠️⚠️ **NON È [onFileChanged], e confonderli sposterebbe la fotografia sotto gli occhi
-     * di chi guarda**: quella rilegge la cartella e mostra *quello che sta in quella
-     * posizione*, che dopo un'aggiunta è la foto precedente, perché l'ordine è per data e il
-     * file nuovo entra in cima. Qui invece non cambia niente di quello che si sta guardando:
-     * si segna soltanto che la **griglia** dietro è vecchia, e si rilegge quando ci si torna.
+     * ⚠️ **Non è [onFileChanged]**, che rilegge la cartella e mostra quello che c'è in quella
+     * posizione: dopo un'aggiunta in cima sarebbe l'immagine precedente. Qui si segna solo che la
+     * griglia dietro è vecchia.
      */
     onFileAdded: () -> Unit,
     /**
-     * 'Modifica' dal menu del tocco lungo: la fotografia da aprire in un editor.
+     * 'Modifica' dal menu del tocco lungo: l'immagine da aprire in un editor.
      *
-     * ⚠️ **Sale al modello e non si risolve qui**, perché la risposta dipende da
-     * un'impostazione (quale app) e può **cambiare schermata** (l'editor semplice). Vedi
-     * `ViewerViewModel.edit`.
+     * Sale al modello: la risposta dipende da un'impostazione e può cambiare schermata
+     * (`ViewerViewModel.edit`).
      */
     onEdit: (Uri) -> Unit,
     onEditWith: (Uri) -> Unit,
     /**
-     * La barra delle info cambiata al volo dal tocco lungo su 'Info': accesa e in che punto è.
+     * La barra delle info cambiata dal tocco lungo su 'Info': accesa, e in che punto.
      *
-     * ⚠️ **Due booleani e non le impostazioni intere**, come `binOn` e `factFields`: questa
-     * schermata non ne cambia altre, e passare il mutatore completo inviterebbe a farlo.
+     * Due valori e non le impostazioni intere, come `binOn` e `factFields`: la schermata non ne
+     * cambia altre.
      */
     onInfoBar: (Boolean, InfoPosition) -> Unit,
     /**
-     * Se la fotografia che si sta guardando viene dal **cestino**.
+     * Se l'immagine in scena viene dal cestino.
      *
-     * ⚠️ Cambia due voci del riquadro e niente altro: 'rinomina' diventa 'ripristina' (là
-     * dentro non si rinomina) e 'elimina' diventa definitiva, perché un file del cestino
-     * non ha un secondo cestino in cui andare.
-     * ⚠️ **Senza valore di serie**, e non per pignoleria: `modifier` deve restare il primo
-     * parametro con un valore predefinito (lo pretende lint, ed è la convenzione di
-     * Compose), quindi o questo sta prima di lui senza serie o starebbe dopo di lui, dove
-     * una schermata non si aspetta di trovarlo.
+     * Cambia due voci: 'Rinomina' diventa 'Ripristina' e 'Elimina' diventa definitiva.
+     * Senza valore di fabbrica, perché `modifier` deve restare il primo parametro con un valore
+     * predefinito (lint e convenzione di Compose).
      */
     inBin: Boolean,
     modifier: Modifier = Modifier
@@ -330,33 +304,28 @@ fun ViewerScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    // ⚠️ Le risorse da `LocalResources` e non da `context.resources`: quelle seguono i
-    // cambi di configurazione, e l'esito si compone dentro una coroutine. Vedi `GridScreen`.
+    // Le risorse da `LocalResources`, che seguono i cambi di configurazione: l'esito si compone
+    // dentro una coroutine (come in `GridScreen`).
     val res = LocalResources.current
 
-    /*
-     * ⚠️⚠️ **PARTE DA 'GIÀ VISTO' e non da 'mai visto'**, come nella griglia: l'archivio si
-     * legge in una coroutine, quindi per un fotogramma non si sa ancora niente, e col valore
-     * opposto il velo lampeggerebbe addosso a chi l'aveva già archiviato mesi fa.
-     */
+    // ⚠️ Parte da 'già visto', come nella griglia: l'archivio si legge in una coroutine, e col
+    // valore opposto il velo d'aiuto lampeggerebbe per un fotogramma.
     val zoomSeen by produceState(true) { Hint.ZOOM_TAP.flow(context).collect { value = it } }
     val zoomHint = !zoomSeen
 
     /**
      * Il dialogo di un'operazione sui file, e `null` quando non ce n'è aperto nessuno.
      *
-     * ⚠️ Salvabile dalla `1.81`, come nelle altre due schermate che chiamano [FileJobDialogs]:
-     * ruotando, la finestra aperta si chiudeva e con lei quello che si stava scrivendo. Che cosa
-     * si salva e che cosa no sta su [FileJobSaver].
+     * Salvabile, come nelle altre schermate che usano [FileJobDialogs]: ruotando, la finestra
+     * aperta resta con quello che si stava scrivendo ([FileJobSaver]).
      */
     var job by rememberSaveable(stateSaver = FileJobSaver) { mutableStateOf<FileJob?>(null) }
 
     /*
-     * Layout tablet del Visualizzatore (3.31): da 600 dp il pannello info può andare a
-     * lato del media; sotto i 1.024 nasce chiuso, da 1.024 in su aperto come nel mockup.
-     * ⚠️ `rememberSaveable(sideDefaultOpen)` riparte al cambio di fascia, così ruotando
-     * da orizzontale a verticale il pannello si richiude di serie senza tenersi aperto
-     * "perché lo era prima".
+     * Da 600 dp il pannello info può stare a lato del media; sotto i 1.024 parte chiuso, da 1.024
+     * aperto, come nel mockup.
+     * `rememberSaveable(sideDefaultOpen)` riparte al cambio di fascia: ruotando in verticale il
+     * pannello torna chiuso.
      */
     val widthDp = LocalConfiguration.current.screenWidthDp
     val sideAvailable = Adaptive.sideAvailable(widthDp)
@@ -365,22 +334,18 @@ fun ViewerScreen(
     val sideAvailableNow = rememberUpdatedState(sideAvailable)
 
     /**
-     * Il giro di un'operazione: si parte, si dice com'è andata, e se la fotografia non c'è
-     * più si avverte chi sa che cosa mostrare al suo posto.
+     * Il giro di un'operazione: si parte, si dice com'è andata, e se l'immagine non c'è più si
+     * avverte chi sa che cosa mostrare al suo posto.
      *
-     * ⚠️⚠️ **GIRA IN [FileWork], e non nell'ambito del menu o della tela**: quelli se ne
-     * vanno, il primo quando il menu si chiude e la seconda al cambio di stato, cioè
-     * **esattamente** nell'istante in cui un'eliminazione riesce. Una coroutine lasciata là
-     * dentro verrebbe annullata alla prima sospensione, e si perderebbero l'avviso e la
-     * rilettura, non il lavoro sui file, che `FileTree` protegge da sé. Fino alla `6.26` girava
-     * nell'ambito di questa schermata, che una rotazione chiude allo stesso modo.
+     * ⚠️ **Gira in [FileWork]**, non nello scope del menu, della tela o della schermata: si
+     * chiudono proprio quando un'eliminazione riesce, o a una rotazione, e si perderebbero
+     * l'avviso e la rilettura (il lavoro sui file lo protegge `FileTree`).
      */
     val perform: (FileKind, suspend () -> FileTree.Outcome) -> Unit = { kind, work ->
         FileWork.scope.launch {
             val out = work()
-            // ⚠️ **Il cestino tace, e chi decide è [FileKind.speaks]**: la sua notifica
-            // dice la stessa cosa e in più offre di disfare, e due messaggi in fondo
-            // allo schermo si coprirebbero a vicenda.
+            // Il cestino tace ([FileKind.speaks]): il suo avviso dice lo stesso e offre di
+            // disfare, e due messaggi si coprirebbero.
             if (kind.speaks(out)) {
                 Notices.say(outcomeText(res, out, kind), NOTICE_LONG_MS)
             }
@@ -389,42 +354,25 @@ fun ViewerScreen(
     }
 
     /**
-     * Lo stato della riga dei dettagli, che **vive più a lungo di ogni fotografia**.
+     * Lo stato della riga dei dettagli, che vive più a lungo di ogni immagine.
      *
-     * ⚠️⚠️ **È QUI IL RIMEDIO AL LAMPEGGIO, e il difetto era di STRUTTURA e non di
-     * animazione** (segnalazione dell'utente, 2026-08-29: *all'apparizione le info
-     * lampeggiano ancora*, dopo che la `0.40` aveva già provato con la dissolvenza). La
-     * riga stava dentro `ImageCanvas`, che esiste solo nello stato `Ready`: a ogni
-     * cambio di fotografia veniva **distrutta e ricostruita**, con in mezzo il tempo del
-     * caricamento. Qualunque animazione si metta su una cosa che nasce dal nulla è
-     * comunque una cosa che nasce dal nulla, ed è per questo che sfumare l'entrata non
-     * era bastato.
-     * ⚠️ Adesso la riga è **un solo elemento** per tutta la vita del visualizzatore: non
-     * entra e non esce, cambia **testo**. Fra una fotografia e l'altra tiene i dati di
-     * quella che si è appena lasciata, così non c'è mai un istante vuoto, e quando la
-     * nuova è pronta il testo si dissolve nell'altro.
-     */
-    /*
-     * ⚠️⚠️ **NASCE CON L'IMPOSTAZIONE, DALLA `4.33`** (voce `4.30-05` non approvata sul giro della
-     * `4.32`: lo zoom all'apertura restava con le info spente). Lo stato nasceva visibile e
-     * prendeva l'impostazione solo a immagine pronta: la prima misura faceva posto a una barra che
-     * non c'era, e il posto si richiudeva con l'animazione della barra che si nasconde. Lo misura
-     * `BarraInfoTest`.
+     * ⚠️ **È il rimedio al lampeggio, che era di struttura e non di animazione** (segnalazione
+     * dell'utente): dentro `ImageCanvas`, che esiste solo nello stato `Ready`, la riga si
+     * ricostruirebbe a ogni immagine col caricamento in mezzo. Qui è un elemento solo che cambia
+     * testo: fra un'immagine e l'altra tiene i dati di quella lasciata.
+     * Nasce con l'impostazione (voce `4.30-05`, presidiata da `BarraInfoTest`): nata visibile, la
+     * prima misura farebbe posto a una barra che non c'è.
      */
     val info = remember { InfoBar().also { it.visible = settings.infoVisible } }
 
     /**
-     * L'ultima fotografia che si è vista, tenuta **anche mentre la prossima si carica**.
+     * L'ultima immagine vista, tenuta anche mentre la prossima si carica: la riga non resta mai
+     * vuota, al prezzo di mostrare per quel tempo i dati di prima.
      *
-     * ⚠️ È la ragione per cui la riga non resta mai senza niente da dire. Il prezzo,
-     * dichiarato: per il tempo del caricamento quei dati sono quelli di **prima**. Su una
-     * strisciata fra foto del telefono sono decimi di secondo; su un'immagine grossa presa
-     * dalla rete si vedono più a lungo, ed è il baratto che toglie il lampeggio.
-     * ⚠️⚠️ **SENZA I PIXEL, DALLA `6.28`** (rilievo C35 della revisione della 6.25): tenuta
-     * intera, la foto lasciata restava in memoria per tutto il caricamento della successiva, fino
-     * a 190 MB su una foto da 48 megapixel, mentre la riga ne legge solo tipo, peso, misure e
-     * nome. Al posto dei pixel c'è [NO_PIXELS]; chi ha bisogno dei pixel (la conversione, la
-     * finestra del nome) prende [ready], l'immagine in scena.
+     * ⚠️ **Senza i pixel** (rilievo C35): intera, l'immagine lasciata resterebbe in memoria per
+     * tutto il caricamento della successiva (fino a 190 MB a 48 megapixel), mentre la riga legge
+     * solo tipo, peso, misure e nome. Al posto dei pixel c'è [NO_PIXELS]; chi ne ha bisogno prende
+     * [ready], l'immagine in scena.
      */
     var shown by remember { mutableStateOf<LoadedImage?>(null) }
     LaunchedEffect(state) {
@@ -432,48 +380,30 @@ fun ViewerScreen(
     }
     val ready = (state as? ViewerState.Ready)?.image
 
-    /*
-     * ⚠️ **Il dialogo della conversione vive QUI e non dentro il menu**, per la stessa ragione
-     * del selettore qui sotto: il menu si chiude nell'istante in cui si tocca la voce, e
-     * quello che gli è appeso si chiude con lui. Un dialogo aperto da una voce di menu deve
-     * per forza vivere fuori dal menu.
-     */
+    // ⚠️ Il dialogo della conversione è qui e non nel menu: il menu si chiude quando si tocca la
+    // voce, e quello che gli è appeso si chiude con lui.
     var converting by remember { mutableStateOf(false) }
 
     /*
-     * ⚠️⚠️ **L'ANIMAZIONE SI APRE QUI E NON PIÙ DENTRO IL RAMO `Ready`, dalla 1.21**, e la
-     * ragione è che adesso la guardano in due: la fila dei comandi, che sta là sotto, e
-     * 'Converti/Esporta', che vive quassù perché il menu che lo apre si chiude nell'istante
-     * in cui lo si tocca. Aperta in un ramo, il dialogo non l'avrebbe mai vista.
-     * ⚠️ **Costa quanto prima su una fotografia ferma**: `rememberAnimation` guarda i primi
-     * byte del file e se ne va. Su una animata comincia un attimo prima, mentre l'immagine si
-     * sta ancora caricando, e non si vede: i fotogrammi li disegna la tela, che non c'è
-     * ancora.
+     * L'animazione si apre qui e non nel ramo `Ready`: la usano la fila dei comandi e
+     * 'Converti/Esporta', che è quassù fuori dal menu. Su un'immagine ferma `rememberAnimation`
+     * guarda i primi byte e rinuncia.
+     * Il secondo argomento serve alle immagini di rete, i cui byte arrivano dalla cache dello
+     * scaricamento ([rememberAnimation]).
      */
-    // ⚠️ **Il secondo argomento serve alle immagini di RETE, dalla 1.45**: là i byte da
-    // animare arrivano dalla cache del download, quindi il primo tentativo può precederla.
-    // Il perché per esteso sta in testa a [rememberAnimation].
     val animation = rememberAnimation(source, state is ViewerState.Ready)
 
     /*
-     * ⚠️⚠️ **IL FOTOGRAMMA SI PRENDE QUANDO SI TOCCA LA VOCE, non quando si preme 'Esporta'
-     * nel dialogo**, ed è la stessa ragione per cui lo faceva la fila dei comandi: fra il
-     * tocco e la scelta della cartella passano secondi. Qui in più la riproduzione è già
-     * ferma (la apre il tocco lungo, vedi `onHold`), ma prendere l'istante giusto non deve
-     * dipendere da quella garanzia.
-     * ⚠️ **`null` vuol dire 'converti il file intero'**, che è il caso di ogni fotografia
-     * ferma: il dialogo lo legge così.
+     * ⚠️ **Il fotogramma si prende quando si tocca la voce**, non quando si preme 'Esporta': in
+     * mezzo passano secondi. `null` vuol dire 'converti il file intero', il caso di ogni immagine
+     * ferma.
      */
     var shot by remember(source) { mutableStateOf<android.graphics.Bitmap?>(null) }
 
-    /** L'animazione com'è **adesso**, per i richiami che vivono dentro un `remember`. */
+    /** L'animazione com'è adesso, per i richiami dentro un `remember`. */
     val liveAnimation = rememberUpdatedState(animation)
 
-    /*
-     * ⚠️ **Vive qui e non nel menu**, per la stessa ragione del dialogo qui sopra: il menu si
-     * chiude nell'istante in cui si tocca la voce, e quello che gli è appeso si chiude con
-     * lui.
-     */
+    // Qui e non nel menu, come il dialogo della conversione.
     var barOpen by remember { mutableStateOf(false) }
     if (barOpen) {
         InfoBarDialog(
@@ -483,10 +413,8 @@ fun ViewerScreen(
         )
     }
 
-    // ⚠️ Il `takeIf` sta sull'immagine e non in un `if` esterno: così non si scrive mai su
-    // uno stato **durante** la composizione, che è il modo classico di far ricomporre in
-    // tondo. Senza immagine il dialogo semplicemente non c'è, e il caso non capita perché la
-    // voce che lo apre vive dentro un menu che senza immagine non si apre.
+    // Il `takeIf` è sull'immagine: così non si scrive uno stato durante la composizione. Senza
+    // immagine il dialogo non c'è.
     ready?.takeIf { converting }?.let { picture ->
         ConvertDialog(
             image = picture,
@@ -502,20 +430,11 @@ fun ViewerScreen(
     }
 
     /*
-     * Il selettore di sistema con cui si scarica l'immagine: così salvare non chiede
-     * nessun permesso e il posto lo scegli tu. Su Android 9, che questa app ancora
-     * sostiene, scrivere nella galleria dal MediaStore avrebbe voluto
-     * `WRITE_EXTERNAL_STORAGE`.
-     *
-     * ⚠️⚠️ **STA QUI E NON NEL MENU dalla 0.62, ed è una correzione**: un richiamo
-     * registrato dentro il menu viene **cancellato quando il menu si chiude**, cioè nel
-     * momento esatto in cui si tocca la voce, e l'esito del selettore arriva sempre dopo.
-     * Il difetto è stato ragionato sul codice e **non misurato sul telefono**, quindi la
-     * verifica resta da fare: quello che è certo è che qui il richiamo vive quanto la
-     * schermata, che è la sola durata sensata.
-     * ⚠️ Il tipo si chiede all'immagine mostrata e il contratto si ricostruisce solo
-     * quando cambia: un contratto nuovo a ogni ricomposizione rifarebbe la registrazione
-     * sessanta volte al secondo.
+     * Il selettore di sistema per scaricare l'immagine, usato su Android 9: là scrivere dal
+     * MediaStore vorrebbe `WRITE_EXTERNAL_STORAGE`, il selettore nessun permesso.
+     * ⚠️ **È qui e non nel menu**: un richiamo registrato nel menu si cancella quando il menu si
+     * chiude, e l'esito arriva dopo (ragionato sul codice, non misurato).
+     * Il contratto si ricostruisce solo quando cambia il tipo, non a ogni ricomposizione.
      */
     val saveMime = shown?.mimeType ?: "image/*"
     val saveContract = remember(saveMime) { ActivityResultContracts.CreateDocument(saveMime) }
@@ -534,17 +453,12 @@ fun ViewerScreen(
     }
 
     /*
-     * ⚠️⚠️ **IL SELETTORE DI CARTELLA NASCE NELLA `1.81` E RESTITUISCE UNA CARTELLA, NON UN
-     * FILE** (riscontro del giro della `1.80`, voce `scarica-percorso`: *Voglio solo SELEZIONARE
-     * la destinazione, non salvare*). Fino alla `1.80`'Percorso' apriva il [saver] qui sopra,
-     * cioè la finestra 'Salva file' del sistema: quella **scriveva**, quindi il nome battuto
-     * nella finestra dell'app e il tocco su 'Salva' non servivano più a niente.
-     * ⚠️⚠️ **IL PERMESSO SI PRENDE SUBITO E IN MODO PERSISTENTE, o la cartella memorizzata non è
-     * più scrivibile alla riapertura dell'app**: l'indirizzo si rilegge benissimo il giorno dopo e
-     * la scrittura va in `SecurityException`, cioè un difetto che non si vede provando l'app nello
-     * stesso minuto in cui si è scelta la cartella.
-     * ⚠️ **Non chiude la finestra del nome**: al ritorno si è ancora là, con quello che si era
-     * battuto, e la riga della cartella dice dove il file andrà. È il verso che ha chiesto lui.
+     * ⚠️ **Il selettore di cartella sceglie una destinazione e non scrive** (voce
+     * `scarica-percorso` dell'utente): il nome e 'Salva' restano della finestra dell'app.
+     * ⚠️ **Il permesso si prende subito e persistente**, o alla riapertura dell'app la cartella
+     * si rilegge ma la scrittura va in `SecurityException`: un difetto che non si vede provando
+     * nello stesso minuto.
+     * Non chiude la finestra del nome: al ritorno c'è ancora quello che si era scritto.
      */
     val folderPicker = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocumentTree()
@@ -565,32 +479,23 @@ fun ViewerScreen(
         }
     }
 
-    /*
-     * La cartella scelta, o `null` se non ne è stata scelta nessuna: là si scrive in Download,
-     * come dalla `1.77`.
-     */
+    // La cartella scelta, o `null`: allora si scrive in Download.
     val cartella by produceState<String?>(null) {
         DownloadFolder.flow(context).collect { value = it }
     }
 
-    /*
-     * ⚠️⚠️ **DALLA `1.77` SI SCRIVE DIRETTAMENTE IN DOWNLOAD, e il selettore di sistema è
-     * rimasto per il solo Android 9** (istruzione dell'utente: *niente scelta della cartella,
-     * sempre Downloads*). Il perché della cartella, e perché su 28 non si può, stanno su
-     * [ImageActions.saveToDownloads]; qui c'è la sola scelta fra le tre strade.
-     * ⚠️⚠️ **E DALLA `1.81` LA PRIMA STRADA È LA CARTELLA CHE HA SCELTO LUI**, se ne ha scelta
-     * una: quella vince su Download, perché è una scelta esplicita contro un valore di serie.
-     * ⚠️ **Il ripiego passa il nome al selettore invece di ignorarlo**: chi ha battuto un nome
-     * nella finestra lo ritrova già scritto, che è il minimo che si possa fare quando la via
-     * diretta non c'è.
-     */
     /**
      * Il salvataggio vero, senza nessuna domanda: quello che succede quando si è deciso.
      *
-     * ⚠️⚠️ **È SEPARATO DA [scarica] DALLA `1.82`, e serve alla notifica dei doppioni**: 'Scarica
-     * di nuovo' deve fare esattamente questo, cioè saltare il controllo che ha appena fermato il
-     * gesto. Con una funzione sola, l'azione della notifica rifarebbe il controllo e la notifica
-     * tornerebbe.
+     * Le strade sono tre, in quest'ordine: la cartella scelta dall'utente, se c'è, perché è una
+     * scelta esplicita contro un valore di serie; Download, scritto direttamente (istruzione
+     * dell'utente: *niente scelta della cartella, sempre Downloads*); e il selettore di sistema
+     * sul solo Android 9, dove Download non si può scrivere (il perché è su
+     * [ImageActions.saveToDownloads]). Il selettore riceve il nome battuto nella finestra, così
+     * chi l'ha scritto lo ritrova.
+     *
+     * È separato da [scarica] per la notifica dei doppioni: 'Scarica di nuovo' deve saltare il
+     * controllo che ha appena fermato il gesto, e con una funzione sola la notifica tornerebbe.
      */
     val salva: (LoadedImage, String?, String?) -> Unit =
         remember(source, saver, scope, context, cartella) {
@@ -627,12 +532,10 @@ fun ViewerScreen(
         }
 
     /*
-     * ⚠️⚠️ **IL DOPPIONE SI INTERCETTA PRIMA DI SCRIVERE, ED È UNA SUA RICHIESTA** (campo libero
-     * del giro della `1.81`, punto E: *quando scelgo 'Salva', l'app deve verificare se ha già
-     * scaricato di recente un file con la stessa estensione e lo stesso numero di byte*).
-     * ⚠️ **Quello che si tiene è il gesto da rifare**, non un vero o un falso: la notifica offre
-     * di scaricare **quella** immagine con **quel** nome, e ricostruire gli argomenti al momento
-     * del tocco vorrebbe dire tenerli da un'altra parte.
+     * Il doppione si intercetta prima di scrivere (richiesta dell'utente, giro della `1.81`,
+     * punto E: stessa estensione e stesso numero di byte di un file scaricato di recente).
+     * Si tiene il gesto da rifare e non un vero o un falso: la notifica offre di scaricare
+     * quella immagine con quel nome, e così gli argomenti non vanno tenuti altrove.
      */
     var doppione by remember { mutableStateOf<(() -> Unit)?>(null) }
 
@@ -656,9 +559,9 @@ fun ViewerScreen(
         }
 
     /*
-     * ⚠️ **La notifica se ne va da sé dopo [SAVE_SEEN_MS]**, che è lo stesso numero passato alla
-     * riga che si consuma: una barra che arriva a zero sopra un tasto ancora vivo direbbe una
-     * scadenza falsa. I cinque secondi li ha chiesti lui.
+     * La notifica sparisce dopo [SAVE_SEEN_MS], lo stesso numero passato alla barra che si
+     * consuma: una barra a zero sopra un tasto ancora attivo direbbe una scadenza falsa. I
+     * cinque secondi li ha chiesti l'utente.
      */
     LaunchedEffect(doppione) {
         if (doppione == null) return@LaunchedEffect
@@ -667,26 +570,22 @@ fun ViewerScreen(
     }
 
     /*
-     * L'immagine di cui si sta battendo il nome: nullo vuol dire che la finestra è chiusa.
-     *
-     * ⚠️⚠️ **DALLA `1.80` PORTA ANCHE COME LA FINESTRA È STATA APERTA**, perché il tocco lungo
-     * accende i due comandi della riga del titolo a impostazioni spente (campo libero del giro
-     * della `1.79`, punto D). Un secondo stato accanto a questo si potrebbe dimenticare di
-     * azzerare: qui i due valori nascono e muoiono insieme.
+     * L'immagine di cui si sta battendo il nome, e come la finestra è stata aperta: nullo vuol
+     * dire che la finestra è chiusa. Il gesto serve perché il tocco lungo accende i due comandi
+     * della riga del titolo a impostazioni spente (giro della `1.79`, punto D); tenuto in uno
+     * stato a parte si potrebbe dimenticare di azzerarlo, qui i due valori si creano e si
+     * azzerano insieme.
      */
     var naming by remember { mutableStateOf<Naming?>(null) }
 
     /*
-     * ⚠️⚠️ **LA FINESTRA DEL NOME SI RIAPRE DOPO UNA ROTAZIONE, DALLA `1.81`** (riscontro
-     * dell'utente: *ruotando si chiude la finestra aperta e con lei quello che stavi scrivendo*),
-     * e a passare dal `Bundle` non è [Naming] ma **l'indirizzo** dell'immagine più il gesto.
-     * ⚠️ **Perché non lo stato intero**: [Naming] porta un `LoadedImage`, cioè una bitmap
-     * decodificata, che in un `Bundle` non entra e non deve entrare. Dopo la rotazione l'immagine
-     * la ricarica il modello, ed è a lei che si riattacca la finestra.
-     * ⚠️⚠️ **E SI RIAPRE SOLO SE L'IMMAGINE IN SCENA È QUELLA, che è la clausola che la rende
-     * sicura**: se il sistema ha riaperto l'app su un'altra fotografia, un nome scritto per la
-     * prima finirebbe addosso alla seconda. Il testo battuto è al sicuro per conto suo: lo tiene
-     * un `rememberSaveable` dentro la finestra (vedi `SaveName.kt`).
+     * La finestra del nome si riapre dopo una rotazione (riscontro dell'utente sulla `1.81`).
+     * Nel `Bundle` passano il nome del file e il gesto, non [Naming], che contiene una bitmap
+     * decodificata: dopo la rotazione l'immagine la ricarica il modello, e la finestra si
+     * riattacca a lei.
+     * ⚠️ Si riapre solo se l'immagine in scena è la stessa: se il sistema ha riaperto l'app su
+     * un'altra immagine, il nome scritto per la prima finirebbe sulla seconda. Il testo battuto
+     * lo conserva un `rememberSaveable` dentro la finestra (`SaveName.kt`).
      */
     var riapriNome by rememberSaveable { mutableStateOf<String?>(null) }
     var riapriHold by rememberSaveable { mutableStateOf(false) }
@@ -708,30 +607,16 @@ fun ViewerScreen(
         SaveNameDialog(
             full = ImageActions.fileName(ask.picture, source),
             hold = ask.hold,
-            /*
-             * ⚠️ **La riga dice la cartella solo se ne è stata scelta una**: con quella di serie
-             * non comparirebbe a dire 'Download', che è quello che l'app fa da sempre.
-             */
+            // La riga della cartella compare solo se ne è stata scelta una: 'Download' è il
+            // comportamento di serie e non serve dirlo.
             folder = cartella?.let { DownloadFolder.label(it) },
             /*
-             * ⚠️⚠️ **'Destinazione' VUOLE L'IMPOSTAZIONE ACCESA **O** IL TOCCO LUNGO, DALLA
-             * `1.83`, E LA REGOLA È LA STESSA DI 'Estensione'** (riscontro del giro della `1.82`,
-             * voce `save-quando` non approvata, dove lui ha riscritto tutte e due le vie:
-             * *'Destinazione' ed 'Estensione' sono attive solo se le rispettive opzioni sono
-             * ACCESE* con il tocco normale, e *se si tiene premuto 'Scarica' ... i due tasti
-             * 'Destinazione' ed 'Estensione' entrambi disponibili*).
-             * ⚠️⚠️ **LA `E` DELLA `1.82` NON ERA UN'INTERPRETAZIONE SBAGLIATA DI QUELLA VOCE, ERA
-             * UNA SPECIFICA CHE LUI HA POI CAMBIATO**: là aveva scritto *'Destinazione' deve
-             * comparire sempre solo quando fai un tocco lungo*, e il testo dell'opzione diceva
-             * *aggiunge il pulsante 'Destinazione' alla schermata di download*. Quelle due righe
-             * insieme dànno la `e`; questa voce le sostituisce con una regola sola per tutti e
-             * due i comandi, e il testo dell'opzione resta vero perché la schermata di download
-             * col tocco normale è esattamente quella che lo legge.
-             * ⚠️ **La scelta si fa qui** perché è questa schermata ad avere le impostazioni in
-             * mano: la finestra riceve un gesto o un `null`, e non sa niente di `SettingsStore`.
-             * ⚠️⚠️ **E DALLA `1.81` APRE UNA CARTELLA E NON SALVA NIENTE** (voce
-             * `scarica-percorso`): il gesto non chiude più la finestra, perché il salvataggio
-             * avviene su 'Salva' e non qui.
+             * 'Destinazione' vuole l'impostazione accesa oppure il tocco lungo, con la stessa
+             * regola di 'Estensione' (voce `save-quando` del giro della `1.82`). La scelta si fa
+             * qui perché è questa schermata ad avere le impostazioni: la finestra riceve un gesto
+             * o un `null` e non sa niente di `SettingsStore`.
+             * Il gesto apre una cartella e non salva niente (voce `scarica-percorso`): la
+             * finestra resta aperta, e il salvataggio avviene su 'Salva'.
              */
             onPickFolder = if (ask.hold || settings.downloadPath) {
                 { folderPicker.launch(null) }
@@ -739,20 +624,15 @@ fun ViewerScreen(
                 null
             },
             /*
-             * ⚠️⚠️ **IL RITORNO A DOWNLOAD C'È SEMPRE CHE UNA CARTELLA SIA STATA SCELTA, E NON
-             * DIPENDE DALL'IMPOSTAZIONE** (riscontro del giro della `1.81`, voce
-             * `save-percorso`): legarlo a `downloadPath` vorrebbe dire che spegnendo l'opzione
-             * si resta chiusi fuori dalla cartella di serie, cioè esattamente il vicolo cieco
-             * che questa riga esiste per aprire.
+             * Il ritorno a Download c'è ogni volta che una cartella è stata scelta, e non dipende
+             * dall'impostazione (voce `save-percorso`, giro della `1.81`): legato a
+             * `downloadPath`, spegnendo l'opzione non si tornerebbe più alla cartella di serie.
              */
             onUseDownloads = cartella?.let {
                 { scope.launch { DownloadFolder.forget(context) } }
             },
-            /*
-             * ⚠️ **Chiudendo si dimentica anche il segno del ritorno**: quello serve a riaprire
-             * la finestra dopo una rotazione, e lasciato scritto la farebbe riaprire dopo che
-             * l'utente l'ha chiusa.
-             */
+            // Chiudendo si azzera anche `riapriNome`, o la finestra si riaprirebbe dopo una
+            // rotazione anche se l'utente l'ha chiusa.
             onDismiss = {
                 naming = null
                 riapriNome = null
@@ -768,11 +648,9 @@ fun ViewerScreen(
     val ops = remember(source, saver, onEdit, onEditWith, settings.saveRename) {
         MenuOps(
             job = { asked ->
-                /*
-                 * ⚠️⚠️ **SUL TABLET LE INFO VANNO A LATO, non in bottomsheet** (3.31,
-                 * mockup `viewer`): sotto i 600 dp resta [FileJob.Facts] / [FactsDialog];
-                 * da 600 in su si apre [ViewerFactsSide] e non si sovrappone al media.
-                 */
+                // Sul tablet le informazioni vanno nel pannello laterale (mockup `viewer`): sotto
+                // i 600 dp resta [FileJob.Facts] con [FactsDialog], da 600 in su si apre
+                // [ViewerFactsSide], che non copre l'immagine.
                 if (asked is FileJob.Facts && sideAvailableNow.value) {
                     sideOpen = true
                 } else {
@@ -797,30 +675,25 @@ fun ViewerScreen(
                 }
             },
             /*
-             * ⚠️⚠️ **`settings.saveRename` STA FRA LE CHIAVI DEL `remember` QUI SOPRA, E NON È
-             * UN DETTAGLIO**: questo blocco cattura i valori del momento in cui gira, quindi
-             * senza quella chiave un interruttore appena spostato non arriverebbe qui fino al
-             * prossimo cambio di sorgente. È la stessa trappola dichiarata sull'animazione,
-             * poche righe più sotto.
+             * ⚠️ `settings.saveRename` è fra le chiavi del `remember` qui sopra: il blocco
+             * cattura i valori del momento in cui è creato, e senza quella chiave un interruttore
+             * appena spostato arriverebbe qui solo al prossimo cambio di sorgente. È la stessa
+             * trappola dell'animazione, più sotto.
              */
             save = { picture ->
                 if (settings.saveRename) naming = Naming(picture, hold = false)
                 else scarica(picture, null, null)
             },
             saveAs = { picture -> naming = Naming(picture, hold = true) },
-            // ⚠️ Senza indirizzo non si fa niente e non si dice niente: la voce che chiama
-            // questa funzione compare **solo** con un file del telefono davanti, quindi qui
-            // il caso non capita, e un avviso sarebbe codice che nessuno può far girare.
+            // Senza indirizzo non si fa niente: la voce che chiama questa funzione compare solo
+            // con un file del telefono davanti, e un avviso sarebbe codice irraggiungibile.
             edit = { source?.let(onEdit) },
             editWith = { source?.let(onEditWith) },
             /*
-             * ⚠️⚠️ **L'ANIMAZIONE SI LEGGE DA UNO STATO AGGIORNATO e non si cattura qui**:
-             * questo blocco vive dentro un `remember`, quindi quello che cattura è il valore
-             * di **quel** momento, e in quel momento `rememberAnimation` non ha ancora
-             * finito di aprire il file: catturarla direttamente vorrebbe dire un `null` per
-             * sempre, cioè l'esportazione del fotogramma che non funziona mai su nessuna
-             * animazione. Il difetto non darebbe nessun errore: convertirebbe il file
-             * intero, che è un esito plausibile.
+             * ⚠️ L'animazione si legge da uno stato aggiornato e non si cattura qui: il blocco
+             * vive in un `remember`, e quando è creato `rememberAnimation` non ha ancora aperto
+             * il file. Catturata direttamente sarebbe `null` per sempre, e l'esportazione del
+             * fotogramma convertirebbe in silenzio il file intero.
              */
             convert = {
                 scope.launch {
@@ -832,45 +705,35 @@ fun ViewerScreen(
         )
     }
 
-    // ⚠️ Ricordato SENZA chiavi, e non per fotografia: nasce spento una volta sola,
-    // quindi la primissima riga entra in dissolvenza e da lì in poi non si ricrea mai.
+    // Ricordato senza chiavi, e non per immagine: parte spento una volta sola, quindi solo la
+    // prima riga entra in dissolvenza, e poi non si ricrea più.
     val barState = remember { MutableTransitionState(false) }
-    // ⚠️⚠️ **SU UN FILMATO LA RIGA SE NE VA, e non è una scelta di gusto: senza questa
-    // condizione racconterebbe il FALSO.** `shown` è l'ultima fotografia vista e resta
-    // apposta, perché è ciò che toglie il lampeggio fra una foto e l'altra; ma su un video
-    // non arriva nessuna fotografia nuova a sostituirla, quindi la riga resterebbe lì a
-    // dichiarare pixel, formato e peso di **un altro file**.
+    // ⚠️ Su un filmato la riga si nasconde: `shown` è l'ultima immagine vista e resta apposta,
+    // contro il lampeggio fra un'immagine e l'altra, ma su un video nessuna immagine nuova la
+    // sostituisce, e la riga direbbe pixel, formato e peso di un altro file.
     barState.targetState = info.visible && shown != null && state !is ViewerState.Clip
 
     /*
-     * ⚠️⚠️ **LO SPAZIO CHE L'IMMAGINE LASCIA ALLA BARRA, dalla `3.60`** (richiesta dell'utente,
-     * mockup `Viewer_NOPE`): l'immagine a riposo si adatta a quello che la barra lascia libero, e
-     * quando la barra si nasconde col tocco torna a tutto schermo con una breve animazione
-     * (scelta A2). Il conto vive in `restPlace` (`Fit.kt`).
-     * ⚠️ **Segue la barra VOLUTA e non quella visibile**: la dissolvenza della barra e lo
-     * spostamento dell'immagine partono insieme, invece che uno dopo l'altro.
-     * ⚠️⚠️ **ALL'APERTURA LO SPAZIO SI APPLICA SENZA ANIMAZIONE, DALLA `3.70`** (voce `3.60-02`
-     * non approvata: *all'apertura lo screenshot si apre ingrandito e si restringe con
-     * un'animazione [...] Dovrebbe apparire direttamente nella posizione/dimensione corrette*).
-     * Nella `3.60` la misura arrivava dalla barra vera, che compare solo con la prima immagine
-     * pronta, e la riserva partiva da zero animando. Adesso: la misura la prende subito una copia
-     * invisibile della barra ([probe]), la prima riserva si applica di colpo, e finché non c'è
-     * l'immagine non si disegna ([spaceReady]). L'animazione resta per quando la barra si nasconde
-     * o ricompare, che è la scelta A2.
-     * ⚠️ **La barra voluta qui è quella che ci sarà**, non quella che c'è: `barState` aspetta la
-     * prima immagine pronta, e legarsi a lui rimetterebbe la riserva a zero durante il primo
-     * caricamento.
+     * Lo spazio che l'immagine lascia alla barra (mockup `Viewer_NOPE`): a riposo l'immagine si
+     * adatta allo spazio libero, e quando la barra si nasconde col tocco torna a tutto schermo
+     * con una breve animazione (scelta A2). Il conto vive in `restPlace` (`Fit.kt`).
+     * La riserva segue la barra voluta e non quella visibile, così la dissolvenza della barra e
+     * lo spostamento dell'immagine partono insieme; e non segue `barState`, che aspetta la prima
+     * immagine pronta e rimetterebbe la riserva a zero durante il primo caricamento.
+     * ⚠️ All'apertura lo spazio si applica senza animazione (voce `3.60-02`): una copia invisibile
+     * della barra ([probe]) prende subito la misura, la prima riserva si applica di colpo, e
+     * finché la misura non c'è l'immagine non si disegna ([spaceReady]).
      */
     val reserveTarget = if (info.visible && state !is ViewerState.Clip) info.height else 0f
     val reserveMotion = remember { Animatable(0f) }
     var reserveSettled by remember { mutableStateOf(false) }
     val probe = info.visible && info.height == 0f
     /*
-     * ⚠️ In orizzontale serve anche dove la barra ha del testo, per la tolleranza del 5%: lo dice
-     * la barra vera, un fotogramma dopo la prima immagine pronta. In verticale la tolleranza non
-     * c'è, e non si aspetta.
-     * ⚠️ **L'attesa vale per l'anteprima e per l'immagine, non per un filmato né per un errore**:
-     * là la barra non compare, quindi aspettarla vorrebbe dire una schermata vuota per sempre.
+     * In orizzontale serve anche sapere dove la barra ha del testo, per la tolleranza del 5%: lo
+     * dice la barra vera, un fotogramma dopo la prima immagine pronta. In verticale la tolleranza
+     * non c'è, e non si aspetta.
+     * ⚠️ L'attesa vale per l'anteprima e per l'immagine, non per un filmato né per un errore: là
+     * la barra non compare, e aspettarla lascerebbe la schermata vuota per sempre.
      */
     val wideView = LocalConfiguration.current.let { it.screenWidthDp > it.screenHeightDp }
     val spaceReady = !info.visible ||
@@ -885,9 +748,9 @@ fun ViewerScreen(
     }
     val reserve = reserveMotion.value
     /*
-     * ⚠️ La parte della riserva che appartiene al sistema (la barra di stato sopra una barra in
-     * cima, quella di navigazione sotto una in fondo): la tolleranza non ci entra, dalla `3.71`.
-     * Il perché vive su `restPlace`.
+     * La parte della riserva che appartiene al sistema (la barra di stato sopra una barra in
+     * cima, quella di navigazione sotto una in fondo): la tolleranza non vale lì, e il perché è
+     * su `restPlace`.
      */
     val density = LocalDensity.current
     val systemSide = if (settings.infoPosition == InfoPosition.TOP) {
@@ -907,37 +770,23 @@ fun ViewerScreen(
     }
 
     /*
-     * ⚠️⚠️ **LO SFONDO SI DIPINGE QUI, e prima viveva dentro `ImageCanvas`: era LUI il
-     * lampeggio che restava** (segnalazione dell'utente, 2026-08-29: *non ancora risolto,
-     * anzi adesso lampeggia anche l'immagine*). La scacchiera esisteva solo nello stato
-     * `Ready`, quindi per tutto il tempo del caricamento il fondo diventava il colore
-     * liscio del tema e poi tornava indietro: un cambio di colore a tutto schermo a ogni
-     * cambio di fotografia.
-     * ⚠️⚠️ **E spiega perché la `0.42` sembrava aver peggiorato le cose**: da quando la
-     * riga dei dettagli non sparisce più, il suo fondo semitrasparente **mostra** quel
-     * cambio invece di andarsene prima che accada. Un difetto solo, che si vedeva in due
-     * posti e sembrava due difetti.
-     * ⚠️ La scacchiera è anche il motivo per cui non basta un colore di fondo sul `Box`:
-     * dipinta qui, resta identica in tutti e tre gli stati, che è l'unica definizione
-     * utile di 'non lampeggia'.
+     * ⚠️ Lo sfondo si dipinge qui e non dentro `ImageCanvas`: là la scacchiera esisteva solo
+     * nello stato `Ready`, e durante il caricamento il fondo diventava il colore liscio del tema,
+     * cioè un lampeggio a tutto schermo a ogni cambio di immagine, visibile anche attraverso il
+     * fondo semitrasparente della riga dei dettagli. Dipinta qui resta identica in tutti e tre
+     * gli stati, e un colore di fondo sul `Box` non basterebbe, perché è una scacchiera.
      *
-     * ⚠️⚠️ **SI RIDIPINGE INTERA A OGNI FOTOGRAMMA DI UN VELO CHE SALE O SCENDE, E RESTA COSÌ
-     * DI PROPOSITO** (censimento della UI del 2026-09-05: rilievo confermato, e il rimedio che
-     * propone **non funziona**). Il meccanismo è vero: la dose del velo è uno stato letto dentro
-     * la lambda di disegno della radice, quindi mentre un velo si muove questo disegno si rifà,
-     * e con lui il migliaio di rettangoli. Due misure dicono perché non si tocca:
-     * - **Si paga solo con 'Sfocatura dietro i pannelli' ACCESA**, e prima della `1.80` era
-     *   spenta di fabbrica: a interruttore spento nessuno scrive la mappa delle richieste,
-     *   quindi non c'è nessuna invalidazione da evitare.
-     * - **Separare i due disegni non basta**: la grana dell'invalidazione è il **nodo di
-     *   disegno**, e velo e scacchiera vivono nello stesso, quindi spostare la scacchiera in un
-     *   `drawBehind` accanto lascerebbe l'invalidazione dov'è. Toglierla di là dentro vorrebbe
-     *   dire un livello grafico a sé (un `graphicsLayer` da mille rettangoli tenuto in memoria
-     *   grafica), cioè scambiare fotogrammi con memoria su una schermata che apre immagini da
-     *   trenta megapixel.
-     * ⚠️ **Chi ci tornasse misuri prima il caso vero**: un velo dura poco più di un decimo di
-     * secondo, e quello che si guadagnerebbe sono pochi fotogrammi di un'animazione, non un
-     * costo che si paga sfogliando.
+     * Si ridipinge intera a ogni fotogramma di un velo che sale o scende, ed è voluto
+     * (censimento della UI del 2026-09-05): la dose del velo è letta nella lambda di disegno della
+     * radice, quindi il migliaio di rettangoli si rifà mentre il velo si muove. Non si cambia
+     * perché:
+     * - si paga solo con 'Sfocatura dietro i pannelli' accesa; a interruttore spento nessuno
+     *   scrive la mappa delle richieste;
+     * - separare i due disegni non basta, perché l'invalidazione vale per il nodo di disegno, e
+     *   velo e scacchiera sono nello stesso; isolare la scacchiera vorrebbe un `graphicsLayer` da
+     *   mille rettangoli in memoria grafica, su una schermata che apre immagini da trenta
+     *   megapixel.
+     * Un velo dura poco più di un decimo di secondo: chi ci torna misuri prima il caso vero.
      */
     val checkerPx = with(density) { CHECKER.toPx() }
     val lightGreys = when (settings.bgTheme) {
@@ -947,11 +796,10 @@ fun ViewerScreen(
     }
 
     /*
-     * ⚠️⚠️ **DA 600 dp IL MEDIA E IL PANNELLO INFO SONO IN RIGA** (3.31): il mockup
-     * mette le informazioni a lato e le richiude sotto i 1.024. Sotto i 600 la riga ha
-     * un solo figlio a peso pieno, uguale al Box di prima: il layout telefono non cambia.
-     * ⚠️ **Il lato segue [Settings.hand]**: destri -> pannello a sinistra (mockup senza
-     * `left`); mancini -> pannello a destra (classe `left`, `order: 2`).
+     * Da 600 dp l'immagine e il pannello delle informazioni sono in riga, come nel mockup. Sotto
+     * i 600 la riga ha un solo figlio a peso pieno, e la disposizione del telefono non cambia.
+     * Il lato segue [Settings.hand]: per i destri il pannello va a sinistra, per i mancini a
+     * destra.
      */
     val panelOnStart = settings.hand == Hand.RIGHT
     Row(modifier = modifier.fillMaxSize()) {
@@ -973,24 +821,15 @@ fun ViewerScreen(
             .drawBehind {
                 drawBackground(size, checkerPx, lightGreys, settings.bgType)
                 /*
-                 * ⚠️⚠️ **LA SCACCHIERA SI SPIANA MENTRE LA SFOCATURA ARRIVA, DALLA `1.68`**
-                 * (riscontro del giro della `1.67`: *si può fare in modo che nello stesso
-                 * intervallo che serve per far apparire la sfocatura questa sia ricoperta da un
-                 * livello grigio (chiaro o scuro a seconda del tema)?*). Una scacchiera sfocata
-                 * diventa una griglia di macchie che si muovono, ed è l'effetto ottico che lui
-                 * descrive: il motivo esiste per **mostrare la trasparenza**, e sotto una
-                 * superficie aperta non c'è nessuna trasparenza da leggere.
-                 * ⚠️⚠️ **IL GRIGIO NON È NUOVO: è quello di `BgType.SOLID`**, cioè la tinta piatta
-                 * che l'app già offre come alternativa alla scacchiera, chiara sul tema chiaro e
-                 * scura su quello scuro. Un grigio inventato qui sarebbe un secondo colore da
-                 * tenere allineato al primo.
-                 * ⚠️ **Segue l'avanzamento del velo e non la sua opacità** ([veilProgress]): a
-                 * velo pieno la scacchiera è coperta del tutto, e la copertura arriva e se ne va
-                 * nello stesso intervallo della sfocatura, che è quello che ha chiesto.
-                 * ⚠️ **Costa un ridisegno e non una ricomposizione**: questa lambda si valuta nel
-                 * disegno, quindi la lettura di [veilProgress] invalida solo il disegno.
-                 * ⚠️ **A funzione spenta non fa niente**: senza l'impostazione della sfocatura
-                 * nessuno chiede il velo, la dose è zero, e questa riga esce subito.
+                 * La scacchiera si copre di grigio mentre arriva la sfocatura (richiesta del giro
+                 * della `1.67`): sfocata diventa una griglia di macchie in movimento, e sotto una
+                 * superficie aperta non c'è trasparenza da mostrare. Il grigio è quello di
+                 * `BgType.SOLID`, chiaro o scuro col tema, per non avere un secondo colore da
+                 * tenere allineato.
+                 * Segue l'avanzamento del velo e non la sua opacità ([veilProgress]), così la
+                 * copertura arriva e se ne va nello stesso intervallo della sfocatura. La lettura
+                 * avviene nel disegno, quindi costa un ridisegno e non una ricomposizione; a
+                 * sfocatura spenta la dose è zero e non si disegna niente.
                  */
                 val coperto = veilProgress()
                 if (coperto > 0f) {
@@ -1002,14 +841,10 @@ fun ViewerScreen(
             is ViewerState.Loading -> {
                 if (reserveSettled) PreviewThumb(source, settings, barSpace)
                 /*
-                 * ⚠️⚠️ **L'ANELLO ASPETTA, e non è cortesia: comparire e sparire in un
-                 * decimo di secondo È un lampeggio.** Fra una foto e l'altra del telefono
-                 * la decodifica dura meno del tempo che serve a leggere l'anello, quindi
-                 * fino alla `0.44` a ogni cambio di pagina compariva un cerchietto che se
-                 * ne andava subito. Aspettando, sulle foto veloci non si vede mai, e resta
-                 * dov'era davvero utile: la rete e le fotografie enormi.
-                 * ⚠️ L'attesa vale anche per la percentuale, e va bene: un trasferimento
-                 * che finisce in meno di mezzo secondo non aveva niente da raccontare.
+                 * L'anello aspetta [PROGRESS_GRACE_MS]: un anello che compare e sparisce in un
+                 * decimo di secondo è un lampeggio, e le immagini del telefono si decodificano
+                 * prima. Così compare solo dove serve, con la rete e le immagini enormi.
+                 * L'attesa vale anche per la percentuale.
                  */
                 var late by remember(source) { mutableStateOf(false) }
                 LaunchedEffect(source) {
@@ -1020,35 +855,28 @@ fun ViewerScreen(
             }
             is ViewerState.Error -> ErrorMessage(
                 state = state,
-                // ⚠️ Si offre di riprovare **solo se c'è un indirizzo da riprovare**: un
-                // errore senza sorgente (la cartella che si è svuotata) non ha niente da
-                // rifare, e un tasto che non può funzionare è peggio di nessun tasto.
+                // Riprovare si offre solo se c'è un indirizzo: un errore senza sorgente (la
+                // cartella che si è svuotata) non ha niente da rifare.
                 onRetry = onRetry.takeIf { source != null },
                 modifier = Modifier.align(Alignment.Center)
             )
             is ViewerState.Ready -> {
                 /*
-                 * ⚠️⚠️ **L'ANIMAZIONE NON È UNO STATO A PARTE, ed è la scelta che salva zoom e
-                 * panoramica**: una GIF resta una `Ready` con la sua `LoadedImage`, e
-                 * l'animazione le passa **solo i pixel** del fotogramma corrente. Se fosse un
-                 * ramo suo, come lo è `Clip` per i filmati, si perderebbero ingrandimento,
-                 * trascinamento, tasselli e riquadro di riposo, cioè tutto quello che
-                 * distingue un visualizzatore da un riproduttore.
-                 * ⚠️ **Si apre più in su, dalla 1.21**, perché la guarda anche il dialogo di
-                 * 'Converti/Esporta': la ragione sta là.
+                 * ⚠️ L'animazione non è uno stato a parte: una GIF resta una `Ready` con la sua
+                 * `LoadedImage`, e l'animazione le passa solo i pixel del fotogramma corrente.
+                 * Con un ramo suo, come `Clip` per i filmati, si perderebbero ingrandimento,
+                 * trascinamento, tasselli e riquadro di riposo. Si apre più in su perché la usa
+                 * anche la finestra di 'Converti/Esporta'.
                  */
                 if (reserveSettled) ImageCanvas(
                     state.image, settings, source, folder, info, onStep, ops, inBin,
                     animation?.frame,
                     onSingleTap = { animation?.toggle() },
                     /*
-                     * ⚠️⚠️ **IL TOCCO LUNGO FERMA LA RIPRODUZIONE, dalla 1.21** (richiesta
-                     * dell'utente, 2026-09-01: *condizione: la pressione lunga e la comparsa
-                     * del menu fermano la riproduzione*). Senza, 'Converti/Esporta' agirebbe
-                     * su un fotogramma che nel frattempo è già cambiato, e il menu aperto
-                     * coprirebbe un'immagine che continua a muoversi sotto.
-                     * ⚠️ **Ferma e basta, non alterna**: chi apre il menu su un'animazione
-                     * già in pausa non se la vede ripartire in faccia.
+                     * Il tocco lungo ferma la riproduzione (richiesta dell'utente): senza,
+                     * 'Converti/Esporta' agirebbe su un fotogramma già cambiato, e il menu
+                     * coprirebbe un'immagine in movimento. Ferma e non alterna, così
+                     * un'animazione già in pausa non riparte.
                      */
                     onHold = { animation?.pause() },
                     bar = barSpace
@@ -1059,9 +887,8 @@ fun ViewerScreen(
                         counter = settings.animCounter,
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
-                            // ⚠️ La riga dei dettagli può stare in basso, e allora i comandi
-                            // le vanno sopra. Dalla `3.60` la sua altezza è misurata (la stessa
-                            // che l'immagine le lascia), e la stima fissa di prima non c'è più.
+                            // Con la riga dei dettagli in basso i comandi le vanno sopra, alla
+                            // sua altezza misurata (la stessa che l'immagine le lascia).
                             .padding(
                                 bottom = ANIM_LIP + if (barSpace?.edge == BarEdge.BOTTOM) {
                                     with(density) { barSpace.size.toDp() }
@@ -1074,27 +901,24 @@ fun ViewerScreen(
             }
             is ViewerState.Clip -> ClipStage(
                 uri = state.uri,
-                // La strisciata porta avanti e indietro solo se c'è una serie: fuori da una
-                // cartella un filmato è un vicolo cieco, come una fotografia sola.
-                // ⚠️ **Dalla `2.08` arriva la serie intera e non più un booleano**: al filmato
-                // non basta sapere SE si può sfogliare, gli servono le vicine da far entrare
-                // dal bordo, che sono le stesse che [ImageCanvas] chiede a `toward`.
+                // La strisciata porta avanti e indietro solo se c'è una serie, come per
+                // un'immagine sola. Arriva la serie intera perché il filmato fa entrare dal bordo
+                // le vicine, le stesse che [ImageCanvas] chiede a `toward`.
                 series = folder?.seriesOrNull,
                 settings = settings,
                 onStep = onStep,
-                // ⚠️ La regola non è qui: `Arrival.plays` incrocia la provenienza con
-                // l'impostazione in un punto solo, e questo è il posto che la interroga.
+                // La regola è in `Arrival.plays`, che incrocia la provenienza con l'impostazione.
                 autoStart = state.from.plays(settings.clipAutoplay),
                 onStarted = onClipStarted
             )
         }
 
         /*
-         * ⚠️⚠️ **LA COPIA INVISIBILE DELLA BARRA, DALLA `3.70`**: misura l'altezza prima che la
-         * barra vera compaia, perché la prima immagine nasca già nello spazio giusto (voce
-         * `3.60-02`). Ha la stessa forma della barra vera, con dati finti: l'altezza dipende dalla
-         * larghezza e dai caratteri, non dall'immagine (`oneRowFits`). Sparisce appena c'è la
-         * misura, e non parla ai lettori di schermo.
+         * La copia invisibile della barra misura l'altezza prima che compaia la barra vera, così
+         * la prima immagine si disegna già nello spazio giusto (voce `3.60-02`). Ha la forma della
+         * barra vera con dati finti, perché l'altezza dipende dalla larghezza e dai caratteri e
+         * non dall'immagine (`oneRowFits`). Sparisce appena c'è la misura, e i lettori di schermo
+         * la ignorano.
          */
         if (probe) {
             Surface(
@@ -1119,9 +943,9 @@ fun ViewerScreen(
 
         androidx.compose.animation.AnimatedVisibility(
             visibleState = barState,
-            // Entra ed esce sfumando e basta: le due predefinite cambiano anche la
-            // misura, e una riga che si apre a soffietto in fondo allo schermo sposta il
-            // contatore, che è la cosa che si guarda mentre si sfoglia.
+            // Entra ed esce con la sola opacità: le transizioni predefinite cambiano anche la
+            // misura, e una riga che si apre a soffietto sposta il contatore, che è quello che
+            // si guarda mentre si sfoglia.
             enter = fadeIn(),
             exit = fadeOut(),
             modifier = Modifier.align(
@@ -1129,50 +953,32 @@ fun ViewerScreen(
                 else Alignment.BottomCenter
             )
         ) {
-            // ⚠️ L'ultima fotografia vista resta anche durante l'uscita: senza, la riga
-            // si svuoterebbe mentre sta ancora sfumando via.
+            // L'ultima immagine vista resta anche durante l'uscita, o la riga si svuoterebbe
+            // mentre sfuma.
             shown?.let { picture ->
                 /*
-                 * ⚠️⚠️ **LO SFONDO STA FUORI DALLA DISSOLVENZA, ed è il lampeggio segnalato
-                 * il 2026-08-30** (*mentre la dissolvenza del testo è perfetta, adesso lo
-                 * sfondo delle info fa un piccolo flash*). Dentro, la `AnimatedContent`
-                 * tiene **due** pannelli sovrapposti per tutta la transizione, e due veli
-                 * semitrasparenti sovrapposti non fanno il velo di prima: a metà strada
-                 * ciascuno vale `0.86 x 0.5 = 0.43`, e insieme coprono
-                 * `1 - 0.57 x 0.57 = 0.675` invece di `0.86`. Lo sfondo si schiarisce di un
-                 * quinto e torna, cioè lampeggia, mentre il testo dissolve benissimo.
-                 * ⚠️ **È lo stesso rimedio della `0.44`**, quando lo sfondo della fotografia
-                 * era dentro `ImageCanvas` e lampeggiava a ogni cambio di stato: quello che
-                 * deve restare fermo si dipinge **fuori** da ciò che si anima. Chi
-                 * rimettesse il velo dentro `DetailsPanel` per 'tenere il pannello in un
-                 * pezzo solo' rimetterebbe il lampeggio.
-                 * ⚠️ La larghezza è piena, quindi lo sfondo non cambia forma quando il testo
-                 * cambia: senza `fillMaxWidth` seguirebbe la misura del contenuto, e con
-                 * `using null` quella misura salta invece di animare.
+                 * ⚠️ Lo sfondo è fuori dalla dissolvenza: durante la transizione
+                 * `AnimatedContent` tiene due pannelli sovrapposti, e due veli semitrasparenti
+                 * a metà strada coprono `1 - 0.57 x 0.57 = 0.675` invece di `0.86`, cioè lo
+                 * sfondo si schiarisce e lampeggia. Quello che deve restare fermo si dipinge
+                 * fuori da ciò che si anima: rimettere il velo dentro `DetailsPanel` rimetterebbe
+                 * il lampeggio. La larghezza piena tiene ferma la forma dello sfondo quando il
+                 * testo cambia.
                  *
-                 * ⚠️ **La dissolvenza incrociata fra una riga e l'altra**, chiesta
-                 * dall'utente il 2026-08-29 dopo aver confermato che il lampeggio non
-                 * c'era più: il testo non cambia di scatto, il vecchio sfuma nel nuovo.
-                 * ⚠️⚠️ **Senza trasformazione di misura (`using null`), e non è un
-                 * dettaglio**: quella predefinita animerebbe anche la larghezza del
-                 * riquadro, e una riga che si allarga mentre sfuma **sposta il
-                 * contatore**, che è la cosa che si guarda proprio mentre si sfoglia. È
-                 * la stessa ragione per cui l'entrata e l'uscita della riga intera sono
-                 * di sola opacità.
-                 * ⚠️ La chiave è la **fotografia** e non la percentuale: quella cambia a
-                 * ogni fotogramma di una pinza, e incrociarla vorrebbe dire una
-                 * dissolvenza al secondo mentre si ingrandisce.
+                 * Fra una riga e l'altra c'è una dissolvenza incrociata (richiesta dell'utente),
+                 * senza trasformazione di misura (`using null`): quella predefinita animerebbe la
+                 * larghezza e sposterebbe il contatore. La chiave è l'immagine e non la
+                 * percentuale, che cambia a ogni fotogramma di una pinza.
                  */
-                // ⚠️ Le info prendono il tema dello sfondo e non quello dell'app (`4.03`, sua nota
-                // sul giro della `4.02`): con 'Tema dello sfondo' su `Scuro` il pannello è scuro.
-                // Lo stesso vale per il pannello laterale degli schermi larghi.
+                // Le info prendono il tema dello sfondo e non quello dell'app (`4.03`): con
+                // 'Tema dello sfondo' su `Scuro` il pannello è scuro, come il pannello laterale.
                 AivPalette(light = lightGreys) {
                 Surface(
                     color = MaterialTheme.colorScheme.surface.copy(alpha = PANEL_VEIL),
                     contentColor = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .fillMaxWidth()
-                        // ⚠️ La misura che l'immagine le lascia: vedi `reserve` più sopra.
+                        // La misura che l'immagine le lascia: vedi `reserve` più sopra.
                         .onGloballyPositioned {
                             info.height = it.size.height.toFloat()
                             info.left = it.boundsInRoot().left
@@ -1186,16 +992,12 @@ fun ViewerScreen(
                         DetailsPanel(
                             image = shownNow,
                             percent = info.percent,
-                            // ⚠️⚠️ **Il silenzio non basta a dire perché**, ed è il difetto
-                            // che ha fatto perdere DUE versioni sulla strisciata: senza
-                            // serie il gesto non fa niente, e 'non fa niente' è identico a
-                            // un gesto guasto. Qui l'esito arriva col suo motivo e la riga
-                            // lo stampa.
-                            // ⚠️ Solo per una foto di questo telefono: su un'immagine del
-                            // web o di una chat 'non è nella galleria' è la normalità, non
-                            // una notizia.
+                            // ⚠️ Senza serie la strisciata non fa niente, e un gesto che non
+                            // fa niente sembra guasto: la riga stampa l'esito col suo motivo.
+                            // Solo per un'immagine di questo telefono: per una del web o di
+                            // una chat 'non è nella galleria' è la normalità.
                             folder = folder.takeIf { source?.scheme?.lowercase() == "content" },
-                            // ⚠️ Solo la riga che entra dice dove disegna: vedi [BarReport].
+                            // Solo la riga che entra dice dove disegna: vedi [BarReport].
                             report = if (shownNow === picture) BarReport(info) else null,
                             atTop = settings.infoPosition == InfoPosition.TOP
                         )
@@ -1206,15 +1008,13 @@ fun ViewerScreen(
         }
 
         /*
-         * ⚠️⚠️ **IL VELO DEL DOPPIO TOCCO, dalla 1.25** (richiesta dell'utente, 2026-09-02:
-         * *alla visualizzazione della prima immagine dopo l'installazione*). È la contropartita
-         * delle due voci dello zoom uscite dal menu: senza, il gesto resterebbe un segreto.
-         * ⚠️ **Alla prima FOTOGRAFIA e non all'avvio**: su un filmato il doppio tocco non fa
-         * niente, e su una schermata di caricamento si parlerebbe di un'immagine che non si
-         * vede ancora. Da qui la condizione su `Ready`.
-         * ⚠️ **Sta in fondo al `Box` della schermata**, dopo la barra delle info: un velo che
-         * si lascia scavalcare da qualcosa non è un velo. E `matchParentSize` esiste solo qui
-         * dentro, che è la ragione per cui `HintCentre` è un'estensione di `BoxScope`.
+         * Il velo d'aiuto del doppio tocco, alla prima immagine dopo l'installazione (richiesta
+         * dell'utente): le voci dello zoom non sono nel menu, e senza il velo il gesto non lo
+         * scoprirebbe nessuno. La condizione su `Ready` lo tiene fuori da un filmato, dove il
+         * doppio tocco non fa niente, e dal caricamento.
+         * È in fondo al `Box`, dopo la barra delle info, per non farsi coprire; e
+         * `matchParentSize` esiste solo dentro un `Box`, per questo `HintCentre` è
+         * un'estensione di `BoxScope`.
          */
         if (zoomHint && state is ViewerState.Ready) {
             HintCentre(
@@ -1224,17 +1024,10 @@ fun ViewerScreen(
         }
 
         /*
-         * ⚠️⚠️ **LA NOTIFICA DEL DOPPIONE, DALLA `1.82`** (campo libero del giro della `1.81`,
-         * punto E): *una notifica in basso come quella dell'annullamento dell'eliminazione, con
-         * tanto di timer di 5 secondi. Testo: 'Hai già scaricato questa immagine'; azione a
-         * destra: 'Scarica di nuovo'*.
-         * ⚠️ **È la notifica di casa, la stessa dell'eliminazione annullata**: lui l'ha chiesta
-         * *come quella*, e una seconda notifica disegnata a parte sarebbe la copia che diverge al
-         * primo ritocco. Quello che cambia è la durata, che è un parametro.
-         * ⚠️⚠️ **DALLA `1.84` PASSA DAL CANALE, e qui non si disegna più niente**: la superficie
-         * è una sola e vive in `AivApp`, quindi questo blocco si limita a mandare la riga. Con
-         * lei se ne va anche la ragione per cui doveva stare in fondo al riquadro dell'immagine:
-         * adesso il posto lo decide chi la disegna, che è sopra tutte le schermate.
+         * La notifica del doppione (giro della `1.81`, punto E): è l'avviso dell'eliminazione
+         * annullata, con 'Scarica di nuovo' come azione e una durata di [SAVE_SEEN_MS], come ha
+         * chiesto l'utente. Passa da [Notices]: la superficie è una sola, in `AivApp`, sopra
+         * tutte le schermate, e qui si manda soltanto la riga.
          */
         val doppioneFrase = stringResource(R.string.save_seen_notice)
         val doppioneAzione = stringResource(R.string.save_seen_again)
@@ -1261,13 +1054,12 @@ fun ViewerScreen(
         }
     }
 
-    // ⚠️ I dialoghi stanno FUORI dal riquadro dell'immagine e fuori dal menu, che è la
-    // ragione per cui esistono in questo file e non là: sono finestre a sé, e devono
-    // sopravvivere alla fotografia su cui agiscono. Vedi `perform`.
+    // Le finestre sono fuori dal riquadro dell'immagine e dal menu: devono sopravvivere
+    // all'immagine su cui agiscono. Vedi `perform`.
     FileJobDialogs(
         job = job,
-        // ⚠️ Qui le impostazioni ci sono già, quindi i campi si leggono da loro: la griglia
-        // invece se li fa passare, perché non le ha.
+        // Qui le impostazioni ci sono, e i campi si leggono da loro; la griglia, che non le
+        // ha, se li fa passare.
         fields = settings.factRows,
         onClose = { job = null },
         onRun = perform
@@ -1277,36 +1069,32 @@ fun ViewerScreen(
 /**
  * La finestra del nome che si sta compilando: su quale immagine, e da quale gesto.
  *
- * ⚠️⚠️ **I DUE VALORI VIAGGIANO INSIEME DALLA `1.80`, E NON SONO DUE STATI**: il tocco lungo su
- * 'Scarica' accende i comandi che le impostazioni terrebbero spenti (campo libero del giro della
- * `1.79`, punto D), quindi la finestra deve sapere da dove viene. Tenuto in un secondo stato
- * accanto al primo, quel booleano si sarebbe potuto dimenticare di azzerare alla chiusura, e la
- * volta dopo la finestra si sarebbe aperta col permesso di quella prima.
+ * I due valori viaggiano insieme: il tocco lungo su 'Scarica' accende i comandi che le
+ * impostazioni terrebbero spenti (giro della `1.79`, punto D). Tenuto in uno stato a parte, il
+ * booleano si potrebbe dimenticare di azzerare, e la finestra successiva si aprirebbe col
+ * permesso della precedente.
  */
 private class Naming(val picture: LoadedImage, val hold: Boolean)
 
 /**
- * Il segnaposto dei pixel nella copia che la riga delle info tiene della foto lasciata: un pixel
- * solo, condiviso. Vedi `shown` in [ViewerScreen].
+ * Il segnaposto dei pixel nella copia che la riga delle info tiene dell'immagine lasciata: un
+ * pixel solo, condiviso. Vedi `shown` in [ViewerScreen].
  *
- * ⚠️ **Pigro, e non per stile**: una costante di questo file nasce appena si usa una qualunque sua
- * funzione (`formatBytes` la chiamano griglia e impostazioni), e creare una tela là vuol dire
- * pagarla in ogni schermata; nel banco senza grafica nativa andava perfino in errore.
+ * ⚠️ Pigro: le costanti di questo file si creano appena si usa una sua funzione qualunque
+ * (`formatBytes` la chiamano griglia e impostazioni), e una tela creata là si pagherebbe in ogni
+ * schermata; nel banco senza grafica nativa andava in errore.
  */
 private val NO_PIXELS by lazy { ImageBitmap(1, 1) }
 
 /**
- * Le richieste che il menu del tocco lungo **non esegue da sé**, e che passa a chi lo
- * contiene.
+ * Le richieste che il menu del tocco lungo non esegue da sé, e che passa a chi lo contiene.
  *
- * ⚠️⚠️ **LA RAGIONE È UNA SOLA: il menu si chiude prima che finiscano.** Toccare una voce
- * chiama `onDismiss`, quindi il menu esce dalla composizione, e con lui se ne vanno il suo
- * ambito di coroutine e i suoi richiami registrati. Una condivisione si annullerebbe alla
- * prima sospensione, l'esito del selettore di sistema non tornerebbe a nessuno, e un
- * dialogo aperto da là sparirebbe insieme alla fotografia su cui agisce.
- * ⚠️ **Non ci finisce tutto, e la riga di confine è chiara**: quello che comincia e
- * finisce dentro il tocco (lo zoom, la riga dei dettagli) resta nel menu.
- * Qui sale ciò che **dura più del gesto**, e dalla `6.27` anche 'Copia immagine'.
+ * ⚠️ Il menu si chiude prima che finiscano: toccare una voce chiama `onDismiss`, il menu esce
+ * dalla composizione, e con lui il suo ambito di coroutine e i suoi richiami registrati. Una
+ * condivisione si annullerebbe alla prima sospensione, l'esito del selettore di sistema non
+ * tornerebbe a nessuno, e una finestra aperta da là sparirebbe con l'immagine.
+ * Quello che comincia e finisce dentro il tocco (lo zoom, la riga dei dettagli) resta nel menu;
+ * qui arriva ciò che dura più del gesto, compreso 'Copia immagine'.
  */
 private class MenuOps(
     val job: (FileJob) -> Unit,
@@ -1317,43 +1105,35 @@ private class MenuOps(
     /**
      * Tocco lungo su 'Scarica': chiede il nome adesso, per questa volta sola.
      *
-     * ⚠️ **È una seconda funzione e non un parametro di [save]**, per la stessa ragione della
-     * coppia `edit`/`editWith`: il menu riferisce **quale gesto** è arrivato, e chi ha le
-     * impostazioni in mano decide che cosa vuol dire. Con l'impostazione accesa le due strade
-     * arrivano nello stesso posto, e il menu non deve saperlo.
+     * È una seconda funzione e non un parametro di [save], come `edit` e `editWith`: il menu
+     * riferisce quale gesto è arrivato, e chi ha le impostazioni decide che cosa vuol dire. Con
+     * l'impostazione accesa le due strade portano allo stesso punto, e il menu non lo sa.
      */
     val saveAs: (LoadedImage) -> Unit,
     /**
      * 'Modifica': apre l'editor scelto, o chiede quale usare la prima volta.
      *
-     * ⚠️ **Non prende la fotografia**, al contrario delle altre due: quello che si modifica
-     * è il **file**, cioè `source`, che è già chiuso dentro questo contratto. Passare
-     * l'immagine decodificata inviterebbe a modificare i pixel in memoria, che non è quello
-     * che succede: l'editor riparte dal file.
-     * ⚠️ **Sale qui per la ragione dichiarata sopra e per una in più**: cambia SCHERMATA, e
-     * un cambio di schermata deciso dal menu smonterebbe il menu a metà chiamata.
+     * Non prende l'immagine: si modifica il file, cioè `source`, e l'editor riparte da lì;
+     * l'immagine decodificata inviterebbe a modificare i pixel in memoria. Cambia schermata, e
+     * deciso dal menu quel cambio lo smonterebbe a metà chiamata.
      */
     val edit: () -> Unit,
     /**
      * Tocco lungo su 'Modifica': fa scegliere l'app adesso, e la scelta resta.
      *
-     * ⚠️ **È una seconda funzione e non un parametro di [edit]**, perché il menu non deve
-     * sapere che cosa distingue i due casi: lui riferisce **quale gesto** è arrivato, e chi
-     * ha le impostazioni in mano decide. Vedi `ViewerViewModel.editWith`.
+     * Seconda funzione e non parametro di [edit], come [saveAs]. Vedi `ViewerViewModel.editWith`.
      */
     val editWith: () -> Unit,
     /**
-     * 'Converti/Esporta': apre il dialogo che salva l'immagine in un altro formato.
+     * 'Converti/Esporta': apre la finestra che salva l'immagine in un altro formato.
      *
-     * ⚠️ **Non prende niente**: il dialogo ha già in mano l'immagine e il suo indirizzo,
-     * perché vive accanto a chi li tiene. Questa è solo la richiesta di aprirlo.
+     * Non prende niente: la finestra ha già l'immagine e il suo indirizzo.
      */
     val convert: () -> Unit,
     /**
      * Tocco lungo su 'Info': apre il riquadrino della barra delle info.
      *
-     * ⚠️ **Non prende niente e non decide niente**, come [convert]: il riquadro vive accanto
-     * a chi ha le impostazioni in mano, e questa è solo la richiesta di aprirlo.
+     * Non prende e non decide niente, come [convert]: il riquadro vive accanto alle impostazioni.
      */
     val bar: () -> Unit
 )
@@ -1361,31 +1141,13 @@ private class MenuOps(
 /**
  * Il riquadrino della barra delle info, aperto dal tocco lungo su 'Info'.
  *
- * ⚠️⚠️ **INTERRUTTORE SULLA RIGA DEL TITOLO PIÙ DUE GETTONI, dalla 1.38** (riscontro
- * `chip-colonna`, 2026-09-02: *stessa cosa anche nel pannellino a pressione lunga su 'Info',
- * ma in quel caso l'interruttore va in linea con il titolo stesso, e sempre allineato a
- * destra*). Fino alla 1.37 qui c'erano **tre** gettoni impilati, e non era una forma scelta
- * per questo posto: era la richiesta delle impostazioni finita qui per uno scambio mio, che
- * lui ha poi identificato (*quando l'ho chiesto per il pannello l'hai fatta nelle
- * impostazioni, e viceversa*). Il perché per esteso, e la ragione per cui la riga dei gettoni
- * adesso è una sola in tutta l'app, stanno in testa a `InfoBar.kt`.
- * ⚠️⚠️ **QUINDI QUI IL TITOLO NON È PIÙ SOLO UN TITOLO: è la riga dell'interruttore.**
- * 'Barra delle info' nomina la cosa che quell'interruttore accende, esattamente come nelle
- * impostazioni, e non serve una seconda etichetta.
- * ⚠️ **Le stesse stringhe delle impostazioni** (`settings_info_visible`,
- * `settings_info_position`, `settings_top`, `settings_bottom`): due schermate che chiamano la
- * stessa cosa in due modi erano il difetto che la 1.20 aveva tolto, e riscriverle qui a mano
- * lo rimetterebbe in scena dalla porta di dietro.
- * ⚠️ **Si applica subito e si salva subito**, senza un tasto di conferma: era la richiesta
- * (*da qui si fa al volo, e si memorizza*), e un riquadro da due comandi con un 'Applica'
- * sarebbe un tocco in più per niente. 'Chiudi' chiude e basta.
- *
- * ⚠️⚠️ **`AlertDialog` E NON PIÙ UN GUSCIO NOSTRO, dalla 1.38**: la 1.37 aveva scritto
- * `SubPanel` apposta per potersi disegnare la striscia d'accento in fondo alla propria
- * superficie, e con la striscia uscita di scena quel guscio non aveva più niente da fare
- * (riscontro `striscia-sotto`: *torna anche a disattivare i sistemi ad-hoc per il disegno di
- * finestre e pannelli, salvo dove serve per altri motivi*). Meno codice nostro fra Material e
- * quello che si vede.
+ * L'interruttore è sulla riga del titolo, allineato a destra, e sotto ci sono i due gettoni del
+ * lato (riscontro `chip-colonna`); il perché della riga di gettoni unica è in testa a
+ * `InfoBar.kt`. Il titolo è l'etichetta dell'interruttore, come nelle impostazioni, e le stringhe
+ * sono le stesse delle impostazioni (`settings_info_visible`, `settings_info_position`,
+ * `settings_top`, `settings_bottom`), perché la stessa cosa non abbia due nomi.
+ * Si applica e si salva subito, senza conferma (richiesta dell'utente); 'Chiudi' chiude e basta.
+ * È un `AlertDialog` di Material e non un guscio nostro (riscontro `striscia-sotto`).
  */
 @Composable
 private fun InfoBarDialog(
@@ -1409,9 +1171,8 @@ private fun InfoBarDialog(
                 )
                 Switch(
                     checked = settings.infoVisible,
-                    // ⚠️ Il lato NON si tocca spegnendo: si passa quello che c'è già, così
-                    // riaccendendo la barra si ritrova dov'era. È la stessa promessa che fa
-                    // la riga delle impostazioni.
+                    // Spegnendo, il lato resta quello che c'è: riaccesa, la barra si ritrova
+                    // dov'era, come nelle impostazioni.
                     onCheckedChange = { onChange(it, settings.infoPosition) }
                 )
             }
@@ -1430,11 +1191,9 @@ private fun InfoBarDialog(
 }
 
 /**
- * Quello che la riga dei dettagli deve sapere, e che **non se ne va con la fotografia**.
- *
- * ⚠️ Due soli campi, e nessuno dei due è un dato della fotografia: sono la sua
- * **visibilità**, che l'utente comanda dal menu, e la **percentuale di zoom**, che cambia
- * sotto le dita. Tutto il resto la riga lo prende dall'immagine che le viene passata.
+ * Quello che la riga dei dettagli deve sapere e che non cambia con l'immagine: la visibilità,
+ * la percentuale di zoom, lo stato dei tasselli e le misure della barra. Il resto la riga lo
+ * prende dall'immagine che le viene passata.
  */
 @Stable
 private class InfoBar {
@@ -1445,9 +1204,8 @@ private class InfoBar {
      * Che cosa stanno facendo i tasselli a piena risoluzione, e `null` quando non
      * c'entrano (immagine non campionata, o lettura non ancora tentata).
      *
-     * ⚠️ Sta QUI e non dentro `ImageCanvas` per la stessa ragione degli altri due: la
-     * riga dei dettagli vive più a lungo della fotografia, e un dato tenuto di là
-     * sparirebbe a ogni cambio di pagina proprio mentre lo si sta leggendo.
+     * È qui e non dentro `ImageCanvas` perché la riga dei dettagli vive più a lungo
+     * dell'immagine: tenuto di là, il dato sparirebbe a ogni cambio di pagina.
      */
     var tiles by mutableStateOf<String?>(null)
 
@@ -1455,9 +1213,9 @@ private class InfoBar {
      * L'altezza della barra in pixel, margini di sistema compresi, e zero finché non è stata
      * misurata.
      *
-     * ⚠️ **Resta anche quando la barra si nasconde**: è la misura a cui l'immagine torna a fare
-     * posto quando la barra riappare, e azzerarla vorrebbe dire una barra che compare sopra
-     * l'immagine e solo dopo un fotogramma la spinge.
+     * Resta anche quando la barra si nasconde: è lo spazio che l'immagine le lascia quando
+     * riappare, e azzerata la barra comparirebbe sopra l'immagine e la sposterebbe un fotogramma
+     * dopo.
      */
     var height by mutableFloatStateOf(0f)
 
@@ -1476,44 +1234,23 @@ private class InfoBar {
 }
 
 /**
- * Un FILMATO nel visualizzatore: il suo fotogramma, la durata e il tasto che lo apre.
+ * Un filmato nel visualizzatore: il suo fotogramma, la durata e la riproduzione.
  *
- * ⚠️⚠️ **QUI SI RIPRODUCE, e questo è il posto in cui la riproduzione si accende o si
- * spegne**: il lettore lo costruisce e lo rilascia questa funzione, la superficie video la
- * disegna lei, e la decisione se partire arriva da fuori come `autoStart`. ⚠️ **Fino alla
- * `1.45` qui c'era scritto il contrario** (*pezzo 1 dei tre, e qui non si riproduce niente...
- * la riproduzione in casa è il pezzo 2 e prenderà questo posto*): quella sostituzione era
- * avvenuta nella `0.86`, e la nota rimasta nascondeva proprio il punto che si cerca quando si
- * cerca dove parte un filmato.
- * ⚠️⚠️ **LA STRISCIATA C'È, ed è la ragione per cui questa funzione non è solo un'immagine
- * e un tasto**: sfogliando una cartella mista si arriva su un filmato, e senza il gesto ci
- * si troverebbe **bloccati**, costretti a tornare alla griglia per riprendere da dopo. È il
- * difetto peggiore che questo pezzo poteva avere.
- * ⚠️⚠️ **E DALLA `2.08` È LA STESSA STRISCIATA DELLE FOTOGRAFIE: il filmato si trascina col
- * dito, la vicina entra dal bordo e la pagina si assesta prima del passo** (riscontro del giro
- * della `2.07`, voce `video-scorre` non approvata: *allo scorrimento del dito non vedo comunque
- * scorrere il video dentro o fuori la schermata con animazione slide-in/slide-out*). Fino alla
- * `2.07` il gesto contava i pixel e al rilascio chiedeva il passo, senza muovere niente: il
- * filmato spariva di colpo. ⚠️ **Il baratto era dichiarato proprio in questa nota** (*qui il
- * dito non trascina la pagina, non c'è la vicina che entra dal bordo*), ed è la ragione per cui
- * la `2.07` ha cercato la causa nella superficie invece che nel gesto.
- * ⚠️⚠️ **LA TEXTURE DELLA `2.07` ERA NECESSARIA E NON SUFFICIENTE**: una `SurfaceView` la
- * compone il sistema fuori dall'albero e non si lascia traslare, quindi senza quel cambio
- * questo non si potrebbe fare; ma da sola quella riga ha reso il filmato **traslabile** senza
- * che nessuno lo traslasse.
- * ⚠️ **I numeri sono quelli di `ImageCanvas` e non ne nascono di nuovi**: la soglia è un quinto
- * della larghezza, lo stacco fra le pagine è [PAGE_GAP], l'assestamento dura [SNAP_MS] e il
- * capolinea frena a [END_RESISTANCE]. Due tarature diverse si sentirebbero come due gesti
- * diversi.
- * ⚠️ **Quello che resta di là è lo ZOOM**, e non serve qui: la pinza, la panoramica e i
- * tasselli poggiano su una fotografia decodificata, che un filmato non ha. Di quella macchina
- * questa funzione prende il solo pezzo dello sfoglio.
+ * Qui la riproduzione si accende e si spegne: il lettore lo costruisce e lo rilascia questa
+ * funzione, che disegna anche la superficie video; se partire lo decide chi chiama, con
+ * `autoStart`.
+ * La strisciata è quella delle immagini: il filmato si trascina col dito, la vicina entra dal
+ * bordo e la pagina si assesta prima del passo (voce `video-scorre`). Senza il gesto, in una
+ * cartella mista si resterebbe bloccati sul filmato. La superficie è una texture perché una
+ * `SurfaceView` la compone il sistema fuori dall'albero e non si lascia traslare.
+ * I numeri sono quelli di `ImageCanvas`: soglia a un quinto della larghezza, [PAGE_GAP],
+ * [SNAP_MS] e [END_RESISTANCE]; due tarature diverse sembrerebbero due gesti diversi. Lo zoom
+ * no: pinza, panoramica e tasselli lavorano su un'immagine decodificata, che un filmato non ha.
  */
 @Composable
 @androidx.annotation.OptIn(UnstableApi::class)
-// ⚠️ `internal` e non `private` per il **banco di prova**, che dalla `2.08` la monta: il passo
-// non si chiede più alla fine del gesto ma alla fine dell'assestamento, e quello è un legame
-// che un compilatore non vede. Nessun altro modulo la chiama.
+// `internal` e non `private` per il banco di prova, che la monta: il passo si chiede alla fine
+// dell'assestamento, un legame che il compilatore non vede. Nessun altro modulo la chiama.
 internal fun ClipStage(
     uri: Uri,
     /** La serie da sfogliare, o `null` fuori da una cartella. */
@@ -1530,37 +1267,30 @@ internal fun ClipStage(
     val model = remember(uri, context) { Thumbs.request(context, uri) }
     val poster = rememberAsyncImagePainter(
         model = model,
-        // ⚠️ La chiave si registra qui come in [Preview], cioè nel posto in cui Coil la dice:
-        // senza, un filmato aperto dalla griglia non lascerebbe niente da leggere al
-        // sostituto qui sotto, e il primo fotogramma del giro dopo tornerebbe vuoto.
+        // La chiave si registra qui come in [Preview], dove Coil la dice: senza, un filmato
+        // aperto dalla griglia non lascerebbe niente al sostituto qui sotto, e il primo
+        // fotogramma della volta dopo sarebbe vuoto.
         onState = { st ->
             if (st is AsyncImagePainter.State.Success) Thumbs.note(uri, st.result.memoryCacheKey)
         }
     )
     /*
-     * ⚠️⚠️ **IL SOSTITUTO LETTO IN COMPOSIZIONE, DALLA `2.08`, ED È L'ALTRA METÀ DELLO
-     * SCORRIMENTO**: `AsyncImagePainter` parte da una coroutine e non disegna niente al primo
-     * fotogramma, anche quando l'immagine è già in memoria (misurato sul bytecode di Coil, e
-     * scritto accanto a `Thumbs.note`). Quindi la vicina scivolava dentro come miniatura, il
-     * dito si alzava, e al centro compariva un fotogramma **nero** prima del filmato: la corsa
-     * arrivava e la continuità si rompeva proprio alla fine.
-     * ⚠️ È lo stesso rimedio di [Preview], e deve esserlo: la miniatura che entra dal bordo e
-     * quella che resta al centro sono lo stesso disegno in due istanti consecutivi.
-     * ⚠️ **Sotto e non al posto**: quando il pittore vero arriva disegna la stessa immagine
-     * nello stesso riquadro, quindi il passaggio non si vede e non serve nessuna animazione.
+     * ⚠️ Il sostituto letto in composizione: `AsyncImagePainter` parte da una coroutine e al
+     * primo fotogramma non disegna niente, anche con l'immagine in memoria (misurato sul bytecode
+     * di Coil, vedi `Thumbs.note`). Senza, alla fine della strisciata compariva un fotogramma
+     * nero prima del filmato. È lo stesso rimedio di [Preview]: la miniatura che entra dal bordo
+     * e quella al centro sono lo stesso disegno. Va sotto il pittore vero, che poi disegna la
+     * stessa immagine nello stesso riquadro, e il passaggio non si vede.
      */
     val standIn = remember(uri, context) { Thumbs.cached(context, uri)?.asPainter(context) }
 
     /*
-     * ⚠️⚠️ **UN LETTORE SOLO PER TUTTA LA VITA DELLA SCHERMATA, e non uno per filmato**:
-     * costruirne uno a ogni indirizzo vorrebbe dire buttare via la superficie video e
-     * ricrearla a ogni passo, cioè un lampo nero a ogni strisciata; e un lettore non
-     * rilasciato tiene un decodificatore hardware, che su un telefono sono pochi.
-     * ⚠️⚠️ **IL FUOCO AUDIO SI CHIEDE, e non è cortesia**: senza, un filmato aperto per
-     * sbaglio suonerebbe **sopra** la musica di un'altra app invece di metterla in pausa, e
-     * al ritorno la musica non ripartirebbe. `handleAudioFocus` fa la cosa giusta in tutti e
-     * due i versi. ⚠️ E `setHandleAudioBecomingNoisy` mette in pausa quando si sfilano le
-     * cuffie, che è quello che ogni lettore fa e che nessuno nota finché manca.
+     * ⚠️ Un lettore solo per tutta la schermata, non uno per filmato: uno per indirizzo
+     * ricreerebbe la superficie a ogni passo, con un lampo nero a ogni strisciata, e un lettore
+     * non rilasciato tiene un decodificatore hardware, che su un telefono sono pochi.
+     * Il fuoco audio si chiede (`handleAudioFocus`): senza, un filmato suonerebbe sopra la
+     * musica di un'altra app, che poi non ripartirebbe. `setHandleAudioBecomingNoisy` mette in
+     * pausa quando si sfilano le cuffie.
      */
     val player = remember(context) {
         ExoPlayer.Builder(context)
@@ -1570,24 +1300,16 @@ internal fun ClipStage(
     }
 
     /*
-     * ⚠️⚠️ **PARTE SOLO SE QUALCUNO L'HA CHIESTO, e fino alla `1.45` non partiva mai**: su
-     * questo stesso posto si arriva in due modi, toccando un filmato e **strisciando** da
-     * un'immagine, e il secondo è il caso da non rovinare, perché è quello in cui la persona
-     * non ha chiesto niente e un audio che esplode è una sorpresa sgradevole. La `1.46` non
-     * ha buttato quell'argomento: lo ha reso la ragione per cui i due percorsi si
-     * distinguono, e per cui l'interruttore è spento di fabbrica.
-     * ⚠️⚠️ **IL RAMO CHE METTE IN PAUSA È UN'AZIONE, NON UN `else` DI CORTESIA**, e senza di
-     * lui la funzione sarebbe rotta proprio nel caso che la richiesta nomina: il lettore è
-     * **uno solo** per tutta la schermata, e `playWhenReady` è una proprietà del lettore e non
-     * del filmato. In una cartella di soli filmati, dopo che il primo è partito, il ramo del
-     * `when` resta `Clip` e questo effetto rifà `setMediaItem` e `prepare` sullo stesso
-     * lettore: uno che ha ancora la bandierina accesa riparte da sé, cioè ogni strisciata
-     * farebbe partire l'audio. In una cartella mista il difetto si nasconde, perché passando
-     * da un'immagine il lettore viene rilasciato.
-     * ⚠️ **Il tasto grande torna visibile da sé** dopo la pausa, e non serve nessun'altra
-     * riga: `playing` passa a falso e l'effetto di `ClipKeys` rimette il tasto in scena.
-     * ⚠️ **La provenienza si consuma appena il filmato è partito** (`onStarted`), o una
-     * rotazione lo rifarebbe ricominciare dall'inizio.
+     * Parte solo se è stato chiesto: a un filmato si arriva toccandolo o strisciando da
+     * un'immagine, e nel secondo caso un audio che parte da solo è una sorpresa sgradevole. Per
+     * questo i due percorsi si distinguono e l'interruttore è spento di fabbrica.
+     * ⚠️ Il ramo che mette in pausa serve: il lettore è uno solo, e `playWhenReady` appartiene al
+     * lettore e non al filmato. In una cartella di soli filmati il ramo resta `Clip`, questo
+     * effetto rifà `setMediaItem` e `prepare` sullo stesso lettore, e senza la pausa ogni
+     * strisciata farebbe ripartire l'audio. Dopo la pausa il tasto grande ricompare da sé, con
+     * l'effetto di `ClipKeys`.
+     * La provenienza si consuma appena il filmato è partito (`onStarted`), o una rotazione lo
+     * farebbe ricominciare.
      */
     LaunchedEffect(uri, player) {
         player.setMediaItem(MediaItem.fromUri(uri))
@@ -1601,12 +1323,9 @@ internal fun ClipStage(
     }
 
     /*
-     * ⚠️⚠️ **SI FERMA QUANDO L'APP VA IN FONDO, e senza questo l'audio continuerebbe** a
-     * suonare da un'app che non si vede più: è il difetto che fa disinstallare un
-     * visualizzatore. `ON_STOP` e non `ON_PAUSE`, così un dialogo di sistema sopra il video
-     * non lo interrompe.
-     * ⚠️ **Il rilascio sta nello stesso posto**: chi crea rilascia, e un `DisposableEffect`
-     * separato sarebbe una seconda cosa da ricordare.
+     * Si ferma quando l'app va in secondo piano, o l'audio continuerebbe da un'app che non si
+     * vede. `ON_STOP` e non `ON_PAUSE`, così una finestra di sistema sopra il video non lo
+     * interrompe. Il rilascio è nello stesso effetto.
      */
     val owner = LocalLifecycleOwner.current
     DisposableEffect(owner, player) {
@@ -1627,27 +1346,21 @@ internal fun ClipStage(
 
     val activity = remember(context) { Knobs.activityOf(context) }
     /*
-     * ⚠️⚠️ **LA LUMINOSITÀ TORNA COM'ERA QUANDO IL FILMATO ESCE DI SCENA** (risposta
-     * dell'utente alla bonifica della `1.46`: *torna come prima quando esci dal filmato*), e
-     * il ripristino sta qui e non nei punti che portano via. Un rimedio scritto in chi se ne
-     * va va ricordato, e il giorno che nasce un'altra uscita il difetto torna; qui il conto
-     * torna da sé, perché uscire dal filmato **è** la fine di questa composizione, qualunque
-     * gesto l'abbia causata. È la stessa scelta della potatura in `Bin.list`, e per la stessa
-     * ragione: chi aggiunge una via d'uscita passa di qui senza doverlo sapere.
-     * ⚠️ **Fra due filmati adiacenti non scatta**, ed è voluto: per un video `startLoad` va da
-     * `Clip` a `Clip` senza passare da `Loading`, quindi questa funzione resta in scena e chi
-     * ha abbassato lo schermo per guardare al buio non se lo vede risalire a ogni strisciata.
-     * ⚠️ **Ma passando da un'immagine sì**: là il ramo è un altro e la composizione si smonta.
-     * La promessa è 'alla fine del filmato', non 'finché non cambi cartella'.
-     * ⚠️ **E l'app in secondo piano non è un'uscita**: la composizione resta, quindi al
-     * ritorno la luminosità scelta è ancora quella, com'è in ogni lettore video.
+     * La luminosità torna com'era quando si esce dal filmato (istruzione dell'utente). Il
+     * ripristino è qui e non nelle vie d'uscita: uscire dal filmato è la fine di questa
+     * composizione, qualunque gesto l'abbia causata, e una via d'uscita nuova non va ricordata.
+     * È la stessa scelta della potatura in `Bin.list`.
+     * Fra due filmati adiacenti non scatta, ed è voluto: `startLoad` va da `Clip` a `Clip` e la
+     * composizione resta, quindi chi ha abbassato lo schermo non se lo vede risalire. Passando da
+     * un'immagine invece la composizione si smonta. Anche l'app in secondo piano non è
+     * un'uscita.
      */
     DisposableEffect(activity) {
         onDispose { Knobs.clearBrightness(activity) }
     }
     var knob by remember { mutableStateOf<Knob?>(null) }
-    // ⚠️ La chiave è il valore: ogni movimento del dito rifà l'attesa, quindi l'indicatore
-    // sparisce un attimo dopo l'ULTIMO ritocco e non a metà del gesto.
+    // La chiave è il valore: ogni movimento del dito rifà l'attesa, e l'indicatore sparisce
+    // un attimo dopo l'ultimo ritocco e non a metà del gesto.
     LaunchedEffect(knob) {
         if (knob != null) {
             delay(KNOB_LINGER)
@@ -1656,11 +1369,9 @@ internal fun ClipStage(
     }
 
     /*
-     * ⚠️⚠️ **I DUE STATI DELLO SFOGLIO HANNO L'INDIRIZZO PER CHIAVE, e là dove [ImageCanvas]
-     * conta sul proprio smontaggio qui conta su quello**: fra due filmati adiacenti questa
-     * funzione **resta in scena** (vedi la nota sulla luminosità), quindi nessuno la
-     * ricostruirebbe da capo. Con `uri` per chiave la pagina nuova nasce al centro e ferma,
-     * qualunque strada l'abbia aperta.
+     * ⚠️ I due stati della strisciata hanno `uri` per chiave: [ImageCanvas] si smonta a ogni
+     * passo, questa funzione fra due filmati adiacenti no (vedi la nota sulla luminosità). Con
+     * la chiave la pagina nuova parte al centro e ferma, da qualunque strada arrivi.
      */
     var travel by remember(uri) { mutableFloatStateOf(0f) }
 
@@ -1668,26 +1379,23 @@ internal fun ClipStage(
     var settling by remember(uri) { mutableStateOf(false) }
 
     /*
-     * ⚠️ **La larghezza serve in composizione e non solo nel gesto**: il rilevatore ha la sua
-     * `size`, ma a posare le due vicine fuori dallo schermo è un `graphicsLayer`, che quella
-     * misura non ce l'ha. Una sola fonte, letta dal layout.
+     * La larghezza serve anche in composizione: il rilevatore ha la sua `size`, ma le vicine
+     * fuori dallo schermo le posa un `graphicsLayer`, che quella misura non ce l'ha.
      */
     var viewWidth by remember { mutableFloatStateOf(0f) }
     val density = LocalDensity.current
     val pageGap = with(density) { PAGE_GAP.toPx() }
 
     /*
-     * ⚠️ **`derivedStateOf` e non `travel != 0f` letto qui**: quel valore cambia a ogni
-     * fotogramma del trascinamento, e leggerlo nel corpo rifarebbe la composizione sessanta
-     * volte al secondo. Così si ricompone due volte per gesto, e il movimento passa dal
-     * `graphicsLayer`, che legge lo stato senza ricomporre niente.
+     * `derivedStateOf` e non `travel` letto qui: `travel` cambia a ogni fotogramma del
+     * trascinamento, e la composizione si rifarebbe sessanta volte al secondo. Così si ricompone
+     * due volte per gesto, e il movimento passa dal `graphicsLayer`.
      */
     val dragging by remember(uri) { derivedStateOf { travel != 0f } }
 
     /*
-     * ⚠️ **Le vicine si chiedono a `toward` come in [ImageCanvas], con la stessa regola di
-     * salto**: chi entra dal bordo e chi `onStep` aprirà devono essere lo stesso elemento, o si
-     * vede entrare una cosa e comparirne un'altra.
+     * Le vicine si chiedono a `toward` come in [ImageCanvas], con la stessa regola di salto:
+     * quello che entra dal bordo e quello che `onStep` aprirà devono essere lo stesso elemento.
      */
     val skipVideos = settings.imagesOnly
     val nextUri = series?.toward(1, skipVideos)
@@ -1695,14 +1403,11 @@ internal fun ClipStage(
     val stepping = series != null
 
     /*
-     * ⚠️ **Il passo si chiede DOPO l'animazione**, come di là: chiesto prima, l'elemento nuovo
-     * arriverebbe mentre il filmato sta ancora scivolando via, e si vedrebbero due pagine
-     * sovrapposte.
-     * ⚠️ **Nessuno spegne `settling` quando il passo c'è**, e non è una dimenticanza: o la
-     * composizione se ne va (di qua si passa a un'immagine) o cambia `uri`, e le chiavi qui
-     * sopra rifanno i due stati. La pagina non può restare fuori schermo perché il passo si
-     * chiede solo dove `toward` ha risposto, cioè dove il visualizzatore ha davvero dove
-     * andare.
+     * Il passo si chiede dopo l'animazione, come in [ImageCanvas]: chiesto prima, l'elemento
+     * nuovo arriverebbe mentre il filmato scivola ancora via.
+     * ⚠️ Dopo un passo nessuno spegne `settling`, ed è voluto: o la composizione si smonta o
+     * cambia `uri`, e le chiavi rifanno i due stati. Il passo si chiede solo dove `toward` ha
+     * risposto, quindi la pagina non resta fuori schermo.
      */
     fun settle(step: Int) {
         if (step == 0 && travel == 0f) return
@@ -1722,16 +1427,10 @@ internal fun ClipStage(
         modifier = Modifier
             .fillMaxSize()
             /*
-             * ⚠️⚠️ **NERO PURO SEMPRE, e copre la scacchiera di chi sta sotto** (richiesta
-             * dell'utente, 2026-08-31). Non è una preferenza di gusto: le bande sopra e
-             * sotto un filmato fanno parte di quello che si guarda, e qualunque altra tinta
-             * le trasforma in una cornice che sfarfalla intorno all'immagine. È anche il
-             * fondo di ogni lettore video esistente, quindi è la cosa che l'occhio si
-             * aspetta.
-             * ⚠️ **Vale a prescindere dal tema e dalla tinta scelta per le fotografie**: là
-             * la scacchiera serve a **mostrare la trasparenza**, che è un'informazione; un
-             * filmato non è mai trasparente, quindi quel fondo non racconterebbe niente e
-             * disturberebbe soltanto.
+             * Nero puro sempre, sopra la scacchiera, con qualunque tema e tinta (richiesta
+             * dell'utente): le bande sopra e sotto un filmato fanno parte di quello che si
+             * guarda, e un'altra tinta le renderebbe una cornice. La scacchiera mostra la
+             * trasparenza, e un filmato non è mai trasparente.
              */
             .background(Color.Black)
             .onSizeChanged { viewWidth = it.width.toFloat() }
@@ -1747,18 +1446,13 @@ internal fun ClipStage(
                     onDragStart = { at ->
                         axis = Axis.UNDECIDED
                         travelled = 0f
-                        // ⚠️ Il lato si decide da DOVE IL DITO SI POSA, non da dove
-                        // arriva: chi comincia a sinistra e sconfina a destra sta ancora
-                        // regolando la luminosità, e cambiare manopola a metà gesto
-                        // sarebbe una sorpresa.
+                        // Il lato si decide da dove il dito si posa: chi comincia a
+                        // sinistra e sconfina a destra sta ancora regolando la luminosità.
                         onLeft = at.x < middle
                     },
-                    // ⚠️ Il passo si dà alla FINE del gesto e non appena la soglia è
-                    // superata: durante il trascinamento il dito può tornare indietro, e
-                    // cambiare pagina a metà strada toglierebbe a chi striscia la
-                    // possibilità di ripensarci, che l'altra strisciata concede.
-                    // ⚠️ **E adesso il gesto non finisce col passo ma con l'assestamento**: la
-                    // pagina va a destinazione o torna al suo posto, e solo là si chiede.
+                    // Il passo si decide alla fine del gesto e non appena la soglia è superata:
+                    // il dito può tornare indietro, come nella strisciata delle immagini. Poi la
+                    // pagina va a destinazione o torna al suo posto, e solo là si chiede il passo.
                     onDragEnd = {
                         if (axis != Axis.SIDEWAYS || !stepping) return@detectDragGestures
                         val step = when {
@@ -1773,19 +1467,16 @@ internal fun ClipStage(
                         }
                         settle(if (reachable) step else 0)
                     },
-                    // ⚠️ Un gesto annullato (un secondo dito, una finestra che si apre) non
-                    // lascia la pagina di traverso: torna al suo posto come se il dito fosse
-                    // tornato indietro.
+                    // Un gesto annullato (un secondo dito, una finestra che si apre) riporta la
+                    // pagina al suo posto.
                     onDragCancel = {
                         if (axis == Axis.SIDEWAYS) settle(0)
                     },
                     onDrag = { _, delta ->
                         /*
-                         * ⚠️⚠️ **L'ASSE SI DECIDE AL PRIMO MOVIMENTO E POI NON CAMBIA**, ed
-                         * è la sola cosa che tiene separati i tre gesti: senza il blocco,
-                         * una strisciata orizzontale un po' storta cambierebbe fotografia
-                         * **e** alzerebbe il volume, e una verticale un po' storta
-                         * salterebbe al filmato dopo.
+                         * ⚠️ L'asse si decide al primo movimento e poi non cambia: è quello
+                         * che tiene separati i tre gesti. Senza, una strisciata orizzontale un
+                         * po' storta cambierebbe pagina e alzerebbe il volume.
                          */
                         if (axis == Axis.UNDECIDED) {
                             axis = if (abs(delta.x) >= abs(delta.y)) Axis.SIDEWAYS else Axis.UPRIGHT
@@ -1797,12 +1488,10 @@ internal fun ClipStage(
                         if (axis == Axis.SIDEWAYS) {
                             travelled += delta.x
                             /*
-                             * ⚠️ **La resistenza al capolinea è quella di [ImageCanvas]**: dove
-                             * non c'è niente da aprire la pagina si lascia tirare a un terzo,
-                             * cioè dice 'di qua non si va' invece di scivolare su un vuoto.
-                             * ⚠️ E il gesto muove il filmato **solo** se c'è una serie: senza,
-                             * `settle` non verrebbe mai chiamato e la pagina resterebbe di
-                             * traverso.
+                             * La resistenza al capolinea è quella di [ImageCanvas]: dove non c'è
+                             * niente da aprire la pagina si lascia tirare a [END_RESISTANCE].
+                             * ⚠️ Il gesto muove il filmato solo se c'è una serie: senza, `settle`
+                             * non sarebbe mai chiamato e la pagina resterebbe spostata.
                              */
                             if (stepping) {
                                 val reachable =
@@ -1812,8 +1501,8 @@ internal fun ClipStage(
                             return@detectDragGestures
                         }
                         travelled += delta.y
-                        // ⚠️ Il segno è rovesciato apposta: in su alza, come su ogni
-                        // lettore, mentre le coordinate dello schermo crescono in giù.
+                        // Il segno è rovesciato: verso l'alto alza, mentre le coordinate dello
+                        // schermo crescono verso il basso.
                         val moved = (started - travelled / reach).coerceIn(0f, 1f)
                         if (onLeft) Knobs.setBrightness(activity, moved) else Knobs.setVolume(context, moved)
                         knob = Knob(onLeft, moved)
@@ -1823,70 +1512,31 @@ internal fun ClipStage(
         contentAlignment = Alignment.Center
     ) {
         /*
-         * ⚠️⚠️ **LA SUPERFICIE NON ASCOLTA NESSUN TOCCO, ed è la ragione per cui la
-         * strisciata qui sopra funziona**: `PlayerSurface` è una `SurfaceView` dentro un
-         * `AndroidView`, senza ascoltatori. Con `PlayerView` di `media3-ui`, che i comandi
-         * ce li ha già, il tocco sarebbe finito a lui e il gesto per cambiare fotografia
-         * non sarebbe mai arrivato qui.
-         */
-        /*
-         * ⚠️⚠️ **LE PROPORZIONI LE TIENE QUESTO MODIFICATORE, e senza di lui il filmato era
-         * STIRATO** (riscontro dell'utente sulla `0.86`: in verticale un video orizzontale
-         * riempiva tutto lo schermo deformandosi). `PlayerSurface` da sola prende lo spazio
-         * che le si dà, e `fillMaxSize` gliene dava di ogni forma: la superficie non sa
-         * nulla del video che ci finisce sopra. `resizeWithContentScale` legge la misura
-         * vera del filmato da [rememberPresentationState] e ritaglia il riquadro.
-         * ⚠️ Lo stesso modificatore va **anche al fotogramma di copertura** qui sotto, o
-         * all'apertura si vedrebbe la miniatura in un riquadro e il video in un altro.
-         */
-        /*
-         * ⚠️⚠️ **FINCHÉ LA MISURA DEL FILMATO NON SI SA, IL RIQUADRO PRENDE TUTTO, E DALLA
-         * `2.07` QUESTA RIGA ESISTE PER UN DIFETTO CHE GLI È ARRIVATO** (2026-09-10: *questi
-         * appaiono per una frazione di secondo in piccolo e poi con un flash fastidioso passano
-         * a tutto schermo*). La causa è **letta nel bytecode** di `resizeWithContentScale`: con
-         * la misura ancora nulla quel modificatore vale `fillMaxSize().wrapContentSize()`, cioè
-         * *centra il figlio alla sua misura naturale*, e la misura naturale di una superficie
-         * vuota (o della miniatura di copertura) è piccola. Il salto è l'istante in cui la
-         * misura vera arriva e il riquadro passa a quella calcolata.
-         * ⚠️ **Con `fillMaxSize` il fotogramma di copertura non si deforma**, perché lo disegna
-         * `ContentScale.Fit`: le proporzioni sono già le sue.
+         * ⚠️ La superficie non ascolta nessun tocco, ed è per questo che la strisciata qui sopra
+         * funziona: `PlayerSurface` non ha ascoltatori, mentre `PlayerView` di `media3-ui`, coi
+         * suoi comandi, si prenderebbe il tocco.
          *
-         * ⚠️⚠️ **MA QUEL RIQUADRO NON SI PUÒ DARE ANCHE ALLA SUPERFICIE, E DALLA `2.10` NON SI FA
-         * PIÙ** (riscontro del giro accorpato, voce `video-sfoglia` non approvata: *c'è ancora il
-         * flash all'ingresso del video: per una frazione di secondo appare a tutto schermo*). La
-         * `2.07` ha risolto il salto di misura e ha aperto questo, perché le due cose che portano
-         * quel riquadro **non si comportano allo stesso modo**: la copertura la disegna
-         * `ContentScale.Fit` e tiene le sue proporzioni, la superficie invece si prende lo spazio
-         * che le si dà, e il filmato ci finisce dentro deformato, che è il difetto già visto nella
-         * `0.86` e scritto qui sotto.
-         * ⚠️⚠️ **CHE COSA SI VEDA IN QUEL LAMPO NON LO SA NESSUNO, E SI SCRIVE COSÌ INVECE DI
-         * DARLO PER OSSERVATO**: la sua voce diceva 'stretchato', e lui stesso lo ha corretto
-         * (2026-09-11: *non ho fatto in tempo a vedere come appare nel flash a tutto schermo ...
-         * è davvero troppo veloce per capire se è ancora stretchato o meno*). Il fatto certo è il
-         * **lampo a tutto schermo**; la deformazione è quello che il codice dice che dovrebbe
-         * succederci dentro, e la cura non dipende da quale delle due sia.
-         * ⚠️⚠️ **QUINDI IL RIQUADRO RESTA PIENO E A NON VEDERSI È LA SUPERFICIE**: il layout non
-         * salta (che era la correzione della `2.07`) e in quel tratto della superficie non si vede
-         * niente, perché finché la misura non si sa è trasparente e davanti c'è la copertura.
-         * ⚠️ **La copertura resta anche dopo il primo fotogramma**, cioè l'altra metà della cura:
-         * `coverSurface` si spegne appena il lettore ha qualcosa da mostrare, e se in quell'istante
-         * la misura non è ancora arrivata sotto non ci sarebbe più niente da vedere.
-         * ⚠️ **Un filmato senza misura non esiste**, e vale la pena saperlo prima di temere una
-         * schermata nera per sempre: se la misura non arriva è perché non arriva **nemmeno un
-         * fotogramma**, e in quel caso `coverSurface` resta acceso da sé, cioè il comportamento è
-         * quello di prima.
+         * Le proporzioni le tiene `resizeWithContentScale`, che legge la misura del filmato da
+         * [rememberPresentationState]: da sola la superficie prende lo spazio che le si dà, e il
+         * filmato risultava stirato. Lo stesso riquadro va al fotogramma di copertura, o
+         * miniatura e video avrebbero due riquadri diversi.
+         * ⚠️ Finché la misura non si sa, il riquadro prende tutto lo schermo: con la misura nulla
+         * `resizeWithContentScale` centra il figlio alla sua misura naturale, che per una
+         * superficie vuota è piccola, e il filmato appariva piccolo e poi saltava a tutto
+         * schermo (letto nel bytecode). La copertura, disegnata con `ContentScale.Fit`, non si
+         * deforma; la superficie sì, quindi in quel tratto è trasparente e davanti c'è la
+         * copertura (voce `video-sfoglia`).
+         * La copertura resta anche dopo il primo fotogramma, finché la misura non arriva:
+         * `coverSurface` si spegne appena il lettore ha qualcosa da mostrare. Se la misura non
+         * arriva mai è perché non arriva nessun fotogramma, e allora `coverSurface` resta acceso.
          */
         val misurato = shown.videoSizeDp != null
         val fitted = Modifier.resizeWithContentScale(ContentScale.Fit, shown.videoSizeDp)
         val scaled = if (misurato) fitted else Modifier.fillMaxSize()
         /*
-         * ⚠️⚠️ **IL RIQUADRO DEL FILMATO SI TRASCINA, E I COMANDI NO**: questo livello porta la
-         * superficie e il suo fotogramma di copertura, che sono le sole due cose che devono
-         * uscire dallo schermo. L'indicatore delle manopole e la fila dei tasti restano dove
-         * sono, perché appartengono al lettore e non alla pagina.
-         * ⚠️ **Un livello solo e non due**: muovendo la superficie e la copertura ognuna per
-         * conto suo, un fotogramma di ritardo fra le due basterebbe a far vedere il bordo
-         * dell'una staccarsi dall'altra.
+         * Si trascinano la superficie e la copertura, non i comandi, che appartengono al lettore
+         * e non alla pagina. Un livello solo per le due: mosse ognuna per conto suo, un
+         * fotogramma di ritardo farebbe vedere i bordi staccarsi.
          */
         Box(
             modifier = Modifier
@@ -1895,39 +1545,26 @@ internal fun ClipStage(
             contentAlignment = Alignment.Center
         ) {
         /*
-         * ⚠️⚠️ **LA SUPERFICIE È A TEXTURE E NON NATIVA, DALLA `2.07`, ED È IL SECONDO SINTOMO
-         * DELLA STESSA SEGNALAZIONE** (*scorrendo da un video all'elemento successivo, il
-         * fotogramma del video non se ne va con l'effetto scorrimento: scompare e basta*). Una
-         * `SurfaceView` la compone il **sistema**, in una finestra sua, fuori dall'albero che la
-         * vista anima e ritaglia: qualunque animazione le passi sopra, lei resta ferma e poi
-         * sparisce di colpo. Una `TextureView` vive nell'albero, quindi scorre, sfuma e si
-         * ritaglia come qualunque altra vista.
-         * ⚠️ **Il prezzo è dichiarato e non nascosto**: la texture costa più memoria grafica e
-         * un fotogramma in più all'avvio, ed è la ragione per cui il lettore preferisce la
-         * nativa. Qui il filmato vive dentro uno sfogliatore che scorre, cioè esattamente il caso
-         * in cui quella preferenza costa una funzione.
+         * ⚠️ La superficie è a texture e non nativa: una `SurfaceView` la compone il sistema in
+         * una finestra sua, fuori dall'albero, e durante lo scorrimento resta ferma e poi sparisce
+         * di colpo. Una `TextureView` vive nell'albero, e scorre, sfuma e si ritaglia. Costa più
+         * memoria grafica e un fotogramma in più all'avvio.
          */
             PlayerSurface(
                 player = player,
                 surfaceType = SURFACE_TYPE_TEXTURE_VIEW,
-                // ⚠️ Trasparente e non assente: la superficie deve restare nell'albero per
-                // ricevere il filmato, e quello che si toglie è solo il suo disegno.
+                // Trasparente e non assente: la superficie deve restare nell'albero per ricevere
+                // il filmato.
                 modifier = if (misurato) scaled else scaled.alpha(0f)
             )
 
             /*
-             * ⚠️⚠️ **IL FOTOGRAMMA COPRE LA SUPERFICIE FINCHÉ IL VIDEO NON HA DA MOSTRARE
-             * NIENTE** (`coverSurface`), ed è la continuità con la `0.83`: è la stessa
-             * miniatura che la griglia ha già in memoria, quindi al posto del rettangolo nero
-             * dell'apertura si vede il filmato fermo. Senza, ogni apertura comincerebbe con un
-             * lampo nero, che è lo stesso difetto che le anteprime delle fotografie esistono
-             * per togliere.
-             * ⚠️ **Il sostituto va sotto e non al posto**, come in [Preview]: per un fotogramma
-             * il pittore di Coil non disegna niente, e nello sfoglio quel fotogramma cade
-             * esattamente quando la pagina arriva al centro.
-             * ⚠️⚠️ **E DALLA `2.10` RESTA ANCHE FINCHÉ LA MISURA NON SI SA**, che è l'altra metà
-             * della cura del flash scritta più sopra: i due istanti non coincidono, e nel tratto
-             * fra il primo fotogramma e l'arrivo della misura la superficie è trasparente.
+             * Il fotogramma di copertura resta finché il video non ha niente da mostrare
+             * (`coverSurface`) o finché la misura non si sa (vedi sopra): è la miniatura della
+             * griglia, già in memoria, e al posto di un lampo nero si vede il filmato fermo.
+             * Il sostituto va sotto il pittore di Coil, come in [Preview]: per un fotogramma Coil
+             * non disegna niente, e durante la strisciata quel fotogramma cade quando la pagina
+             * arriva al centro.
              */
             if (shown.coverSurface || !misurato) {
                 standIn?.let {
@@ -1947,19 +1584,17 @@ internal fun ClipStage(
             }
         }
 
-        // ⚠️ Le vicine esistono SOLO mentre si trascina, come in [ImageCanvas], e sono le
-        // stesse miniature della griglia: entrano nell'istante del gesto perché sono già in
-        // memoria, e a riposo non c'è niente da tenere in scena.
+        // Le vicine esistono solo mentre si trascina, come in [ImageCanvas]: sono le miniature
+        // della griglia, già in memoria, e compaiono nell'istante del gesto.
         if (dragging) {
             Neighbour(nextUri, settings, null) { travel + viewWidth + pageGap }
             Neighbour(prevUri, settings, null) { travel - viewWidth - pageGap }
         }
 
-        // ⚠️ L'indicatore sta sopra i comandi e sotto niente: è l'unica risposta visibile a
-        // un gesto che non tocca nessun tasto, e senza di lui la manopola sarebbe al buio.
+        // L'indicatore della manopola: la sola risposta visibile a un gesto senza tasti.
         knob?.let { KnobBadge(it) }
 
-        // ⚠️ Il tasto sta al centro e sparisce mentre si guarda: vedi [ClipKeys].
+        // Il tasto al centro sparisce mentre si guarda: vedi [ClipKeys].
         ClipKeys(
             playing = !play.showPlay,
             onPlayPause = { play.onClick() },
@@ -1971,10 +1606,9 @@ internal fun ClipStage(
 }
 
 /**
- * Su quale asse si è mosso il dito sopra un filmato, deciso **una volta sola** per gesto.
+ * Su quale asse si è mosso il dito sopra un filmato, deciso una volta sola per gesto.
  *
- * ⚠️ Tre valori e non un booleano: fra il dito che si posa e il primo movimento c'è un
- * momento in cui l'asse non si sa ancora, e un booleano avrebbe dovuto fingere di saperlo.
+ * Tre valori e non un booleano: fra il dito che si posa e il primo movimento l'asse non si sa.
  */
 private enum class Axis { UNDECIDED, SIDEWAYS, UPRIGHT }
 
@@ -1984,11 +1618,9 @@ private data class Knob(val brightness: Boolean, val value: Float)
 /**
  * L'indicatore che dice che cosa sta cambiando mentre il dito scorre in verticale.
  *
- * ⚠️⚠️ **Senza di lui il gesto sarebbe al buio**: la luminosità si vede da sé, ma il volume
- * di un filmato muto no, e in entrambi i casi non si saprebbe **quale** delle due manopole si
- * è presa finché non succede qualcosa. Un numero e un'icona bastano, e spariscono da soli.
- * ⚠️ Niente descrizione per l'icona: il valore accanto è già testo, e un lettore di schermo
- * annuncerebbe due volte la stessa cosa mentre il dito è ancora sul vetro.
+ * Il volume di un filmato muto non si sente, e senza indicatore non si saprebbe quale delle due
+ * manopole si è presa. Un'icona e un numero, che spariscono da soli. L'icona non ha descrizione:
+ * il valore accanto è già testo, e il lettore di schermo lo annuncerebbe due volte.
  */
 @Composable
 private fun BoxScope.KnobBadge(knob: Knob) {
@@ -2017,16 +1649,10 @@ private fun BoxScope.KnobBadge(knob: Knob) {
 /**
  * I comandi del filmato: il tasto grande in mezzo e la barra in fondo.
  *
- * ⚠️⚠️ **SCRITTI IN CASA E NON PRESI DA `PlayerView`**, e la ragione sta nella nota della
- * dipendenza: quelli sono una `View` che si prende i tocchi, e con loro la strisciata per
- * cambiare fotografia non arriverebbe mai. Sono un tasto e una barra: il prezzo di scriverli è basso,
- * quello di perdere il gesto no.
- * ⚠️⚠️ **SPARISCONO MENTRE IL FILMATO VA, e tornano toccando**: un tasto grande in mezzo
- * allo schermo sopra un video in corso copre proprio quello che si sta guardando. In pausa
- * restano, perché in pausa la cosa da fare è ripartire.
- * ⚠️ **La barra si trascina** (`Slider`), perché saltare avanti è la sola cosa che si chiede
- * a un lettore oltre a partire e fermarsi; e il tempo si legge accanto, perché una barra
- * senza numeri non dice a che minuto si è.
+ * ⚠️ Scritti qui e non presi da `PlayerView`, che è una `View` e si prende i tocchi: con lei la
+ * strisciata per cambiare pagina non arriverebbe mai. Spariscono mentre il filmato va, e
+ * tornano toccando; in pausa restano. La barra si trascina ([ValueSlider]) per saltare avanti,
+ * e accanto c'è il tempo.
  */
 @Composable
 private fun BoxScope.ClipKeys(
@@ -2037,8 +1663,8 @@ private fun BoxScope.ClipKeys(
     onSeek: (Long) -> Unit
 ) {
     var visible by remember { mutableStateOf(true) }
-    // ⚠️ La chiave è `playing`: ripartendo si nasconde dopo la pausa, e mettendo in pausa
-    // ricompare subito. Un timer solo, senza chiave, avrebbe continuato a contare.
+    // La chiave è `playing`: ripartendo i comandi si nascondono dopo l'attesa, mettendo in
+    // pausa ricompaiono subito.
     LaunchedEffect(playing) {
         if (playing) {
             delay(CLIP_KEYS_LINGER)
@@ -2047,9 +1673,8 @@ private fun BoxScope.ClipKeys(
             visible = true
         }
     }
-    // ⚠️ Il tocco che RICHIAMA i comandi sta qui e non sulla superficie: è un riquadro
-    // trasparente sopra il video, e vive solo quando i comandi sono nascosti, così quando
-    // ci sono non ruba il tocco al tasto.
+    // Il tocco che richiama i comandi è un riquadro trasparente sopra il video, che esiste solo
+    // quando i comandi sono nascosti: quando ci sono, non ruba il tocco al tasto.
     if (!visible) {
         Box(
             modifier = Modifier
@@ -2100,9 +1725,9 @@ private fun BoxScope.ClipKeys(
                 style = MaterialTheme.typography.labelMedium,
                 color = Color.White
             )
-            // ⚠️ **Durata sconosciuta**: prima che il lettore l'abbia letta vale
-            // `C.TIME_UNSET`, che è un numero negativo enorme. Passarlo a `Slider` darebbe
-            // un intervallo rovesciato, quindi finché non si sa la barra non c'è.
+            // ⚠️ Prima che il lettore la legga, la durata vale `C.TIME_UNSET`, un numero
+            // negativo enorme: passata a [ValueSlider] darebbe un intervallo rovesciato, quindi
+            // finché non si sa la barra non c'è.
             if (duration > 0) {
                 ValueSlider(
                     value = position.coerceIn(0, duration).toFloat(),
@@ -2140,26 +1765,22 @@ private val CLIP_LIP = 8.dp
 /**
  * Quanto restano i comandi dopo che il filmato è partito.
  *
- * ⚠️ Due secondi e mezzo: abbastanza per vedere dov'è la barra, poco perché non dia
- * fastidio. Da rivedere sul telefono, non a naso.
+ * Due secondi e mezzo: abbastanza per vedere dov'è la barra, poco perché non dia fastidio.
  */
 private const val CLIP_KEYS_LINGER = 2500L
 
 /**
  * Quanto resta l'indicatore della manopola dopo l'ultimo ritocco del dito.
  *
- * ⚠️ Molto meno dei comandi: quello risponde a un gesto **in corso**, e appena il dito si
- * stacca la sua ragione di esistere è finita. Restare più a lungo lo farebbe leggere come un
- * pannello invece che come un riscontro.
+ * Molto meno dei comandi: risponde a un gesto in corso, e più a lungo sembrerebbe un pannello.
  */
 private const val KNOB_LINGER = 700L
 
 /**
  * Quanta parte dell'altezza dello schermo copre l'intera corsa di una manopola.
  *
- * ⚠️ **Il 70% e non tutto**, perché il dito non parte mai dal bordo e non arriva mai
- * all'altro: chiedendo lo schermo intero, il massimo e il minimo sarebbero irraggiungibili
- * senza due gesti. ⚠️ Da rivedere col pollice, come ogni numero di gesto.
+ * Il 70% e non tutto: il dito non parte dal bordo e non arriva all'altro, e con lo schermo
+ * intero il massimo e il minimo vorrebbero due gesti.
  */
 private const val KNOB_SPAN = 0.7f
 
@@ -2169,21 +1790,18 @@ private val KNOB_ROUND = 16.dp
 /**
  * Ogni quanto si aggiorna il tempo scritto accanto alla barra.
  *
- * ⚠️ Mezzo secondo e non ogni fotogramma: il numero si legge in secondi, quindi chiedere di
- * più vorrebbe dire ricomporre due volte per ogni cifra che cambia.
+ * Mezzo secondo e non ogni fotogramma: il numero si legge in secondi.
  */
 private const val TICK_MS = 500L
 
 /**
- * La MINIATURA mentre la fotografia vera si decodifica.
+ * La miniatura mentre l'immagine vera si decodifica.
  *
- * ⚠️⚠️ **NON è un compromesso sulla qualità: è quello che si vede PRIMA di averla.**
- * Aprire una foto da 30 megapixel costa un tempo che si sente, e la strisciata da una
- * all'altra lo paga a ogni passo; questa è la stessa miniatura che la griglia ha già
- * decodificato, quindi nella maggior parte dei casi è già in memoria e compare
- * nell'istante del gesto. Quando la fotografia è pronta la sostituisce, intera.
- * ⚠️ Solo per gli indirizzi LOCALI: per un URL remoto non c'è nessuna miniatura da
- * chiedere al telefono, e questo caricatore non parla con la rete apposta.
+ * Aprire un'immagine da 30 megapixel richiede un tempo che si sente, a ogni passo della
+ * strisciata; questa è la miniatura che la griglia ha già decodificato, quindi di solito è in
+ * memoria e compare subito. Quando l'immagine è pronta la sostituisce.
+ * Solo per gli indirizzi locali: per un URL remoto il telefono non ha miniature, e questo
+ * caricatore non usa la rete.
  */
 @Composable
 private fun PreviewThumb(source: Uri?, settings: Settings, bar: BarSpace?) {
@@ -2193,95 +1811,62 @@ private fun PreviewThumb(source: Uri?, settings: Settings, bar: BarSpace?) {
 }
 
 /**
- * Una miniatura disegnata **grande quanto sarà la fotografia che la sostituisce**.
+ * Una miniatura disegnata grande quanto sarà l'immagine che la sostituisce.
  *
- * ⚠️⚠️ **QUESTO ERA IL SALTO DELL'IMMAGINE, e la regola vecchia lo garantiva invece di
- * evitarlo.** La miniatura seguiva l'impostazione *ingrandisci le immagini piccole*: a
- * interruttore spento `ContentScale.Inside` non ingrandisce, quindi una miniatura da 512
- * px restava 512 px in mezzo a uno schermo da 1080, e all'arrivo della fotografia vera
- * (disegnata adattata allo schermo) l'immagine **raddoppiava di colpo**. Succedeva a ogni
- * cambio di pagina.
- * ⚠️ Il ragionamento vecchio non era sbagliato, era applicato alla cosa sbagliata:
- * 'non ingrandire' è una regola sulla **fotografia**, e applicarla al suo sostituto
- * produce esattamente lo scarto che voleva evitare.
- *
- * ⚠️⚠️ **DALLA `0.56` LA MISURA SI CALCOLA INVECE DI ESSERE INDOVINATA, e la stima di
- * prima aveva un buco largo mezzo schermo.** Fino alla `0.55` si deduceva dalla miniatura
- * se l'originale fosse 'grande': arrivata a 512 px, l'originale era più grande di 512, e si
- * adattava alla vista. È un'informazione da **un bit**, e sbagliava per tutta la fascia fra
- * i 512 px e la larghezza dello schermo: con l'ingrandimento spento, un'immagine da 900 px
- * su uno schermo da 1440 si vedeva prima adattata a 1440 e poi rimpiccioliva a 900
- * all'arrivo della fotografia. L'utente l'ha segnalato il 2026-08-30, e su uno schermo
- * QHD+ quella fascia comprende quasi tutte le immagini piccole, cioè proprio quelle per cui
- * l'interruttore si spegne.
- * ⚠️ **Adesso la misura finale si calcola con la stessa formula di `ImageCanvas`**, e
- * l'unico dato che mancava lo dà [Pixels]: il lato lungo del file. Da lì e dalle
- * proporzioni della miniatura escono le due dimensioni vere, e da quelle la misura a
- * riposo. ⚠️ Chi tocca `restScale` di là tocchi anche `plannedSize` di qua: sono la stessa
- * regola scritta due volte, e l'unico modo di accorgersi che divergono è vedere di nuovo
- * l'immagine saltare.
- * ⚠️ **La stima vecchia resta come RIPIEGO**, e non è codice morto: per il tempo che serve
- * a leggere l'intestazione, e per sempre su ciò che non si riesce ad aprire, è ancora la
- * cosa migliore che si sappia. Il ripiego si vede solo alla **prima** apertura di una
- * fotografia; sfogliando, la vicina ha già scaldato la misura mentre entrava dal bordo.
+ * ⚠️ 'Ingrandisci le immagini piccole' è una regola sull'immagine, non sul suo sostituto:
+ * applicata alla miniatura, una da 512 px restava 512 px e all'arrivo dell'immagine vera
+ * raddoppiava di colpo.
+ * La misura finale si calcola: [Pixels] dà il lato lungo del file, le proporzioni della
+ * miniatura danno le due dimensioni, e `plannedSize` ne ricava la misura a riposo con la stessa
+ * `restPlace` (`Fit.kt`) di `ImageCanvas`, così le due non divergono. Dedurla dalla sola
+ * miniatura sbagliava per le immagini fra 512 px e la larghezza dello schermo.
+ * Finché l'intestazione non è letta, e per sempre su ciò che non si riesce ad aprire, vale la
+ * stima dalla miniatura. Si vede solo alla prima apertura: durante la strisciata la vicina ha
+ * già letto la misura mentre entrava dal bordo.
  */
 @Composable
 private fun Preview(uri: Uri, settings: Settings, modifier: Modifier, bar: BarSpace? = null) {
     val context = LocalContext.current
 
     /*
-     * ⚠️⚠️ **IL SOSTITUTO LETTO SUBITO, ED È QUESTO CHE TOGLIE IL LAMPEGGIO RIMASTO**
-     * (segnalazione dell'utente, 2026-08-29: *l'immagine lampeggia ancora*, dopo che la
-     * `0.44` aveva già tolto quello del fondo). `AsyncImagePainter` parte da una coroutine
-     * e non disegna niente al primo fotogramma, anche quando l'immagine è già in memoria:
-     * verificato sul bytecode di Coil, non supposto. Qui la si legge **in composizione**,
-     * quindi c'è già quando il fotogramma si disegna. Il perché la cosa nasca a ogni
-     * cambio di pagina sta accanto a `Thumbs.note`.
-     * ⚠️ Sotto e non al posto: quando il pittore vero arriva disegna **la stessa
-     * immagine, alla stessa scala**, quindi il passaggio non si vede. Non è una
-     * dissolvenza, è una sovrapposizione, ed è il motivo per cui non serve nessuna
-     * animazione.
+     * ⚠️ Il sostituto letto in composizione toglie il lampeggio dell'immagine:
+     * `AsyncImagePainter` parte da una coroutine e al primo fotogramma non disegna niente,
+     * anche con l'immagine in memoria (verificato sul bytecode di Coil; il resto è accanto a
+     * `Thumbs.note`). Va sotto il pittore vero, che poi disegna la stessa immagine alla stessa
+     * scala: è una sovrapposizione, e non serve nessuna animazione.
      */
     val standIn = remember(uri, context) { Thumbs.cached(context, uri)?.asPainter(context) }
 
     val painter = rememberAsyncImagePainter(
-        // ⚠️ La STESSA richiesta della griglia, misura compresa: è così che questa
-        // immagine è già in memoria invece di essere chiesta di nuovo. Una misura
-        // diversa sarebbe una chiave diversa, cioè un'altra generazione.
+        // ⚠️ La stessa richiesta della griglia, misura compresa, così l'immagine è già in
+        // memoria: una misura diversa sarebbe un'altra chiave, e un'altra generazione.
         model = remember(uri, context) { Thumbs.request(context, uri) },
-        // ⚠️ La chiave si registra QUI, cioè nel posto in cui Coil la dice: `SuccessResult`
-        // la porta con sé, e ricavarla altrove vorrebbe dire ricostruirla a mano, che è
-        // esattamente il modo di sbagliarla in silenzio la prima volta che Coil cambia
-        // come la compone.
+        // La chiave si registra qui, dove Coil la dà in `SuccessResult`: ricostruita a mano
+        // si sbaglierebbe in silenzio il giorno in cui Coil cambia come la compone.
         onState = { st ->
             if (st is AsyncImagePainter.State.Success) Thumbs.note(uri, st.result.memoryCacheKey)
         }
     )
 
-    // ⚠️ La misura si prende dal pittore vero se ce l'ha, se no dal sostituto: sono la
-    // stessa immagine, ma per un fotogramma solo uno dei due la conosce, e da lì dipende
-    // la scala. Prenderla dal solo pittore vero rimetterebbe il salto che questa
-    // funzione esiste per togliere.
+    // La misura si prende dal pittore vero se ce l'ha, se no dal sostituto: per un
+    // fotogramma solo uno dei due la conosce, e dal solo pittore vero tornerebbe il salto.
     val seen = painter.intrinsicSize.takeIf { it.isSpecified }
         ?: standIn?.intrinsicSize
         ?: Size.Unspecified
 
     /*
-     * ⚠️ **Si legge dalla cache MENTRE SI COMPONE, e solo se manca si va a leggerla**: nel
-     * caso che conta, cioè lo sfoglio, la vicina l'ha già chiesta entrando dal bordo, e a
-     * pagina girata è qui. L'effetto serve al primo ingresso, dove costa un'intestazione.
-     * ⚠️ Zero e non `null` per la stessa ragione per cui `Size.Unspecified` esiste: è
-     * 'non lo so', e un lato lungo di zero non è una misura possibile.
+     * Il lato lungo si legge dalla cache in composizione, e dal file solo se manca: durante la
+     * strisciata la vicina l'ha già chiesto entrando dal bordo. L'effetto serve alla prima
+     * apertura, dove costa la lettura di un'intestazione. Zero vuol dire 'non lo so', come
+     * `Size.Unspecified`: un lato lungo di zero non è una misura possibile.
      */
     var longSide by remember(uri) { mutableIntStateOf(Pixels.known(uri) ?: 0) }
     /*
-     * ⚠️ **L'ANTEPRIMA ASPETTA LA RISPOSTA SULLA MISURA, RIUSCITA O NO, DALLA `4.32`**. Senza la
-     * misura del file l'anteprima usa il ripiego qui sotto, che per una miniatura piccola vale
-     * `Inside`, cioè la sua misura, e l'immagine crescerebbe all'arrivo della misura. Il prezzo è
-     * un'attesa quanto la lettura dell'intestazione del file, che con la misura in memoria non c'è.
-     * ⚠️⚠️ **Non era la causa dello zoom con le info spente**, come la `4.32` credeva (il giro della
-     * `4.32` l'ha smentita): la causa era lo stato della barra, che nasceva visibile (vedi `info`
-     * in `ViewerScreen`).
+     * L'anteprima aspetta la risposta sulla misura, riuscita o no: senza, il ripiego qui sotto
+     * per una miniatura piccola vale `Inside`, e l'immagine crescerebbe all'arrivo della misura.
+     * L'attesa dura la lettura dell'intestazione, e con la misura in memoria non c'è.
+     * ⚠️ Non era la causa dello zoom con le info spente: quella era lo stato della barra, che
+     * partiva visibile (vedi `info` in `ViewerScreen`).
      */
     var asked by remember(uri) { mutableStateOf(longSide > 0) }
     LaunchedEffect(uri) {
@@ -2292,8 +1877,8 @@ private fun Preview(uri: Uri, settings: Settings, modifier: Modifier, bar: BarSp
     val density = LocalDensity.current
 
     /*
-     * ⚠️ **La stessa vista di `ImageCanvas`**, che misura allo stesso modo dentro lo stesso
-     * contenitore: è questo a garantire che le due scale coincidano invece di somigliarsi.
+     * La stessa vista di `ImageCanvas`, che misura allo stesso modo nello stesso contenitore:
+     * così le due scale coincidono.
      */
     BoxWithConstraints(modifier = modifier) {
         val viewWidth = constraints.maxWidth.toFloat()
@@ -2308,8 +1893,7 @@ private fun Preview(uri: Uri, settings: Settings, modifier: Modifier, bar: BarSp
             bar = bar
         )
 
-        // Il ripiego di quando la misura vera non si sa ancora: vedi la nota sulla
-        // funzione. Un bit di informazione, e sbaglia in una fascia sola.
+        // Il ripiego di quando la misura vera non si sa ancora: vedi la nota sulla funzione.
         val fromBig = seen.isSpecified &&
             (seen.width >= Thumbs.PX - 1f || seen.height >= Thumbs.PX - 1f)
 
@@ -2318,14 +1902,12 @@ private fun Preview(uri: Uri, settings: Settings, modifier: Modifier, bar: BarSp
         } else {
             ContentScale.Inside
         }
-        // ⚠️ Con la misura nota il riquadro ha **già** le proporzioni giuste, quindi
-        // `Fit` qui dentro non ridimensiona niente: serve solo a non deformare se
-        // l'arrotondamento in dp sposta il riquadro di mezzo pixel.
+        // Con la misura nota il riquadro ha già le proporzioni giuste, e `Fit` serve solo a non
+        // deformare se l'arrotondamento in dp lo sposta di mezzo pixel.
         /*
-         * ⚠️ **Dalla `3.60` il riquadro è nella fascia di riposo e non al centro della vista**:
-         * è il posto in cui `ImageCanvas` metterà la fotografia, e un'anteprima centrata altrove
-         * salterebbe all'arrivo. Senza misura nota la fascia si ricava dalle proporzioni della
-         * miniatura, che bastano a dire quanto spazio sotto la barra può prendere.
+         * Il riquadro è nella fascia di riposo e non al centro della vista: è dove `ImageCanvas`
+         * metterà l'immagine, e un'anteprima altrove salterebbe all'arrivo. Senza misura nota la
+         * fascia si ricava dalle proporzioni della miniatura.
          */
         val frame = when {
             planned != null -> Modifier
@@ -2366,19 +1948,14 @@ private fun Preview(uri: Uri, settings: Settings, modifier: Modifier, bar: BarSp
 }
 
 /**
- * Quanto sarà grande la fotografia quando arriverà, o `null` se non lo si può ancora dire.
+ * Quanto sarà grande l'immagine quando arriverà, o `null` se non lo si può ancora dire.
  *
- * ⚠️⚠️ **È LA FORMULA DI `ImageCanvas`, riscritta sui dati del file invece che su quelli
- * del bitmap**, e le due coincidono per algebra e non per somiglianza: là la misura vale
- * `larghezzaBitmap * min(adattamento, campionamento * k)`, e siccome
- * `larghezzaBitmap * campionamento` **è** la larghezza del file, il campionamento sparisce.
- * Resta `min(adattato alla vista, pixel del file * k)`, che è quello che si calcola qui.
- * Quindi questa funzione non ha bisogno di sapere se la fotografia verrà ridotta per
- * entrare in memoria, ed è la ragione per cui può rispondere prima che venga aperta.
- *
- * ⚠️ **Le due dimensioni vengono da DUE fonti diverse apposta**: il lato lungo dal file
- * (l'unica cosa che la miniatura non sa) e le proporzioni dalla miniatura (l'unica cosa che
- * l'intestazione non sa dire senza sbagliare sulle foto ruotate). Il perché sta in [Pixels].
+ * È la formula di `ImageCanvas` sui dati del file invece che su quelli del bitmap, e coincide
+ * per algebra: là la misura vale `larghezzaBitmap * min(adattamento, campionamento * k)`, e
+ * `larghezzaBitmap * campionamento` è la larghezza del file. Il campionamento sparisce, quindi
+ * la risposta arriva prima che l'immagine sia aperta.
+ * Il lato lungo viene dal file, che la miniatura non sa; le proporzioni dalla miniatura, che
+ * l'intestazione sbaglia sulle immagini ruotate. Il perché è in [Pixels].
  */
 private fun plannedSize(
     seen: Size,
@@ -2395,9 +1972,9 @@ private fun plannedSize(
     val wide = ratio >= 1f
     val pixelWidth = if (wide) longSide.toFloat() else longSide * ratio
     val pixelHeight = if (wide) longSide / ratio else longSide.toFloat()
-    // ⚠️ Senza il campionamento, che qui non serve: vedi la nota sulla funzione.
+    // Senza il campionamento, che qui non serve: vedi la nota sulla funzione.
     val oneToOne = if (settings.scaleMode == ScaleMode.PHYSICAL) 1f else density
-    // ⚠️ La stessa `restPlace` di `ImageCanvas`, barra compresa: vedi `Fit.kt`.
+    // La stessa `restPlace` di `ImageCanvas`, barra compresa: vedi `Fit.kt`.
     val place = restPlace(
         viewWidth, viewHeight, pixelWidth, pixelHeight,
         cap = if (settings.fitGrow) null else oneToOne,
@@ -2406,24 +1983,22 @@ private fun plannedSize(
     return Planned(pixelWidth * place.scale, pixelHeight * place.scale, place.centre)
 }
 
-/** La misura di [plannedSize] e il centro verticale in cui la fotografia riposerà. */
+/** La misura di [plannedSize] e il centro verticale in cui l'immagine riposerà. */
 private data class Planned(val width: Float, val height: Float, val centre: Float)
 
-/** Un pezzo nitido e il rettangolo, in coordinate viste, che occupa nella fotografia. */
+/** Un pezzo nitido e il rettangolo, in coordinate viste, che occupa nell'immagine. */
 private data class SharpTile(val bitmap: ImageBitmap, val area: PixelRect)
 
-/** Il lettore di regioni una volta che si è **provato** ad aprirlo. Vedi il suo uso. */
+/** Il lettore di regioni una volta che si è provato ad aprirlo. Vedi il suo uso. */
 private data class RegionHolder(val reader: RegionSource?)
 
 /**
- * Che pezzo leggere adesso, con la **geometria del visualizzatore** al posto di quella
- * dell'editor: dove la fotografia finisce sullo schermo sono le stesse quattro righe del
- * `graphicsLayer` che la disegna, e del `Canvas` che ci posa sopra il pezzo.
+ * Che pezzo leggere adesso, con la geometria del visualizzatore: dove l'immagine finisce sullo
+ * schermo lo dicono le stesse righe del `graphicsLayer` che la disegna e del `Canvas` che ci
+ * posa sopra il pezzo.
  *
- * ⚠️⚠️ **IL CONTO CHE SCEGLIE IL PEZZO NON VIVE PIÙ QUI, DALLA `2.27`**: è [sharpAsk], in
- * `Regions.kt`, perché adesso lo chiede anche l'editor completo, che lavora su un'anteprima
- * ridotta e ha esattamente lo stesso problema. Due copie della stessa aritmetica sarebbero
- * divergenti al primo ritocco, e questa è la seconda volta che il repository la incontra.
+ * Il conto che sceglie il pezzo è [sharpAsk], in `Regions.kt`, perché lo usa anche l'editor
+ * completo: due copie della stessa aritmetica divergerebbero al primo ritocco.
  */
 private fun asked(
     reader: RegionSource,
@@ -2447,15 +2022,13 @@ private fun asked(
 }
 
 /**
- * La fotografia vicina, mentre si sfoglia col dito.
+ * L'immagine vicina, durante la strisciata.
  *
- * ⚠️ Lo spostamento arriva come **funzione** e si legge dentro `graphicsLayer`: preso
- * come valore, ogni pixel di trascinamento sarebbe una ricomposizione di questo
- * composable, cioè il contrario della fluidità che deve dare.
- * ⚠️ È la stessa `Preview` dell'anteprima, e deve esserlo: la vicina che scivola dentro
- * e l'anteprima che resta al centro subito dopo sono lo stesso disegno in due istanti
- * consecutivi, e se si scalassero in modo diverso il cambio di pagina avrebbe un salto
- * proprio nel punto in cui deve essere invisibile.
+ * Lo spostamento arriva come funzione e si legge dentro `graphicsLayer`: come valore, ogni
+ * pixel di trascinamento ricomporrebbe questa funzione.
+ * ⚠️ È la stessa [Preview] dell'anteprima: la vicina che scivola dentro e l'anteprima che
+ * resta al centro sono lo stesso disegno in due istanti consecutivi, e scalate in modo diverso
+ * farebbero saltare il cambio di pagina.
  */
 @Composable
 private fun Neighbour(uri: Uri?, settings: Settings, bar: BarSpace?, dx: () -> Float) {
@@ -2473,14 +2046,10 @@ private fun Neighbour(uri: Uri?, settings: Settings, bar: BarSpace?, dx: () -> F
 /**
  * A che punto è l'apertura.
  *
- * ⚠️⚠️ **DETERMINATO SOLO MENTRE SI SCARICA, e a cento torna a girare.** Un'immagine
- * presa dalla rete ha due attese diverse: il trasferimento, che si può contare, e la
- * decodifica, che no. Lasciando l'anello pieno al 100% durante la seconda si vedrebbe
- * una barra ferma a fine corsa, che è il modo classico di sembrare bloccati; il giro
- * indeterminato dice la verità, cioè 'sta lavorando e non so quanto manca'.
- * ⚠️ Per un file locale non arriva nessun numero, quindi qui si vede quello che si
- * vedeva prima: non c'è nessuna attesa da raccontare, e una barra che salta da zero a
- * cento in un fotogramma sarebbe rumore.
+ * Determinato solo mentre si scarica, e a cento torna a girare: un'immagine dalla rete ha due
+ * attese, il trasferimento, che si può contare, e la decodifica, che no. Un anello pieno fermo
+ * durante la decodifica sembrerebbe bloccato.
+ * Per un file locale non arriva nessun numero, e l'anello gira e basta.
  */
 @Composable
 private fun Progress(fraction: Float?, modifier: Modifier = Modifier) {
@@ -2504,9 +2073,8 @@ private fun Progress(fraction: Float?, modifier: Modifier = Modifier) {
 /**
  * Quello che non si è aperto, e come ritentare.
  *
- * ⚠️ **Il tasto esiste per la rete**: un `403` di passaggio, una galleria, un server
- * lento. Senza, l'unica via era il gesto Indietro e tutto il giro dell'indirizzo da
- * capo, che con un URL preso dagli appunti vuol dire ritrovarlo.
+ * Il tasto serve per la rete (un `403` di passaggio, una galleria, un server lento): senza,
+ * bisognerebbe tornare indietro e ritrovare l'indirizzo.
  */
 @Composable
 private fun ErrorMessage(
@@ -2552,29 +2120,26 @@ private fun ImageCanvas(
     /** Vedi il parametro omonimo di `ViewerScreen`. */
     inBin: Boolean,
     /**
-     * Il fotogramma da disegnare al posto dell'immagine ferma, quando è animata.
+     * Il fotogramma da disegnare al posto dell'immagine ferma, quando è animata; `null` per
+     * un'immagine ferma.
      *
-     * ⚠️⚠️ **SOSTITUISCE SOLO I PIXEL, NON LA GEOMETRIA, ed è il motivo per cui basta un
-     * parametro**: zoom, panoramica, riquadro di riposo e tasselli si calcolano tutti su
-     * `image`, e i fotogrammi di un'animazione hanno per forza la stessa misura della sua
-     * tela. Passare di qui un'immagine di misura diversa spezzerebbe quei conti in silenzio.
-     * ⚠️ **`null` è il caso normale**: una fotografia ferma non sa nemmeno che questo
-     * parametro esiste.
+     * ⚠️ Sostituisce solo i pixel, non la geometria: zoom, panoramica, riquadro di riposo e
+     * tasselli si calcolano su `image`, e i fotogrammi hanno la misura della sua tela.
+     * Un'immagine di misura diversa sbaglierebbe quei conti in silenzio.
      */
     frame: ImageBitmap? = null,
     /**
-     * Che cosa fa un tocco solo in mezzo allo schermo, e di serie **niente**.
+     * Che cosa fa un tocco solo in mezzo allo schermo; di serie niente.
      *
-     * ⚠️ Arriva da fuori perché la cosa da fare la sa il chiamante e non questa tela: sopra
-     * un'immagine animata mette in pausa, e sopra una ferma non c'è niente da fare. Vedi
-     * `onSingleTap` in [detectViewerGestures] per il ritardo che comporta.
+     * Lo decide il chiamante: sopra un'immagine animata mette in pausa. Il ritardo che
+     * comporta è spiegato su `onSingleTap` in [detectViewerGestures].
      */
     onSingleTap: () -> Unit = {},
     /**
-     * Che cosa fare **prima** che il tocco lungo apra il menu, e di serie niente.
+     * Che cosa fare prima che il tocco lungo apra il menu; di serie niente.
      *
-     * ⚠️ Serve a fermare un'animazione: la tela non sa che l'immagine si muove, quindi la
-     * cosa da fare la sa il chiamante, come per [onSingleTap].
+     * Serve a fermare un'animazione, che la tela non conosce: lo decide il chiamante, come per
+     * [onSingleTap].
      */
     onHold: () -> Unit = {},
     /** La barra delle info sopra o sotto la tela, o `null` quando non c'è. Vedi [BarSpace]. */
@@ -2585,8 +2150,7 @@ private fun ImageCanvas(
     // vibrazione del tocco lungo si chiama a mano.
     val haptics = LocalHapticFeedback.current
 
-    // ⚠️ Lo sfondo NON si dipinge più qui: vedi `ViewerScreen`, e la ragione per cui
-    // spostarlo era l'unico modo di togliere il lampeggio.
+    // Lo sfondo si dipinge in `ViewerScreen`, contro il lampeggio: vedi la nota là.
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
@@ -2598,40 +2162,31 @@ private fun ImageCanvas(
         val imageHeight = image.bitmap.height.toFloat()
 
         /**
-         * Di quanto il bitmap è più piccolo del FILE, cioè il campionamento subito
-         * all'apertura: **1** per la stragrande maggioranza delle immagini, 2 o 4 per
-         * quelle che non entravano intere in memoria.
+         * Di quanto il bitmap è più piccolo del file, cioè il campionamento all'apertura: 1 per
+         * quasi tutte le immagini, 2 o 4 per quelle che non entravano intere in memoria.
          */
         val sampleFactor = (image.pixelWidth / imageWidth).coerceAtLeast(1f)
 
         /**
-         * What '100%' is on THIS screen. Compose lays the picture out in device
-         * pixels, so a scale of 1 already means one pixel of the bitmap per pixel of
-         * the screen: that is [ScaleMode.PHYSICAL]. Asking instead for one pixel
-         * per LAYOUT pixel means scaling by the screen's density, which on a phone
-         * is two or three.
+         * Che cosa vuol dire '100%' su questo schermo. Compose dispone l'immagine in pixel del
+         * dispositivo, quindi la scala 1 è già un pixel del bitmap per pixel dello schermo:
+         * [ScaleMode.PHYSICAL]. Un pixel per pixel di layout vuol dire moltiplicare per la
+         * densità dello schermo, che su un telefono vale due o tre.
          *
-         * ⚠️⚠️ **E MOLTIPLICATO PER IL CAMPIONAMENTO, che è la correzione della 0.39.**
-         * Un pixel del bitmap non è un pixel del file quando il file è stato ridotto per
-         * entrare in memoria: su una foto da 30 megapixel campionata a metà, la scala 1
-         * mostrava **un quarto** dei pixel veri e la riga dei dettagli scriveva '100%'.
-         * Non era un difetto visibile finché quei pixel non c'erano comunque; adesso i
-         * tasselli li recuperano, quindi il 100% deve portare dove si vedono davvero,
-         * e sarebbe stato assurdo leggere a piena risoluzione a una scala chiamata 200%.
-         * ⚠️ Per un'immagine non campionata il fattore vale 1 e qui non cambia niente,
-         * che è il caso di quasi tutte.
+         * ⚠️ Il tutto è moltiplicato per il campionamento: su un'immagine da 30 megapixel
+         * campionata a metà, la scala 1 mostrava un quarto dei pixel veri e la riga dei dettagli
+         * scriveva '100%'. I tasselli recuperano quei pixel, e il 100% deve mostrarli.
          */
         val oneToOne =
             sampleFactor * if (settings.scaleMode == ScaleMode.PHYSICAL) 1f else density.density
 
-        // 'Fit' means shown whole. Growing a small picture to fill the screen is a
-        // separate wish, and it is a setting rather than the default for the same
-        // reason it is in the userscript: blowing up a 64px icon helps nobody.
         /*
-         * ⚠️⚠️ **DALLA `3.60` IL RIPOSO SI CALCOLA SULLO SPAZIO CHE LA BARRA LASCIA LIBERO**, e
-         * non su tutta la vista (richiesta dell'utente, mockup `Viewer_NOPE`): la regola, con la
-         * tolleranza del 5% in orizzontale, vive in `restPlace` (`Fit.kt`), perché la chiedono
-         * anche l'anteprima e la vicina che entra dal bordo.
+         * 'Adatta' vuol dire mostrata intera. Ingrandire un'immagine piccola fino a riempire lo
+         * schermo è un'impostazione a parte e non il comportamento di serie: un'icona da 64 px
+         * ingrandita non serve a nessuno.
+         * Il riposo si calcola sullo spazio che la barra lascia libero (mockup `Viewer_NOPE`):
+         * la regola, con la tolleranza del 5% in orizzontale, vive in `restPlace` (`Fit.kt`),
+         * perché la usano anche l'anteprima e la vicina che entra dal bordo.
          */
         val place = restPlace(
             viewWidth, viewHeight, imageWidth, imageHeight,
@@ -2640,46 +2195,38 @@ private fun ImageCanvas(
         )
         val restScale = place.scale
 
-        // ⚠️ In verticale la fascia di riposo è quella di [place], non la vista intera: vedi
-        // `clampAxis`, che senza barra torna la regola di sempre.
+        // In verticale la fascia di riposo è quella di [place], non la vista intera: vedi
+        // `clampAxis`, che senza barra usa la vista intera.
         fun clampOffset(candidate: Offset, atScale: Float): Offset = Offset(
             clampAxis(candidate.x, imageWidth * atScale, viewWidth, 0f, viewWidth),
             clampAxis(candidate.y, imageHeight * atScale, viewHeight, place.top, place.bottom)
         )
 
         /*
-         * ⚠️⚠️ **LA CHIAVE È LA SCALA DI RIPOSO E NON LE IMPOSTAZIONI, DALLA `1.81`** (riscontro
-         * dell'utente: *lo zoom si azzera a ogni impostazione cambiata, anche una che con lo zoom
-         * non c'entra niente*). Con `settings` intero come chiave, **qualunque** preferenza
-         * toccata rifaceva questo ricordo: la posizione della barra delle info, il tema, l'ordine
-         * dei tasti. Nessuna di quelle dice niente su quanto è ingrandita l'immagine.
-         * ⚠️ **[restScale] è la chiave GIUSTA e non una più piccola per prudenza**: riassume le
-         * sole due impostazioni che contano ('Ingrandisci le immagini piccole' e il metro del
-         * 100%) più la misura della vista, cioè esattamente le cose il cui cambiamento rende la
-         * scala di prima un numero senza senso.
-         * ⚠️⚠️ **E DALLA `1.82` QUELLO CHE CAMBIA È IL RIPOSO, NON L'INGRANDIMENTO** (voce
-         * `zoom-rotazione`, non approvata due volte: *è come prima*). Il rapporto rispetto al
-         * riposo e il punto inquadrato li tiene [ZoomKeep], che sopravvive alla rotazione perché
-         * l'activity si ricrea e nessun `remember` arriva dall'altra parte. Quindi qui la chiave
-         * resta la stessa e cambia il **valore di partenza**: la scala di riposo moltiplicata per
-         * l'ingrandimento di prima.
-         * ⚠️ **Il limite si applica al ripristino e non alla nota presa**: `zoomMax` è
-         * un'impostazione, e una scala tenuta con un tetto alto non deve saltare quello di adesso.
+         * ⚠️ La chiave è la scala di riposo e non le impostazioni (riscontro dell'utente sulla
+         * `1.81`): con `settings` intero, qualunque preferenza toccata azzerava lo zoom.
+         * [restScale] riassume le sole cose che contano ('Ingrandisci le immagini piccole', il
+         * metro del 100% e la misura della vista).
+         * Al cambio di riposo, per esempio in una rotazione, si conserva l'ingrandimento rispetto
+         * al riposo (voce `zoom-rotazione`): il rapporto e il punto inquadrato li tiene
+         * [ZoomKeep], che sopravvive alla ricreazione dell'activity, e il valore di partenza è la
+         * scala di riposo per l'ingrandimento di prima.
+         * Il limite `zoomMax` si applica al ripristino e non alla nota presa, perché è
+         * un'impostazione che può cambiare.
          */
         val kept = rememberZoomKeep(remember(image, source) { ImageActions.fileName(image, source) })
         var scale by remember(image, restScale) {
             mutableFloatStateOf(kept.scaleFor(restScale).coerceIn(MIN_SCALE, settings.zoomMax))
         }
-        // ⚠️ Anche la fascia è una chiave: su un'immagine limitata dalla larghezza la scala non
+        // Anche la fascia è una chiave: su un'immagine limitata dalla larghezza la scala non
         // cambia quando la barra si nasconde, ma il centro di riposo sì.
         var offset by remember(image, restScale, place.top, place.bottom) {
             mutableStateOf(clampOffset(kept.offsetFor(scale, imageWidth, imageHeight), scale))
         }
         /*
-         * ⚠️ **La nota si prende con un flusso e non con un `LaunchedEffect` per valore**: lo
-         * scostamento cambia a ogni fotogramma di una panoramica, e con lui come chiave si
-         * rifarebbe la coroutine sessanta volte al secondo. È la stessa forma con cui la
-         * percentuale esce di qui, poche righe più sotto.
+         * La nota si prende con un flusso e non con un `LaunchedEffect` per valore: lo
+         * scostamento cambia a ogni fotogramma di una panoramica, e come chiave rifarebbe la
+         * coroutine sessanta volte al secondo. Come per la percentuale, più sotto.
          */
         LaunchedEffect(kept, restScale, imageWidth, imageHeight) {
             snapshotFlow { scale to offset }.collect { (atScale, atOffset) ->
@@ -2687,27 +2234,21 @@ private fun ImageCanvas(
             }
         }
 
-        // ⚠️ La riga torna a mostrarsi a ogni fotografia nuova, come faceva quando viveva
-        // qui dentro: spegnerla è una decisione su **questa** immagine, non una
-        // preferenza, che è quello che dice l'impostazione.
-        // ⚠️ E l'esito dei tasselli si AZZERA con lei: la riga sopravvive al cambio di
-        // fotografia (è il rimedio al lampeggio della `0.42`), quindi senza questa riga
-        // porterebbe l'esito di quella di prima sopra quella di adesso, per il tempo che
-        // serve a riaprire il lettore. Un dato vecchio in una diagnostica è peggio di
-        // nessun dato.
-        // ⚠️ La chiave è l'impostazione della barra e non l'oggetto intero, dalla `1.81`: con
-        // `settings` come chiave, l'esito dei tasselli si azzerava e la barra riappariva a ogni
-        // preferenza toccata, comprese quelle che non la riguardano.
+        // La riga torna visibile, secondo l'impostazione, a ogni immagine nuova: nasconderla è
+        // una decisione su questa immagine.
+        // ⚠️ L'esito dei tasselli si azzera con lei: la riga sopravvive al cambio di immagine,
+        // e mostrerebbe l'esito della precedente mentre il lettore si riapre.
+        // La chiave è `settings.infoVisible` e non `settings` intero, o la barra riapparirebbe a
+        // ogni preferenza toccata.
         LaunchedEffect(image, settings.infoVisible) {
             info.visible = settings.infoVisible
             info.tiles = null
         }
 
         /*
-         * ⚠️ La percentuale esce di qui con un flusso e non con una scrittura durante la
-         * composizione: `scale` cambia a ogni fotogramma di una pinza, e scriverne il
-         * derivato mentre si compone è il modo di farsi rifare la composizione da capo
-         * dentro sé stessa. Così invece si aggiorna solo il testo che la mostra.
+         * La percentuale esce con un flusso e non con una scrittura in composizione: `scale`
+         * cambia a ogni fotogramma di una pinza, e scriverne il derivato mentre si compone
+         * rifarebbe la composizione da capo. Così si aggiorna solo il testo che la mostra.
          */
         LaunchedEffect(oneToOne) {
             snapshotFlow { scale }.collect { info.percent = it / oneToOne }
@@ -2717,58 +2258,41 @@ private fun ImageCanvas(
         val context = LocalContext.current
 
         /**
-         * Di quanto la fotografia è stata trascinata di lato, in pixel.
+         * Di quanto l'immagine è stata trascinata di lato, in pixel: la figura lo segue e la
+         * vicina entra dal bordo.
          *
-         * ⚠️⚠️ **È QUESTO CHE RENDE FLUIDA LA SFOGLIATURA, e fino alla 0.35 non
-         * esisteva**: il rilevatore sommava lo spostamento in una variabile sua e sullo
-         * schermo non si muoveva niente, quindi il dito trascinava il vuoto e la
-         * fotografia cambiava di scatto al distacco. Ora il numero vive qui, la figura lo
-         * segue e la vicina entra dal bordo.
-         * ⚠️ Si azzera col cambio di fotografia perché la chiave del `remember` è
-         * `image`: quando la nuova arriva, la pagina è già al suo posto.
+         * La chiave è la sola `image`: si azzera quando arriva l'immagine nuova, e nessuna
+         * impostazione deve azzerare un gesto in corso.
          */
-        // ⚠️ La chiave è la sola immagine dalla `1.81`: nessuna impostazione dice niente su dove
-        // sta la pagina che si sta trascinando, e con `settings` in chiave un cambiamento
-        // qualunque azzerava il gesto in corso.
         var travel by remember(image) { mutableFloatStateOf(0f) }
 
         /**
          * Se una pagina sta andando a destinazione.
          *
-         * ⚠️ Serve a non far cominciare una seconda strisciata mentre la prima atterra:
-         * i due movimenti scriverebbero lo stesso numero, e due arrivi vorrebbero dire
-         * due fotografie saltate con un gesto solo. Si legge **al momento in cui il dito
-         * scende**, come le altre due condizioni della strisciata.
+         * ⚠️ Impedisce una seconda strisciata mentre la prima arriva: i due movimenti
+         * scriverebbero lo stesso numero, e un gesto solo salterebbe due immagini. Si legge
+         * quando il dito scende, come le altre condizioni della strisciata.
          */
         var settling by remember(image) { mutableStateOf(false) }
 
         val pageGap = with(density) { PAGE_GAP.toPx() }
         val series = folder?.seriesOrNull
         /*
-         * ⚠️ Nell'ordine di LETTURA, lo stesso che conta `onStep`: la 'dopo' è quella che
-         * arriva strisciando verso sinistra, cioè quella che `onStep(1)` aprirà. Se le due
-         * divergessero, si vedrebbe entrare una foto e comparirne un'altra.
-         * ⚠️⚠️ **E DALLA 1.06 SALTANO I FILMATI COME LI SALTA IL PASSO**: prima erano un
-         * `index ± 1` crudo, e con 'Sfoglia solo le immagini' acceso divergevano proprio nel
-         * modo che la nota qui sopra prometteva di evitare. Il filmato scivolava dentro dal
-         * bordo, il dito si alzava, e il passo saltava a quello dopo: si vedeva un filmato
-         * *per un istante*, che è il difetto segnalato dall'utente. Il salto adesso è uno
-         * solo, e vive su `Folder.Series`.
-         * ⚠️ **Da qui viene anche la resistenza al capolinea**: con soli filmati di là,
-         * `toward` risponde `null`, quindi il gesto frena come all'ultima fotografia. Prima
-         * la pagina si lasciava trascinare fino in fondo per poi non andare da nessuna
-         * parte.
+         * ⚠️ Nell'ordine di lettura, lo stesso di `onStep`: la successiva è quella che arriva
+         * strisciando verso sinistra, e che `onStep(1)` aprirà. Con 'Sfoglia solo le immagini'
+         * le vicine saltano i filmati come il passo: la regola di salto è una sola, su
+         * `Folder.Series`, o entrerebbe un filmato e ne comparirebbe un altro.
+         * Con soli filmati da quella parte `toward` risponde `null`, e il gesto frena come
+         * all'ultima immagine.
          */
         val skipVideos = settings.imagesOnly
         val nextUri = series?.toward(1, skipVideos)
         val prevUri = series?.toward(-1, skipVideos)
 
-        // ⚠️⚠️ LE DUE VICINE SI CHIEDONO SUBITO, e non quando il dito le tira dentro:
-        // una miniatura che comincia a generarsi nell'istante del gesto arriva **dopo**
-        // il gesto, e si vedrebbe entrare un rettangolo vuoto. Qui la fotografia grande è
-        // già decodificata (siamo in `Ready`), quindi queste due richieste non rubano
-        // niente a quello che si sta guardando, e servono due volte: alla vicina che
-        // scorre e alla `PreviewThumb` che comparirà appena la pagina gira.
+        // ⚠️ Le due vicine si chiedono subito: una miniatura generata nell'istante del gesto
+        // arriverebbe dopo, e si vedrebbe entrare un rettangolo vuoto. In `Ready` l'immagine
+        // grande è già decodificata, quindi non si toglie niente a quella; le miniature servono
+        // alla vicina che scorre e alla `PreviewThumb` della pagina successiva.
         LaunchedEffect(nextUri, prevUri) {
             val loader = SingletonImageLoader.get(context)
             listOfNotNull(nextUri, prevUri).forEach { loader.execute(Thumbs.request(context, it)) }
@@ -2777,33 +2301,23 @@ private fun ImageCanvas(
         /**
          * Se una pagina si sta muovendo, per accendere le vicine solo mentre servono.
          *
-         * ⚠️⚠️ **`derivedStateOf` e non `travel != 0f` letto direttamente**, ed è la
-         * differenza fra un gesto fluido e uno a scatti: `travel` cambia a ogni
-         * fotogramma, e leggerlo qui rifarebbe la composizione sessanta volte al secondo.
-         * Così invece si ricompone **due volte per gesto**, quando il booleano si accende
-         * e quando si spegne; il movimento vero passa dai blocchi `graphicsLayer`, che
-         * leggono lo stato senza ricomporre.
-         * ⚠️ Le chiavi sono le stesse di `travel`, e non è pignoleria: un `remember`
-         * senza chiavi terrebbe il calcolo agganciato allo stato della fotografia
-         * **precedente**, che resta fermo al suo ultimo valore, e le vicine non si
+         * ⚠️ `derivedStateOf` e non `travel` letto direttamente: `travel` cambia a ogni
+         * fotogramma, e la composizione si rifarebbe sessanta volte al secondo; così si
+         * ricompone due volte per gesto, e il movimento passa dai `graphicsLayer`.
+         * Fra le chiavi c'è `image`, come per `travel`: senza, il calcolo resterebbe legato
+         * allo stato dell'immagine precedente, fermo al suo ultimo valore, e le vicine non si
          * spegnerebbero più.
          */
         val dragging by remember(image, settings) { derivedStateOf { travel != 0f } }
 
         /**
-         * La lettura a pezzi della fotografia, quando serve e si può.
+         * La lettura a pezzi dell'immagine, quando serve e si può.
          *
-         * ⚠️ Nella stragrande maggioranza dei casi è **null**, ed è voluto: `open`
-         * rinuncia subito se l'immagine non era campionata, cioè se è già entrata
-         * intera in memoria e non c'è nessun dettaglio da recuperare. Là questa strada
-         * non costa niente e il visualizzatore è quello di sempre.
-         */
-        /*
-         * ⚠️ **Un involucro invece del lettore nudo, e non è cerimonia**: `null` deve poter
-         * dire *sto ancora aprendo* e non *non si può aprire*, e un lettore nudo confonde
-         * le due cose, perché l'apertura fallita restituisce anch'essa `null`. Senza la
-         * distinzione la riga dei dettagli accuserebbe il formato per la frazione di
-         * secondo che serve ad aprirlo.
+         * Quasi sempre il lettore è `null`: `open` rinuncia se l'immagine non era campionata,
+         * cioè se è entrata intera in memoria e non c'è dettaglio da recuperare.
+         * ⚠️ È in un involucro perché `null` deve dire 'sto ancora aprendo', mentre l'apertura
+         * fallita restituisce anch'essa `null`: senza la distinzione la riga dei dettagli
+         * accuserebbe il formato mentre il file si apre.
          */
         val regions by produceState<RegionHolder?>(null, image, source) {
             val opened = RegionSource.open(context, source, image)
@@ -2815,32 +2329,27 @@ private fun ImageCanvas(
         var sharp by remember(image, settings) { mutableStateOf<SharpTile?>(null) }
 
         /*
-         * ⚠️⚠️ **SI LEGGE QUANDO IL DITO SI FERMA, e la pausa è la funzione, non un
-         * ripiego**: decodificare a ogni fotogramma di una pinza vorrebbe dire leggere
-         * dal file sessanta volte al secondo per pezzi che nessuno ha ancora guardato.
-         * Finché ci si muove si vede il bitmap di base ingrandito, cioè esattamente
-         * quello che si vedeva prima; un quinto di secondo dopo che ci si ferma arriva
-         * la nitidezza.
-         * ⚠️ `collectLatest` più `delay` **è** l'attesa: ogni movimento annulla il conto
-         * alla rovescia precedente e insieme la decodifica che stava partendo.
+         * Il pezzo nitido si legge quando il dito si ferma: a ogni fotogramma di una pinza si
+         * leggerebbe dal file sessanta volte al secondo. Finché ci si muove si vede il bitmap
+         * di base ingrandito, e [TILE_DELAY_MS] dopo l'ultimo movimento arriva la nitidezza.
+         * `collectLatest` più `delay` è l'attesa: ogni movimento annulla il conto alla rovescia
+         * precedente e la decodifica che stava partendo.
          */
         LaunchedEffect(regions, viewWidth, viewHeight) {
             // Ancora in apertura: non si dice niente, perché non si sa ancora niente.
             val reader = (regions ?: return@LaunchedEffect).reader
             if (reader == null) {
                 sharp = null
-                // ⚠️ Il formato o l'orientamento: `RegionSource.open` rinuncia quando non
-                // sa rileggere il file, e quando le misure grezze non concordano col tag
-                // EXIF. Sono due cose, ma da qui si vedono uguali, e dirne una sola
-                // sarebbe peggio che dirle insieme.
+                // Il formato o l'orientamento: `RegionSource.open` rinuncia quando non sa
+                // rileggere il file e quando le misure grezze non concordano col tag EXIF. Da
+                // qui i due casi non si distinguono.
                 info.tiles = if (image.sampled) "no tile: format" else null
                 return@LaunchedEffect
             }
             snapshotFlow { scale to offset }.collectLatest { (atScale, atOffset) ->
                 delay(TILE_DELAY_MS)
-                // ⚠️ **I pixel del bitmap di base e la sua misura su schermo sono due cose**,
-                // e servono tutte e due: la prima dice quanto dettaglio si ha già in mano, la
-                // seconda dove la fotografia è finita. Coincidono solo al 100%.
+                // I pixel del bitmap di base dicono quanto dettaglio c'è già, la sua misura su
+                // schermo dove è finita l'immagine: coincidono solo al 100%.
                 when (
                     val ask = asked(
                         reader, image.bitmap.width, imageWidth, imageHeight,
@@ -2863,16 +2372,13 @@ private fun ImageCanvas(
         /**
          * Porta la pagina a destinazione, o la riporta al suo posto.
          *
-         * ⚠️ **Chi non si è mosso non ha niente da riportare**, e senza questa uscita una
-         * trascinata verticale (che passa di qui con lo spostamento a zero) bloccherebbe
-         * la strisciata per i 220ms dell'animazione, cioè proprio quando il dito sta per
-         * ricominciare.
-         * ⚠️ **Perché la pagina non può restare fuori schermo**: `settling` si spegne da
-         * sé solo nel ritorno al posto, e negli altri casi conta su `onStep`, che ricarica
-         * il visualizzatore e butta via questo stato insieme al resto. Regge perché
-         * `reachable` legge la stessa serie che `onStep` conta, e quella serie sotto un
-         * `ImageCanvas` vivo non cambia: ogni altra via che la riscrive passa da
-         * `state = Loading`, che questa schermata non le sopravvive.
+         * Senza spostamento si esce subito: un trascinamento verticale passa di qui con lo
+         * spostamento a zero, e bloccherebbe la strisciata per i [SNAP_MS] dell'animazione.
+         * ⚠️ `settling` si spegne da sé solo nel ritorno al posto; negli altri casi `onStep`
+         * ricarica il visualizzatore e scarta questo stato. La pagina non resta fuori schermo
+         * perché `reachable` legge la stessa serie che `onStep` conta, e quella serie sotto un
+         * `ImageCanvas` attivo non cambia: chi la riscrive passa da `state = Loading`, che
+         * smonta questa schermata.
          */
         fun settle(step: Int) {
             if (step == 0 && travel == 0f) return
@@ -2884,10 +2390,8 @@ private fun ImageCanvas(
                     else -> 0f
                 }
                 Animatable(travel).animateTo(target, tween(SNAP_MS)) { travel = value }
-                // ⚠️ Il passo si chiede DOPO l'animazione, non prima: chiedendolo prima,
-                // la fotografia nuova arriverebbe mentre la vecchia sta ancora scivolando
-                // via, e si vedrebbero due immagini sovrapposte. Chiesto qui, il
-                // visualizzatore si rifà da capo con la pagina già al centro.
+                // ⚠️ Il passo si chiede dopo l'animazione: prima, l'immagine nuova arriverebbe
+                // mentre la vecchia scivola ancora via, e se ne vedrebbero due sovrapposte.
                 if (step == 0) settling = false else onStep(step)
             }
         }
@@ -2895,11 +2399,9 @@ private fun ImageCanvas(
         /**
          * Lo scivolamento in corso, e `null` quando la figura è ferma.
          *
-         * ⚠️⚠️ **SI ANNULLA APPENA UN DITO TORNA GIÙ**, e senza questo l'inerzia diventerebbe
-         * un difetto invece di una comodità: chi appoggia il dito su una fotografia che
-         * scivola vuole fermarla, e due scrittori sullo stesso `offset` (l'animazione e il
-         * gesto) darebbero uno strappo. L'annullamento sta dentro [zoomAround] e [animateTo],
-         * cioè nei due soli punti da cui `offset` cambia per volontà di qualcuno.
+         * ⚠️ Si annulla appena un dito torna giù: chi appoggia il dito su un'immagine che
+         * scivola vuole fermarla, e due scrittori sullo stesso `offset` darebbero uno strappo.
+         * L'annullamento è in [zoomAround] e [animateTo], i due punti da cui `offset` cambia.
          */
         var gliding by remember(image, settings) { mutableStateOf<Job?>(null) }
 
@@ -2908,12 +2410,12 @@ private fun ImageCanvas(
             gliding = null
         }
 
-        // ⚠️ La curva e la soglia si preparano una volta: la prima dipende dalla densità, la
-        // seconda è una velocità in dp al secondo che va tradotta in pixel.
+        // La curva e la soglia si preparano una volta: la prima dipende dalla densità, la
+        // seconda è una velocità in dp al secondo da tradurre in pixel.
         val decay = remember(density) { splineBasedDecay<Offset>(density) }
         val glideFloor = with(density) { GLIDE_FLOOR.toPx() }
 
-        /** Rescales around a point on screen, keeping what is under that point still. */
+        /** Cambia scala intorno a un punto dello schermo, tenendo fermo quello che c'è sotto. */
         fun zoomAround(anchor: Offset, next: Float, pan: Offset = Offset.Zero) {
             stopGlide()
             val clamped = next.coerceIn(MIN_SCALE, settings.zoomMax)
@@ -2924,28 +2426,20 @@ private fun ImageCanvas(
         }
 
         /*
-         * ⚠️⚠️ **LA SPECIFICA NON SI SCRIVE, ED È UNA SCELTA: qui vale quella di serie**
-         * (censimento della UI del 2026-09-05, che segnala questi punti come *le uniche
-         * animazioni senza specifica dichiarata*; il fatto è vero, il rimedio no). Il valore
-         * di serie di `animateTo` è la molla di Compose, cioè un movimento che si può
-         * interrompere e riprendere a metà: è esattamente quello che serve a uno zoom, dove un
-         * secondo doppio tocco arriva mentre il primo è ancora in corsa.
-         * ⚠️⚠️ **RISCRIVERLA A MANO SAREBBE UN PEGGIORAMENTO**, e la regola citata dal rilievo
-         * dice un'altra cosa: quella nasce in `ActionPad.kt` per **un** gesto che aveva due
-         * definizioni in due schermate vicine, cioè vieta di scrivere due volte lo stesso
-         * movimento, non di usare un valore di serie. Copiare qui i numeri della molla di
-         * fabbrica creerebbe la copia che quella regola vieta, e la prima a divergere sarebbe la
-         * nostra il giorno che la libreria li ritocca.
-         * ⚠️ **Quello che invece si dichiara è il movimento CHIESTO**: la strisciata ha [SNAP_MS]
-         * perché la sua durata l'ha dettata lui, e il volo dopo un trascinamento ha il proprio
-         * decadimento. Le animazioni senza numeri sono quelle di cui nessuno ha mai parlato.
+         * La specifica dell'animazione non si scrive, ed è voluto (censimento della UI del
+         * 2026-09-05): la molla di serie di `animateTo` si interrompe e riprende a metà, come
+         * serve a uno zoom in cui un secondo doppio tocco arriva durante il primo. La regola di
+         * `ActionPad.kt` vieta di scrivere due volte lo stesso movimento, non di usare un valore
+         * di serie, e copiare qui i numeri della molla creerebbe proprio una copia.
+         * Si dichiarano i movimenti chiesti dall'utente: la strisciata ha [SNAP_MS], e lo
+         * scivolamento dopo un trascinamento ha il suo decadimento.
          */
         fun animateTo(target: Float) {
             stopGlide()
             scope.launch {
                 val from = scale
                 val animation = Animatable(from)
-                // ⚠️ Intorno al centro della fascia libera, dalla `3.71`: vedi `zoomOffset`.
+                // Intorno al centro della fascia libera: vedi `zoomOffset`.
                 val pivot = place.centre - viewHeight / 2f
                 val start = offset
                 animation.animateTo(target.coerceIn(MIN_SCALE, settings.zoomMax)) {
@@ -2959,33 +2453,24 @@ private fun ImageCanvas(
         }
 
         /**
-         * L'inerzia della panoramica: al distacco la figura continua e frena da sé.
+         * L'inerzia della panoramica: al distacco la figura continua e frena da sé (richiesta
+         * dell'utente).
          *
-         * ⚠️⚠️ **NASCE DALLA 0.81** (richiesta dell'utente: *inerzia del trascinamento*):
-         * prima la figura si fermava nell'istante in cui il dito si stacca, che su una
-         * fotografia ingrandita è il gesto più frequente di tutti e l'unico che sembrava di
-         * un'app di dieci anni fa.
-         * ⚠️⚠️ **LA CURVA DI FRENATA È QUELLA DEL SISTEMA** (`splineBasedDecay`), non
-         * un'esponenziale con un attrito scelto da me: è la stessa che Android usa per lo
-         * scorrimento di ogni elenco, quindi il gesto qui dentro finisce **come finisce
-         * altrove**, e non c'è nessun numero da tarare a naso.
-         * ⚠️ **Si ferma appena il bordo ferma la figura**, e senza questo controllo
-         * l'animazione continuerebbe a girare per il suo secondo intero mentre l'immagine è
-         * già ferma contro il limite: `clampOffset` la tiene dentro, quindi il valore
-         * calcolato smette di cambiare qualcosa e tanto vale smettere di calcolarlo.
-         * ⚠️ **Sotto [GLIDE_FLOOR] non parte niente**: un dito che si alza da fermo lascia
-         * una velocità piccola ma non nulla, e uno scivolamento di due pixel si legge come un
-         * sussulto invece che come inerzia.
+         * La curva di frenata è quella del sistema (`splineBasedDecay`), la stessa dello
+         * scorrimento di ogni elenco di Android, e non ha numeri da tarare.
+         * Si ferma appena il bordo ferma la figura: `clampOffset` la tiene dentro, e
+         * l'animazione girerebbe per il suo secondo intero senza cambiare niente.
+         * Sotto [GLIDE_FLOOR] non parte: un dito che si alza da fermo lascia una velocità
+         * piccola, e uno scivolamento di due pixel sembrerebbe un sussulto.
          */
         fun glideBy(velocity: Velocity) {
             val speed = Offset(velocity.x, velocity.y)
             if (speed.getDistance() < glideFloor) return
             stopGlide()
             gliding = scope.launch {
-                // ⚠️ `AnimationState` e non `Animatable`, e la differenza è l'unica cosa che
-                // permette di fermarsi al bordo: il blocco di `Animatable` ha per ricevitore
-                // l'animabile stesso, quello di `AnimationState` un `AnimationScope`, che è
-                // dove vive `cancelAnimation`.
+                // `AnimationState` e non `Animatable`, per potersi fermare al bordo: il blocco
+                // di `AnimationState` ha per ricevitore un `AnimationScope`, che ha
+                // `cancelAnimation`.
                 AnimationState(Offset.VectorConverter, offset, speed).animateDecay(decay) {
                     val next = clampOffset(value, scale)
                     if (next == offset) cancelAnimation() else offset = next
@@ -2993,27 +2478,13 @@ private fun ImageCanvas(
             }
         }
 
-        // ⚠️⚠️ **`requiredSize` E NON `size`, ED È IL DIFETTO PER CUI LE IMMAGINI GRANDI SI
-        // APRIVANO PICCOLE INVECE CHE ADATTATE** (segnalato dall'utente, corretto nella 0.31).
-        // `size` **negozia** col genitore: `SizeNode.measure` chiama `constrain(vincoli in
-        // ingresso, misura chiesta)` quando `enforceIncoming` è vero, e per `size` è vero
-        // (verificato nel bytecode di `foundation-layout` nella 0.28, quando la stessa
-        // trappola aveva mangiato l'ingrandimento dell'icona). Qui il genitore è il
-        // `BoxWithConstraints` della vista, quindi un'immagine **più grande della vista**
-        // veniva ricondotta alla misura della vista, la bitmap ci finiva dentro adattata, e
-        // poi `graphicsLayer` applicava la scala UNA SECONDA VOLTA.
-        // - **Effetto**: larghezza disegnata = vista x scala, invece di bitmap x scala. Cioè
-        //   l'immagine veniva piccola **esattamente del fattore di adattamento**.
-        // - **Perché solo le grandi**: un'immagine più piccola della vista non viene
-        //   ricondotta a niente, e infatti si è sempre vista giusta. I WebP dell'utente sono
-        //   i suoi file più grossi, ed è per questo che il difetto sembrava del formato.
-        // - **Misura che lo prova**: su uno screenshot di un 2736 x 4096 la figura occupava il
-        //   43.6% della larghezza, cioè **esattamente la scala di riposo**, che è la firma di
-        //   questo difetto: se il nodo fosse la bitmap, quella frazione sarebbe 1.
-        // - ⚠️ **E spiega anche i 'passi forzati' dello zoom**: con il nodo ricondotto, ogni
-        //   scala era moltiplicata per il fattore di adattamento, quindi nemmeno il 100%
-        //   mostrava un pixel per pixel. Un difetto solo, due sintomi.
-        // ⚠️ Il ritaglio non si perde: il `BoxWithConstraints` qui sopra ha `clipToBounds`.
+        // ⚠️ `requiredSize` e non `size`: `size` negozia col genitore (`SizeNode.measure`
+        // applica i vincoli in ingresso quando `enforceIncoming` è vero, verificato nel bytecode
+        // di `foundation-layout`), quindi un'immagine più grande della vista era ricondotta alla
+        // misura della vista e poi `graphicsLayer` applicava la scala una seconda volta. Le
+        // immagini grandi si aprivano piccole del fattore di adattamento, e nemmeno il 100%
+        // mostrava un pixel per pixel.
+        // Il ritaglio resta: il `BoxWithConstraints` qui sopra ha `clipToBounds`.
         Image(
             bitmap = frame ?: image.bitmap,
             contentDescription = image.displayName,
@@ -3023,26 +2494,19 @@ private fun ImageCanvas(
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale
-                    // ⚠️ Lo spostamento della sfogliatura si SOMMA a quello della
-                    // panoramica invece di sostituirlo: la strisciata vive solo a riposo,
-                    // dove `offset` è zero, ma se un domani i due stati si
-                    // sovrapponessero, sostituirlo farebbe saltare la figura al primo
-                    // pixel di trascinamento.
+                    // Lo spostamento della strisciata si somma a quello della panoramica: la
+                    // strisciata esiste solo a riposo, dove `offset` è zero, ma se i due stati
+                    // si sovrapponessero la figura non salterebbe.
                     translationX = offset.x + travel
                     translationY = offset.y
                 }
         )
 
         /*
-         * ⚠️⚠️ **IL TASSELLO SI DISEGNA SOPRA LA FIGURA, NON AL SUO POSTO**, ed è quello
-         * che rende innocua tutta questa strada: sotto c'è sempre la fotografia intera
-         * com'è sempre stata, e questo è un rattoppo nitido sulla parte che si guarda.
-         * Se un giorno finisse fuori posto si vedrebbe un rettangolo spostato, non
-         * un'immagine mancante.
-         * ⚠️ La posizione si ricalcola **al disegno**, leggendo scala e spostamento
-         * dentro il `Canvas`: così il pezzo resta incollato alla figura mentre il dito
-         * la muove, senza che nessuno ricomponga niente. È la stessa formula del
-         * `graphicsLayer` qui sopra, `travel` compreso.
+         * Il tassello si disegna sopra la figura, non al suo posto: sotto c'è sempre l'immagine
+         * intera, e un tassello fuori posto sarebbe un rettangolo spostato, non un'immagine
+         * mancante. La posizione si ricalcola nel disegno, con la formula del `graphicsLayer`
+         * qui sopra, `travel` compreso: il pezzo segue la figura senza ricomporre niente.
          */
         sharp?.let { tile ->
             Canvas(modifier = Modifier.matchParentSize()) {
@@ -3061,40 +2525,29 @@ private fun ImageCanvas(
             }
         }
 
-        // ⚠️ Le vicine esistono SOLO mentre si trascina: a riposo non c'è niente da
-        // disegnare, e tenerle in scena costerebbe due immagini per ogni fotografia
-        // guardata. ⚠️ Sono MINIATURE, le stesse della griglia e della `PreviewThumb`:
-        // entrano nell'istante del gesto perché sono già in memoria, e la fotografia
-        // vera arriva quando la pagina è girata.
+        // Le vicine esistono solo mentre si trascina: a riposo costerebbero due immagini per
+        // ogni immagine guardata. Sono le miniature della griglia e della `PreviewThumb`, già in
+        // memoria, e l'immagine vera arriva quando la pagina è girata.
         if (dragging) {
             Neighbour(nextUri, settings, bar) { travel + viewWidth + pageGap }
             Neighbour(prevUri, settings, bar) { travel - viewWidth - pageGap }
         }
 
-        // A riposo la figura non ha gioco da trascinare, quindi una strisciata
-        // orizzontale non serve a niente e può cambiare immagine. Ingrandita
-        // serve a spostarsi dentro la foto, e lì il rilevatore non c'è proprio.
+        // A riposo la figura non ha gioco da trascinare, quindi una strisciata orizzontale può
+        // cambiare immagine; ingrandita, serve a spostarsi dentro l'immagine.
         val atRest = abs(scale - restScale) < 0.01f
 
         /**
-         * Se la strisciata è ammessa, letto **al momento in cui il dito scende**.
+         * Se la strisciata è ammessa, letto quando il dito scende.
          *
-         * ⚠️⚠️ **QUESTO È IL RIMEDIO ALLA PINZA CHE SI INCOLLAVA ALL'ADATTAMENTO, ed è la
-         * ragione per cui `atRest` NON è più una chiave di `pointerInput`.** Verificato sul
-         * bytecode di `compose.ui`: `SuspendingPointerInputModifierNodeImpl.update$ui`
-         * confronta le chiavi con `Arrays.equals` e chiama **`resetPointerInputHandler()`**
-         * quando cambiano, cioè **annulla il gesto in corso**. Siccome `atRest` si rovescia
-         * proprio quando la scala attraversa la banda dell'adattamento, ogni pinza moriva
-         * là: il dito era ancora giù e il gesto non c'era più. L'utente lo ha misurato come
-         * 'si blocca al 13%', con un pelo di asimmetria nei due versi, che è la banda di
-         * 0.01 vista da sopra e da sotto.
-         * ⚠️ **Regola che vale oltre questo caso**: uno stato che cambia DURANTE un gesto non
-         * può essere una chiave di `pointerInput`, perché quel gesto è la prima cosa che il
-         * cambiamento distrugge. Vale anche per `folder`, che cambia quando la ricerca della
-         * cartella risponde e annullava le pinze fatte subito dopo l'apertura.
-         * ⚠️ Letto **una volta per gesto** e non a ogni evento: così una panoramica che entra
-         * nella banda dell'adattamento resta una panoramica invece di diventare a metà strada
-         * una strisciata che cambia immagine.
+         * ⚠️ Uno stato che cambia durante un gesto non può essere una chiave di `pointerInput`:
+         * `SuspendingPointerInputModifierNodeImpl.update$ui` confronta le chiavi e, se
+         * cambiano, chiama `resetPointerInputHandler()`, cioè annulla il gesto in corso
+         * (verificato sul bytecode di `compose.ui`). Con `atRest` come chiave ogni pinza si
+         * interrompeva attraversando la banda dell'adattamento; con `folder`, quando la ricerca
+         * della cartella rispondeva subito dopo l'apertura.
+         * Letto una volta per gesto, così una panoramica che entra nella banda dell'adattamento
+         * resta una panoramica.
          */
         val swipeAllowed by rememberUpdatedState(atRest && folder?.seriesOrNull != null)
 
@@ -3102,35 +2555,26 @@ private fun ImageCanvas(
             modifier = Modifier
                 .fillMaxSize()
                 .pointerInput(image, settings) {
-                    // ⚠️⚠️ UN RILEVATORE SOLO PER LE DUE COSE, e questa è la
-                    // correzione della `0.22`: panoramica, pinza e strisciata
-                    // nascono tutte da un dito che si muove, quindi finché stanno su
-                    // due modificatori diversi si contendono lo stesso gesto e uno
-                    // dei due perde sempre. Chi decide dev'essere uno.
+                    // ⚠️ Un rilevatore solo per panoramica, pinza e strisciata: nascono tutte
+                    // da un dito che si muove, e su due modificatori si contendono il gesto.
+                    // Vedi [detectPanZoomOrSwipe].
                     detectPanZoomOrSwipe(
-                        // La strisciata vive solo A RIPOSO: ingrandita, il dito
-                        // serve a spostarsi dentro la foto. E senza una serie da
-                        // sfogliare non ha dove portare.
-                        // ⚠️ `settling` si legge QUI dentro e non dentro `swipeAllowed`:
-                        // là sarebbe un valore fissato dalla composizione, e fra il
-                        // momento in cui la pagina parte e quello in cui la composizione
-                        // se ne accorge c'è un dito che scende.
+                        // La strisciata esiste solo a riposo e con una serie.
+                        // ⚠️ `settling` si legge qui e non in `swipeAllowed`, che è fissato
+                        // dalla composizione: fra la partenza della pagina e la composizione
+                        // successiva un dito può scendere.
                         swipeEnabled = { swipeAllowed && !settling },
-                        // ⚠️ La soglia è una FRAZIONE della larghezza e non un
-                        // numero di dp: su uno schermo stretto un valore fisso
-                        // sarebbe mezza schermata, su un tablet un nulla.
-                        // ⚠️ Presa da `size` del rilevatore e non dalla `viewWidth` della
-                        // composizione: quella sarebbe un valore catturato, e dopo una
-                        // rotazione il rilevatore in vita ne userebbe uno vecchio.
+                        // La soglia è una frazione della larghezza: un valore fisso in dp
+                        // sarebbe mezza schermata su un telefono stretto e niente su un
+                        // tablet. Presa da `size` del rilevatore, perché `viewWidth` sarebbe
+                        // catturata e dopo una rotazione resterebbe vecchia.
                         swipeThreshold = { size.width / 5f },
                         onTransform = { centroid, pan, zoom ->
                             zoomAround(centroid, scale * zoom, pan)
                         },
                         onPanEnd = { glideBy(it) },
-                        // ⚠️ La resistenza al capolinea NON è decorazione: senza, alla
-                        // prima o all'ultima foto il dito trascinerebbe la pagina su un
-                        // vuoto che non porta da nessuna parte. Frenata a un terzo, la
-                        // pagina dice 'di qua non c'è niente' e poi torna al suo posto.
+                        // La resistenza al capolinea: alla prima o all'ultima immagine la
+                        // pagina si lascia tirare a [END_RESISTANCE] e poi torna al suo posto.
                         onSwipeDrag = { raw ->
                             val reachable = if (raw < 0f) nextUri != null else prevUri != null
                             travel = if (reachable) raw else raw * END_RESISTANCE
@@ -3147,29 +2591,23 @@ private fun ImageCanvas(
                 }
                 .pointerInput(image, settings) {
                     detectViewerGestures(
-                        // ⚠️ Anche questo vibra, ed è quello che l'utente ha nominato
-                        // per primo: vedi [withHaptics]. Qui non passa da
-                        // `combinedClickable` ma dal rilevatore scritto in casa, quindi la
-                        // vibrazione si chiama a mano.
+                        // Anche questo vibra (vedi [withHaptics]): il rilevatore è scritto qui
+                        // e non è `combinedClickable`, quindi la vibrazione si chiama a mano.
                         onLongPress = {
                             haptics.performHapticFeedback(HOLD_BUZZ)
                             onHold()
                             menu.open()
                         },
                         /*
-                         * ⚠️⚠️ **UN TOCCO IN MEZZO ALLO SCHERMO METTE IN PAUSA, dalla 1.18**
-                         * (richiesta dell'utente, 2026-09-01: *visto che non sono previste
-                         * azioni al singolo tocco istantaneo, con le immagini animate un
-                         * semplice tocco in mezzo allo schermo deve essere equivalente a
-                         * pausa/play*). L'icona della fila cambia da sé, perché legge lo
-                         * stesso `playing`.
-                         * ⚠️ **Su una fotografia ferma non fa niente**, e non è una
-                         * dimenticanza: `animation` è `null` fuori dalle immagini animate.
+                         * Su un'immagine animata un tocco in mezzo allo schermo mette in pausa o
+                         * fa ripartire (richiesta dell'utente); l'icona della fila legge lo
+                         * stesso `playing`. Su un'immagine ferma non fa niente, perché
+                         * `animation` è `null`.
                          */
                         onSingleTap = { onSingleTap() },
                         onDoubleTap = {
-                            // Two states only, as on the desktop viewer: whole, or
-                            // one pixel of the file per pixel of the screen.
+                            // Due stati soli, come nel visualizzatore da desktop: intera, o un
+                            // pixel del file per pixel dello schermo.
                             animateTo(if (abs(scale - restScale) < 0.01f) oneToOne else restScale)
                         },
                         onZoomDrag = { anchor, dy ->
@@ -3180,16 +2618,11 @@ private fun ImageCanvas(
         )
 
         /*
-         * ⚠️⚠️ **NON C'È PIÙ NESSUN ANCORAGGIO, dalla 0.69** (richiesta dell'utente: *fai
-         * apparire il menu sempre al centro dello schermo*). Prima qui stava un `Box` vuoto
-         * spostato sul punto premuto, che faceva da ancora a un `DropdownMenu`; adesso il
-         * menu si posiziona da sé sulla finestra, quindi non serve un'ancora e **non serve
-         * sapere dove era il dito**: è la ragione per cui la posizione del tocco non si
-         * conserva più.
+         * Il menu compare sempre al centro dello schermo (richiesta dell'utente) e si posiziona
+         * da sé sulla finestra: non serve un'ancora, e la posizione del tocco non si conserva.
+         * La condizione è `visible` e non `wanted`: qui dentro c'è l'animazione dell'uscita, e
+         * il menu deve restare finché il pannello sbiadisce. Vedi `MenuShell`.
          */
-        // ⚠️ **`visible` e non `wanted`**: qui dentro vive l'animazione dell'uscita, quindi il
-        // cancello deve restare aperto finché il pannello sbiadisce. ⚠️ Dalla `1.67` è una sola
-        // animazione: era `veiling` finché la patina aveva una coda propria. Vedi `MenuShell`.
         if (menu.visible) {
             ImageMenu(
                 image = image,
@@ -3209,63 +2642,36 @@ private fun ImageCanvas(
 }
 
 /**
- * Panoramica, pinza e strisciata orizzontale, decise dallo STESSO rilevatore.
+ * Panoramica, pinza e strisciata orizzontale, decise dallo stesso rilevatore.
  *
- * ⚠️⚠️ **Perché stanno insieme, che è la correzione della `0.22`.** Fino alla `0.21`
- * la strisciata viveva su un `Modifier.pointerInput` suo, prima di
- * `detectTransformGestures`, con un commento che dava l'ordine per garanzia. Non lo
- * è, e la strisciata **non ha mai funzionato**: le due cose nascono dallo stesso
- * dito che si muove, quindi si contendono il gesto, e chi supera per primo la soglia
- * di movimento consuma le variazioni e lascia l'altro senza niente.
+ * ⚠️ Su due modificatori la strisciata non funziona: i due gesti nascono dallo stesso dito,
+ * e chi supera per primo la soglia di movimento consuma le variazioni. A perdere è sempre la
+ * strisciata, perché `detectTransformGestures` guarda il modulo dello spostamento e
+ * `detectHorizontalDragGestures` la sola X: a 10 gradi il primo scatta a 24 px, il secondo ne
+ * vuole 24,37. `awaitPointerSlopOrCancellation` risponde `null` a una variazione consumata, e
+ * controlla anche nel passaggio Final, quindi nemmeno scambiare l'ordine dei modificatori
+ * basterebbe (verificato sul sorgente di Compose).
  *
- * ⚠️⚠️ **A perdere era sempre la strisciata, e non per un pelo.** Le due soglie non
- * misurano la stessa cosa: `detectTransformGestures` guarda il **modulo** dello
- * spostamento, `detectHorizontalDragGestures` la sola **X**. Su una riga
- * perfettamente orizzontale pareggiano, e per ogni altro angolo il modulo arriva
- * prima: a 10 gradi il transform scatta a 24px dove l'orizzontale ne vuole 24,37. Un
- * pollice non disegna mai una riga perfetta, quindi la strisciata perdeva sempre.
- * Verificato sul sorgente vero di Compose: `detectTransformGestures`
- * consuma ogni variazione appena passata la soglia, e
- * `awaitPointerSlopOrCancellation` risponde `return null` a una variazione consumata,
- * cioè annulla la trascinata.
- *
- * ⚠️ E l'ordine dei modificatori non avrebbe salvato niente, il che è la ragione per
- * cui il rimedio non è scambiarli: quell'elica controlla la variazione **anche nel
- * passaggio Final**, che gira dopo il Main di tutti i nodi, quindi un consumo
- * altrui arriva comunque prima della fine dell'evento.
- *
- * Il corpo qui sotto è `detectTransformGestures` con un ramo in più: finché il dito
- * è uno solo e la strisciata è ammessa, lo spostamento orizzontale non muove la figura
- * **dentro** la vista ma sposta la pagina intera, e al distacco decide se girarla o
- * riportarla al suo posto.
- *
- * ⚠️⚠️ **Dalla 0.36 lo spostamento esce a OGNI evento (`onSwipeDrag`) e non solo alla
- * fine, ed è tutta lì la fluidità che l'utente ha chiesto**: prima il numero si
- * accumulava qui dentro senza che niente si muovesse, quindi il dito trascinava il vuoto
- * e la fotografia cambiava di scatto al distacco. Chi tornasse a un solo `onSwipe`
- * finale rifarebbe esattamente quel difetto.
- *
- * ⚠️ **L'esito finale esce SEMPRE quando si è trascinato**, anche quando il gesto è
- * stato annullato o non è arrivato alla soglia: senza, la pagina resterebbe ferma a metà
- * schermo, che è il peggiore dei difetti possibili qui.
- *
- * ⚠️ Un secondo dito **annulla** la strisciata in corso (`travel` torna a zero e il
- * gesto è come non fosse cominciato, velocità compresa): chi appoggia il pollice per
- * pizzicare non sta chiedendo l'immagine dopo, e senza questo una pinza cominciata
- * storta la cambierebbe.
+ * Il corpo è `detectTransformGestures` con un ramo in più: con un dito solo e la strisciata
+ * ammessa, lo spostamento orizzontale muove la pagina intera, e al distacco si decide se girarla
+ * o riportarla al suo posto.
+ * - Lo spostamento esce a ogni evento (`onSwipeDrag`), e la figura segue il dito; con un solo
+ *   esito finale il dito trascinerebbe il vuoto e l'immagine cambierebbe di scatto.
+ * - ⚠️ L'esito esce sempre quando si è trascinato, anche con il gesto annullato o sotto la
+ *   soglia: senza, la pagina resterebbe a metà schermo.
+ * - Un secondo dito annulla la strisciata, velocità compresa: chi appoggia il pollice per
+ *   pizzicare non chiede l'immagine successiva.
  */
 private suspend fun PointerInputScope.detectPanZoomOrSwipe(
     swipeEnabled: () -> Boolean,
     swipeThreshold: () -> Float,
     onTransform: (centroid: Offset, pan: Offset, zoom: Float) -> Unit,
     /**
-     * Il dito si è alzato dopo una panoramica, e con quale velocità in pixel al secondo.
+     * Il dito si è alzato dopo una panoramica, e con quale velocità in pixel al secondo: serve
+     * all'inerzia.
      *
-     * ⚠️⚠️ **NASCE DALLA 0.81** (richiesta dell'utente: *inerzia del trascinamento*): senza,
-     * la figura si fermava nell'istante in cui il dito si stacca, che su una fotografia
-     * ingrandita è il gesto che si fa più spesso. ⚠️ **Esce solo per il dito SOLO**: dopo una
-     * pinza nessuno si aspetta che l'immagine continui, e il centroide che passa da due dita
-     * a una salta di netto, cioè inventerebbe una velocità che nessuno ha impresso.
+     * Solo per un dito solo: dopo una pinza nessuno si aspetta che l'immagine continui, e il
+     * centroide che passa da due dita a una salta, inventando una velocità.
      */
     onPanEnd: (Velocity) -> Unit,
     onSwipeDrag: (Float) -> Unit,
@@ -3280,23 +2686,18 @@ private suspend fun PointerInputScope.detectPanZoomOrSwipe(
         var multi = false
         var travel = 0f
         var dragged = false
-        // ⚠️ La velocità serve al colpo di pollice corto e rapido, che per spazio non
-        // arriverebbe alla soglia: senza, quel gesto tornerebbe indietro e sembrerebbe
-        // non capito. Si misura sul dito che ha cominciato e non sul centroide, che con
-        // un dito solo è lo stesso punto e con due non è più una strisciata.
+        // La velocità serve al colpo di pollice corto e rapido, che non arriverebbe alla
+        // soglia per distanza. Si misura sul dito che ha cominciato.
         val speed = VelocityTracker()
-        // ⚠️ Un secondo misuratore e non lo stesso: quello sopra segue la STRISCIATA (il
-        // dito che ha cominciato, in orizzontale), questo la PANORAMICA dentro la figura.
-        // Sono due gesti che si escludono, ma i loro numeri no: una strisciata annullata dal
-        // secondo dito azzera il primo, e la panoramica che ne segue non deve ereditarne la
+        // Un secondo misuratore per la panoramica dentro la figura: una strisciata annullata
+        // dal secondo dito azzera il primo, e la panoramica successiva non deve ereditarne la
         // velocità.
         val slide = VelocityTracker()
         var panned = false
 
         val down = awaitFirstDown(requireUnconsumed = false)
-        // ⚠️ Le due condizioni si leggono QUI, a dito appena sceso, e non fuori: fuori
-        // sarebbero valori catturati alla nascita del rilevatore, ed è esattamente ciò che
-        // costringeva a rifarlo a ogni cambio di stato. Vedi `swipeAllowed`.
+        // ⚠️ Le due condizioni si leggono qui, a dito appena sceso: fuori sarebbero valori
+        // catturati alla creazione del rilevatore. Vedi `swipeAllowed`.
         val canSwipe = swipeEnabled()
         val threshold = swipeThreshold()
         var canceled: Boolean
@@ -3309,10 +2710,9 @@ private suspend fun PointerInputScope.detectPanZoomOrSwipe(
                 if (event.changes.count { it.pressed } > 1 && !multi) {
                     multi = true
                     travel = 0f
-                    // Chi appoggia il secondo dito non sta più sfogliando: la pagina
-                    // torna al suo posto e la strisciata è come non fosse cominciata.
-                    // ⚠️ `dragged` torna falso apposta: se restasse vero, al distacco si
-                    // leggerebbe la velocità di prima del pizzico e la pagina girerebbe.
+                    // Col secondo dito la pagina torna al suo posto. ⚠️ `dragged` torna falso:
+                    // se restasse vero, al distacco la velocità di prima della pinza
+                    // girerebbe la pagina.
                     if (dragged) onSwipeDrag(0f)
                     dragged = false
                 }
@@ -3339,11 +2739,9 @@ private suspend fun PointerInputScope.detectPanZoomOrSwipe(
                         onSwipeDrag(travel)
                     } else if (zoomChange != 1f || panChange != Offset.Zero) {
                         onTransform(event.calculateCentroid(useCurrent = false), panChange, zoomChange)
-                        // ⚠️ Si misura la posizione del dito **solo quando è uno**: con due
-                        // il centroide è un punto che non appartiene a nessun dito, e nel
-                        // momento in cui uno si alza fa un salto che il misuratore leggerebbe
-                        // come una frustata. Con due dita si azzera, così una pinza non lascia
-                        // dietro di sé un'inerzia.
+                        // La posizione si misura solo con un dito: con due il centroide salta
+                        // quando uno si alza, e sembrerebbe un colpo veloce. Con due dita si
+                        // azzera, così una pinza non lascia inerzia.
                         val alone = event.changes.singleOrNull { it.pressed }
                         if (alone != null) {
                             slide.addPosition(alone.uptimeMillis, alone.position)
@@ -3362,9 +2760,8 @@ private suspend fun PointerInputScope.detectPanZoomOrSwipe(
         } while (!canceled && event.changes.any { it.pressed })
 
         if (!dragged) {
-            // ⚠️ Non si è strisciato, quindi se si è spostata la figura il gesto finisce
-            // qui: l'inerzia parte al distacco, e un gesto annullato da un altro rilevatore
-            // non ne lascia.
+            // Senza strisciata il gesto finisce qui: dopo una panoramica l'inerzia parte al
+            // distacco, e un gesto annullato da un altro rilevatore non ne lascia.
             if (panned && !canceled) onPanEnd(slide.calculateVelocity())
             return@awaitEachGesture
         }
@@ -3380,40 +2777,27 @@ private suspend fun PointerInputScope.detectPanZoomOrSwipe(
 }
 
 /**
- * Long press, double tap, and the one handed zoom, in one detector.
+ * Tocco lungo, doppio tocco e zoom a una mano, in un rilevatore solo.
  *
- * ⚠️⚠️ **A single tap does nothing on purpose.** It used to toggle the details, and
- * the user asked for it gone: on a viewer every tap is also a way of just touching
- * the picture, so a panel that appears and disappears under the thumb reads as a
- * glitch rather than a control. The details now come from the menu, which is asked
- * for rather than stumbled into.
+ * Il tocco singolo non mostra né nasconde i dettagli (richiesta dell'utente): su un
+ * visualizzatore ogni tocco è anche un modo di toccare l'immagine, e un pannello che compare
+ * sotto il pollice sembrerebbe un difetto. Lo usa solo [onSingleTap].
  *
- * ⚠️ Written by hand because Compose has no double-tap-then-drag detector, and the
- * two things it does have cannot be combined: `detectTapGestures` reports a double
- * tap only when the second finger LIFTS, which is exactly too late to start a drag
- * from it.
- *
- * ⚠️ The bail-outs on a second finger are what keep a slow PINCH from being read as
- * a long press: the pinch belongs to the transform detector on the other modifier,
- * and without these a two-fingered zoom held for half a second would open the menu.
- *
- * ⚠️ And the long press wants a finger that STAYS PUT: a single finger that travels
- * further than the touch slop is panning the picture, not asking for the menu. See
- * the note in phase one for why that is checked here instead of being left to the
- * detector that consumes the pan.
+ * Scritto a mano perché Compose non ha un rilevatore di doppio tocco seguito da trascinamento:
+ * `detectTapGestures` segnala il doppio tocco quando il secondo dito si alza, troppo tardi per
+ * cominciare un trascinamento.
+ * ⚠️ Un secondo dito interrompe il riconoscimento: senza, una pinza lenta tenuta mezzo secondo
+ * aprirebbe il menu. E il tocco lungo vuole un dito fermo: oltre la soglia di tocco il dito sta
+ * facendo una panoramica (vedi la nota della prima fase).
  */
 private suspend fun PointerInputScope.detectViewerGestures(
     onLongPress: (Offset) -> Unit,
     /**
      * Un tocco solo, che non è diventato né un doppio tocco né altro.
      *
-     * ⚠️⚠️ **ARRIVA DOPO LA FINESTRA DEL DOPPIO TOCCO, e non si può fare altrimenti**: finché
-     * quella finestra è aperta, un tocco solo e il primo di due sono indistinguibili. Il
-     * ritardo è quello di sistema (`doubleTapTimeoutMillis`), qualche decimo di secondo, e su
-     * un comando che mette in pausa si sopporta. Chiamarlo subito vorrebbe dire mettere in
-     * pausa a ogni doppio tocco, cioè rompere l'ingrandimento per aggiungere una scorciatoia.
-     * ⚠️ **Sulle immagini ferme non fa niente**, ed è la ragione per cui esiste: là un tocco
-     * solo non era previsto (l'utente, 2026-09-01), quindi il posto era libero.
+     * ⚠️ Arriva dopo la finestra del doppio tocco (`doubleTapTimeoutMillis`, qualche decimo di
+     * secondo): finché è aperta, un tocco solo e il primo di due sono indistinguibili, e
+     * chiamarlo subito metterebbe in pausa a ogni doppio tocco.
      */
     onSingleTap: (Offset) -> Unit,
     onDoubleTap: (Offset) -> Unit,
@@ -3422,16 +2806,13 @@ private suspend fun PointerInputScope.detectViewerGestures(
     awaitEachGesture {
         val first = awaitFirstDown(requireUnconsumed = false)
 
-        // Phase one: does this first finger lift before the long press timeout?
+        // Prima fase: il primo dito si alza prima della scadenza del tocco lungo?
         //
-        // ⚠️⚠️ A FINGER THAT MOVES IS NOT A LONG PRESS, and the distance is checked
-        // HERE rather than left to whoever consumes the drag. Leaving it to the
-        // consumer is what the `isConsumed` line below already tries, and on a real
-        // phone it was not enough: the menu opened in the middle of a pan (user,
-        // 2026-08-26). The pan lives on another modifier, so whether its changes
-        // are consumed before this detector sees them is a matter of ordering and
-        // timing, which is exactly the kind of thing that holds in one build and
-        // stops holding in the next. The travel test does not depend on any of it.
+        // ⚠️ Un dito che si muove non è un tocco lungo, e la distanza si controlla qui. La riga
+        // su `isConsumed` qui sotto non basta: sul telefono il menu si apriva in mezzo a una
+        // panoramica (segnalazione dell'utente), perché la panoramica è su un altro
+        // modificatore e se le sue variazioni arrivino già consumate dipende dall'ordine e dai
+        // tempi. Il controllo sulla distanza non dipende da niente di questo.
         var abandoned = false
         val lifted = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
             var up = false
@@ -3441,10 +2822,8 @@ private suspend fun PointerInputScope.detectViewerGestures(
                 when {
                     event.changes.count { it.pressed } > 1 -> abandoned = true
                     change == null || change.isConsumed -> abandoned = true
-                    // The distance is measured from where the finger LANDED, not
-                    // frame by frame: a slow drift adds up to a drag just as much
-                    // as a quick flick does, and summing steps would let a wander
-                    // that comes back cancel itself out.
+                    // La distanza si misura dal punto in cui il dito si è posato, non
+                    // fotogramma per fotogramma: anche una deriva lenta è un trascinamento.
                     (change.position - first.position).getDistance() >
                         viewConfiguration.touchSlop -> abandoned = true
                     !change.pressed -> up = true
@@ -3458,7 +2837,7 @@ private suspend fun PointerInputScope.detectViewerGestures(
             return@awaitEachGesture
         }
 
-        // Phase two: a second finger within the double tap window, or nothing.
+        // Seconda fase: un secondo dito entro la finestra del doppio tocco, o niente.
         val second = withTimeoutOrNull(viewConfiguration.doubleTapTimeoutMillis) {
             awaitFirstDown(requireUnconsumed = false)
         } ?: run {
@@ -3466,10 +2845,9 @@ private suspend fun PointerInputScope.detectViewerGestures(
             return@awaitEachGesture
         }
 
-        // Phase three: it is a double tap until it moves, and a zoom once it does.
-        // The anchor stays where the second tap landed for the whole drag, so the
-        // picture grows around the point that was chosen and not around wherever
-        // the thumb has wandered to.
+        // Terza fase: è un doppio tocco finché il dito non si muove, poi uno zoom. Il punto
+        // fermo resta dove è sceso il secondo tocco per tutto il trascinamento, così l'immagine
+        // cresce intorno al punto scelto e non dove il pollice si è spostato.
         var dragging = false
         var travelled = 0f
         while (true) {
@@ -3492,26 +2870,15 @@ private suspend fun PointerInputScope.detectViewerGestures(
 }
 
 /**
- * The menu a long press opens.
+ * Il menu che apre il tocco lungo.
  *
- * ⚠️ The order is the user's, given after using the first version, and it is not
- * the userscript's: what you do WITH the picture comes first, what you do TO the
- * view second, and the two that lead somewhere else last. 'Copy address' and the
- * 200/400% steps fell out of that list rather than being dropped for a reason of
- * mine.
- *
- * ⚠️⚠️ **IN FONDO CI SONO LE SEI OPERAZIONI SUI FILE, dalla `0.62`** (richiesta
- * dell'utente: *in fondo, come icone, due righe di tre*). Sono lo stesso [ActionPad] della
- * selezione nella griglia, quindi le icone e il loro ordine si decidono in un posto solo:
- * chi impara dov'è 'sposta' lo impara una volta.
- * ⚠️⚠️ **E 'Condividi' è uscita dalle voci di testo perché il riquadro la porta**, con la
- * stessa chiamata di prima: due voci identiche nello stesso menu sono un ingombro, e questo
- * menu è tenuto corto apposta.
- * ⚠️ **'Copia immagine' invece resta, e non è un doppione di 'copia'**: quella mette la
- * fotografia negli **appunti**, questa copia il **file** in un'altra cartella. Sono due
- * cose diverse, ed è la ragione per cui l'etichetta della prima adesso dice 'negli
- * appunti': accanto al riquadro, 'Copia immagine' e 'Copia' si sarebbero lette come la
- * stessa voce scritta due volte.
+ * L'ordine è quello scelto dall'utente dopo aver usato la prima versione: prima quello che si fa
+ * con l'immagine, poi quello che si fa alla vista.
+ * In fondo ci sono le sei operazioni sui file, come icone su due righe di tre (richiesta
+ * dell'utente): sono lo stesso [ActionPad] della selezione nella griglia, quindi icone e ordine
+ * si decidono in un posto solo. 'Condividi' è nel riquadro e non fra le voci di testo, per non
+ * averla due volte. 'Copia immagine' è un'altra cosa da 'Copia': la prima mette l'immagine negli
+ * appunti, la seconda copia il file in un'altra cartella.
  */
 @Composable
 private fun ImageMenu(
@@ -3524,52 +2891,32 @@ private fun ImageMenu(
     restScale: Float,
     ops: MenuOps,
     inBin: Boolean,
-    /** Se il menu porta anche 'Adatta alla vista' e '100%'. Vedi `Settings.zoomInMenu`. */
+    /** Se il menu ha anche 'Adatta alla vista' e '100%'. Vedi `Settings.zoomInMenu`. */
     zoomRows: Boolean,
     /**
      * Se il cestino è acceso: decide se 'elimina' sposta o cancella, e con lui se ci sia una
      * conferma.
      *
-     * ⚠️ **Arriva come booleano e non come impostazioni intere**: questo menu non usa
-     * nient'altro, e passarle tutte vorrebbe dire ricomporlo a ogni ritocco di una voce che
-     * qui non c'entra niente. È la stessa scelta di `factFields` nella griglia.
+     * Arriva come booleano e non con le impostazioni intere, o il menu si ricomporrebbe a ogni
+     * ritocco di una voce che non lo riguarda. È la stessa scelta di `factFields` nella griglia.
      */
     binOn: Boolean
 ) {
     val context = LocalContext.current
 
     /*
-     * ⚠️⚠️ **LA SUPERFICIE È CONDIVISA COL MENU DELLA SELEZIONE dalla 0.75**: il
-     * riquadro, l'ombra e l'animazione che lo fa crescere vivono in [MenuShell], e qui
-     * restano le sole cose di questo menu, cioè dov'è, quanto è stondato e le sue voci.
-     * ⚠️ **Il margine sopra e sotto le voci lo mette la superficie**, dalla `1.46`: era
-     * `MENU_EDGE`, otto punti scritti qui, mentre il menu della selezione ne aveva altri otto
-     * scritti là e i due `DropdownMenu` li avevano da Material. Tre posti per lo stesso
-     * numero.
+     * La superficie è condivisa col menu della selezione: riquadro, ombra, animazione e margine
+     * sopra e sotto le voci vivono in [MenuShell], e qui restano posizione e voci.
      */
     MenuShell(state = menu, position = MenuInWindow) {
         Column(modifier = Modifier.width(PAD_MENU_WIDTH)) {
             /*
-             * ⚠️⚠️ **OGNI VOCE HA LA SUA ICONA, dalla 0.69** (scelta dell'utente sul
-             * mockup), e la conseguenza che vale più dell'aspetto: **l'allineamento dei
-             * testi si risolve da sé**. Con icone su alcune voci e non su altre, i testi
-             * cominciavano in due posti diversi e allinearli voleva dire un rientro
-             * scritto a mano, cioè un numero da tenere d'accordo con Material.
-             * ⚠️⚠️ **Due collisioni sono state sciolte, e la prima è tornata a farsi
-             * viva nella 0.72**: 'Copia' negli appunti e 'Copia' in una cartella
-             * avrebbero avuto la stessa icona, e così 'Barra dei dettagli' e 'Info'. La
-             * barra prende `Subtitles`, che è una striscia di testo su un fotogramma,
-             * cioè quello che la barra è.
-             * ⚠️⚠️ **La prima l'avevo sciolta con le PAROLE e non bastava** (riscontro
-             * dell'utente, 2026-08-31: *non si capisce che il 'Copia negli appunti' è
-             * diverso dal 'Copia' sotto*). Adesso la scioglie il **disegno**: questa
-             * voce ha due fogli con montagne e sole ([Glyphs.PhotoPair]), l'altra due
-             * cartelle, e l'etichetta torna a dire la cosa ('Copia immagine') invece
-             * della destinazione. Una distinzione che un'etichetta non riesce a fare non
-             * la si fa allungando l'etichetta.
-             * ⚠️ **Dalla `6.27` anche gli appunti passano da [MenuOps]** (rilievi C40 ed E31):
-             * la PNG di una foto grande costa secondi, e farla nel tocco fermava l'app sotto
-             * il dito.
+             * Ogni voce ha la sua icona (scelta dell'utente sul mockup), e così i testi
+             * cominciano tutti nello stesso punto senza un rientro scritto a mano.
+             * 'Copia immagine' e 'Copia' si distinguono dal disegno (riscontro dell'utente):
+             * questa ha due fogli con montagne e sole ([Glyphs.PhotoPair]), l'altra due cartelle.
+             * Gli appunti passano da [MenuOps] (rilievi C40 ed E31): la PNG di un'immagine grande
+             * richiede secondi, e fatta nel tocco bloccava l'app.
              */
             MenuRow(
                 text = stringResource(R.string.menu_copy_image),
@@ -3580,53 +2927,30 @@ private fun ImageMenu(
                 }
             )
             /*
-             * ⚠️ **Lo schema dell'indirizzo decide DUE voci**, e per questo si legge una
-             * volta sola qui invece che dentro ognuna: dice se quello che si sta guardando
-             * è un file di questo telefono (`content://` o `file://`) o un indirizzo del web.
+             * Lo schema dell'indirizzo decide due voci, quindi si legge una volta qui: dice se
+             * l'immagine è un file del telefono (`content://` o `file://`) o viene dal web.
              */
             val scheme = source?.scheme?.lowercase()
             /*
-             * ⚠️⚠️ **'Modifica' COMPARE SOLO SU UN FILE DEL TELEFONO, ed è l'esatto
-             * rovescio della condizione di 'Scarica' qui sotto**: modificare vuol dire
-             * riscrivere un file, e di una fotografia arrivata dal web non c'è nessun file
-             * da riscrivere. La voce ci sarebbe, si toccherebbe, e l'unica risposta
-             * possibile sarebbe un errore.
-             * ⚠️⚠️ **L'ICONA È QUELLA CHE L'UTENTE HA DISEGNATO, dalla 1.29**, e la
-             * richiesta originale era proprio quella: *matita su immagine*. Fino alla `1.28`
-             * era la matita nuda di Material, perché nel suo repertorio una matita posata su
-             * un'immagine non c'è e comporla a mano voleva dire un disegno nuovo. Quel
-             * giorno è arrivato, il disegno è suo, e qui è cambiata una riga: è esattamente
-             * quello che la nota vecchia prevedeva.
-             */
-            /*
-             * ⚠️⚠️ **IL TOCCO LUNGO SU 'Modifica' FA SCEGLIERE L'APP, dalla 1.12**
-             * (richiesta dell'utente): il tocco breve apre quella scelta, il tocco lungo
-             * apre il selettore e la nuova scelta **resta memorizzata**. Prima, per
-             * cambiare editor, bisognava andare nelle impostazioni.
-             * ⚠️ **È l'idioma già in casa e non un gesto nuovo da imparare**: 'Copia' nel
-             * riquadro della selezione duplica col tocco lungo esattamente così, dalla
-             * `0.79`. Un secondo modo di fare la stessa cosa sarebbe stato il costo vero.
-             * ⚠️⚠️ **DALLA 1.28 TUTTE LE VOCI DI QUESTO MENU SONO [MenuRow], e prima no**:
-             * questa era scritta a mano (un `DropdownMenuItem` non può portare due gesti) e
-             * le altre erano di Material, cioè due disposizioni diverse della stessa fila.
-             * L'utente ha visto il disallineamento e lo ha disegnato. Adesso si allineano
-             * per costruzione, e il perché sta in [MenuRow].
+             * 'Modifica' compare solo su un file del telefono, al contrario di 'Scarica' qui
+             * sotto: modificare vuol dire riscrivere un file, e un'immagine arrivata dal web non
+             * ne ha uno. L'icona, una matita su un'immagine, l'ha disegnata l'utente.
+             * Il tocco lungo fa scegliere l'app, e la scelta resta memorizzata (richiesta
+             * dell'utente): è lo stesso gesto del tocco lungo su 'Copia', che duplica. Tutte le
+             * voci sono [MenuRow], e si allineano per costruzione.
              */
             if (scheme == "content" || scheme == "file") {
                 MenuRow(
                     text = stringResource(R.string.menu_edit),
                     icon = Glyphs.ImageEdit,
                     onTap = { menu.close(); ops.edit() },
-                    // ⚠️ AIV Play has only its own editors: no app to choose (`Store.files`).
+                    // AIV Play ha solo i suoi editor: non c'è un'app da scegliere (`Store.files`).
                     holdLabel = if (Store.files) stringResource(R.string.menu_edit_hold) else null,
                     onHold = if (Store.files) { { menu.close(); ops.editWith() } } else null
                 )
             }
-            /*
-             * ⚠️ **Sta accanto a 'Modifica' perché è la stessa famiglia**: le due sole voci
-             * che producono un file **nuovo** partendo da quello che si sta guardando. La
-             * differenza è che una lo riscrive e l'altra lo affianca.
-             */
+            // Accanto a 'Modifica': sono le due voci che producono un file dall'immagine in
+            // vista, una riscrivendolo e l'altra affiancandolo.
             MenuRow(
                 text = stringResource(R.string.menu_convert),
                 icon = Glyphs.ImageConvert,
@@ -3634,44 +2958,29 @@ private fun ImageMenu(
             )
 
             /*
-             * ⚠️⚠️ **'Scarica' NON COMPARE SU UN FILE LOCALE** (richiesta dell'utente):
-             * là scaricherebbe nella galleria una fotografia che nella galleria c'è già,
-             * cioè farebbe un doppione senza dirlo.
-             * ⚠️ **Il test è lo SCHEMA dell'indirizzo** e non l'assenza di indirizzo: un
-             * `content://` o un `file://` vengono dal telefono, tutto il resto dal web.
-             * Senza indirizzo (`null`) la voce resta, perché quello che si sta guardando
-             * non è un file di questo telefono e salvarlo ha senso.
+             * 'Scarica' non compare su un file locale (richiesta dell'utente): farebbe un
+             * doppione di un'immagine che è già nella galleria. Il controllo è sullo schema:
+             * senza indirizzo (`null`) la voce resta, perché l'immagine non è un file del
+             * telefono.
              */
             if (scheme != "content" && scheme != "file") {
                 MenuRow(
                     text = stringResource(R.string.menu_save),
-                    // ⚠️ Era `Icons.Outlined.Download` fino alla 1.46: il perché del cambio
-                    // sta su [Glyphs.Download].
+                    // Il perché di questa icona è su [Glyphs.Download].
                     icon = Glyphs.Download,
                     onTap = { menu.close(); ops.save(image) },
-                    /*
-                     * ⚠️⚠️ **IL TOCCO LUNGO CHIEDE IL NOME PER QUESTA VOLTA SOLA, ed è la sua
-                     * specifica** (*a impostazione spenta, un tocco lungo su 'Salva' entra
-                     * nella modalità nome per quella volta sola*). È la stessa coppia di
-                     * 'Modifica': il tocco breve fa la cosa di serie, il lungo quella che
-                     * un'impostazione renderebbe di serie.
-                     */
+                    // Il tocco lungo chiede il nome per questa volta sola, come da specifica:
+                    // la stessa coppia di 'Modifica', col tocco breve che fa la cosa di serie.
                     holdLabel = stringResource(R.string.menu_save_hold),
                     onHold = { menu.close(); ops.saveAs(image) }
                 )
             }
 
             /*
-             * ⚠️⚠️ **LE DUE VOCI DELLO ZOOM SONO SPENTE DI FABBRICA, dalla 1.25** (richiesta
-             * dell'utente, 2026-09-02: *togli '100%' e 'Adatta alla vista' dal menu a
-             * pressione lunga; ricompaiono se si accende quell'opzione*). Fanno quello che il
-             * **doppio tocco** fa già, e stavano in mezzo a comandi che agiscono sul file: chi
-             * apre questo menu cerca quasi sempre un'altra cosa.
-             * ⚠️ **Sparisce anche il filetto sopra di loro**, e non è un dettaglio: un divisore
-             * che separa il nulla dal nulla lascia in scena il posto vuoto delle voci tolte.
-             * ⚠️ **Non sono state cancellate ma messe dietro un interruttore**, perché il gesto
-             * che le sostituisce è nascosto: chi non lo conosce resterebbe senza. Il velo del
-             * doppio tocco (`Hint.ZOOM_TAP`) è la vera contropartita.
+             * '100%' e 'Adatta alla vista' sono spente di fabbrica e tornano con l'opzione
+             * (richiesta dell'utente): fanno quello che fa il doppio tocco. Il filetto sopra di
+             * loro sparisce con loro. Restano dietro un interruttore perché il gesto è nascosto;
+             * a farlo scoprire è il velo del doppio tocco (`Hint.ZOOM_TAP`).
              */
             if (zoomRows) {
                 HorizontalDivider()
@@ -3688,47 +2997,27 @@ private fun ImageMenu(
                 )
             }
 
-            /*
-             * ⚠️⚠️ **LA BARRA DELLE INFO NON STA PIÙ IN QUESTO MENU, dalla 1.20**
-             * (istruzione dell'utente, 2026-09-01: *togli del tutto i riferimenti alla
-             * barra delle info dal menu a pressione lunga; si decide tutto dalle
-             * impostazioni*). Qui era arrivata come interruttore per non far scommettere
-             * sul suo stato, ma restava la sola voce del menu che non fa niente
-             * all'immagine: cambia una preferenza, e le preferenze hanno una schermata.
-             * ⚠️ **E là adesso ce ne sono DUE, l'acceso e la posizione**, che in un menu
-             * sarebbero state due voci per una cosa sola.
-             */
+            // La barra delle info non ha una voce in questo menu (istruzione dell'utente): si
+            // regola dalle impostazioni, o col tocco lungo su 'Info' nel riquadro.
 
             HorizontalDivider()
 
             /*
-             * ⚠️⚠️ **SENZA INDIRIZZO NON C'È NIENTE DA FARE, e il riquadro non compare**:
-             * le sei operazioni agiscono su un **file**, e una fotografia arrivata da una
-             * chat o dal web non ne ha uno che questa app possa spostare. Mostrare sei
-             * tasti che risponderebbero 'non riuscito' sarebbe peggio di non mostrarli.
-             * ⚠️ **La condivisione sta nel riquadro ma NON passa dai file**: chiama la
-             * stessa `ImageActions.share` della voce di testo che ha sostituito, cioè
-             * condivide l'immagine caricata. È l'unica delle sei che funziona anche
-             * quando il file non si può toccare, e il baratto è dichiarato: la scelta è
-             * tenerlo semplice.
+             * Senza indirizzo il riquadro non compare: le sei operazioni agiscono su un file, e
+             * un'immagine arrivata da una chat o dal web non ne ha uno.
+             * La condivisione è nel riquadro ma non passa dai file: chiama
+             * `ImageActions.share` sull'immagine caricata.
              */
             source?.let { uri ->
                 val one = listOf(uri)
                 /*
-                 * ⚠️⚠️ **I SEI TASTI HANNO UN NOME PERCHÉ DUE DI LORO CAMBIANO NEL CESTINO**:
-                 * 'Rinomina' diventa 'Ripristina', e 'Copia' perde il tocco lungo che
-                 * duplica. Con la lista scritta di seguito quei due `if` vorrebbero dire due
-                 * liste con dentro gli stessi sei blocchi.
-                 * ⚠️⚠️ **LO SCAMBIO FRA 'COPIA' E 'SPOSTA' NON C'È PIÙ, dalla `1.56`.** Nella
-                 * `1.54` l'utente aveva chiesto che nel cestino i primi due si invertissero;
-                 * adesso l'ordine lo sceglie lui trascinando, e uno scambio automatico sopra
-                 * la sua scelta sarebbe l'app che disobbedisce a chi ha appena riordinato. Una
-                 * funzione che si può configurare non può anche correggere la configurazione.
+                 * I sei tasti hanno un nome perché due cambiano nel cestino: 'Rinomina' diventa
+                 * 'Ripristina', e 'Copia' perde il tocco lungo che duplica.
+                 * ⚠️ Nel cestino 'Copia' e 'Sposta' non si scambiano: l'ordine lo sceglie
+                 * l'utente trascinando, e uno scambio automatico rovescerebbe la sua scelta.
                  */
                 val copia =
-                        // ⚠️ Il tocco lungo duplica dove sei, come nella griglia: il
-                        // riquadro è condiviso, e una scorciatoia che c'è in un posto e non
-                        // nell'altro si impara e poi non funziona.
+                        // Il tocco lungo duplica, come nella griglia: il riquadro è lo stesso.
                         PadAction(
                             key = PadKey.COPY,
                             icon = Glyphs.FolderPair,
@@ -3752,12 +3041,12 @@ private fun ImageMenu(
                 val elimina =
                         PadAction(PadKey.DELETE, Glyphs.PickDelete, R.string.pick_delete) {
                             menu.close()
-                            // ⚠️ Definitiva nel cestino **o** col cestino spento, ed è la
-                            // stessa condizione della griglia: con lei viaggia la conferma.
+                            // Definitiva nel cestino o col cestino spento, come nella griglia:
+                            // con lei viaggia la conferma.
                             ops.job(FileJob.Delete(one, forGood = inBin || !binOn))
                         }
-                // ⚠️ Stesso posto nel riquadro per due azioni che si escludono: nel cestino
-                // si ripristina, fuori si rinomina. Queste due icone non ballano.
+                // Stesso posto nel riquadro per due azioni che si escludono: nel cestino si
+                // ripristina, fuori si rinomina.
                 val rinomina =
                         if (inBin) {
                             PadAction(PadKey.RENAME, Glyphs.BinRestore, R.string.bin_restore) {
@@ -3766,14 +3055,10 @@ private fun ImageMenu(
                             }
                         } else {
                             /*
-                             * ⚠️⚠️ **SPENTO SU UN'IMMAGINE DELLA RETE, DALLA `1.83`** (campo
-                             * libero del giro della `1.82`, punto E). Là non c'è nessun file da
-                             * rinominare: fino alla `1.82` il tasto apriva la finestra, si
-                             * scriveva un nome e l'operazione non riusciva.
-                             * ⚠️ **Solo questo dei sei**, ed è quello che ha nominato lui: gli
-                             * altri cinque si comportano già come devono, e allargare la
-                             * correzione a occhio vorrebbe dire spegnere anche quello che
-                             * funziona (la condivisione, per esempio, non passa dai file).
+                             * Spento su un'immagine della rete (giro della `1.82`, punto E): non
+                             * c'è un file da rinominare, e l'operazione non riusciva. Solo questo
+                             * dei sei: gli altri si comportano già come devono, e la
+                             * condivisione non passa dai file.
                              */
                             PadAction(
                                 key = PadKey.RENAME,
@@ -3791,19 +3076,11 @@ private fun ImageMenu(
                             ops.share(image)
                         }
                 /*
-                 * ⚠️⚠️ **IL TOCCO LUNGO SU 'Info' GOVERNA LA BARRA DELLE INFO, dalla
-                 * 1.21** (richiesta dell'utente, 2026-09-01, che la chiama *un trick
-                 * / easter egg*): il tocco breve apre le informazioni sul file, il
-                 * tocco lungo apre un riquadrino con acceso/spento e sopra/sotto,
-                 * che si applicano subito e **restano memorizzati**.
-                 * ⚠️ **Non è la voce che la 1.20 aveva tolto da questo menu**, ed è
-                 * la differenza che rende le due cose compatibili: quella era una
-                 * riga sempre in scena, che si leggeva come un comando sull'immagine
-                 * e non lo era. Questa è una scorciatoia nascosta dietro un gesto, e
-                 * non occupa nessuno spazio: chi non la conosce vede il menu di
-                 * prima.
-                 * ⚠️ **L'idioma è quello di casa**: 'Modifica' qui sopra e 'Copia'
-                 * nel riquadro della selezione fanno esattamente così dal 2026-08-31.
+                 * Il tocco lungo su 'Info' regola la barra delle info (richiesta dell'utente):
+                 * il tocco breve apre le informazioni sul file, il lungo un riquadrino con
+                 * acceso o spento e sopra o sotto, che si applica e si salva subito. È una
+                 * scorciatoia dietro un gesto e non occupa spazio nel menu, come il tocco lungo
+                 * su 'Modifica' e su 'Copia'.
                  */
                 val info =
                         PadAction(
@@ -3816,25 +3093,18 @@ private fun ImageMenu(
                             menu.close()
                             ops.job(FileJob.Facts(one))
                         }
-                // ⚠️ L'ordine è quello che l'utente ha scelto nelle impostazioni, e di
-                // fabbrica è quello che ha dettato per la `1.54`: vedi `MENU_KEYS`.
+                // L'ordine è quello scelto dall'utente nelle impostazioni; di fabbrica è quello
+                // che ha dettato per la `1.54`: vedi `MENU_KEYS`.
                 ActionPad(
                     actions = listOf(copia, sposta, condividi, rinomina, elimina, info)
-                        // ⚠️ In AIV Play 'Rinomina' c'è dalla `5.50`, da Android 11 (`Store.allows`).
+                        // In AIV Play 'Rinomina' c'è da Android 11 (`Store.allows`).
                         .filter { Store.allows(it.key) }
                         .inOrder(LocalPadLook.current.menu)
                 )
             }
-            // ⚠️⚠️ **QUI SOTTO C'ERANO LE IMPOSTAZIONI, e sono uscite nella 0.44**
-            // (istruzione dell'utente): erano arrivate nella 0.30 perché la loro rotella
-            // occupava un posto che serviva al contatore della cartella, e restavano
-            // l'unica via per raggiungerle da dentro una fotografia. Dalla 0.41 le porta
-            // il FAB della schermata delle cartelle, quindi questa voce era diventata
-            // la seconda porta di una stanza sola.
-            // ⚠️ LA RICERCA IMMAGINE NON C'È PIÙ, dalla 0.18, e non è una dimenticanza:
-            // l'utente l'ha spenta dopo averla provata sul telefono, perché non
-            // funzionava e faceva solo rumore in un menu tenuto corto apposta. Il codice
-            // sta nella storia git, al tag `v0.17`.
+            // Le impostazioni non sono in questo menu (istruzione dell'utente): si aprono dal
+            // FAB della schermata delle cartelle. Nemmeno la ricerca per immagine: l'utente l'ha
+            // tolta dopo averla provata; il codice è nella storia git, al tag `v0.17`.
         }
     }
 }
@@ -3844,57 +3114,39 @@ private fun ImageMenu(
 /**
  * Il segno dell'immagine ridotta, al posto della parola.
  *
- * ⚠️⚠️ **DALLA `1.34` È UN SIMBOLO E NON UNA PAROLA, e la ragione è lo SPAZIO** (riscontro
- * dell'utente sulla `1.31`, voce `barra-ridotta`: *riservare una riga esclusivamente a quella
- * dicitura mi pare troppo; aggiungerei un simbolo tipo questo, che non ha nemmeno bisogno di
- * traduzione, sulla stessa riga di testo che contiene le info base*). Il difetto vero era che
- * `(ridotta)` allungava la riga dei dati abbastanza da mandarla **a capo** su un telefono, e
- * da fuori quel secondo rigo si legge come una riga dedicata a lei.
- * ⚠️ **La parola tradotta NON è stata cancellata**: `bar_reduced` resta in 28 lingue ed è
- * quello che legge un lettore di schermo, perché su questo carattere non direbbe niente di
- * utile. Vedi il modificatore in [DetailsPanel].
- * ⚠️ **Scritto per codepoint**: `U+25F1`, WHITE SQUARE WITH LOWER LEFT QUADRANT, cioè un
- * quadrato pieno per un quarto. È il carattere che l'utente ha indicato.
+ * Un simbolo per lo spazio (voce `barra-ridotta`): `(ridotta)` mandava a capo la riga dei dati
+ * su un telefono. La parola tradotta `bar_reduced` resta, in 28 lingue, per il lettore di
+ * schermo: vedi il modificatore in [DetailsPanel].
+ * Scritto per codepoint: `U+25F1`, WHITE SQUARE WITH LOWER LEFT QUADRANT, il carattere indicato
+ * dall'utente.
  */
 private const val REDUCED_MARK = "\u25f1"
 
 /**
  * Quanto è più grande del testo il segno dell'immagine ridotta.
  *
- * ⚠️ **È una scelta, non una misura**, e il perché sta accanto all'uso: il carattere vero non
- * c'era in sessione, quindi il rapporto fra il suo inchiostro e l'altezza di una maiuscola non
- * è verificato. 1,2 era quello che serve a un glifo disegnato all'altezza della x per
- * arrivarci.
- * ⚠️⚠️ **1,25 DALLA 1.37, e il numero l'ha dato l'utente guardandolo sul telefono** (voce
- * `segno-formato`: *4-5% più grande, ma va già benissimo*). 1,25 su 1,2 sono il **4,2%** in
- * più, cioè il basso di quella forbice: la voce diceva che andava già bene, quindi fra il 4 e
- * il 5 si prende il 4. ⚠️ Questa resta una scelta e non diventa una misura: quello che è
- * misurato è il **giudizio a occhio sul telefono**, che vale più di un rapporto calcolato
- * senza il carattere vero.
+ * È una scelta e non una misura: il rapporto fra l'inchiostro del carattere e l'altezza di una
+ * maiuscola non è verificato col carattere vero. Il numero viene dal giudizio dell'utente sul
+ * telefono (voce `segno-formato`: un 4-5% più del valore precedente, 1,2).
  */
 private const val MARK_GROW = 1.25f
 
 /**
  * L'aria sopra e sotto la riga dei dati.
  *
- * ⚠️ **Due e non quattro, dalla 1.36**: la coda diagnostica che chiedeva spazio è uscita nella
- * `1.31` e al suo posto c'è un segno, quindi la barra si può stringere (riscontro dell'utente).
+ * Due e non quattro: la coda diagnostica che chiedeva spazio è diventata un segno, e la barra si
+ * può stringere (riscontro dell'utente).
  */
 private val BAR_AIR = 2.dp
 
 /**
  * La riga dei dettagli, col contatore della cartella fisso al suo estremo destro.
  *
- * ⚠️⚠️ **LÀ C'ERA LA ROTELLA DELLE IMPOSTAZIONI, ed è uscita nella 0.30** (istruzione
- * dell'utente): quel posto vale più al contatore, che è un dato che si guarda mentre
- * si sfoglia, mentre le impostazioni si aprono una volta ogni tanto e adesso stanno in
- * fondo al menu del tocco lungo. ⚠️ Chi la rimettesse toglierebbe di nuovo il posto al
- * contatore: sono due cose che si contendono lo stesso angolo.
- *
- * ⚠️ **Il contatore è FISSO a destra e non in coda al testo**, e la differenza si vede
- * sfogliando: in coda si sposta a ogni immagine, perché la riga davanti cambia
- * lunghezza col nome, col peso e con la percentuale. Un numero che si guarda spesso
- * deve stare sempre nello stesso punto.
+ * Quell'angolo è del contatore, che si guarda mentre si sfoglia (istruzione dell'utente): la
+ * rotella delle impostazioni che c'era prima non va rimessa, e le impostazioni si aprono dal FAB
+ * della schermata delle cartelle.
+ * Il contatore è fisso a destra e non in coda al testo: in coda si sposterebbe a ogni immagine,
+ * perché nome, peso e percentuale cambiano la lunghezza della riga.
  */
 @Composable
 private fun DetailsPanel(
@@ -3906,13 +3158,9 @@ private fun DetailsPanel(
     /** Se la barra è in cima allo schermo: decide da quale lato prende lo spazio di sistema. */
     atTop: Boolean
 ) {
-    /*
-     * ⚠️ Letta fuori dal `buildString`, che non è un contesto composable: è la stessa ragione
-     * per cui `folderNote` sta qui sotto.
-     */
+    // Lette fuori dal `buildString`, che non è un contesto composable.
     val reduced = stringResource(R.string.bar_reduced)
-    // Letta fuori dal `buildString`, che non è un contesto composable. Null mentre
-    // la ricerca è in corso e sulle immagini che una cartella non ce l'hanno.
+    // `null` mentre la ricerca è in corso e sulle immagini che non hanno una cartella.
     val folderNote = when (folder) {
         null, is Folder.Lookup.Found -> null
         Folder.Lookup.NoPermission -> stringResource(R.string.folder_no_access)
@@ -3922,24 +3170,17 @@ private fun DetailsPanel(
         Folder.Lookup.Alone -> stringResource(R.string.folder_alone)
         Folder.Lookup.Lost -> stringResource(R.string.folder_lost)
     }
-    // ⚠️⚠️ **IL VELO DI FONDO NON STA PIÙ QUI, ed è la correzione della `0.57`**: dipinto
-    // dentro il contenuto della dissolvenza veniva disegnato **due volte** per tutta la
-    // transizione, e due veli sovrapposti non fanno il velo di prima. Adesso lo dipinge
-    // `ViewerScreen`, una volta sola, fuori dalla `AnimatedContent`: il perché per esteso
-    // sta là. ⚠️ Il colore del testo arriva da quella `Surface` tramite `LocalContentColor`,
-    // quindi qui non si dichiara: dichiararlo di nuovo vorrebbe dire due fonti per la
-    // stessa scelta.
+    // ⚠️ Il velo di fondo non si dipinge qui: dentro la dissolvenza sarebbe disegnato due
+    // volte. Lo dipinge `ViewerScreen` fuori dalla `AnimatedContent` (il perché è là), e il
+    // colore del testo arriva da quella `Surface` tramite `LocalContentColor`.
     Column(
         modifier = Modifier
             .fillMaxWidth()
             /*
-             * ⚠️⚠️ **LO SPAZIO DI SISTEMA SI PRENDE SOLO DAL LATO DEL BORDO, dalla `3.71`** (voce
-             * `3.70-01` non approvata: *TUTTE le barre info devono essere più sottili*). Fino alla
-             * `3.70` qui c'era `safeDrawingPadding()`, che aggiunge i quattro lati: una barra in
-             * cima riceveva anche lo spazio della barra di navigazione, cioè una fascia vuota
-             * sotto il testo alta quanto i gesti di sistema. Si vedeva sul tablet e sul telefono
-             * in verticale, e non sul telefono in orizzontale, dove le barre sono nascoste.
-             * ⚠️ I lati restano, per il foro della fotocamera e la barra di navigazione laterale.
+             * ⚠️ Lo spazio di sistema si prende solo dal lato del bordo (voce `3.70-01`): coi
+             * quattro lati di `safeDrawingPadding()` una barra in cima riceveva anche lo spazio
+             * della barra di navigazione, una fascia vuota sotto il testo. I lati restano, per il
+             * foro della fotocamera e la barra di navigazione laterale.
              */
             .windowInsetsPadding(
                 steadyDrawing(viewer = true).only(
@@ -3947,21 +3188,11 @@ private fun DetailsPanel(
                         if (atTop) WindowInsetsSides.Top else WindowInsetsSides.Bottom
                 )
             )
-            /*
-             * ⚠️ **Sopra e sotto due punti e non quattro, dalla 1.36** (riscontro dell'utente,
-             * 2026-09-02: *togli qualche pixel di spazio dedicato alla barra info sotto/sopra
-             * le info base, visto che non ne serve più quanto prima*). Quello 'prima' era la
-             * coda diagnostica della `1.30`, che occupava mezza riga e chiedeva aria: adesso al
-             * suo posto c'è un segno, e la barra può stringersi.
-             * ⚠️ **Ai lati restano 16**, che è il margine di ogni cosa in questa schermata: la
-             * richiesta parlava di sopra e sotto.
-             */
+            // Sopra e sotto [BAR_AIR]; ai lati 16, il margine di ogni cosa in questa schermata.
             .padding(start = 16.dp, end = 16.dp, top = BAR_AIR, bottom = BAR_AIR)
     ) {
         val name = image.displayName?.takeIf { it.isNotBlank() }
-        // ⚠️ Il nome del formato lo calcola [kindOf], dalla `1.42`: qui stava la stessa
-        // regola scritta a mano, e sugli SVG diceva ancora `SVG+XML` due versioni dopo
-        // che il pannello delle informazioni aveva smesso.
+        // Il nome del formato lo calcola [kindOf], lo stesso del pannello delle informazioni.
         val formato = kindOf(image.mimeType) ?: "?"
         val resto = buildString {
                 append("  ")
@@ -3969,48 +3200,23 @@ private fun DetailsPanel(
                 image.byteSize?.let { append("  ").append(formatBytes(it)) }
                 append("  ").append((percent * 100).roundToInt()).append('%')
                 /*
-                 * ⚠️⚠️ **DALLA 1.31 DICE UNA PAROLA TRADOTTA E NON UNA DIAGNOSTICA**
-                 * (domanda dell'utente, 2026-09-02, che sul suo AVIF leggeva
-                 * `(sampled, no tile: format)`: *leggere quella cosa mi serve davvero, a
-                 * parte motivi di debug? Pensavo di sbarazzarmene o di riscriverla in
-                 * modo più amichevole*). La risposta è che **metà serviva e metà no**:
-                 * 'ridotta' è un fatto sull'immagine che si sta guardando, cioè che non
-                 * è a piena risoluzione; il motivo per cui i tasselli non si applicano
-                 * era per me, ed era in inglese in mezzo a un'interfaccia tradotta.
-                 * ⚠️⚠️ **E SU UN AVIF QUELLA CODA C'È SEMPRE**, che è la ragione per cui
-                 * il rumore si notava adesso: `RegionSource` non sa rileggere un AVIF
-                 * (nessun `BitmapRegionDecoder` per quel formato), quindi ogni AVIF
-                 * grande portava `no tile: format` per sempre.
-                 * ⚠️ **Il motivo dei tasselli resta nel codice** (`info.tiles`, che
-                 * `sharpen` continua a riempire): il giorno che serve di nuovo si
-                 * rimette in scena una riga, e il difetto della `0.49` si è potuto
-                 * nominare grazie a lui.
-                 * ⚠️ Solo per le immagini **ridotte**: su tutte le altre la parola non
-                 * dice niente, e sarebbe rumore su ogni foto.
+                 * La riga non mostra la diagnostica dei tasselli (domanda dell'utente sul suo
+                 * AVIF): che l'immagine sia ridotta lo dice il segno dopo il formato, mentre il
+                 * motivo per cui i tasselli non si applicano serviva solo a chi scrive il codice.
+                 * Un AVIF grande l'avrebbe sempre, perché `RegionSource` non lo sa rileggere
+                 * (non c'è un `BitmapRegionDecoder` per quel formato). Il motivo resta in
+                 * `info.tiles`, pronto se serve di nuovo.
                  */
-                // ⚠️ Il perché di una cartella che non c'è resta QUI, col resto del testo,
-                // e non va nell'angolo del contatore: è una frase, non un numero, e in
-                // quello spazio sarebbe stretta o lo farebbe crescere rimettendo in
-                // movimento il contatore che si è appena fissato.
+                // Il perché di una cartella che non c'è resta qui, col resto del testo: è una
+                // frase, e nell'angolo del contatore lo farebbe crescere e spostare.
                 folderNote?.let { append("  ").append(it) }
         }
         /*
-         * ⚠️⚠️ **IL SEGNO È SUBITO DOPO IL FORMATO, dalla 1.36, e prima era in CODA**
-         * (riscontro dell'utente, 2026-09-02: *forse il segno è meglio piazzarlo subito
-         * dopo il formato (es. `AVIF ◱`), in modo che non ci sia jitter quando si passa da
-         * 9% a 10% di zoom*). Il difetto era vero e si vedeva ingrandendo: la percentuale
-         * cresce di una cifra, la riga si allunga, e un segno agganciato alla fine ballava
-         * a ogni decina. Dopo il formato invece non si muove mai, perché quello che ha
-         * davanti non cambia lunghezza.
-         * ⚠️⚠️ **E È PIÙ GRANDE DEL TESTO di [MARK_GROW]** (*leggermente ingrandito perché
-         * sia grande quanto un carattere maiuscolo*). ⚠️ **Il fattore è una SCELTA e non
-         * una misura**, e va detto: `U+25F1` è disegnato all'altezza della x in quasi
-         * tutti i caratteri, quindi per arrivare a una maiuscola serve circa un quinto in
-         * più; ma senza il carattere vero sotto mano (in sessione non c'è Roboto) il
-         * rapporto fra il suo inchiostro e l'altezza delle maiuscole non è stato
-         * verificato. Se sul telefono risulta grosso o piccolo, si tocca questo numero.
-         * ⚠️ **Relativo e non in `sp`**: parte dal corpo della riga, quindi segue chi
-         * cambia la dimensione dei caratteri nelle impostazioni di sistema.
+         * Il segno è subito dopo il formato (riscontro dell'utente): in coda alla riga si
+         * spostava a ogni decina della percentuale, mentre quello che ha davanti non cambia
+         * lunghezza. È più grande del testo di [MARK_GROW], perché `U+25F1` è disegnato
+         * all'altezza della x e deve arrivare a quella di una maiuscola; il fattore è relativo
+         * al corpo della riga, quindi segue la dimensione dei caratteri di sistema.
          */
         val corpo = MaterialTheme.typography.labelLarge
         val dati = buildAnnotatedString {
@@ -4024,31 +3230,21 @@ private fun DetailsPanel(
             append(resto)
         }
         /*
-         * ⚠️⚠️ **IL SIMBOLO SI VEDE E LA PAROLA SI SENTE, dalla `1.34`.** Il segno
-         * non ha bisogno di traduzione (era la ragione dell'utente), ma un lettore
-         * di schermo su `◱` non dice niente di utile: quindi la stringa tradotta
-         * `bar_reduced` **resta** e diventa quello che TalkBack legge. Se un domani
-         * il simbolo cambia, la parola non si tocca.
-         * ⚠️ **Si dichiara solo quando serve**: su un'immagine intera la
-         * descrizione sarebbe una copia del testo, cioè lavoro per niente e un
-         * posto in più dove le due versioni possono divergere.
-         * ⚠️ **Si ricompone dai pezzi invece di sostituire nel testo**: da quando il
-         * segno ha un corpo suo il testo è un `AnnotatedString`, e cercare un
-         * carattere dentro di lui per cambiarlo sarebbe girare intorno alla forma
-         * con cui è stato costruito.
+         * Il simbolo si vede e la parola si sente: su `U+25F1` un lettore di schermo non dice
+         * niente di utile, e TalkBack legge la stringa tradotta `bar_reduced`. La descrizione
+         * c'è solo su un'immagine ridotta, perché altrimenti copierebbe il testo, e si compone
+         * dai pezzi perché il testo è un `AnnotatedString`.
          */
         val spoken = if (!image.sampled) Modifier
             else Modifier.semantics { contentDescription = "$formato $reduced$resto" }
         val series = folder?.seriesOrNull
 
         /*
-         * ⚠️⚠️ **SU UNA RIGA SOLA QUANDO C'È POSTO, dalla `3.60`** (richiesta dell'utente, mockup
-         * `Viewer_H`, e scelta A1: *una riga ogni volta che tutto entra nella larghezza*).
-         * ⚠️⚠️ **La scelta dipende dalla LARGHEZZA e non dal nome né dalla percentuale**: i dati
-         * si misurano su un modello coi numeri più larghi possibili ([oneRowFits]), e al nome
-         * si chiede soltanto lo spazio minimo [ONE_ROW_NAME]. Se dipendesse dal nome, la barra
-         * cambierebbe altezza da un'immagine all'altra, e con lei la misura dell'immagine; se
-         * dipendesse dalla percentuale, cambierebbe a metà di una pinza.
+         * Su una riga sola quando tutto entra nella larghezza (mockup `Viewer_H`, scelta A1).
+         * ⚠️ La scelta dipende dalla sola larghezza: i dati si misurano su un modello coi numeri
+         * più larghi possibili ([oneRowFits]), e al nome si chiede solo [ONE_ROW_NAME]. Se
+         * dipendesse dal nome, la barra cambierebbe altezza da un'immagine all'altra, e con lei
+         * la misura dell'immagine; se dipendesse dalla percentuale, a metà di una pinza.
          */
         val markWidth = with(LocalDensity.current) {
             (MaterialTheme.typography.labelMedium.fontSize.toPx() * MARK_TALL * MARK_RATIO).toDp()
@@ -4058,10 +3254,10 @@ private fun DetailsPanel(
             measurer.measure(dataModel(corpo), corpo).size.width.toDp()
         }
         /*
-         * ⚠️⚠️ **L'IMPRONTA DEI DATI SI MISURA CON LA PERCENTUALE PIÙ LARGA**, e non con quella in
-         * scena: la tolleranza dell'immagine legge dove la barra ha del testo, e se quel tratto
-         * cambiasse con la percentuale cambierebbe la misura di riposo a metà di una pinza, che
-         * azzera il gesto.
+         * ⚠️ L'ingombro dei dati si misura con la percentuale più larga e non con quella in scena:
+         * la tolleranza dell'immagine legge dove la barra ha del testo, e se quel tratto cambiasse
+         * con la percentuale la misura di riposo cambierebbe a metà di una pinza, azzerando il
+         * gesto.
          */
         val dataInk = remember(dati, corpo, measurer) {
             val widest = buildAnnotatedString {
@@ -4092,13 +3288,12 @@ private fun DetailsPanel(
                         Spacer(Modifier.width(ONE_ROW_GAP))
                     }
                     /*
-                     * ⚠️⚠️ **I DATI SONO ALLINEATI A DESTRA, accanto al contatore**: così il
-                     * centro della barra resta senza testo, ed è là che un'immagine stretta può
-                     * passare sotto la barra (la tolleranza in orizzontale). Allineati a sinistra,
-                     * subito dopo il nome, coprivano il centro su ogni telefono, e la tolleranza
-                     * non scattava mai: l'ha misurato `BarraInfoTest`.
-                     * ⚠️ La scatola ha la larghezza dei dati più larghi possibili ([dataModel]):
-                     * il nome non si riaccorcia mentre la percentuale cresce.
+                     * ⚠️ I dati sono allineati a destra, accanto al contatore, così il centro
+                     * della barra resta senza testo e un'immagine stretta può passarci sotto (la
+                     * tolleranza in orizzontale). Allineati a sinistra coprivano il centro su ogni
+                     * telefono: lo presidia `BarraInfoTest`. La scatola ha la larghezza dei dati
+                     * più larghi ([dataModel]), e il nome non si riaccorcia mentre la percentuale
+                     * cresce.
                      */
                     Text(
                         text = dati,
@@ -4120,18 +3315,11 @@ private fun DetailsPanel(
             } else {
                 Column {
                     /*
-                     * ⚠️⚠️ **IL NOME È SOPRA I DATI E NON IN MEZZO A LORO** (richiesta
-                     * dell'utente, 2026-09-02: *sopra i dati già esistenti, in piccolo, in una
-                     * sola riga con ellissi centrale*). Infilato nella riga di sotto avrebbe
-                     * rubato lo spazio al formato, alla misura e alla percentuale, che sono corti
-                     * e vanno insieme proprio perché si leggono in un colpo d'occhio; e
-                     * allungandosi col nome avrebbe rimesso in movimento il contatore, che tre
-                     * note qui intorno difendono dall'essere spostato.
-                     * ⚠️ **Più piccolo dei dati e non più grande**: è il titolo di quello che si
-                     * guarda, ma la riga esiste per i dati, e un nome in grande sopra una riga di
-                     * numeri li farebbe sembrare una didascalia. `labelMedium` contro il
-                     * `labelLarge` di sotto.
-                     * ⚠️ **Dalla `3.60` vale solo quando la riga unica non c'è**: vedi sopra.
+                     * Quando la riga unica non entra, il nome va sopra i dati, piccolo, su una
+                     * riga con l'ellissi in mezzo (richiesta dell'utente): nella riga dei dati
+                     * toglierebbe spazio al formato, alla misura e alla percentuale, e sposterebbe
+                     * il contatore. È più piccolo dei dati (`labelMedium` contro `labelLarge`),
+                     * perché la riga esiste per i dati.
                      */
                     NameLine(name, report)
                     Row(
@@ -4169,8 +3357,8 @@ private fun Counter(series: Folder.Series, report: BarReport?) {
 /**
  * Chi raccoglie dove la barra disegna, per la tolleranza dell'immagine (`restPlace`).
  *
- * ⚠️ Lo passa alla sola riga che sta entrando: durante la dissolvenza incrociata ci sono due
- * righe, e quella che sfuma via descrive un'immagine che non c'è più.
+ * Si passa alla sola riga che sta entrando: durante la dissolvenza incrociata le righe sono due,
+ * e quella che sfuma descrive l'immagine precedente.
  */
 private class BarReport(private val info: InfoBar) {
     fun at(key: String): Modifier =
@@ -4203,7 +3391,7 @@ internal fun oneRowFits(width: Dp, data: Dp, counter: Dp, mark: Dp): Boolean =
  * riduzione, cinque cifre per lato, il peso più largo che [formatBytes] scrive e una percentuale
  * a quattro cifre.
  *
- * ⚠️ Le cifre sono `8`, che in Roboto hanno tutte la stessa larghezza: il modello misura lo
+ * Le cifre sono `8`, e in Roboto le cifre hanno tutte la stessa larghezza: il modello misura lo
  * spazio, non un valore.
  */
 private fun dataModel(corpo: TextStyle) = buildAnnotatedString {
@@ -4221,60 +3409,30 @@ private fun counterModel(size: Int): String {
 /**
  * Il nome del file sopra la riga dei dati: una riga sola, con l'ellissi in mezzo.
  *
- * ⚠️⚠️ **È [fitName], lo stesso di GRIGLIA E PASTIGLIA, e non un accorciamento nuovo**: qui
- * bastava un `TextOverflow.Ellipsis`, ma quello mette i tre punti alla **fine**, cioè mangia
- * l'estensione, che è la parte che dice che cosa si sta guardando ed è la sola che l'utente ha
- * chiesto di non perdere mai. `TextOverflow.MiddleEllipsis` esiste e non basta: il perché è
- * misurato là dentro, e questo posto è il terzo che usa [fitName].
- * ⚠️ **Una riga sola** (`lines = 1`), che è la differenza con gli altri due: la pastiglia del
- * dialogo ne concede tre e la griglia due, perché là il nome è il contenuto; qui è la testatina
- * di una riga di dati, e una seconda riga la farebbe crescere sopra l'immagine.
- * ⚠️ **L'estensione in grassetto anche qui**, e non per decorazione: è l'accorgimento che
- * distingue i tre punti dell'ellissi dal punto dell'estensione, e cambiarlo in un posto solo
- * vorrebbe dire che lo stesso nome si legge in due modi in due schermate.
- * ⚠️ **`BoxWithConstraints` e non una misura in dp**: la larghezza utile è quella dello schermo
- * meno i margini, e scritta a mano sarebbe giusta su un telefono solo.
+ * ⚠️ È [fitName], lo stesso della griglia e della pastiglia: `TextOverflow.Ellipsis` mette i tre
+ * punti alla fine e toglie l'estensione, che l'utente ha chiesto di non perdere mai, e
+ * `TextOverflow.MiddleEllipsis` non basta (il perché è misurato in [fitName]). Una riga sola,
+ * perché qui il nome è l'intestazione di una riga di dati. L'estensione è in grassetto come
+ * altrove: distingue i tre punti dell'ellissi dal punto dell'estensione. `BoxWithConstraints`
+ * dà la larghezza utile di ogni schermo.
  *
- * ⚠️⚠️ **ALLINEATO A SINISTRA, e la 1.24 lo aveva messo a DESTRA per un mio errore di
- * lettura.** La richiesta del 2026-09-02 diceva *fa' in modo che a destra finisca esattamente
- * dove finisce l'indice numerico dell'immagine visualizzata*, e l'avevo letta come 'allinea a
- * destra'. La correzione dell'utente dice che cosa intendeva: *il nome del file dev'essere
- * sempre allineato a sinistra; volevo dire che un nome lungo con l'ellissi in mezzo deve
- * finire allineato a destra con l'indice, ma forse era già così*. Era già così: la scatola del
- * nome è larga quanto il contenuto, quindi un nome accorciato arriva al margine destro, che è
- * dove finisce il contatore. ⚠️ **Non c'era niente da aggiustare, e allineare a destra ha
- * spostato anche i nomi CORTI**, che è il difetto che la 1.25 toglie.
- *
- * ⚠️ **Meno acceso dei dati, e la 1.25 lo abbassa ancora** (*abbassa ancora leggermente
- * l'opacità*). Il colore di partenza è quello della `Surface` che sta dietro, preso da
- * `LocalContentColor`: scriverne uno nuovo qui vorrebbe dire un secondo colore da tenere
- * d'accordo col tema.
- * ⚠️ **E si stacca dai dati di [NAME_GAP]** (*distanzia il nome di altri 2/3 pixel apparenti
- * dalle altre info*): attaccato com'era, il nome si leggeva come la prima parola della riga di
- * sotto invece che come la sua testatina.
+ * ⚠️ Allineato a sinistra (correzione dell'utente): un nome accorciato arriva comunque al margine
+ * destro, dove finisce il contatore, e allineare a destra spostava anche i nomi corti.
+ * Meno acceso dei dati ([NAME_FADE], richiesta dell'utente), partendo dal colore della `Surface`
+ * dietro (`LocalContentColor`); staccato dai dati di [NAME_GAP], perché attaccato si leggeva come
+ * la prima parola della riga di sotto.
  */
 @Composable
 private fun NameLine(name: String?, report: BarReport?) {
     if (name == null) return
     /*
-     * ⚠️⚠️ **IL MARCHIO DELL'APP STA IN CODA A QUESTA RIGA, dalla 1.45, e si paga con un
-     * pezzo di nome** (richiesta dell'utente, 2026-09-03: *sulla stessa riga del nome nella
-     * barra delle info, ancorato a destra, un glifo nudo dell'app deve restare in ultima
-     * posizione. È a scapito di un pezzo di nome, ma ne vale la pena per motivi di
-     * identità*). Il baratto è dichiarato da lui, quindi non è un difetto da compensare: il
-     * nome si accorcia e il glifo resta all'estremo destro.
-     * ⚠️ **La `Row` è la cosa che fa il baratto**: il nome prende quello che avanza
-     * (`weight`), il glifo la sua misura naturale. Sovrapposti in un `Box` il glifo starebbe
-     * sopra le ultime lettere, che è un'altra cosa da 'a scapito di un pezzo di nome'.
-     * ⚠️⚠️ **E IL NOME RIEMPIE QUELLO CHE AVANZA ANCHE QUANDO È CORTO** (riscontro della
-     * `1.45`: *il glifo deve stare SEMPRE ancorato a destra, anche quando il nome è corto*).
-     * Con `fill = false` la scatola del nome si stringeva sul testo e il glifo la seguiva,
-     * quindi su un nome breve la firma si fermava in mezzo alla riga, e la frase qui sopra
-     * era falsa proprio nel caso che descriveva.
-     * ⚠️ **Riempire non tocca né il testo né l'accorciamento**: nella scatola il testo resta
-     * allineato all'inizio, e a un figlio con peso la `Row` passa la stessa larghezza
-     * **massima** nei due casi (`fill` cambia solo la minima), quindi [fitName] riceve lo
-     * spazio di prima.
+     * Il marchio dell'app è in fondo a questa riga, ancorato a destra, a scapito di un pezzo di
+     * nome (richiesta dell'utente, per identità). Nella `Row` il nome prende lo spazio che resta
+     * (`weight`) e il glifo la sua misura; in un `Box` il glifo coprirebbe le ultime lettere.
+     * ⚠️ Il nome riempie lo spazio anche quando è corto (riscontro dell'utente): con
+     * `fill = false` la scatola si stringeva sul testo e il glifo restava in mezzo alla riga.
+     * Riempire non cambia l'accorciamento: la `Row` passa a un figlio con peso la stessa
+     * larghezza massima, e `fill` cambia solo la minima.
      */
     Row(
         modifier = Modifier.fillMaxWidth().padding(bottom = NAME_GAP),
@@ -4289,8 +3447,8 @@ private fun NameLine(name: String?, report: BarReport?) {
 /**
  * Il nome accorciato al centro con [fitName], nello spazio che [modifier] gli dà.
  *
- * ⚠️ Vive a sé dalla `3.60` perché lo usano due righe: quella del nome sopra i dati e la riga
- * unica, dove il marchio non gli è accanto ma in fondo, dopo il contatore.
+ * È a sé perché lo usano due righe: quella del nome sopra i dati e la riga unica, dove il
+ * marchio è in fondo, dopo il contatore.
  */
 @Composable
 private fun NameText(name: String, modifier: Modifier, report: BarReport?) {
@@ -4303,7 +3461,7 @@ private fun NameText(name: String, modifier: Modifier, report: BarReport?) {
         }
         Text(
             text = shown.text,
-            // ⚠️ Lo stile a cui il nome è stato misurato e non quello pieno: vedi `fitName`.
+            // Lo stile con cui il nome è stato misurato e non quello pieno: vedi `fitName`.
             style = shown.style,
             maxLines = 1,
             color = LocalContentColor.current.copy(alpha = NAME_FADE),
@@ -4317,35 +3475,24 @@ private fun NameText(name: String, modifier: Modifier, report: BarReport?) {
 private fun AppMark(report: BarReport?) {
     val style = MaterialTheme.typography.labelMedium
     /*
-     * ⚠️⚠️ **L'ALTEZZA SI RICAVA DAL CORPO DELLA RIGA, e la larghezza segue**: il glifo è
-     * 70 x 60 (vedi `ic_aiv_mark.xml`), quindi darne una sola misura lo schiaccerebbe.
-     * ⚠️ **Relativa e non in dp**, come il segno dell'immagine ridotta qui sopra: parte
-     * dal corpo del testo, quindi segue chi ha ingrandito i caratteri di sistema.
-     * ⚠️ **[MARK_TALL] è una SCELTA e non una misura**, e va detto: 0,85 del corpo lo
-     * porta un po' sopra l'altezza delle maiuscole del nome, che per un marchio è il
-     * verso giusto (deve farsi vedere); a 0,71, cioè l'altezza esatta di una maiuscola,
-     * spariva. Il carattere vero in sessione non c'è, quindi il rapporto fra il suo
-     * inchiostro e le maiuscole di Roboto non è verificato: se sul telefono risulta
-     * grosso o piccolo, il numero da muovere è uno solo.
+     * L'altezza si ricava dal corpo della riga e la larghezza segue: il glifo è 70 x 60 (vedi
+     * `ic_aiv_mark.xml`). Relativa e non in dp, come il segno dell'immagine ridotta, quindi
+     * segue la dimensione dei caratteri di sistema.
+     * [MARK_TALL] è una scelta e non una misura: 0,85 del corpo lo porta un po' sopra le
+     * maiuscole del nome, e a 0,71, l'altezza di una maiuscola, spariva. Il rapporto col
+     * carattere vero non è verificato.
      */
     val tall = with(LocalDensity.current) { (style.fontSize.toPx() * MARK_TALL).toDp() }
     Icon(
         imageVector = Glyphs.AivMark,
-        /*
-         * ⚠️ **Nessuna descrizione, ed è la scelta giusta**: questo non dice niente
-         * dell'immagine che si sta guardando, dice di che app è la schermata. Un lettore
-         * di schermo che annunciasse 'AIV' dopo ogni nome di file leggerebbe la stessa
-         * parola a ogni fotografia.
-         */
+        // Nessuna descrizione: il marchio non dice niente dell'immagine, e un lettore di
+        // schermo direbbe 'AIV' dopo ogni nome di file.
         contentDescription = null,
         /*
-         * ⚠️⚠️ **L'ACCENTO PIENO, SENZA TRASPARENZA** (riscontro della `1.45`: *niente
-         * trasparenza: colore pieno dell'accento corrente*). Nella `1.45` portava la
-         * stessa alfa del nome, che era quello che aveva chiesto allora, e il risultato
-         * era una firma più spenta del testo che firma.
-         * ⚠️ Il contrasto resta quello dell'accento, 2,43 sul fondo chiaro (misurato in
-         * `Theme.kt`): sotto la soglia delle grafiche non testuali, e accettato dove quel
-         * colore è nato. Qui non c'è niente da leggere, c'è una firma.
+         * Il colore pieno dell'accento, senza trasparenza (riscontro dell'utente): con l'alfa
+         * del nome la firma era più spenta del testo. Il contrasto è quello dell'accento, 2,43
+         * sul fondo chiaro (misurato in `Theme.kt`), sotto la soglia delle grafiche non testuali
+         * e accettato là: qui non c'è niente da leggere.
          */
         tint = MaterialTheme.colorScheme.primary,
         // Perché lo scostamento è un `offset` e non un margine: vedi [MARK_NUDGE].
@@ -4359,16 +3506,10 @@ private fun AppMark(report: BarReport?) {
 /**
  * Quanto è alto il marchio dell'app in coda al nome, in frazione del corpo della riga.
  *
- * ⚠️ **È una scelta e non una misura**, e il perché sta accanto all'uso: l'altezza di una
- * maiuscola in un carattere normale è circa 0,71 del corpo, e a quella misura il glifo
- * sparisce accanto al nome; 0,85 lo portava appena sopra, che per una firma è il verso
- * giusto.
- * ⚠️⚠️ **POI L'UTENTE LO HA VISTO SUL TELEFONO E LO HA VOLUTO PIÙ GRANDE** (riscontro della
- * `1.45`: *dev'essere un buon 15% più grande*), quindi qui resta scritto il prodotto e non il
- * suo risultato: si legge da dove si parte e di quanto si è cresciuti, e il conto lo fa il
- * compilatore invece della nota.
- * ⚠️ **Il numero scartato resta scritto** perché è quello che verrebbe naturale a chi vuole
- * 'allinearlo alle maiuscole', ed è la ragione per cui questa nota esiste.
+ * È una scelta e non una misura (il perché è accanto all'uso): a 0,71, l'altezza di una
+ * maiuscola, il glifo spariva accanto al nome, e 0,85 lo portava appena sopra. L'utente l'ha
+ * poi voluto un 15% più grande (riscontro della `1.45`), e resta scritto il prodotto, così si
+ * legge da dove si parte e di quanto si è cresciuti.
  */
 private const val MARK_TALL = 0.85f * 1.15f
 
@@ -4378,9 +3519,9 @@ private const val MARK_RATIO = 70f / 60f
 /**
  * Lo spazio minimo che il nome deve avere perché la barra vada su una riga sola.
  *
- * ⚠️ **È una SCELTA**, da guardare sul telefono: 160 dp tengono una ventina di caratteri, cioè
- * un nome accorciato al centro che si riconosce ancora. Su un telefono in verticale non ci sono,
- * e la barra resta su due righe; su un telefono in orizzontale e su un tablet sì.
+ * È una scelta: 160 dp tengono una ventina di caratteri, un nome accorciato al centro che si
+ * riconosce ancora. Su un telefono in verticale non ci sono, e la barra resta su due righe; su un
+ * telefono in orizzontale e su un tablet sì.
  */
 private val ONE_ROW_NAME = 160.dp
 
@@ -4396,79 +3537,55 @@ private const val ONE_ROW_DATA_MAX = 0.6f
 /**
  * L'aria fra la fine del nome e il marchio.
  *
- * ⚠️ Serve perché il nome accorciato finisce con i tre punti dell'ellissi, e attaccati al
- * glifo si leggerebbero come parte di lui.
+ * Il nome accorciato può finire con i tre punti dell'ellissi, che attaccati al glifo si
+ * leggerebbero come parte di lui.
  */
 private val MARK_GAP = 6.dp
 
 /**
  * Di quanto il marchio esce verso il margine e verso l'alto, per il suo equilibrio ottico.
  *
- * ⚠️⚠️ **È UN `offset` E NON UN MARGINE, perché non deve consumare spazio** (riscontro della
- * `1.45`: *prendersi qualche dp in più a destra e in alto, ma senza muovere il resto*). Un
- * margine è spazio, quindi spingere il glifo con lui vorrebbe dire spostare il nome e alzare
- * la riga, e per rimetterli a posto servirebbe un secondo margine di segno opposto: la coppia
- * di segno opposto che in casa è vietata. Un `offset` riferisce la misura di prima e sposta
- * soltanto dove il glifo viene posato, quindi non c'è niente da rimettere a posto.
- * ⚠️ **Lo spazio per uscire c'è già**: il glifo è più basso della riga di testo, quindi
- * salendo resta dentro di lei, e a destra ha il margine del pannello prima del bordo dello
- * schermo.
- * ⚠️ **`offset` e non `absoluteOffset`**: dove si scrive da destra il glifo sta dall'altra
- * parte della riga e deve uscire verso quel margine, non verso il nome.
+ * ⚠️ È un `offset` e non un margine, perché non deve occupare spazio (riscontro della `1.45`:
+ * senza muovere il resto). Un margine sposterebbe il nome e alzerebbe la riga, e servirebbe un
+ * secondo margine di segno opposto, una compensazione vietata; un `offset` sposta solo dove il
+ * glifo è posato. Lo spazio c'è: il glifo è più basso della riga di testo, e a destra c'è il
+ * margine del pannello.
+ * `offset` e non `absoluteOffset`: dove si scrive da destra il glifo è dall'altra parte della
+ * riga, e deve uscire verso quel margine.
  */
 private val MARK_NUDGE = 2.dp
 
 /**
  * Quanto è spento il nome del file in testa alla barra.
  *
- * ⚠️ **Sceso tre volte in tre versioni**, e la scala è quella: 0.74 nella `1.23`, **0.65**
- * nella `1.25` e **0.52** nella `1.26` (riscontro dell'utente, 2026-09-02: *forse il nome mi
- * piacerà di più con ancora meno opacità, diminuisci di un altro 20%*). Il numero è quello
- * di prima meno un quinto, cioè la richiesta presa alla lettera.
- * ⚠️ **Sotto di qui c'è un limite vero**: 0.38 è il velo che Material mette sui comandi
- * spenti, e un testo che lo raggiunge smette di dire 'sono secondario' e dice 'sono
- * disattivato'. Da qui a là restano due gradini come questo.
+ * Il valore viene dalle richieste dell'utente, l'ultima un 20% in meno di 0,65.
+ * ⚠️ Il limite sotto è 0,38, l'opacità che Material dà ai comandi spenti: un testo che la
+ * raggiunge sembra disattivato e non secondario.
  */
 private const val NAME_FADE = 0.52f
 
 /**
  * Quanto il nome si stacca dai dati sotto di lui.
  *
- * ⚠️ **Tre punti e non due**: la richiesta diceva *distanzia il nome di altri 2/3 pixel
- * apparenti*, e fra i due estremi si prende quello che si vede, perché due punti su uno schermo
- * a tre volte sono sei pixel fisici, cioè al limite del percepibile.
- * ⚠️⚠️ **FINO ALLA `1.78` QUESTA MISURA NON AVEVA UNA KDOC PROPRIA**: la sua ragione viveva in
- * un blocco appaiato a quello di [NAME_FADE], cioè in un secondo KDoc di fila che non si
- * attaccava a niente, e quel blocco dichiarava anche un'opacità di `0.65` che il valore vivo
- * aveva superato due volte.
+ * Tre punti e non due: la richiesta diceva 2 o 3 pixel apparenti, e due punti su uno schermo a
+ * densità tre sono sei pixel fisici, al limite del percepibile.
  */
 private val NAME_GAP = 3.dp
 
 /**
- * Quanto copre il velo dietro la riga dei dettagli.
- *
- * ⚠️ Sta in un posto solo perché a dipingerlo è `ViewerScreen` e a spiegarlo è
- * `DetailsPanel`: due numeri uguali in due file sono un numero che prima o poi diverge.
+ * Quanto copre il velo dietro la riga dei dettagli: lo dipinge `ViewerScreen`, e la nota sul
+ * lampeggio ne usa il valore nel conto.
  */
 private const val PANEL_VEIL = 0.86f
 
 /**
  * La tinta piatta del fondo, cioè quella di `BgType.SOLID`.
  *
- * ⚠️ **Esiste perché la usano in due**: il fondo pieno, e la copertura che spiana la scacchiera
- * quando arriva la sfocatura (vedi il `drawBehind` del palco). Scritta due volte, la prima delle
- * due a cambiare avrebbe reso l'altra un colore diverso senza che nessuno se ne accorgesse.
- * ⚠️ **I quattro grigi sono quelli dello userscript e non ne nascono di nuovi**: `#DDD`/`#EEE`
- * sul chiaro e `#333`/`#222` sullo scuro, e la tinta piatta prende il chiaro di una coppia e lo
- * scuro dell'altra. AIV era andata alla deriva su `#2A2A2A` per la coppia scura, che è la specie
- * di differenza che nessuno nota e nessuno sa più giustificare.
- * ⚠️ **La scacchiera invece è un'informazione e non un ornamento**: è quello che rende visibile
- * la trasparenza. La tinta piatta serve a guardare un'immagine senza un motivo sotto, dove la
- * scacchiera non direbbe niente perché non c'è niente da vedere attraverso.
- * ⚠️⚠️ **FINO ALLA `1.78` QUESTE DUE COSE VIVEVANO IN UN KDOC ORFANO** appaiato a questo, cioè
- * in un secondo blocco di fila che nessuno strumento attacca a una dichiarazione: la
- * spiegazione della scacchiera era rimasta senza la sua e si leggeva come se documentasse la
- * tinta piatta.
+ * La usano in due: il fondo pieno e la copertura della scacchiera quando arriva la sfocatura
+ * (vedi il `drawBehind` del palco).
+ * I grigi sono quelli dello userscript: `#DDD`/`#EEE` sul chiaro e `#333`/`#222` sullo scuro, e
+ * la tinta piatta è `#EEE` sul chiaro e `#222` sullo scuro. La scacchiera rende visibile la
+ * trasparenza; la tinta piatta serve a guardare un'immagine senza un motivo sotto.
  */
 private fun piatto(light: Boolean): Color =
     if (light) Color(0xFFEEEEEE) else Color(0xFF222222)
@@ -4477,9 +3594,7 @@ private fun DrawScope.drawBackground(size: Size, square: Float, light: Boolean, 
     val a = if (light) Color(0xFFDDDDDD) else Color(0xFF333333)
     val b = piatto(light)
     if (type == BgType.SOLID) {
-        // `b` in both themes, and that is the point: it is #EEE in the light pair
-        // and #222 in the dark one, which is exactly 'the light of one and the dark
-        // of the other'.
+        // `b` in tutti e due i temi: `#EEE` nella coppia chiara e `#222` in quella scura.
         drawRect(color = b, size = size)
         return
     }
@@ -4503,25 +3618,20 @@ private fun DrawScope.drawBackground(size: Size, square: Float, light: Boolean, 
 
 
 /**
- * ⚠️ The locale is named, and it is `US` on purpose rather than the phone's: the
- * separator stays a point in both languages, which is the convention the
- * userscript settled on after trying the other way. Leaving it implicit is also
- * what lint flags here, and 'implicit' would have meant a comma on an Italian
- * phone and a point on an English one, for the same file.
- * ⚠️⚠️ **TUTTI I PESI DELL'APP PASSANO DI QUI, DALLA `2.87`, ED È LA SUA RISPOSTA `punto` A
- * `d-pesi-scrittura`**: fino alla `2.86` la pastiglia del peso di una cartella e le miniature
- * memorizzate li scriveva il sistema, con la virgola della lingua in corso e i multipli da mille,
- * quindi lo stesso file da 13 milioni di byte si leggeva '12.40 MB' in un posto e '13 MB' in un
- * altro. Due copie della stessa formattazione divergerebbero al primo ritocco, e il ritocco è già
- * arrivato una volta (i GB).
+ * Il peso di un file, in multipli da 1024. Tutti i pesi dell'app passano di qui (risposta
+ * `punto` dell'utente a `d-pesi-scrittura`): con due formattazioni lo stesso file si leggeva
+ * '12.40 MB' in un posto e '13 MB' in un altro.
+ *
+ * ⚠️ La lingua è `US` e non quella del telefono: il separatore resta il punto in tutte le
+ * lingue, come nello userscript. Implicita, darebbe la virgola su un telefono italiano e il
+ * punto su uno inglese, e lint la segnala.
  */
 internal fun formatBytes(value: Long): String = when {
     value < 1024 -> "$value B"
     value < 1024 * 1024 -> String.format(Locale.US, "%.1f kB", value / 1024f)
     value < 1024L * 1024 * 1024 -> String.format(Locale.US, "%.2f MB", value / (1024f * 1024f))
-    // ⚠️ Il gradino dei GB è arrivato con la SELEZIONE MULTIPLA: una fotografia sola non
-    // ci arriva mai, ma trecento insieme sì, e senza questo ramo si leggerebbe
-    // '4231.77 MB', che è un numero da contare con le dita.
+    // I GB servono alla selezione multipla: un'immagine sola non ci arriva, trecento insieme
+    // sì, e senza questo ramo si leggerebbe '4231.77 MB'.
     else -> String.format(Locale.US, "%.2f GB", value / (1024f * 1024f * 1024f))
 }
 
@@ -4531,17 +3641,15 @@ private val ANIM_LIP = 24.dp
 /**
  * Quanto dura lo spostamento dell'immagine quando la barra delle info compare o si nasconde.
  *
- * ⚠️ **Breve, ed è la scelta A2** (*con una breve animazione*): è un cambio di spazio, non un
- * evento da guardare.
+ * Breve, come dice la scelta A2: è un cambio di spazio, non un evento da guardare.
  */
 private const val BAR_ROOM_MS = 220
 
 /**
- * Quanto vive la notifica che dice 'questa l'hai già scaricata'.
+ * Quanto resta la notifica che dice 'questa l'hai già scaricata'.
  *
- * ⚠️ **Cinque secondi, e li ha chiesti lui** (campo libero del giro della `1.81`, punto E):
- * più della notifica dell'eliminazione annullata, che ne dura tre, perché là si disfa un gesto
- * appena fatto e qui si decide se rifarne uno.
+ * Cinque secondi, chiesti dall'utente (giro della `1.81`, punto E): più dei tre dell'avviso
+ * dell'eliminazione annullata, perché qui si decide se rifare un gesto.
  */
 private const val SAVE_SEEN_MS = 5000L
 
@@ -4549,10 +3657,9 @@ private const val SAVE_SEEN_MS = 5000L
  * La firma di quello che si sta per scaricare: suffisso e byte, oppure `null` se i byte non si
  * sanno.
  *
- * ⚠️⚠️ **SENZA I BYTE NON SI FIRMA NIENTE, e il salvataggio va avanti**: un sorgente di cui non
- * si riesce a leggere la lunghezza (uno stream remoto, un fornitore che non risponde) darebbe
- * `0`, e allora **tutte** le immagini senza misura avrebbero la stessa firma, cioè dalla seconda
- * in poi l'app direbbe 'questa l'hai già scaricata' a immagini mai viste.
+ * ⚠️ Senza i byte non c'è firma, e il salvataggio va avanti: un sorgente di cui non si legge la
+ * lunghezza darebbe `0`, e tutte le immagini senza misura avrebbero la stessa firma, cioè l'app
+ * direbbe 'già scaricata' a immagini mai viste.
  */
 private suspend fun markOf(
     context: Context,
@@ -4580,10 +3687,10 @@ private suspend fun noteDownload(
 /**
  * L'immagine finta con cui la copia invisibile della barra misura la propria altezza.
  *
- * ⚠️ **Ha un nome**, perché la riga del nome cambia l'altezza della barra quando va su due righe:
- * un'immagine senza nome è un caso raro, e allora la barra vera corregge la misura.
- * ⚠️ **Nasce la prima volta che serve e non all'avvio della classe**: una bitmap creata con la
- * classe fa fallire chi carica questo file senza una grafica vera, come il banco di prova.
+ * Ha un nome, perché sulle due righe la riga del nome cambia l'altezza della barra; per
+ * un'immagine senza nome, che è rara, la barra vera corregge la misura.
+ * ⚠️ È pigra: una bitmap creata col caricamento del file fa fallire chi lo carica senza una
+ * grafica vera, come il banco di prova.
  */
 private val PROBE_IMAGE by lazy {
     LoadedImage(
@@ -4600,13 +3707,9 @@ private val PROBE_IMAGE by lazy {
 /**
  * Lo stesso stile senza l'interlinea in eccesso sopra e sotto la riga.
  *
- * ⚠️⚠️ **SERVE ALLA RIGA UNICA DELLA BARRA, DALLA `3.70`** (voce `3.60-01` non approvata: *oltre
- * a disporre gli elementi in orizzontale devi anche assottigliare l'overlay, altrimenti la
- * ridisposizione non serve*). Un'etichetta di Material ha una riga più alta del suo carattere
- * (20 sp per 14 nel corpo dei dati), e su una riga sola quell'aria sopra e sotto è tutta barra
- * in più. Tagliata, la riga è alta quanto il carattere.
- * ⚠️⚠️ **Dalla `3.71` vale anche sulle due righe** (voce `3.70-01`: *TUTTE le barre info devono
- * essere più sottili, non solo quelle tutte su una riga*): fra il nome e i dati resta il solo
+ * Assottiglia la barra delle info, su una riga e su due (voci `3.60-01` e `3.70-01`):
+ * un'etichetta di Material ha una riga più alta del suo carattere (20 sp per 14 nel corpo dei
+ * dati), e tagliata la riga è alta quanto il carattere. Fra il nome e i dati resta il solo
  * [NAME_GAP].
  */
 private fun TextStyle.snug(): TextStyle = copy(

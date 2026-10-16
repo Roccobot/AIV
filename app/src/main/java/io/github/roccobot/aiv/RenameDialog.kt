@@ -74,16 +74,12 @@ import kotlin.math.roundToInt
 /**
  * Rinominare in blocco: un template col numero dentro, e il primo numero.
  *
- * ⚠️⚠️ **L'ANTEPRIMA NON È UN ORNAMENTO: è l'unica cosa che rende reversibile una
- * decisione irreversibile.** Rinominare ottanta file è un gesto che non si annulla, e
- * senza vedere prima come verranno i nomi l'unico modo di accorgersi di un template
- * sbagliato sarebbe averlo già applicato. Mostra i primi e **l'ultimo**, che è quello che
- * dice se le cifre bastano.
- * ⚠️ **Il template si propone UNA VOLTA e poi non si tocca più**: ricalcolarlo mentre si
- * cambia il primo numero riscriverebbe sotto le dita un testo che si sta scrivendo.
- * ⚠️ **I nomi arrivano già ordinati da `FileTree.namesOf`**, che usa lo stesso ordinamento
- * della rinomina vera: se l'anteprima ordinasse per conto suo, mostrerebbe un abbinamento
- * che poi non succede.
+ * ⚠️ **L'anteprima è il solo modo di vedere un template sbagliato prima di applicarlo**:
+ * rinominare ottanta file non si annulla. Mostra i primi e l'ultimo, che dice se le cifre bastano.
+ * Il template si propone una volta sola: ricalcolarlo mentre si cambia il primo numero
+ * riscriverebbe un testo che si sta scrivendo.
+ * I nomi arrivano già ordinati da `FileTree.namesOf`, con l'ordinamento della rinomina vera:
+ * ordinati qui, l'anteprima potrebbe mostrare un abbinamento che poi non succede.
  */
 @Composable
 fun RenameDialog(
@@ -93,19 +89,11 @@ fun RenameDialog(
     /**
      * Il nome della **cartella** da rinominare, quando è una cartella e non dei file.
      *
-     * ⚠️⚠️ **È LA STESSA FINESTRA, ED È LA SUA RICHIESTA ALLA LETTERA** (2026-09-08: *usa
-     * esattamente la stessa finestra di rinomina del file singolo, ovviamente senza percorso né
-     * estensione. Tutte le altre logiche di rinomina sono identiche*). Da qui un parametro invece
-     * di una finestra gemella: due copie della stessa cosa divergono al primo ritocco, e questa
-     * finestra ne ha avuti sette in dieci versioni.
-     * ⚠️⚠️ **CON LUI IL CAMPO PARTE DAL NOME INTERO, ESTENSIONE COMPRESA**, che è l'altra metà
-     * della richiesta (*nei rari casi in cui la cartella dovesse avere un'estensione,
-     * eccezionalmente dev'essere visualizzata direttamente nello spazio nome*). Per i file invece
-     * il suffisso vive fuori dal campo, perché là è un dato del formato e cambiarlo è un'altra
-     * operazione: una cartella che si chiama `foto.old` non ha nessun formato, ha un nome col
-     * punto dentro.
-     * ⚠️ **E il comando 'Estensione' non c'è**: cambierebbe il suffisso di un file, e qui non c'è
-     * nessun file.
+     * È la stessa finestra della rinomina del file singolo, senza percorso né estensione
+     * (richiesta dell'utente): un parametro, non una finestra gemella che divergerebbe.
+     * ⚠️ **Il campo parte dal nome intero, punto compreso** (stessa richiesta): per i file il
+     * suffisso è fuori dal campo perché è un dato del formato, ma una cartella `foto.old` ha
+     * solo un nome col punto dentro. Il comando 'Estensione' non c'è.
      */
     folder: String? = null
 ) {
@@ -119,54 +107,42 @@ fun RenameDialog(
     var proposed by rememberSaveable { mutableStateOf(false) }
 
     /*
-     * ⚠️ **`null` vuol dire 'ognuno tiene la sua', dalla 1.30** (richiesta dell'utente,
-     * 2026-09-02), e non è la stessa cosa di una stringa vuota, che vorrebbe dire 'nessuna
-     * estensione'. Il pannellino la propone già riempita con quella corrente, quindi finché
-     * non lo si apre questa resta `null` e i file conservano ognuno la propria: importa con
-     * una selezione mista, dove mettere l'estensione del primo a tutti sarebbe un danno.
+     * ⚠️ **`null` vuol dire 'ognuno tiene la sua'** (richiesta dell'utente), diverso dalla
+     * stringa vuota, 'nessuna estensione'. Finché il pannellino non si apre resta `null`: con una
+     * selezione mista l'estensione del primo a tutti sarebbe un danno.
      */
     var extension by rememberSaveable { mutableStateOf<String?>(null) }
 
     /*
-     * ⚠️⚠️ **IL CANCELLO DELL'ESTENSIONE È UNO, E DALLA `1.78` LO CONDIVIDE CON LA FINESTRA DEL
-     * SALVATAGGIO**: là serve *lo stesso pulsante 'Estensione' (con identico funzionamento)*
-     * (riscontro del giro della `1.77`, voce `scarica-download`), e 'identico' regge solo se il
-     * pezzo è lo stesso. Che cosa fa, e perché si porta dietro le proprie finestre, sta su
+     * Il cancello dell'estensione è condiviso con la finestra del salvataggio (voce
+     * `scarica-download`: lo stesso pulsante, con identico funzionamento). Che cosa fa è su
      * [extensionGate].
      */
     val gate = extensionGate(
         where = ExtWhere.RENAME,
-        // ⚠️ Qui la griglia di sicurezza non si scavalca mai: il tocco lungo che la scavalca
-        // per una volta è quello su 'Scarica', e questa finestra si apre da una voce di menu.
+        // Qui la griglia di sicurezza non si scavalca mai: la scavalca per una volta il tocco
+        // lungo su 'Scarica', e questa finestra si apre da una voce di menu.
         force = false,
-        // ⚠️ Il valore di partenza è quello **corrente**: l'estensione già scelta se c'è,
-        // altrimenti quella del primo file, che con una selezione omogenea è quella di
-        // tutti. Senza il punto, come chiesto.
+        // Il valore di partenza è quello corrente: l'estensione già scelta, altrimenti quella
+        // del primo file. Senza il punto.
         initial = { extension ?: names?.firstOrNull()?.substringAfterLast('.', "").orEmpty() },
         onPick = { extension = it }
     )
 
-    // ⚠️⚠️ **UN FILE SOLO NON È UNA RINOMINA IN BLOCCO, e dalla 1.25 non ne ha più l'aria**
-    // (riscontro dell'utente, 2026-09-02: *`Rinomina` sul file singolo deve partire dal nome
-    // originale, non da un template di rinomina batch*). Con un file la schermata proponeva
-    // `Museo ##`, chiedeva da che numero partire e spiegava i cancelletti: tre cose che
-    // servono a numerare ottanta foto e nessuna che serva a cambiare un nome.
-    // ⚠️ Una cartella è un nome solo, quindi vale tutto quello che vale per il file singolo: niente
-    // primo numero, niente spiegazione dei cancelletti, e il tasto della tastiera che dice 'fine'.
+    // ⚠️ Un file solo non è una rinomina in blocco (riscontro dell'utente): parte dal nome
+    // originale, senza primo numero né spiegazione dei cancelletti. Una cartella è un nome solo,
+    // e vale lo stesso.
     val singolo = folder != null || uris.size == 1
 
     val listed = names
     LaunchedEffect(listed) {
         if (proposed || listed == null) return@LaunchedEffect
-        // ⚠️ Si segna proposto anche con l'elenco VUOTO, e la riga sotto dipende da questo:
-        // è quella che apre la finestra, e senza di lei un tocco su 'Rinomina' non aprirebbe
-        // più niente nel caso in cui i nomi non si riescono a leggere.
+        // ⚠️ Proposto anche con l'elenco vuoto: `proposed` apre la finestra, e senza, con nomi
+        // illeggibili, 'Rinomina' non aprirebbe niente.
         proposed = true
         if (listed.isEmpty()) return@LaunchedEffect
-        // ⚠️ Il nome **senza estensione**, perché l'estensione la rimette `renderName`: con
-        // lei dentro il template il file diventerebbe `foto.jpg.jpg`.
-        // ⚠️ Per una CARTELLA invece il nome è intero, punto compreso: è la sua specifica, e il
-        // perché vive sul parametro [folder].
+        // Il nome senza estensione, che la rimette `renderName` (se no `foto.jpg.jpg`); per una
+        // cartella il nome intero ([folder]).
         template = when {
             folder != null -> listed.first()
             singolo -> listed.first().substringBeforeLast('.', listed.first())
@@ -175,30 +151,21 @@ fun RenameDialog(
     }
 
     /*
-     * ⚠️⚠️ **NON SI APRE FINCHÉ NON HA I NOMI E IL TEMPLATE, ed è il rimedio che la `1.25` ha
-     * già scelto per la scheda delle informazioni** (vedi `FileOps`): `FileTree.namesOf` passa
-     * da `Dispatchers.IO` senza condizioni, quindi al primo fotogramma i nomi non ci sono
-     * **per costruzione**, e questa finestra si disegnava vuota e poi cresceva di tutto il
-     * blocco dell'anteprima. È il salto che l'utente vede ancora dopo la `1.45`.
-     * ⚠️⚠️ **LA GUARDIA È `proposed` E NON `listed != null`, e la differenza è la rotazione**:
-     * `proposed` sopravvive alla ricreazione dell'attività e `names` no, perché viene da un
-     * `produceState` che riparte da capo. Guardando i nomi, girare il telefono con la finestra
-     * aperta la farebbe sparire e tornare.
-     * ⚠️ **Il prezzo è un'attesa fra il tocco e la finestra**, ed è dichiarato: con un file
-     * solo è un salto di thread, con una selezione grande è una lettura per file. Il baratto è
-     * lo stesso che la `1.25` ha già accettato.
+     * ⚠️ **Non si apre finché non ha i nomi e il template**, come la scheda delle informazioni
+     * (`FileOps`): `FileTree.namesOf` passa da `Dispatchers.IO`, quindi al primo fotogramma i nomi
+     * non ci sono, e la finestra si disegnerebbe vuota per poi crescere.
+     * La guardia è `proposed`, non `listed != null`: `proposed` sopravvive alla rotazione, `names`
+     * riparte da capo, e la finestra sparirebbe e tornerebbe.
+     * Il prezzo è un'attesa fra il tocco e la finestra: un salto di thread con un file, una
+     * lettura per file con una selezione grande.
      */
     if (!proposed) return
 
     val first = start.toIntOrNull()
     val clean = template.trim()
-    // ⚠️ Il cancelletto è obbligatorio **solo** quando i file sono più di uno: con un file
-    // solo questa schermata è la rinomina normale, e pretendere un numero dentro il nome
-    // sarebbe pretendere una numerazione da un solo elemento.
     val numbered = clean.contains('#')
-    // ⚠️ Il cancelletto lo pretende il solo caso in cui i nomi da fare sono più di uno, e la
-    // condizione si scrive su [singolo] e non su `uris.size`: con una cartella quell'elenco è
-    // vuoto, quindi il conto direbbe 'più di uno' e il tasto resterebbe spento per sempre.
+    // ⚠️ Il cancelletto è obbligatorio solo con più nomi da fare, e la condizione è su [singolo],
+    // non su `uris.size`: con una cartella quell'elenco è vuoto, e il tasto resterebbe spento.
     val ready = listed != null && clean.isNotEmpty() && first != null && first >= 0 &&
         (singolo || numbered)
 
@@ -207,31 +174,15 @@ fun RenameDialog(
         modifier = Modifier.lowered(null),
         properties = loweredWindow(null),
         /*
-         * ⚠️⚠️ **'Estensione' STA SULLA RIGA DEL TITOLO, dalla 1.34, e nella 1.30 stava
-         * nella fila dei tasti**: era una mia lettura sbagliata della richiesta, e l'utente
-         * l'ha chiarita con un mockup (voce `ren-ext`: *'Estensione' in alto a destra,
-         * allineato con gli altri elementi ma sulla stessa riga del titolo; intendevo QUEL
-         * 'Rinomina'*). La sua frase della `1.30` diceva 'a destra di Rinomina', e i
-         * 'Rinomina' in questo dialogo sono **due**: il titolo e il tasto di conferma. Ho
-         * scelto quello sbagliato.
-         * ⚠️ **E così la fila dei tasti torna quella di Material**: 'Annulla' e 'Rinomina',
-         * la conferma in fondo a destra. La nota che dichiarava l'ordine strano è decaduta
-         * insieme al tasto che la rendeva necessaria.
-         * ⚠️⚠️ **È STATA UN'ICONA NELLA SOLA `1.80`, E DALLA `1.81` È DI NUOVO LA PASTIGLIA COL
-         * TESTO** (riscontro del giro della `1.80`, voce `rinomina-icona`: *Ho cambiato idea: in
-         * 'Rinomina', il tasto 'Estensione' deve tornare come prima (testuale, tasto stondato a
-         * destra, linea di base del titolo della finestra)*). Il pezzo che la disegna è
-         * [TitlePill], lo stesso della finestra del salvataggio: le due finestre portano gli
-         * stessi comandi, quindi la forma è una.
-         * ⚠️ **La riga la compone [TitleRow]**, che dalla `1.86` decide anche se la pastiglia
-         * resta scritta o diventa un'icona: qui c'è un comando solo, e la misura del titolo dice
-         * se entra accanto.
+         * 'Estensione' è sulla riga del titolo, a destra (voci `ren-ext` e `rinomina-icona`), e
+         * la fila dei tasti resta quella di Material: 'Annulla' e 'Rinomina'. La riga la compone
+         * [TitleRow], come nella finestra del salvataggio, che ha gli stessi comandi: decide se la
+         * pastiglia resta scritta o diventa un'icona secondo lo spazio accanto al titolo.
          */
         title = {
             TitleRow(
                 title = stringResource(R.string.pick_rename),
-                // ⚠️ Con una cartella il comando non c'è, qualunque cosa dica l'impostazione: là
-                // non c'è nessun file di cui cambiare il suffisso.
+                // Con una cartella il comando non c'è: non c'è un file di cui cambiare il suffisso.
                 commands = if (!gate.allowed || folder != null) emptyList() else listOf(
                     TitleCommand(
                         text = stringResource(R.string.rename_ext),
@@ -244,20 +195,12 @@ fun RenameDialog(
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 /*
-                 * ⚠️⚠️ **IL CAMPO PASSA DA UN `TextFieldValue` DALLA `1.60`, e serve solo a
-                 * portare la POSIZIONE DEL CURSORE** (riscontro del giro della `1.59`: *al tocco
-                 * sul campo di testo, il cursore deve posizionarsi in fondo: un eventuale nome
-                 * lungo deve essere già visualizzato nella sua ultima parte e il cursore deve
-                 * lampeggiare alla fine*). Con la versione a `String` la posizione del cursore
-                 * non esiste come dato: la tiene il campo per conto suo, e nessuno da fuori la
-                 * può mettere in fondo.
-                 * ⚠️ **La verità resta [template]**, e questo lo rispecchia: è quello che
-                 * l'anteprima e il tasto leggono, ed è quello che sopravvive alla rotazione
-                 * (`rememberSaveable`). Il valore col cursore no, ed è giusto: dopo una
-                 * rotazione l'effetto qui sotto lo rifà con la coda in vista.
-                 * ⚠️ **Una casella lunga si porta il cursore dietro**: un campo a riga sola
-                 * scorre fin dov'è il cursore, quindi mettendolo in fondo la coda del nome è
-                 * quella che si vede. È la seconda metà della richiesta, e viene da sé.
+                 * ⚠️ **Il campo usa un `TextFieldValue` per la posizione del cursore**, che deve
+                 * essere in fondo (riscontro del giro della 1.59): con una `String` il cursore
+                 * lo tiene il campo, e da fuori non si sposta. Un campo a riga sola scorre fin
+                 * dov'è il cursore, quindi si vede la coda del nome.
+                 * La verità resta [template], che legge l'anteprima e che sopravvive alla
+                 * rotazione; dopo una rotazione l'effetto qui sotto rifà il campo.
                  */
                 var campo by remember { mutableStateOf(TextFieldValue()) }
                 LaunchedEffect(template) {
@@ -266,21 +209,12 @@ fun RenameDialog(
                     }
                 }
                 /*
-                 * ⚠️⚠️ **IL FUOCO SI CHIEDE ALL'APERTURA, DALLA `1.62`, E LA `1.60` CI PROVAVA
-                 * DAL POSTO SBAGLIATO** (riscontro del giro della `1.60`: *il campo di testo non
-                 * scorre e il cursore non si posiziona automaticamente in fondo*). La `1.60`
-                 * metteva il cursore in fondo quando il **fuoco arrivava**, e quel momento è
-                 * esattamente quello in cui il tocco che lo porta sta anche decidendo dove
-                 * mettere il cursore: il gesto arriva dopo e vince, quindi il cursore finiva
-                 * dove cadeva il dito.
-                 * ⚠️⚠️ **E SENZA FUOCO UN CAMPO A RIGA SOLA NON SCORRE AFFATTO**: mostra la testa
-                 * del testo, qualunque sia la selezione. È la seconda metà del riscontro, e non
-                 * si poteva togliere spostando il cursore: si toglie dando il fuoco.
-                 * ⚠️ **Così il gesto torna a fare il suo mestiere**: chi apre trova la coda del
-                 * nome e il cursore in fondo, e chi tocca in mezzo al testo sposta il cursore
-                 * dove ha toccato, che è quello che un campo di testo deve fare.
-                 * ⚠️ **Una volta sola per apertura** (`LaunchedEffect(Unit)`), o a ogni
-                 * ricomposizione il fuoco tornerebbe qui strappandolo a chi lo avesse preso.
+                 * ⚠️ **Il fuoco si chiede all'apertura** (riscontro del giro della 1.60): senza
+                 * fuoco un campo a riga sola mostra la testa del testo e non scorre; e un cursore
+                 * messo in fondo all'arrivo del fuoco perderebbe contro il tocco che lo porta.
+                 * Così chi apre trova la coda del nome, e chi tocca in mezzo sposta il cursore.
+                 * Una volta sola per apertura (`LaunchedEffect(Unit)`), o a ogni ricomposizione
+                 * il fuoco tornerebbe qui.
                  */
                 val fuoco = remember { FocusRequester() }
                 LaunchedEffect(Unit) { fuoco.requestFocus() }
@@ -292,8 +226,8 @@ fun RenameDialog(
                     },
                     label = { Text(stringResource(R.string.rename_template)) },
                     singleLine = true,
-                    // ⚠️ Con un file solo il tasto della tastiera dice 'fine' e non 'avanti':
-                    // sotto non c'è più nessuna casella dove andare.
+                    // Con un nome solo il tasto della tastiera dice 'fine': sotto non c'è
+                    // un'altra casella.
                     keyboardOptions = KeyboardOptions(
                         imeAction = if (singolo) ImeAction.Done else ImeAction.Next
                     ),
@@ -303,37 +237,16 @@ fun RenameDialog(
                         .focusRequester(fuoco)
                 )
                 /*
-                 * ⚠️⚠️ **I DUE COMANDI SUL NOME, dalla `1.60`** (richiesta dell'utente, giro
-                 * della `1.59`: *sarebbero utili due tasti 'Seleziona tutto' e 'Svuota' che
-                 * agiscono sul campo nome, ma non so come inserirli. Dovrebbero essere molto
-                 * sobri e poco invadenti*).
-                 * ⚠️⚠️ **LA FORMA È QUELLA CHE HA GIÀ APPROVATO**, cioè il 'Ripristina' dei
-                 * riquadri del riordino: a destra, in un corpo più piccolo, e sbiadito quando
-                 * non c'è niente da fare. Inventarne una seconda per la stessa specie di comando
-                 * vorrebbe dire due modi di dire 'questo è secondario'.
-                 * ⚠️ **Sbiaditi e non spariti**, per la stessa ragione scritta là: un comando
-                 * che compare e scompare si cerca proprio nel momento in cui non c'è.
-                 * ⚠️ **Non toccano il fuoco**: chi li usa ha la tastiera aperta, e una selezione
-                 * o uno svuotamento che la chiudessero costringerebbero a un tocco in più per
-                 * riaprirla.
-                 */
-                /*
-                 * ⚠️⚠️ **'Data' È ARRIVATA CON LA `1.78`, E LA SUA RAGIONE È LA SIMMETRIA**
-                 * (campo libero del giro della `1.77`: *così come voglio che in 'Scarica' ci
-                 * siano 'Seleziona tutto' e 'Svuota', voglio che 'Rinomina' abbia 'Data', che
-                 * inserisce YYYYMMDD esattamente come implementato in 'Scarica'*). I due gesti
-                 * sono gli stessi di là, e li fanno le stesse due funzioni: il tocco breve
-                 * infila la data dov'è il cursore, il lungo rifà il nome da capo.
-                 * ⚠️ **Anche il verso della fila è quello di 'Scarica'**, e non è un caso: le
-                 * due finestre portano gli stessi comandi, quindi chi impara una posizione la
-                 * ritrova nell'altra.
-                 * ⚠️⚠️ **QUI I COMANDI TOCCANO DUE COSE, E DIMENTICARE LA SECONDA NON DÀ
-                 * ERRORE**: la verità è [template], e [campo] la rispecchia solo per portare la
-                 * posizione del cursore. Un comando che scrivesse il solo [campo] cambierebbe
-                 * quello che si legge senza cambiare quello che l'anteprima e il tasto leggono.
-                 * ⚠️ **`Arrangement.End` senza spaziatura**: l'aria fra i comandi la mette il
-                 * riempimento di [Quiet], e sommarci una spaziatura li allontanerebbe di tre
-                 * volte tanto, mandando a capo una fila che ci sta.
+                 * I comandi sul nome: 'Seleziona tutto', 'Svuota' (richiesta dell'utente: sobri)
+                 * e 'Data', come in 'Scarica', con le stesse funzioni e lo stesso verso della
+                 * fila. Il tocco breve su 'Data' infila la data dov'è il cursore, il lungo rifà il
+                 * nome da capo.
+                 * La forma è quella del 'Ripristina' dei riquadri del riordino, già approvata: a
+                 * destra, corpo più piccolo, sbiaditi e non spariti quando non c'è niente da fare.
+                 * Non toccano il fuoco, così la tastiera resta aperta.
+                 * ⚠️ **Ogni comando scrive [template] e [campo] insieme**: un comando che scrivesse
+                 * solo [campo] cambierebbe quello che si legge e non l'anteprima, senza errori.
+                 * `Arrangement.End` senza spaziatura: l'aria la mette il riempimento di [Quiet].
                  */
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),
@@ -355,28 +268,13 @@ fun RenameDialog(
                         }
                     )
                     /*
-                     * ⚠️⚠️ **COL TOCCO LUNGO E PIÙ FILE LA DATA PORTA I CANCELLETTI, DALLA
-                     * `1.80`, E IL CONTO È IL SUO** (risposta alla domanda `d-data-blocco` del
-                     * giro della `1.79`: *con più file, scrivi AAAAMMDD più uno spazio seguito
-                     * da un numero di cancelletti adeguato alla dimensione del set. Ad esempio,
-                     * se sono 100 file, aggiunge 3 cancelletti; con 50 file aggiungi 2
-                     * cancelletti. È la stessa logica di creazione del primo template*).
-                     * ⚠️ **'La stessa logica' è la stessa FUNZIONE**, [hashesFor], che è quella
-                     * da cui esce il template proposto all'apertura: due conti che si somigliano
-                     * darebbero due numeri diversi il giorno che uno dei due cambia.
-                     * ⚠️⚠️ **E COSÌ 'Rinomina' NON RESTA PIÙ SPENTO**: fino alla `1.79` il tocco
-                     * lungo lasciava un template senza cancelletti, cioè un nome uguale per
-                     * tutti, e il tasto di conferma restava spento finché non se ne aggiungeva
-                     * uno a mano. Era il prezzo di 'esattamente come in Scarica', dove il file è
-                     * uno solo, e la sua risposta lo toglie.
-                     * ⚠️ **Con un file solo resta la sola data**: là non c'è niente da numerare,
-                     * ed è la stessa ragione per cui questa finestra con un file solo non chiede
-                     * il primo numero.
-                     * ⚠️⚠️ **IL CONTO È SU [uris] E NON SUI NOMI LETTI**, che è la differenza fra
-                     * dire il vero e dire due: se i nomi non si riescono a leggere, `listed` è
-                     * una lista vuota e da lì uscirebbero due cancelletti per qualunque
-                     * selezione, senza nessun errore. Quanti file sono lo si sa comunque, ed è
-                     * il numero che [hashesFor] chiede.
+                     * Col tocco lungo e più file la data è seguita da uno spazio e dai
+                     * cancelletti che servono al numero dei file (risposta `d-data-blocco`):
+                     * il conto è [hashesFor], lo stesso del template proposto all'apertura.
+                     * Così il template resta valido e 'Rinomina' acceso. Con un nome solo resta
+                     * la sola data.
+                     * ⚠️ **Il conto è su [uris], non sui nomi letti**: con nomi illeggibili
+                     * `listed` è vuoto, e darebbe due cancelletti per qualunque selezione.
                      */
                     Quiet(
                         text = stringResource(R.string.save_name_date),
@@ -397,16 +295,14 @@ fun RenameDialog(
                         }
                     )
                 }
-                // ⚠️ Il primo numero e la spiegazione dei cancelletti escono di scena con un
-                // file solo: là non c'è niente da numerare, e una casella che non decide
-                // niente si legge come una cosa da riempire.
+                // Il primo numero e la spiegazione dei cancelletti solo con più nomi: con uno
+                // solo una casella che non decide niente sembrerebbe da riempire.
                 if (!singolo) {
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
                         value = start,
-                        // ⚠️ Si filtra alle cifre invece di validare dopo: una tastiera
-                        // numerica su Android serve comunque virgole e segni, e un numero
-                        // negativo qui non vuol dire niente.
+                        // Si filtra alle cifre mentre si scrive: la tastiera numerica di Android
+                        // offre comunque virgole e segni, e un numero negativo qui non vale.
                         onValueChange = { typed -> start = typed.filter { it.isDigit() }.take(6) },
                         label = { Text(stringResource(R.string.rename_start)) },
                         singleLine = true,
@@ -435,12 +331,6 @@ fun RenameDialog(
                 }
             }
         },
-        /*
-         * ⚠️ **La fila dei tasti è quella di Material**, 'Annulla' e 'Rinomina', dalla `1.34`:
-         * il comando dell'estensione sta sulla riga del titolo (vedi la nota là sopra), e la
-         * nota che dichiarava un ordine strano è decaduta insieme al tasto che la rendeva
-         * necessaria.
-         */
         confirmButton = {
             TextButton(
                 onClick = { onRename(clean, first ?: 1, extension) },
@@ -464,12 +354,9 @@ internal class ExtensionGate(val allowed: Boolean, val open: () -> Unit)
 /**
  * Quale delle due finestre sta chiedendo il comando 'Estensione'.
  *
- * ⚠️⚠️ **NASCE NELLA `1.81` PERCHÉ I CHIP SONO DUE** (riscontro del giro della `1.80`, campo
- * libero punto A): fino alla `1.80` le due finestre leggevano lo stesso interruttore, quindi
- * accendere l'estensione in 'Rinomina' la accendeva anche in 'Scarica'. Adesso ognuna legge il
- * proprio chip, e a dire quale si legge è questo parametro.
- * ⚠️ **Non ha un valore di serie**, come `force`: chi apre una finestra con questo comando
- * dichiara di quale delle due si tratta, e non lo può fare per omissione.
+ * Ognuna delle due finestre ha il suo chip nell'impostazione (riscontro del giro della 1.80,
+ * punto A), e questo dice quale si legge. Non ha un valore di serie, come `force`: chi apre la
+ * finestra lo dichiara.
  */
 internal enum class ExtWhere { RENAME, DOWNLOAD }
 
@@ -477,47 +364,33 @@ internal enum class ExtWhere { RENAME, DOWNLOAD }
  * Il comando 'Estensione' con tutto quello che gli serve: la griglia di sicurezza, l'avviso
  * della prima volta e il pannellino.
  *
- * ⚠️⚠️ **IL TASTO C'È SOLO SE L'IMPOSTAZIONE È ACCESA, dalla 1.36**, ed è la griglia di
- * sicurezza chiesta dall'utente: il perché per esteso sta su [Settings.extRename], e in breve è
- * che cambiare l'estensione non converte niente e può far sparire un'immagine dalle viste. Di
- * fabbrica è spenta.
- * ⚠️⚠️ **E DALLA `1.81` GLI INTERRUTTORI SONO DUE, uno per finestra**: [Settings.extRename] e
- * [Settings.extDownload], che nel pannello sono i due chip di una voce sola. A dire quale si
- * legge è [where].
+ * ⚠️ **Il comando c'è solo con l'impostazione accesa**, la griglia di sicurezza chiesta
+ * dall'utente e spenta di fabbrica: cambiare l'estensione non converte niente e può far sparire
+ * un'immagine dalle viste (il perché è su [Settings.extRename]). Gli interruttori sono due,
+ * [Settings.extRename] e [Settings.extDownload], i due chip di una voce sola; quale si legge lo
+ * dice [where].
  *
- * ⚠️⚠️ **LE DUE LETTURE SI FANNO QUI E NON ARRIVANO DA FUORI, ed è una scelta contro la
- * convenzione dei dialoghi di questo file** (`FileJobDialogs` dichiara di non sapere niente
- * delle impostazioni e si fa passare i campi delle info). La ragione è il numero di posti: le
- * tre schermate che aprono la rinomina sono griglia, albero e visualizzatore, e solo l'ultima
- * ha le impostazioni in mano; le altre due dovrebbero farsi passare un booleano dai **loro**
- * chiamanti, cioè quattro firme in più per un valore che si legge in una riga. La stessa strada
- * la fanno già i veli (`Hint.flow`), che nascono in schermate che non hanno lo stato dell'app.
- * ⚠️ **`false` come valore iniziale**: mentre la lettura è in corso il tasto non c'è, che è il
- * verso prudente. Al contrario comparirebbe per un istante anche a chi l'ha spento.
+ * Le letture si fanno qui, contro la convenzione dei dialoghi di questo file (`FileJobDialogs` si
+ * fa passare tutto): delle tre schermate che aprono la rinomina (griglia, albero, visualizzatore)
+ * solo l'ultima ha le impostazioni, e passarle costerebbe quattro firme in più. Come i veli
+ * (`Hint.flow`). Il valore iniziale è `false`: durante la lettura il comando non c'è, invece di
+ * comparire per un istante a chi l'ha spento.
  *
- * ⚠️⚠️ **DALLA `1.80` LA GRIGLIA SI PUÒ SCAVALCARE PER UNA VOLTA, ED È LA SUA RICHIESTA**
- * (riscontro del giro della `1.79`, campo libero punto D: *la pressione lunga su 'Scarica'
- * metterà a disposizione la finestra di download con entrambe le icone-tasto attive
- * ('Percorso', 'Estensione')*). Il tocco lungo è già il gesto che accende la rinomina al volo,
- * quindi accende anche questo comando: è lo stesso 'per questa volta sola'.
- * ⚠️ **Quello che il tocco lungo NON scavalca è l'avviso**: la prima volta la finestrella con
- * il rischio compare comunque, perché è quella che protegge, non l'interruttore.
+ * Il tocco lungo su 'Scarica' scavalca la griglia per una volta (richiesta dell'utente, giro della
+ * 1.79, punto D), come accende la rinomina al volo. Non scavalca l'avviso: la prima volta compare
+ * comunque, perché è lui che protegge.
  *
- * ⚠️⚠️ **SI PORTA DIETRO LE PROPRIE FINESTRE, E QUELLO È IL PUNTO**: chi lo chiama ottiene un
- * tasto che funziona, non due righe da ricordare in fondo alla funzione. È lo stesso criterio
- * per cui `lowered()` porta il velo (`Rules.md`, § '📍 Che cosa vuol dire 'centrato''): un
- * avviso o un pannellino dimenticati non danno nessun errore, danno un tasto che non fa niente.
- * ⚠️ **L'ordine nella composizione non decide chi sta sopra**: le due finestre nascono quando si
- * tocca il comando, cioè quando il dialogo che le apre è già in scena, quindi arrivano dopo di
- * lui nel gestore delle finestre qualunque sia il posto di questa chiamata.
+ * ⚠️ **Si porta dietro le proprie finestre**: chi lo chiama ottiene un tasto che funziona, senza
+ * righe da ricordare; un avviso o un pannellino dimenticati non darebbero errori, solo un tasto
+ * che non fa niente. Lo stesso criterio di `lowered()` col velo.
+ * L'ordine nella composizione non decide quale finestra è sopra: le due nascono al tocco, col
+ * dialogo già in scena, e arrivano dopo di lui nel gestore delle finestre.
  *
- * @param where quale delle due finestre lo sta chiedendo, cioè quale dei due chip si legge.
- * @param force se il comando c'è **comunque**, cioè anche a impostazione spenta.
- *   ⚠️ **Non ha un valore di serie di proposito**: chi apre una finestra con questo comando
- *   dichiara se sta scavalcando la griglia di sicurezza, e non lo può fare per omissione. È lo
- *   stesso criterio del parametro di `Modifier.lowered`.
- * @param initial l'estensione da cui parte il pannellino, **senza** il punto. È una funzione e
- *   non un valore perché si legge nell'istante in cui il pannellino si apre.
+ * @param where quale delle due finestre lo chiede, cioè quale chip si legge.
+ * @param force se il comando c'è anche a impostazione spenta. Non ha un valore di serie: chi apre
+ *   la finestra dichiara se scavalca la griglia, come col parametro di `Modifier.lowered`.
+ * @param initial l'estensione da cui parte il pannellino, senza il punto: una funzione, perché si
+ *   legge quando il pannellino si apre.
  * @param onPick riceve l'estensione scelta, senza punto; vuota vuol dire 'nessuna'.
  */
 @Composable
@@ -542,11 +415,10 @@ internal fun extensionGate(
     val scope = rememberCoroutineScope()
 
     /*
-     * ⚠️⚠️ **È UN VELO IN UNA FINESTRA SUA, e la ragione sta su [HintNotice]**: chi chiama è già
-     * dentro un dialogo, e un velo steso sul contenuto coprirebbe la finestrella invece dello
-     * schermo. L'utente ha chiesto un avviso *in mezzo allo schermo*.
-     * ⚠️ **Si archivia alla chiusura e si apre il pannellino nello stesso gesto**: l'avviso si
-     * legge una volta sola, e chi ha toccato 'Estensione' voleva aprirlo.
+     * Un velo in una finestra sua ([HintNotice]): chi chiama è già dentro un dialogo, e un velo
+     * sul contenuto coprirebbe la finestrella e non lo schermo.
+     * Alla chiusura l'avviso si archivia e il pannellino si apre: si legge una volta sola, e chi
+     * ha toccato 'Estensione' voleva il pannellino.
      */
     if (warning) {
         HintNotice(
@@ -566,12 +438,10 @@ internal fun extensionGate(
         )
     }
     /*
-     * ⚠️ **Il velo PRIMA del pannellino e non insieme**: l'avviso dice che cosa comporta la cosa
-     * che si sta per fare, e uno che comparisse sopra il campo già aperto arriverebbe dopo il
-     * gesto. Chi lo chiude trova il pannellino, quindi il tocco non va perso.
-     * ⚠️⚠️ **In AIV Play il comando non c'è mai, dalla `5.30`, nemmeno col tocco lungo su
-     * 'Scarica'** (sua nota sul giro della `5.20`: l'estensione non si modifica, né scaricando né
-     * rinominando): la sua impostazione è sempre spenta (`Store.fit`), ma `force` la scavalcherebbe.
+     * L'avviso prima del pannellino, non insieme: dice che cosa comporta il gesto prima del gesto.
+     * ⚠️ **In AIV Play il comando non c'è mai, nemmeno col tocco lungo su 'Scarica'** (nota
+     * dell'utente sul giro della 5.20): l'impostazione è sempre spenta (`Store.fit`), ma `force`
+     * la scavalcherebbe, quindi serve `Store.fullSettings`.
      */
     return ExtensionGate(Store.fullSettings && (force || allowed)) { if (warned) asking = true else warning = true }
 }
@@ -579,13 +449,11 @@ internal fun extensionGate(
 /**
  * Il pannellino della sola estensione.
  *
- * ⚠️⚠️ **CAMBIA IL NOME E NON IL FORMATO, e lo dice** (nota in fondo): rinominare `foto.jpg`
- * in `foto.png` lascia dentro un JPEG con l'etichetta sbagliata, e l'app che poi lo apre si
- * fida del contenuto e non del nome, quindi il file funziona ma mente. Chi vuole cambiare
- * davvero formato usa 'Esporta/Converti', e la nota lo manda là.
- * ⚠️ **Il punto non si scrive**, e il campo lo scarta insieme a tutto quello che un nome di
- * file non può contenere: il punto lo rimette [renderName], e uno scritto qui darebbe
- * `foto..jpg`.
+ * ⚠️ **Cambia il nome e non il formato, e la nota in fondo lo dice**: `foto.jpg` rinominata
+ * `foto.png` resta un JPEG con l'etichetta sbagliata. Per cambiare formato c'è
+ * 'Esporta/Converti'.
+ * Il campo scarta il punto con tutto quello che non è lettera o cifra: il punto lo rimette
+ * [renderName], e scritto qui darebbe `foto..jpg`.
  */
 @Composable
 private fun ExtensionDialog(
@@ -602,30 +470,23 @@ private fun ExtensionDialog(
         title = { Text(stringResource(R.string.rename_ext)) },
         text = {
             /*
-             * ⚠️⚠️ **LO SCORRIMENTO SERVE AL TETTO DELLA `1.62`, e fino alla `1.80` non c'era**
-             * (censimento della UI del 2026-09-05): il tetto dà a una superficie centrata un
-             * massimo pari alla finestra meno l'aria, e la nota che lo introduce dà per
-             * acquisito che il contenuto porti già uno scorrimento dentro di sé. Qui non
-             * c'era, quindi a tastiera aperta, dove il tetto scende ancora, la nota sotto il
-             * campo veniva tagliata **senza modo di raggiungerla**.
+             * ⚠️ **Lo scorrimento serve al tetto delle superfici centrate** (`Centred.kt`), che
+             * presume un contenuto capace di scorrere: senza, a tastiera aperta la nota sotto il
+             * campo sarebbe tagliata e irraggiungibile.
              */
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 /*
-                 * ⚠️ **The field takes the focus as soon as the panel appears**, like the name
-                 * field of [RenameDialog] (note C on the 4.36 round: the panel appeared with a
-                 * jump). 'Rinomina' has its field focused and the keyboard open; a panel that
-                 * opened without a focused field closed the keyboard, and both windows were
-                 * laid out again while it went away. With the focus here the keyboard stays.
-                 * ⚠️ The cause is reasoned and not measured: the bench has no keyboard, and the
-                 * test entry says so.
+                 * Il campo prende il fuoco appena il pannello compare, come quello del nome in
+                 * [RenameDialog] (nota C del giro della 4.36): un pannello senza un campo col
+                 * fuoco chiuderebbe la tastiera, e le due finestre si ridisporrebbero con un
+                 * salto. La causa è ragionata e non misurata: il banco non ha tastiera.
                  */
                 val fuoco = remember { FocusRequester() }
                 LaunchedEffect(Unit) { fuoco.requestFocus() }
                 OutlinedTextField(
                     value = typed,
-                    // ⚠️ Si filtra mentre si scrive invece di validare dopo: qui dentro va
-                    // una parola di tre lettere, e un messaggio d'errore per un carattere
-                    // che non doveva entrare costa più della lettera che si è tolta.
+                    // Si filtra mentre si scrive: qui va una parola di tre lettere, e un
+                    // messaggio d'errore costerebbe più della lettera tolta.
                     onValueChange = { t -> typed = t.filter { it.isLetterOrDigit() }.take(12) },
                     label = { Text(stringResource(R.string.rename_ext_label)) },
                     singleLine = true,
@@ -642,9 +503,7 @@ private fun ExtensionDialog(
             }
         },
         confirmButton = {
-            // ⚠️ Si riusa `editor_apply` ('Applica') invece di aggiungere una stringa: è la
-            // stessa parola per la stessa idea, esiste già in 28 lingue, e una copia sarebbe
-            // un secondo posto da tenere d'accordo col primo.
+            // `editor_apply` ('Applica'): la stessa parola per la stessa idea, già in 28 lingue.
             TextButton(onClick = { onPick(clean) }) {
                 Text(stringResource(R.string.editor_apply))
             }
@@ -658,8 +517,7 @@ private fun ExtensionDialog(
 /**
  * Un comando della riga del titolo, nelle due forme che può prendere.
  *
- * ⚠️ **Porta tutte e due**, il testo e il glifo, perché a scegliere è [TitleRow] e non il
- * chiamante: passandone una sola, la forma tornerebbe una decisione di chi apre la finestra.
+ * Contiene tutte e due, testo e glifo, perché a scegliere è [TitleRow], non il chiamante.
  */
 internal class TitleCommand(
     val text: String,
@@ -668,21 +526,18 @@ internal class TitleCommand(
     /**
      * Se il comando si può toccare.
      *
-     * ⚠️ **Nasce con 'Rendi predefinito' nella `2.81`**, che è il primo comando di una riga di
-     * titolo a valere solo in certi casi (*cliccabile solo se sono attivi 'Lato lungo', 'Lato
-     * corto' o '%'*). Spento invece che assente, perché un tasto che compare e sparisce
-     * cambiando gettone farebbe ballare la riga del titolo.
+     * Per un comando che vale solo in certi casi, come 'Rendi predefinito' (attivo solo con 'Lato
+     * lungo', 'Lato corto' o '%'): spento e non assente, perché un tasto che compare e sparisce
+     * farebbe ballare la riga del titolo.
      */
     val enabled: Boolean = true,
     /**
      * Quante righe il testo della pastiglia può prendere.
      *
-     * ⚠️⚠️ **DUE È IL CASO DI UNA LOCUZIONE, E SENZA DI LUI LA PASTIGLIA DIVENTEREBBE UN'ICONA**:
-     * il conto di [TitleRow] misura il testo su una riga, quindi 'Rendi predefinito' non ci
-     * starebbe mai accanto a un titolo. Con due righe la pastiglia si misura sulla **parola più
-     * lunga**, e resta scritta come nel suo mockup.
-     * ⚠️ **Non alza la riga**: due righe di `labelMedium` valgono meno dei 40dp di altezza minima
-     * di un `FilledTonalButton`, quindi la pastiglia è alta come sempre.
+     * Due è il caso di una locuzione: [TitleRow] misura il testo su una riga, e 'Rendi
+     * predefinito' diventerebbe sempre un'icona. A due righe la pastiglia si misura sulla parola
+     * più lunga, e resta scritta come nel mockup. Non alza la riga: due righe di `labelMedium`
+     * entrano nei 40dp di altezza minima di un `FilledTonalButton`.
      */
     val lines: Int = 1
 )
@@ -690,22 +545,14 @@ internal class TitleCommand(
 /**
  * La riga del titolo di una finestra coi suoi comandi: il titolo a sinistra, la fila a destra.
  *
- * ⚠️⚠️ **A SCEGLIERE FRA PASTIGLIA E ICONA È LA MISURA, DALLA `1.86`, ED È SUA RISPOSTA**
- * (`d-pill-soglia`: **misura**). Fino alla `1.85` decideva il **conto**: due comandi in scena
- * volevano dire due icone e uno solo voleva dire la pastiglia col testo, qualunque fosse la
- * lunghezza della parola. Con una parola lunga (il polacco *Miejsce docelowe*, sedici caratteri,
- * è la più lunga delle ventotto lingue) il titolo accanto cedeva andando a capo, che è lo stesso
- * difetto per cui nella `1.82` le due pastiglie insieme erano diventate icone.
- * ⚠️ **Il conto resta per il caso di DUE, e non è un residuo**: là la risposta è già sua
- * (riscontro del giro della `1.81`, punto C: *chiaramente non possono coesistere due pulsanti
- * testuali in 'Scarica' ... in quel caso si usano le icone*), quindi la misura governa il caso
- * che la domanda apriva, cioè quello di un comando solo.
- * ⚠️⚠️ **CHE IL TESTO ENTRI VUOL DIRE CHE IL TITOLO RESTA SU UNA RIGA**, e non che la pastiglia entri nel
- * riquadro: la pastiglia entra sempre, perché è il titolo a cedere ([TitlePill] non ha peso).
- * Quindi la misura da fare è quella del **titolo**, e l'aria di [TITLE_ROW_GAP] è la distanza
- * sotto la quale le due parole si toccherebbero.
- * ⚠️ **L'aria vive nel conto e non nel layout**: messa fra i due, si prenderebbe lo spazio anche
- * quando i comandi sono icone, cioè sposterebbe una riga che oggi sta bene.
+ * ⚠️ **Fra pastiglia e icona sceglie la misura** (risposta `misura` a `d-pill-soglia`): con una
+ * parola lunga (il polacco *Miejsce docelowe*, la più lunga delle ventotto lingue) il titolo
+ * accanto andrebbe a capo. Con due comandi sempre le icone (riscontro del giro della 1.81, punto
+ * C: due pulsanti scritti non possono coesistere).
+ * ⚠️ **Si misura il titolo**: la pastiglia entra sempre, perché a cedere è il titolo ([TitlePill]
+ * non ha peso), quindi 'entra' vuol dire che il titolo resta su una riga. [TITLE_ROW_GAP] è la
+ * distanza sotto la quale le due parole si toccherebbero, e vive nel conto e non nel layout:
+ * nel layout sposterebbe anche la riga con le icone.
  */
 @Composable
 internal fun TitleRow(
@@ -714,19 +561,16 @@ internal fun TitleRow(
     /**
      * La riga sotto il titolo, quando la finestra ne ha una.
      *
-     * ⚠️⚠️ **VIVE QUI E NON SOTTO, ED È IL SUO MOCKUP DELLA `2.81`** (voce `resize-finestra`:
-     * *metti i pixel larghezza × altezza correnti subito sotto il titolo 'Ridimensiona'*):
-     * scritta nel corpo della finestra si leggerebbe come la prima riga del contenuto, e la
-     * pastiglia si centrerebbe sul solo titolo invece che sul blocco intero.
+     * È parte della riga del titolo (voce `resize-finestra`): nel corpo della finestra sembrerebbe
+     * la prima riga del contenuto, e la pastiglia si centrerebbe sul solo titolo.
      */
     subtitle: AnnotatedString? = null
 ) {
     val righello = rememberTextMeasurer()
     val corpoTitolo = MaterialTheme.typography.headlineSmall
     /*
-     * ⚠️⚠️ **I DUE CORPI SI LEGGONO QUI E NON DENTRO IL GIRO, E NON È UNA COMODITÀ**: il tema si
-     * legge in composizione, e `map` prende una lambda che non lo è, quindi una chiamata a
-     * [titlePillStyle] là dentro non compilerebbe. Letti fuori, il giro sceglie fra due valori.
+     * I due corpi si leggono qui: il tema si legge in composizione, e la lambda di `map` non lo è,
+     * quindi [titlePillStyle] là dentro non compilerebbe.
      */
     val corpoUno = titlePillStyle(1)
     val corpoDue = titlePillStyle(2)
@@ -738,25 +582,20 @@ internal fun TitleRow(
             }
         }
         /*
-         * ⚠️⚠️ **LA LARGHEZZA SI MISURA UNA VOLTA E LA USANO IN DUE, DALLA `2.82`**: il conto che
-         * sceglie fra pastiglia e icona, e la pastiglia stessa quando va a capo. Fino alla `2.81`
-         * questo numero viveva solo nel conto, e il disegno si dimensionava sul proprio contenuto:
-         * cioè il conto prometteva una pastiglia stretta quanto la parola più lunga e ne compariva
-         * una larga quanto la frase intera, che è il difetto arrivato a lui (voce
-         * `resize-finestra-2`: *'Rendi predefinito' deve andare a capo*).
+         * ⚠️ **La larghezza si misura una volta e la usano in due**: il conto che sceglie fra
+         * pastiglia e icona, e la pastiglia quando va a capo. Se il disegno si dimensionasse da sé,
+         * il conto prometterebbe una pastiglia larga quanto la parola più lunga e ne comparirebbe
+         * una larga quanto la frase (voce `resize-finestra-2`).
          */
         val larghezze = commands.map { comando ->
-            // ⚠️ Con più righe la pastiglia si misura sulla parola più lunga, perché è là che
-            // il testo può spezzarsi: misurando la frase intera passerebbe sempre all'icona.
+            // Con più righe si misura la parola più lunga, dove il testo si spezza: la frase
+            // intera porterebbe sempre all'icona.
             val parola =
                 if (comando.lines > 1) comando.text.split(' ').maxBy { it.length }
                 else comando.text
             /*
-             * ⚠️⚠️ **SI MISURA COL CORPO CON CUI [TitlePill] SCRIVE, E DALLA `2.83` NON È PIÙ
-             * LO STESSO PER TUTTI**: a due righe quel corpo scende di un gradino, quindi
-             * misurando qui il corpo pieno la larghezza imposta sarebbe più larga del testo,
-             * cioè si tornerebbe a due numeri per la stessa cosa. Il perché vive su
-             * [titlePillStyle].
+             * Si misura col corpo con cui [TitlePill] scrive, che a due righe scende di un
+             * gradino ([titlePillStyle]): col corpo pieno la larghezza sarebbe più larga del testo.
              */
             maxOf(
                 TITLE_PILL_MIN,
@@ -772,8 +611,8 @@ internal fun TitleRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // ⚠️ Il titolo prende il peso: senza, una parola lunga spingerebbe i comandi oltre
-            // il bordo invece di andare a capo lei.
+            // Il titolo prende il peso: senza, una parola lunga spingerebbe i comandi oltre il
+            // bordo.
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = title)
                 if (subtitle != null) {
@@ -803,14 +642,11 @@ internal fun TitleRow(
                             enabled = comando.enabled,
                             lines = comando.lines,
                             /*
-                             * ⚠️⚠️ **LA LARGHEZZA SI IMPONE SOLO A CHI VA A CAPO, ED È QUELLO CHE
-                             * LO FA ANDARE A CAPO**: un testo si spezza quando non ci sta, e una
-                             * pastiglia che si dimensiona sul contenuto non lo costringe mai. Con
-                             * la misura della parola più lunga la frase non entra su una riga per
-                             * costruzione, e la seconda riga ci sta esatta.
-                             * ⚠️ **A una riga sola non si tocca niente**: là la larghezza del
-                             * contenuto è già quella che il conto misura, e imporla sarebbe lo
-                             * stesso numero scritto due volte.
+                             * ⚠️ **La larghezza imposta è quella che fa andare a capo**: una
+                             * pastiglia che si dimensiona sul contenuto non costringe mai il
+                             * testo a spezzarsi. Larga quanto la parola più lunga, la frase va
+                             * su due righe. A una riga la larghezza del contenuto è già quella
+                             * del conto.
                              */
                             modifier = if (comando.lines > 1) {
                                 Modifier.width(larghezze[posto])
@@ -828,26 +664,16 @@ internal fun TitleRow(
 /**
  * Un comando sulla riga del titolo di una finestra: una pastiglia col suo testo dentro.
  *
- * ⚠️⚠️ **ERA UN'ICONA NELLA `1.80` ED È TORNATA TESTUALE NELLA `1.81`, PERCHÉ HA CAMBIATO
- * IDEA** (riscontro del giro della `1.80`, voce `rinomina-icona`: *Ho cambiato idea: in
- * 'Rinomina', il tasto 'Estensione' deve tornare come prima (testuale, tasto stondato a destra,
- * linea di base del titolo della finestra)*). Quello che torna è **esattamente** la forma della
- * `1.34`, che lui aveva approvato: `FilledTonalButton`, raggio grande, riempimento stretto e
- * testo in `labelLarge`.
- * ⚠️ **Sta in una funzione perché i chiamanti sono tre**: 'Estensione' in 'Rinomina',
- * 'Estensione' e 'Destinazione' in 'Scarica'. Copiata, il giorno che la misura cambia ne
- * cambierebbe uno solo, che è la trappola già scritta su [Quiet].
+ * La forma approvata dall'utente (voce `rinomina-icona`: testuale, tasto stondato a destra,
+ * sulla linea di base del titolo): `FilledTonalButton`, raggio grande, riempimento stretto. Una
+ * funzione sola per i tre chiamanti ('Estensione' in 'Rinomina', 'Estensione' e 'Destinazione'
+ * in 'Scarica').
  *
- * ⚠️⚠️ **IL RIEMPIMENTO VERTICALE È ZERO, ED È IL NUMERO CHE LA FA STARE NELLA RIGA**: un
- * `FilledTonalButton` di serie è alto 40dp e il suo riempimento ne aggiunge, quindi in una riga
- * di titolo darebbe una riga alta il doppio del testo. I 12dp orizzontali sono quelli della
- * `1.34`.
- * ⚠️ **'Allineato alla linea di base' si ottiene centrando**: la pastiglia è un riquadro, e il
- * suo testo sta al centro. È quello che faceva la `1.34`, cioè la forma approvata.
- * ⚠️⚠️ **E DUE PASTIGLIE NELLA STESSA RIGA CI STANNO PERCHÉ IL TITOLO CEDE**: nel chiamante il
- * titolo porta `weight(1f)` e queste no, quindi le pastiglie misurano il testo che hanno dentro
- * e il titolo si adatta andando a capo. Il verso opposto (peso alle pastiglie) le
- * comprimerebbe, cioè taglierebbe la parola che lui vuole leggere.
+ * ⚠️ **Il riempimento verticale è zero**: un `FilledTonalButton` di serie è alto 40dp e il
+ * riempimento ne aggiunge, e la riga del titolo diventerebbe alta il doppio del testo. La linea
+ * di base si ottiene centrando: il testo è al centro del riquadro.
+ * La pastiglia non ha peso, il titolo sì (`weight(1f)` nel chiamante): a cedere è il titolo, che va
+ * a capo, e la parola nella pastiglia resta intera.
  */
 @Composable
 internal fun TitlePill(
@@ -865,16 +691,9 @@ internal fun TitlePill(
         contentPadding = TITLE_PILL_PAD
     ) {
         /*
-         * ⚠️⚠️ **UN GRADINO SOTTO DALLA `1.85`** (riscontro del giro della `1.83`, voce
-         * `save-regola` approvata con una nota: *mi piace moltissimo il pulsante testuale, ma fai
-         * il testo lievemente più piccolo mantenendo l'allineamento ottico corretto*).
-         * ⚠️ **L'allineamento resta giusto senza toccare niente**, ed è la ragione per cui questa
-         * è una riga sola: un `FilledTonalButton` ha un'altezza minima sua (40dp) che il corpo
-         * del testo non cambia, e il testo dentro sta al centro. Cambiando il corpo si accorcia
-         * la **parola**, non la pastiglia, quindi la linea su cui si legge non si muove.
-         * ⚠️ **E dalla `2.83` quel corpo dipende dalle righe**, cioè scende ancora di un gradino
-         * dove il testo va a capo: il perché, e perché lo legge anche il conto, vivono su
-         * [titlePillStyle].
+         * Il corpo è un gradino sotto quello di un pulsante (nota dell'utente sulla voce
+         * `save-regola`), e scende ancora a due righe ([titlePillStyle]). L'allineamento non
+         * cambia: il `FilledTonalButton` ha la sua altezza minima, e il testo è al centro.
          */
         Text(
             text = text,
@@ -888,18 +707,11 @@ internal fun TitlePill(
 /**
  * Il corpo del testo di una pastiglia del titolo, che dipende da quante righe può prendere.
  *
- * ⚠️⚠️ **A DUE RIGHE SCENDE DI UN GRADINO E STRINGE L'INTERLINEA, DALLA `2.83`, ED È LA SUA
- * NOTA** (riscontro del giro della `2.82`, voce `resize-pastiglia` approvata con una richiesta:
- * *riduci leggermente la dimensione del carattere di 'Rendi predefinito', e/o riduci leggermente
- * l'interlinea*). Sono le due metà della sua `e/o`, tutte e due leggere: il corpo passa a
- * `labelSmall` e l'interlinea a [TITLE_PILL_LEAD].
- * ⚠️⚠️ **LO LEGGONO IN DUE, IL CONTO E IL DISEGNO, E QUESTO È IL PUNTO**: [TitleRow] misura la
- * parola più lunga per imporre la larghezza, e un corpo diverso da quello che [TitlePill] scrive
- * rifarebbe il difetto della `2.81` in un verso o nell'altro, cioè una frase che non entra nella
- * larghezza promessa, oppure una pastiglia più larga del testo che porta.
- * ⚠️ **A una riga non si tocca niente**: quel corpo è quello che lui ha approvato nella `1.85`
- * (*fai il testo lievemente più piccolo*), e le pastiglie di 'Rinomina' e di 'Scarica' non le ha
- * nominate.
+ * A due righe il corpo passa a `labelSmall` e l'interlinea a [TITLE_PILL_LEAD] (nota dell'utente
+ * sulla voce `resize-pastiglia`); a una riga resta `labelMedium`, il corpo approvato.
+ * ⚠️ **Lo leggono il conto e il disegno**: [TitleRow] misura la parola più lunga con questo corpo
+ * per imporre la larghezza, e un corpo diverso da quello di [TitlePill] darebbe una frase che non
+ * entra, o una pastiglia più larga del testo.
  */
 @Composable
 private fun titlePillStyle(lines: Int): TextStyle {
@@ -913,11 +725,9 @@ private fun titlePillStyle(lines: Int): TextStyle {
 /**
  * Quanto vale l'interlinea di una pastiglia a due righe, in rapporto al proprio corpo.
  *
- * ⚠️⚠️ **È UN RAPPORTO E NON UNA MISURA, PERCHÉ IL CORPO LO DÀ IL TEMA**: scritta in `sp`, questa
- * riga direbbe il vero finché nessuno tocca la tipografia, e il giorno che quel corpo cambia
- * l'interlinea resterebbe quella di prima. Il valore di serie di `labelSmall` supera il 145%,
- * cioè l'aria di un testo che si legge a paragrafi: qui le righe sono due parole, e quell'aria le
- * faceva leggere come due cose invece che come una.
+ * Un rapporto, perché il corpo lo dà il tema: in `sp` resterebbe indietro se la tipografia
+ * cambiasse. Il valore di serie di `labelSmall` supera il 145%, l'aria di un paragrafo: qui le
+ * righe sono due parole, e con quell'aria si leggerebbero come due cose.
  */
 private const val TITLE_PILL_LEAD = 1.27f
 
@@ -925,12 +735,12 @@ private const val TITLE_PILL_LEAD = 1.27f
  * Il riempimento orizzontale di una pastiglia del titolo, che è anche metà del conto di
  * [TitleRow]: la sua larghezza è la parola più due volte questo numero.
  *
- * ⚠️ **Sta prima di [TITLE_PILL_PAD] perché lui la legge**: le proprietà di un file si
- * inizializzano nell'ordine in cui sono scritte, e al contrario il riempimento verrebbe zero.
+ * ⚠️ **È scritta prima di [TITLE_PILL_PAD], che la legge**: le proprietà di un file si
+ * inizializzano nell'ordine in cui sono scritte, e al contrario il riempimento risulterebbe zero.
  */
 private val TITLE_PILL_SIDE = 12.dp
 
-/** Quanto stringe una pastiglia della riga del titolo, che sta in una fila già piena. */
+/** Il riempimento di una pastiglia della riga del titolo, che è in una fila già piena. */
 private val TITLE_PILL_PAD = PaddingValues(horizontal = TITLE_PILL_SIDE, vertical = 0.dp)
 
 /**
@@ -943,40 +753,29 @@ private val TITLE_PILL_MIN = 58.dp
 /**
  * Il pelo d'aria che la pastiglia a due righe ha in più della parola che la misura.
  *
- * ⚠️ **Serve all'arrotondamento e a niente altro**: la misura passa da pixel a punti e torna a
- * pixel, e una frazione persa in mezzo manderebbe in ellissi proprio la parola su cui la
- * larghezza è stata presa. Vive dentro il conto, quindi il numero che sceglie la forma e quello
- * che la disegna restano lo stesso.
+ * Serve all'arrotondamento: la misura passa da pixel a punti e torna a pixel, e una frazione
+ * persa manderebbe in ellissi proprio la parola misurata. È dentro il conto, quindi il numero che
+ * sceglie la forma e quello che la disegna restano lo stesso.
  */
 private val TITLE_PILL_SLACK = 1.dp
 
 /**
  * L'aria che deve restare fra il titolo e la pastiglia perché il testo resti scritto.
  *
- * ⚠️ **Non è un margine del layout**: là i due elementi si toccherebbero solo nel caso in cui
- * questa misura dice già di passare all'icona. Il perché vive su [TitleRow].
+ * Non è un margine del layout: il perché è su [TitleRow].
  */
 private val TITLE_ROW_GAP = 8.dp
 
 /**
- * Lo stesso comando di [TitlePill], ma come **icona**: la forma che serve quando nella riga del
- * titolo ce ne sono due.
+ * Lo stesso comando di [TitlePill], come **icona**: la forma dei comandi quando nella riga del
+ * titolo sono due, o quando la pastiglia non entra ([TitleRow]; regola dell'utente, giro della
+ * 1.81, punto C).
  *
- * ⚠️⚠️ **DUE PASTIGLIE COL TESTO NELLA STESSA RIGA NON CI STANNO, E LA VIA È SUA** (riscontro del
- * giro della `1.81`, campo libero punto C: *Visto che chiaramente non possono coesistere due
- * pulsanti testuali in 'Scarica' quando 'Destinazione' ed 'Estensione' sono entrambi attivi, la
- * logica è quella che avevo detto: in quel caso si usano le icone ... Quando solo una delle due è
- * attiva, si torna al pulsante testuale*). La `1.81` le teneva testuali facendo cedere il titolo,
- * e il titolo andava a capo due volte.
- * ⚠️ **Il glifo lo passa il chiamante**: i due disegni sono suoi ([Glyphs.FolderDownload] e
- * [Glyphs.Extension]) e questo pezzo non deve sapere quale comando sta disegnando.
- * ⚠️ **La descrizione parlata è la stessa parola della pastiglia**: un lettore di schermo deve
- * leggere 'Destinazione' tanto quando è scritta quanto quando è un disegno, o le due forme dello
- * stesso comando diventano due comandi.
- *
- * ⚠️ **Il bersaglio è 40dp e non i 48 di serie**: in una riga di titolo un `IconButton` intero
- * alzerebbe la riga sopra il testo del titolo, che è esattamente il difetto che la pastiglia
- * evitava col riempimento verticale a zero. Sotto i 40dp invece il tocco diventa difficile.
+ * Il glifo lo passa il chiamante ([Glyphs.FolderDownload], [Glyphs.Extension]). La descrizione
+ * parlata è la stessa parola della pastiglia: per un lettore di schermo le due forme sono lo
+ * stesso comando.
+ * Il bersaglio è 40dp e non i 48 di serie: un `IconButton` intero alzerebbe la riga del titolo, e
+ * sotto i 40dp il tocco diventa difficile.
  */
 @Composable
 internal fun TitleIcon(
@@ -997,17 +796,10 @@ private val TITLE_ICON_TAP = 40.dp
  * Le righe dell'anteprima: tutti gli abbinamenti fino a tre file, e con di più i primi due, lo
  * stacco e **l'ultimo**; fra due abbinamenti che si seguono, il separatore.
  *
- * ⚠️ L'ultimo c'è perché porta il numero più alto, che è il solo modo di vedere se le
- * cifre del template bastano: con `##` e centoventi file, la riga finale dice `120` e si
- * capisce al volo che i nomi non si ordineranno come ci si aspetta.
- * ⚠️⚠️ **DALLA `2.91` IN TESTA SONO DUE E NON TRE, ED È LA SUA SPECIFICA ALLA LETTERA** (campo
- * libero del giro della `2.90`: *con ≥4 file: [nome1 pre-rinomina] ↓ [nome1 post-rinomina] ...
- * [nome2 pre-rinomina] ↓ [nome2 post-rinomina] ⋯ [ellissi per indicare uno stacco]
- * [nomeUltimo pre-rinomina] ↓ [nomeUltimo post-rinomina]*). Fino alla `2.90` erano i primi tre
- * più l'ultimo, quindi con quattro file si vedevano tutti e lo stacco compariva dal quinto.
- * ⚠️ **Lo stacco nasce dove l'indice salta**, e non da una condizione scritta a parte: c'è solo
- * quando nasconde almeno un nome, e con tre file, dove i primi due e l'ultimo sono tutti, non
- * compare.
+ * ⚠️ **L'ultimo c'è perché ha il numero più alto**, il solo modo di vedere se le cifre del
+ * template bastano: con `##` e centoventi file la riga finale dice `120`.
+ * I primi due, lo stacco e l'ultimo sono la specifica dell'utente (giro della 2.90). Lo stacco
+ * nasce dove l'indice salta, quindi c'è solo quando nasconde almeno un nome.
  */
 internal fun previewOf(
     names: List<String>,
@@ -1031,9 +823,8 @@ private const val PREVIEW_HEAD = 2
 /**
  * Una riga dell'anteprima: un abbinamento, il separatore fra due abbinamenti, o lo stacco.
  *
- * ⚠️ **Separatore e stacco sono righe della sequenza e non un dettaglio del disegno**: dove
- * cadono è metà della sua specifica, e scritti qui il banco li misura chiamando [previewOf],
- * senza montare niente.
+ * Separatore e stacco sono righe della sequenza, non un dettaglio del disegno: così il banco li
+ * prova chiamando [previewOf], senza montare niente.
  */
 internal sealed interface PreviewLine {
     /** Un nome di adesso e quello di dopo. */
@@ -1059,20 +850,10 @@ private fun pairing(
 /**
  * L'anteprima disegnata: le righe di [previewOf], nell'ordine in cui arrivano.
  *
- * ⚠️⚠️ **DALLA `2.91` È IL SUO MOCKUP, MISURATO** (campo libero del giro della `2.90`: *La
- * schermata di rinomina (specialmente multiplo) deve essere aggiornata. Riproduci la versione a
- * destra ... prendendo in considerazione le distanze, la forma e il posizionamento delle frecce e
- * il separatore che ho aggiunto per separare meglio le coppie di nomi pre/post rinomina*). Fino
- * alla `2.90` le due pastiglie di un abbinamento stavano a 24dp l'una dall'altra e due
- * abbinamenti a 8, cioè il risultato di un file era più vicino al nome del file dopo che al
- * proprio. Adesso dentro un abbinamento ci sono [PAIR_GAP] e fra due abbinamenti [BETWEEN].
- * ⚠️ **Le misure vengono dai suoi pixel, a 1,625 per dp**: è la scala che il suo 'Prima'
- * dichiara, dove le due pastiglie stanno a 39 pixel, cioè i 24dp che il codice di allora
- * scriveva.
- * ⚠️ **Il riempimento di sopra e di sotto è quello di prima**: nel mockup la prima pastiglia e
- * l'ultima restano dov'erano, quindi l'aria sotto il titolo e quella in fondo non cambiano.
- * ⚠️ **Separatore e stacco vivono nello stesso posto** ([Between]), ed è quello che tiene
- * uguale il passo fra le coppie anche dove una non si vede.
+ * È il mockup dell'utente, misurato (giro della 2.90): dentro un abbinamento [PAIR_GAP], fra due
+ * abbinamenti [BETWEEN], così il risultato di un file è più vicino al proprio nome che al nome del
+ * file dopo. Le misure vengono dai suoi pixel, a 1,625 per dp.
+ * Separatore e stacco occupano lo stesso posto ([Between]), e il passo fra le coppie resta uguale.
  */
 @Composable
 internal fun PreviewLines(lines: List<PreviewLine>) {
@@ -1090,59 +871,27 @@ internal fun PreviewLines(lines: List<PreviewLine>) {
 /**
  * Un abbinamento dell'anteprima: due pastiglie di colore diverso, una **sopra l'altra**.
  *
- * ⚠️⚠️ **AFFIANCATE ERANO SBAGLIATE, e la ragione è la larghezza dei nomi veri** (riscontro
- * dell'utente, 2026-09-02: *ho spesso a che fare con nomi lunghi, e su una colonna larga
- * praticamente il 35% dello schermo i loro nomi lunghissimi dovrebbero andare a capo molte
- * volte. Proviamo la versione sopra -> sotto*). Fino alla `1.29` stavano una accanto all'altra
- * con peso uguale, cioè ognuna su un terzo del dialogo: su un nome di quaranta caratteri quel
- * terzo diventa cinque righe, e cinque righe per due nomi sono dieci righe per un abbinamento.
- * Impilate, ognuna ha tutta la larghezza. ⚠️ **L'altezza cresce e non è un problema**, parole
- * sue: due righe intere si leggono meglio di dieci spezzoni.
- * ⚠️ **La freccia scende con loro**: fra le due pastiglie diventa un `↓`, perché una freccia a
- * destra fra due cose incolonnate indicherebbe il verso sbagliato.
+ * ⚠️ **Impilate, perché i nomi veri sono lunghi** (riscontro dell'utente): affiancate, ognuna su
+ * un terzo del dialogo, un nome di quaranta caratteri andrebbe su cinque righe. Impilate hanno
+ * tutta la larghezza; l'altezza cresce, e due righe intere si leggono meglio di dieci spezzoni.
+ * Fra le due la freccia scende.
  *
- * ⚠️ **I nomi passano da [nameWithExt]**: senza, il layout va a capo dentro l'estensione, e
- * un `.a` su una riga e un `vif` sull'altra non si leggono più come AVIF. È la prima delle tre
- * richieste del giro della 1.30, e vale come regola generale.
- * ⚠️⚠️ **E L'ESTENSIONE È IN GRASSETTO DALLA 1.37** (riscontro `ext-griglia`: *evidenzia
- * l'estensione, punto incluso, mettendola in grassetto*). Fino alla 1.36 questi due nomi
- * passavano da `unbroken`, che è una `String` nuda: il peso lo dava la pastiglia a tutto il
- * testo. ⚠️ **Negli altri posti c'era già** (la pastiglia di 'Info', la griglia, la barra del
- * visualizzatore) perché quelli passano da [fitName], che l'estensione la compone col
- * grassetto dalla 0.82: era l'anteprima l'unica fuori.
+ * I nomi passano da [nameWithExt]: senza, il layout andrebbe a capo dentro l'estensione (`.a` su
+ * una riga, `vif` sull'altra). L'estensione è in grassetto, punto compreso, come in ogni altro
+ * nome dell'app (riscontro `ext-griglia`).
  */
 @Composable
 private fun PreviewPair(line: PreviewLine.Pairing) {
     Column(Modifier.fillMaxWidth()) {
         /*
-         * ⚠️⚠️ **LA PASTIGLIA DI ADESSO ERA INVISIBILE SUL TEMA SCURO, E IL CONTRASTO ERA
-         * 1,00, cioè lo STESSO COLORE** (riscontro `ext-grassetto`, 2026-09-02: *nel tema scuro
-         * manca la pillola intorno al nome corrente*). Non era un'impressione: `surfaceVariant`
-         * vale `#2A312F` e la superficie del dialogo (`surfaceContainerHigh`) vale `#283130`,
-         * cioè due punti di rosso di differenza. Sul tema chiaro il rapporto era 1,03, il
-         * minimo che si intravede, ed è la ragione per cui il difetto si vedeva da una parte
-         * sola.
-         * ⚠️ **Adesso è INCAVATA e non rilevata**: `surfaceContainerLowest` è il gradino più
-         * lontano dalla superficie del dialogo in tutti e due i temi (1,39 sullo scuro, 1,13
-         * sul chiaro, misurati), ed è anche il ruolo giusto: questa è la casella di partenza,
-         * l'altra è il risultato.
-         * ⚠️⚠️ **E IL BORDO NON È DECORAZIONE: è la 'pillola INTORNO al nome' che lui ha
-         * nominato**, e l'unica cosa che la fa esistere quando due superfici vicine si
-         * somigliano comunque.
-         * ⚠️⚠️ **E DALLA `1.47` CE L'HANNO TUTTE E DUE** (riscontro della `1.45`: *contorno: o
-         * mai, o sempre; non regola generale, ma almeno in questo contesto*). Prima erano una
-         * contornata e una piena, e quella coppia era raccontata qui come l'abbinamento
-         * normale fra un punto di partenza e un risultato: in realtà nessuno l'aveva scelta,
-         * la pastiglia dell'anteprima era nuda perché il filo aveva `null` come valore di
-         * serie. A dire quale è la partenza e quale il risultato basta il riempimento, che è
-         * già diverso, e il filo torna a dire soltanto dove finisce un riquadro.
-         * ⚠️ **Quello dell'anteprima prende `primary`**, cioè il token da cui 'Annulla' e
-         * 'Rinomina' prendono il colore del loro testo, perché era la richiesta alla lettera.
-         * ⚠️⚠️ **IL COLORE DEL FILO NON È PIÙ `outlineVariant`, DALLA 1.45, perché sul tema
-         * SCURO non si vedeva** (domanda dell'utente, 2026-09-03: *sbaglio o ha un filetto di
-         * contorno solo nel tema chiaro?*). Non sbagliava, e il perché il rapporto di
-         * contrasto dicesse il contrario sta su [hairline], insieme alla misura e alla via
-         * scartata: qui basta sapere che il colore lo decide il tema e non questo dialogo.
+         * ⚠️ **Il nome di adesso è incavato**: `surfaceContainerLowest` è il gradino più lontano
+         * dalla superficie del dialogo in tutti e due i temi (contrasto 1,39 sullo scuro, 1,13 sul
+         * chiaro, misurati); `surfaceVariant` sul tema scuro aveva lo stesso colore del dialogo
+         * (riscontro `ext-grassetto`). È la casella di partenza, l'altra il risultato.
+         * Il bordo è la 'pillola intorno al nome' che l'utente ha chiesto, e ce l'hanno tutte e
+         * due (riscontro della 1.45: contorno o mai o sempre); partenza e risultato li distingue
+         * il riempimento. Il filo del nome di adesso lo decide il tema ([hairline]); quello del
+         * risultato è `primary`, il colore del testo di 'Annulla' e 'Rinomina', come chiesto.
          */
         NamePill(
             text = nameWithExt(line.before),
@@ -1168,28 +917,17 @@ private fun PreviewPair(line: PreviewLine.Pairing) {
  * La freccia fra le due pastiglie di un abbinamento: nasce da quella di sopra e si ferma poco
  * sopra quella di sotto.
  *
- * ⚠️⚠️ **UN'ICONA CENTRATA E NON UNA FRECCIA DI TESTO, dalla 1.34** (mockup dell'utente, voce
- * `ren-ext`: *una freccia più visibile e centrata, probabilmente in grigio*). Il carattere
- * `U+2193` a corpo di testo era **una lettera**: sottile come il testo intorno, allineata a
- * sinistra col rientro di una lettera, e nella fila di due pastiglie larghe non si vedeva.
- * Un'icona ha un peso suo e sta in mezzo fra le due, che è dove l'occhio la cerca.
- * ⚠️ **Non porta descrizione**, come le altre icone decorative: quello che dice lo dicono le
- * due pastiglie, e un lettore di schermo che annunciasse 'freccia in basso' fra due nomi di
- * file leggerebbe un'informazione in più che non aggiunge niente.
+ * Un'icona centrata, in grigio (voce `ren-ext`): il carattere `U+2193` era sottile come il testo
+ * e allineato a sinistra. Senza descrizione: quello che dice lo dicono le due pastiglie.
  *
- * ⚠️⚠️ **DALLA `2.91` È PIÙ ALTA DEL SUO POSTO, E IL GAMBO SI TAGLIA SUL BORDO DI SOPRA**: è la
- * forma del suo mockup (*la forma e il posizionamento delle frecce*). Là la freccia è la stessa
- * di prima, con la V della stessa misura, e a cambiare è dove cade: il gambo esce dalla
- * pastiglia di sopra come se le passasse dietro, e la punta si ferma a [TIP_AIR] da quella di
- * sotto. Misurato sui suoi pixel, questo conto la riporta entro un pixel.
- * ⚠️ **Si posa dalla PUNTA e non dal lato**: dov'è la punta lo dice la griglia di Material
- * ([ARROW_TIP]), quindi il conto resta giusto a qualunque [ARROW_SIZE]; posata dal lato, un
- * ritocco alla misura la porterebbe dentro la pastiglia di sotto.
- * ⚠️ **Il gambo lo taglia `clipToBounds` e non la pastiglia di sopra**, che è disegnata prima e
- * quindi non copre niente: senza il ritaglio il gambo entrerebbe nel suo riquadro.
- * ⚠️ **Non è un disegno nuovo in `res/`**: il gambo corto del suo mockup è la stessa icona con
- * la parte di sopra tagliata, e a zero pixel di scarto vince Material (`Rules.md`,
- * § '🖌️ Come entra un disegno').
+ * ⚠️ **È più alta del suo posto, e il gambo si taglia sul bordo di sopra**, come nel mockup: il
+ * gambo esce dalla pastiglia di sopra come se le passasse dietro, e la punta si ferma a [TIP_AIR]
+ * da quella di sotto (misurato sui suoi pixel, entro un pixel).
+ * Si posa dalla punta ([ARROW_TIP], dalla griglia di Material), così il conto regge a qualunque
+ * [ARROW_SIZE]. Il gambo lo taglia `clipToBounds`: la pastiglia di sopra è disegnata prima e non
+ * copre niente.
+ * Non è un disegno nuovo in `res/`: è la stessa icona tagliata, e a zero pixel di scarto vince
+ * Material (`Rules.md` § '🖌️ Come entra un disegno').
  */
 @Composable
 private fun PairArrow() {
@@ -1219,14 +957,11 @@ private fun PairArrow() {
 }
 
 /**
- * Il posto fra due abbinamenti, alto [BETWEEN], con quello che porta in mezzo: il separatore
- * (`FadedRule`) o lo stacco ([PairSkip]).
+ * Il posto fra due abbinamenti, alto [BETWEEN], con in mezzo il separatore (`FadedRule`) o lo
+ * stacco ([PairSkip]).
  *
- * ⚠️⚠️ **DALLA `2.92` IL SEPARATORE È QUELLO DEL RITAGLIO, ED È LA SUA NOTA SU `d-filo-uno`**
- * (giro della `2.91`: *tutti e due come quello dell'editor*). La `2.91` aveva il filo del suo
- * mockup, più tenue e pieno nella metà di mezzo (visibile per l'80% della larghezza, pieno nel
- * 52%, a metà di `outlineVariant`); adesso il disegno è uno per l'app e vive in `Theme.kt`. Il
- * posto e l'aria invece sono di qui, e non sono cambiati.
+ * Il separatore è quello dell'editor (nota dell'utente su `d-filo-uno`), uno per l'app, in
+ * `Theme.kt`; il posto e l'aria sono di qui.
  */
 @Composable
 private fun Between(content: @Composable BoxScope.() -> Unit) {
@@ -1238,16 +973,12 @@ private fun Between(content: @Composable BoxScope.() -> Unit) {
 }
 
 /**
- * Lo stacco fra il secondo abbinamento e l'ultimo, dalla `2.91`: tre punti al posto del
- * separatore.
+ * Lo stacco fra il secondo abbinamento e l'ultimo: tre punti al posto del separatore, come nella
+ * specifica dell'utente.
  *
- * ⚠️ **Prende il posto del separatore e non se ne aggiunge uno**, ed è la sua specifica: fra il
- * secondo abbinamento e l'ultimo c'è la sola ellissi (*⋯ [ellissi per indicare uno stacco]*).
- * ⚠️ **È `MoreHoriz` alla misura della freccia**, e le due cose si tengono: i tre punti occupano
- * le stesse sedici unità della V, e con la stessa tinta lo stacco si legge come un pezzo
- * dell'anteprima. Fino alla `2.90` erano tre punti di testo, allineati a sinistra.
- * ⚠️ **Non porta descrizione**, come la freccia: un lettore di schermo passa dal secondo nome
- * all'ultimo, e i numeri dei due nomi di dopo dicono già quanti ne mancano.
+ * È `MoreHoriz` alla misura e nella tinta della freccia: i tre punti occupano le stesse sedici
+ * unità della V, e lo stacco si legge come un pezzo dell'anteprima. Senza descrizione, come la
+ * freccia: i numeri dei nomi dicono già quanti ne mancano.
  */
 @Composable
 private fun PairSkip() {
@@ -1260,32 +991,22 @@ private fun PairSkip() {
 }
 
 /**
- * Quanto è grande la freccia fra le due pastiglie dell'anteprima, e dalla `2.91` anche lo
- * stacco.
+ * La misura della freccia fra le due pastiglie dell'anteprima, e dello stacco.
  *
- * ⚠️ **20 e non 24**: è la misura di Material per un'icona **dentro** un testo, e qui la
- * freccia sta fra due righe di nomi. A 24 diventava il pezzo più grosso del dialogo.
- * ⚠️ **Al posto di `ARROW_INDENT`, che era 10dp di rientro**: con la freccia centrata un
- * rientro da sinistra non vuol più dire niente.
- * ⚠️ **Nella `2.91` la misura non è cambiata**: nel suo mockup la V è larga quanto prima, ed è
- * il gambo a essere tagliato ([PairArrow]).
+ * 20, la misura di Material per un'icona dentro un testo: qui la freccia è fra due righe di nomi,
+ * e a 24 sarebbe il pezzo più grosso del dialogo.
  */
 private val ARROW_SIZE = 20.dp
 
 /**
- * Lo spazio fra le due pastiglie di un abbinamento, cioè il posto della freccia, dalla `2.91`.
- *
- * ⚠️ **Misurato sul suo mockup**: venti pixel. Fino alla `2.90` erano i 20 della freccia più
- * due di aria per parte, cioè 24.
+ * Lo spazio fra le due pastiglie di un abbinamento, cioè il posto della freccia: venti pixel del
+ * mockup.
  */
 private val PAIR_GAP = 12.dp
 
 /**
- * L'aria fra la punta della freccia e la pastiglia di sotto.
- *
- * ⚠️ **Misurata sul suo mockup**: tre pixel. È quella che tiene la punta staccata dal filo
- * della pastiglia, cioè che la fa leggere come una freccia che indica e non come un pezzo del
- * riquadro.
+ * L'aria fra la punta della freccia e la pastiglia di sotto: tre pixel del mockup. Tiene la punta
+ * staccata dal filo, così si legge come una freccia che indica.
  */
 private val TIP_AIR = 2.dp
 
@@ -1296,33 +1017,21 @@ private val TIP_AIR = 2.dp
 private const val ARROW_TIP = 20f / 24f
 
 /**
- * Il posto fra due abbinamenti: il separatore o lo stacco stanno in mezzo.
- *
- * ⚠️ **Misurato sul suo mockup**: cinquantadue pixel fra le due pastiglie, col filo a metà.
- * ⚠️ **È uno per le due righe**, cioè lo stacco non ha un'altezza sua: con due numeri, i due
- * posti fra le coppie di un'anteprima avrebbero due misure diverse accanto.
+ * Il posto fra due abbinamenti, col separatore o lo stacco in mezzo: cinquantadue pixel del
+ * mockup, col filo a metà. Uno solo per le due righe, così i posti fra le coppie sono uguali.
  */
 private val BETWEEN = 32.dp
 
 /**
  * Un comando secondario: piccolo, a destra, e sbiadito quando non serve.
  *
- * ⚠️ **È la stessa forma del 'Ripristina' dei riquadri del riordino**, e sta in una funzione
- * perché qui ne servono due: la ragione per cui quella forma è questa sta là, e ripeterla in
- * due punti di questo file sarebbe il primo posto in cui divergere.
+ * La stessa forma del 'Ripristina' dei riquadri del riordino, una sola per questa finestra e per
+ * quella del nome del salvataggio, che ha gli stessi comandi (voce `scarica-download`: solo
+ * testo, senza pastiglia).
  *
- * ⚠️⚠️ **DALLA `1.78` NON È PIÙ PRIVATO, ED È UNA SUA RICHIESTA**: *tutti con lo stile
- * solo-testo, senza tasto/pillola già usato in 'Rinomina'* (riscontro del giro della `1.77`,
- * voce `scarica-download`). La finestra del nome del salvataggio prende gli stessi comandi di
- * questa, quindi la forma deve essere **una**: copiata là, il giorno che il colore o il corpo
- * cambiano ne cambierebbe uno solo.
- *
- * @param onHold il tocco lungo, o `null` per un comando che non ne ha.
- *   ⚠️ **Il valore di serie è `null` di proposito, e qui è ammesso**: dei quattro comandi che
- *   oggi passano da qui uno solo ha un secondo gesto ('Data'). ⚠️ **Non è il caso del filo di
- *   `NamePill`**, dove un valore di serie ha lasciato una pastiglia senza bordo per due
- *   versioni: là l'assenza non si vedeva, qui un tocco lungo che non c'è non promette niente
- *   a nessuno, perché nessuno lo cerca se il comando non lo dichiara.
+ * @param onHold il tocco lungo, o `null` per un comando che non ne ha. Qui il valore di serie è
+ *   ammesso: solo 'Data' ha un secondo gesto, e un tocco lungo assente non promette niente. Il
+ *   filo di `NamePill` invece non ne ha, perché là un'assenza non si vedrebbe.
  */
 @Composable
 internal fun Quiet(
@@ -1337,24 +1046,18 @@ internal fun Quiet(
         color = accentInk(),
         modifier = Modifier
             /*
-             * ⚠️ **Un bersaglio solo anche coi due gesti**: `combinedClickable` è un nodo, non
-             * due, quindi un lettore di schermo annuncia un comando. È la stessa regola delle
-             * righe con interruttore del pannello delle impostazioni.
-             * ⚠️⚠️ **IL RUOLO E IL BERSAGLIO ARRIVANO CON LA `1.81`, e il difetto era doppio**
-             * (censimento della UI del 2026-09-05): senza il ruolo un lettore di schermo
-             * leggeva una parola e non un comando, e senza il minimo il bersaglio veniva alto
-             * poco più della metà dei 48dp dovuti, perché `labelMedium` è 12sp su 16 di
-             * interlinea più 6dp di margine per lato. Il colore, che era `primary`, è passato
-             * ad [accentInk] nella stessa passata: come parole l'accento vero non si legge.
-             * ⚠️ **`tapRoom()` va DOPO il gesto**, o non serve a niente: il perché vive su
-             * `TAP_MIN`, in `Talk.kt`.
+             * Un bersaglio solo coi due gesti: `combinedClickable` è un nodo, quindi un lettore di
+             * schermo annuncia un comando. Col ruolo legge un comando e non una parola; senza
+             * `tapRoom()` il bersaglio sarebbe alto poco più della metà dei 48dp (`labelMedium`,
+             * 16 di interlinea più 6dp per lato). Il colore è [accentInk]: come testo l'accento
+             * pieno non si legge.
+             * ⚠️ **`tapRoom()` va dopo il gesto**: il perché è su `TAP_MIN`, in `Talk.kt`.
              */
             .combinedClickable(
                 enabled = enabled,
                 role = Role.Button,
                 onClick = onTap,
-                // ⚠️ La vibrazione si aggiunge qui dalla 5.92: il tocco lungo dei chiamanti
-                // ('Data') vibrava solo con quella di Compose, adesso spenta. Vedi [withHaptics].
+                // La vibrazione è quella di [withHaptics]: quella di Compose è spenta.
                 onLongClick = onHold?.let { withHaptics(it) },
                 hapticFeedbackEnabled = false
             )
@@ -1374,37 +1077,23 @@ private fun NamePill(
     /**
      * Il filo intorno.
      *
-     * ⚠️⚠️ **NON HA UN VALORE DI SERIE, ed è quello il difetto che la `1.47` toglie**: con
-     * `null` come valore di serie la pastiglia dell'anteprima è rimasta senza filo per due
-     * versioni, non perché qualcuno l'avesse deciso ma perché nessuno aveva scritto niente.
-     * Senza valore di serie, 'o tutte o nessuna' non è più una regola da ricordare: è una
-     * cosa che il compilatore chiede.
+     * Non ha un valore di serie: con `null` di serie una pastiglia è rimasta senza filo senza
+     * che nessuno l'avesse deciso. Così 'o tutte o nessuna' lo chiede il compilatore.
      */
     border: BorderStroke,
     modifier: Modifier = Modifier
 ) {
     /*
-     * ⚠️⚠️ **IL TESTO SI STRINGE PER NON LASCIARE UN CARATTERE DA SOLO, dalla `1.60`**
-     * (riscontro del giro della `1.59`: *se si rischia di andare a capo con un solo carattere,
-     * per me va bene anche riscrivere il testo con un carattere leggermente più piccolo per
-     * farcelo stare, entro una certa soglia*). È la **prima** delle tre vie che ha indicato;
-     * la terza (andare a capo con tutta l'estensione) è quella che regge sotto, e vive su
-     * `BREAK_HERE` in `Names.kt`.
-     * ⚠️⚠️ **LA SECONDA VIA, L'ELLISSI, NON SI FA, e va detto invece di lasciarlo intendere**:
-     * qui i tre punti li metterebbe `TextOverflow` alla **fine**, cioè mangerebbero proprio
-     * l'estensione, che è la parte che lui ha chiesto di salvare sempre. In un'anteprima di
-     * rinomina, un nome accorciato non si può nemmeno confrontare con l'altro.
-     * ⚠️ **La misura arriva da `onTextLayout` e non da un conto sui caratteri**: quanti ne
-     * stanno su una riga dipende da quali sono, e un tetto scritto a mano sarebbe sbagliato in
-     * ogni lingua e a ogni larghezza.
-     * ⚠️ **Converge per costruzione**: si scende di un gradino per volta e mai sotto
-     * [NAME_FLOOR], quindi il giro è finito anche quando stringere non toglie l'orfano.
-     * ⚠️ **La chiave è il testo**: cambiando nome si riparte dalla misura piena, o il primo
-     * nome difficile rimpicciolirebbe per sempre tutti quelli dopo.
+     * ⚠️ **Il testo si stringe per non lasciare un carattere da solo** (riscontro del giro della
+     * 1.59: un corpo leggermente più piccolo, entro una soglia); se non basta, si va a capo con
+     * tutta l'estensione (`BREAK_HERE` in `Names.kt`). L'ellissi no: `TextOverflow` la metterebbe
+     * alla fine, sopra l'estensione, che l'utente vuole sempre visibile.
+     * La misura viene da `onTextLayout`: quanti caratteri entrano su una riga dipende da quali
+     * sono. Si scende di un gradino per volta e mai sotto [NAME_FLOOR], quindi il giro finisce.
+     * La chiave è il testo: con un nome nuovo si riparte dalla misura piena.
      */
     var stretta by remember(text) { mutableStateOf(1f) }
-    // ⚠️ La scalatura passa da `shrunk` di `Names.kt`, dalla 1.62: era scritta qui e ora
-    // vive dove vive anche il misuratore che la applica, o le due potrebbero divergere.
+    // La scalatura è `shrunk` di `Names.kt`, accanto al misuratore che la applica.
     val stile = MaterialTheme.typography.bodySmall.shrunk(stretta)
     Surface(
         color = back,
@@ -1421,28 +1110,16 @@ private fun NamePill(
             color = front,
             fontWeight = weight,
             /*
-             * ⚠️ **Nessun tetto di righe dalla 1.30**, e prima erano due: impilate le
-             * pastiglie hanno tutta la larghezza, quindi un nome ci sta quasi sempre in una
-             * riga o due, e un tetto taglierebbe proprio i nomi lunghissimi per cui l'utente
-             * ha chiesto questa forma. L'anteprima mostra al massimo tre abbinamenti: non
-             * può crescere senza limite.
+             * Nessun tetto di righe: impilate, le pastiglie hanno tutta la larghezza, e un tetto
+             * taglierebbe i nomi lunghissimi per cui l'utente ha chiesto questa forma.
+             * L'anteprima mostra al massimo tre abbinamenti.
              */
             /*
-             * ⚠️⚠️ **8 SOPRA E SOTTO DALLA 1.48, ED ERANO 4** (riscontro dell'utente, giro
-             * della 1.47: *dai un po' più di spazio sopra e sotto ai due riquadri di rinomina
-             * prima/dopo, perché i caratteri minuscoli con i discendenti (q, g, ecc.) sono
-             * veramente a filo*). Non era una svista di misura: un riempimento **simmetrico**
-             * intorno a un testo si **vede** asimmetrico, perché l'ascendente di un carattere
-             * porta con sé dell'aria sopra le maiuscole che il discendente non porta sotto la
-             * coda della `g`. Con 4 da tutte e due le parti, sopra si sommavano il
-             * riempimento e quell'aria, sotto c'era il solo riempimento.
-             * ⚠️ **Quanta sia quell'aria dipende dal carattere di sistema**, quindi non si
-             * scrive un numero qui: la cura è dare al lato stretto abbastanza spazio da non
-             * dipendere da quel margine, non pareggiare i due lati con una misura presa da un
-             * carattere che sul telefono di qualcun altro è un altro.
-             * ⚠️ **E il riempimento resta uguale sui quattro lati**: la pastiglia di una riga
-             * viene così alta quanto un contenitore piccolo di Material, che è un posto in cui
-             * atterrare invece di un numero scelto a occhio.
+             * 8dp per lato (riscontro dell'utente sul giro della 1.47: i discendenti erano a
+             * filo). Un riempimento simmetrico si vede asimmetrico, perché sopra c'è anche l'aria
+             * dell'ascendente; quanta sia dipende dal carattere di sistema, quindi si dà spazio
+             * abbastanza al lato stretto invece di pareggiare con un numero. Uguale sui quattro
+             * lati, la pastiglia di una riga è alta quanto un contenitore piccolo di Material.
              */
             modifier = Modifier.padding(8.dp)
         )
@@ -1450,14 +1127,12 @@ private fun NamePill(
 }
 
 /**
- * Se l'ultima riga porta un carattere solo, cioè un orfano.
+ * Se l'ultima riga contiene un carattere solo, cioè un orfano.
  *
- * ⚠️ **Il conto è in unità di codice e non in caratteri visibili**, e va bene: l'estensione
- * porta i giuntori invisibili di `Names.kt`, quindi la sua riga conta sempre più di uno e non
- * si può scambiare per un orfano. Chi cerca il numero vero di lettere qui non lo troverebbe, e
- * qui non serve.
- * ⚠️ **Una riga sola non ha orfani**: se il nome sta tutto su una riga non c'è niente da
- * stringere, e senza questa guardia un nome cortissimo si stringerebbe fino al fondo.
+ * Il conto è in unità di codice e non in caratteri visibili: l'estensione contiene i giuntori
+ * invisibili di `Names.kt`, quindi la sua riga conta sempre più di uno e non risulta orfana.
+ * Una riga sola non ha orfani: senza questa guardia un nome cortissimo si stringerebbe fino al
+ * fondo.
  */
 private fun orphan(steso: TextLayoutResult): Boolean {
     val ultima = steso.lineCount - 1

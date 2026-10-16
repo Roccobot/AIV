@@ -38,85 +38,80 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
 /*
- * The accent pill that stands in for the FAB on wide and tall screens.
+ * La pillola d'accento che prende il posto del FAB sugli schermi larghi e alti.
  *
  * Author: Rocco Casadei, a.k.a. Roccobot
  *
- * ⚠️⚠️ Since 3.70 (user's request of 2026-10-04, mockups `Tablet_H` and `Tablet_V`): with the
- * phone or the tablet held sideways the FAB's entries live in a vertical pill on the right of the
- * grid, at the bottom since 3.71, and on a tablet held upright in a horizontal pill at the bottom
- * right. Where the pill is, the
- * FAB is not (decision B4).
- * ⚠️ The entries are the FAB's own, read from the same place: when the FAB offers other or more
- * choices, the pill follows (*se il FAB prevede scelte diverse o più scelte, la pillola si
- * adatta*). That is why a screen hands a list to the pill and does not write a second one.
- * ⚠️ The jump to the top or the bottom (the chevron on the FAB) does not move here: a pill is not
- * a place that changes glyph while scrolling (decision B4).
- * ⚠️⚠️ Since 4.00 a long press on a key shows its label in a tooltip, and does nothing else
- * (answers B1 and B2 of 2026-10-05): a key without a written label needs a way to say what it
- * is, and the long press is that way in every pill, the wide ones included. So the long press of
- * 'Mostra nascoste' lives in the FAB's menu only. The fill follows the setting ([pillFill]).
+ * Mockup `Tablet_H` e `Tablet_V`: col telefono o il tablet in orizzontale le voci del FAB sono in
+ * una pillola verticale in basso a destra della griglia, col tablet in verticale in una pillola
+ * orizzontale in basso a destra. Dove c'è la pillola, il FAB non c'è (decisione B4).
+ * ⚠️ Le voci sono quelle del FAB, lette dallo stesso posto: quando il FAB offre scelte diverse o
+ * in più, la pillola le segue. Per questo una schermata passa una lista alla pillola e non ne
+ * scrive una seconda.
+ * Il salto in cima o in fondo (la freccia sul FAB) non è qui: una pillola non cambia icona
+ * durante lo scorrimento (decisione B4).
+ * ⚠️ **Il tocco lungo su un tasto mostra la sua etichetta in un fumetto** (risposte B1 e B2
+ * dell'utente, 4.00): un tasto senza etichetta scritta deve poter dire che cos'è. Le eccezioni
+ * sono in [PillKey]. Il riempimento segue l'impostazione ([pillFill]).
  */
 
 /**
- * One command of the pill.
+ * Un comando della pillola.
  *
- * @property label what a screen reader says, and what the FAB's menu row says: the same string.
- * @property enabled whether the command can act now (the bin's two actions on an empty bin).
+ * @property label quello che dice il lettore di schermo e la riga del menu del FAB: la stessa
+ *   stringa.
+ * @property enabled se il comando può agire adesso (le due azioni del cestino a cestino vuoto).
  */
 data class PillEntry(
     val icon: ImageVector,
     val label: String,
     val enabled: Boolean = true,
     /**
-     * The group the entry belongs to, for the FAB's menu, which draws a divider between groups.
-     * The pill does not draw dividers: its keys are icons, and a line between two icons in a
-     * capsule reads as a seam.
+     * Il gruppo della voce, per il menu del FAB, che traccia un divisore fra i gruppi. La
+     * pillola non ne traccia: i suoi tasti sono icone, e una linea fra due icone in una capsula
+     * sembra una giuntura.
      */
     val group: Int = 0,
     /**
-     * What a long press does in the FAB's menu, where the row has one ('Mostra nascoste').
+     * Che cosa fa il tocco lungo, dove la riga ne ha uno ('Mostra nascoste').
      *
-     * ⚠️ **A pill does not read it**: there the long press shows the label (see the header).
+     * ⚠️ Un tasto della pillola lo esegue solo quando riceve [holdLabel] ([PillKey]); altrimenti
+     * il tocco lungo mostra l'etichetta.
      */
     val onHold: (() -> Unit)? = null,
     /**
-     * The abbreviated label the Start menu writes under the icon, since 4.33 (note F on the 4.32
-     * round, a usability test): `null` where the cell keeps the icon alone (the ×).
+     * L'etichetta abbreviata che il Menu 'Start' scrive sotto l'icona (nota F del giro della
+     * 4.32): `null` dove la cella tiene la sola icona (la ×).
      */
     val short: String? = null,
     /**
-     * What [onHold] does, where the Start menu offers it: the tooltip's place goes to the gesture.
-     *
-     * ⚠️ **Since 4.35, his note** (item `4.34-01`: *possiamo rimettere la scorciatoia alle cartelle
-     * escluse/incluse al tap lungo su Mostra/Nascondi*): from 4.30 to 4.34 every long press in the
-     * menu only showed the label.
+     * Che cosa fa [onHold], dove il Menu 'Start' lo offre: il gesto prende il posto del fumetto
+     * (voce `4.34-01` dell'utente, 4.35).
      */
     val holdLabel: String? = null,
     val onTap: () -> Unit
 )
 
-/** How far apart the pill keeps from the screen's edges and from what it sits under. */
+/** La distanza della pillola dai bordi dello schermo e da quello che ha sopra. */
 val PILL_AIR = 8.dp
 
-/** The side of a pill's key, which is also the pill's thickness. */
+/** Il lato di un tasto della pillola, che è anche lo spessore della pillola. */
 val PILL_KEY = 44.dp
 
-/** The side of a pill's glyph. */
+/** Il lato dell'icona di un tasto. */
 internal val PILL_GLYPH = 22.dp
 
 /**
- * The pill, standing on its own.
+ * La pillola, da sola.
  *
- * @param vertical a column at the bottom of the grid's right side (wide screens) or a row at the
- *   bottom right corner (tall).
+ * @param vertical una colonna in basso a destra della griglia (schermi larghi) o una riga
+ *   nell'angolo in basso a destra (schermi alti).
  *
- * ⚠️ The colours are the accent and its ink, as in the mockup: the pill says 'commands' the way
- * the FAB did, with the theme's main colour. Since 4.00 the accent can be at 80% or frosted
- * glass ([pillFill]), and [backdrop] is what the glass blurs.
- * ⚠️ A pill with no entry draws nothing: an empty capsule is a control that does nothing.
- * ⚠️ Since 3.71 the horizontal pill holds the three icons alone (item `3.70-07`: *la pillola
- * dev'essere compatta (solo le tre icone)*): the search field that led it in 3.70 is gone.
+ * I colori sono l'accento e il suo inchiostro, come nel mockup: la pillola dice 'comandi' come il
+ * FAB, col colore principale del tema. L'accento può essere all'80% o vetro smerigliato
+ * ([pillFill]), e [backdrop] è quello che il vetro sfoca.
+ * Senza voci non disegna niente: una capsula vuota è un comando che non fa niente.
+ * La pillola orizzontale ha le sole icone (voce `3.70-07` dell'utente, 3.71).
  */
 @Composable
 fun ActionPill(
@@ -146,16 +141,17 @@ fun ActionPill(
 }
 
 /**
- * One key of a pill: the icon alone, with its label for screen readers and in a tooltip.
+ * Un tasto della pillola: la sola icona, con l'etichetta per il lettore di schermo e in un
+ * fumetto.
  *
- * ⚠️⚠️ **THE LONG PRESS SHOWS THE LABEL, AND ONLY THAT** (answer B1, 2026-10-05: *nessuna funzione
- * secondaria*), in a tooltip next to the key (answer B3: *fumetto*), above it, where the finger
- * does not cover it. The one exception is [holdLabel]: the round key of [PhonePill.SLIDE] at
- * rest is the FAB, and keeps the FAB's long press (answer C1).
+ * ⚠️ **Il tocco lungo mostra l'etichetta e nient'altro** (risposte B1 e B3 dell'utente, 4.00), in
+ * un fumetto sopra il tasto, dove il dito non lo copre. L'eccezione è [holdLabel]: chi lo passa
+ * fa eseguire [PillEntry.onHold], come il tasto tondo di [PhonePill.SLIDE] a riposo, che è il FAB
+ * e tiene il suo tocco lungo (risposta C1), e il Menu 'Start'.
  *
- * @param size the key's side: smaller than [PILL_KEY] only when the pill would not fit.
- * @param glyph what the key shows, where it is not just [PillEntry.icon] (the round key, and the
- *   two keys that turn into the jump).
+ * @param size il lato del tasto: più piccolo di [PILL_KEY] solo quando la pillola non ci starebbe.
+ * @param glyph quello che il tasto mostra, dove non è solo [PillEntry.icon] (il tasto tondo, e i
+ *   due tasti che diventano il salto).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -184,11 +180,10 @@ internal fun PillKey(
             modifier = Modifier
                 .size(size)
                 .combinedClickable(
-                    // ⚠️ The touch ripple is round (his note on the 4.04 round): it was the cell's
-                    // square, which inside a rounded pill reads as a mistake.
-                    // ⚠️⚠️ **An unbounded ripple and not a clip, since 4.34** (item `4.33-07` A:
-                    // *le etichette dei comandi sono come tagliate da una maschera*): a round clip
-                    // cut the Start menu's labels, which are wider than the key.
+                    // L'onda del tocco è tonda (nota dell'utente, giro della 4.04): un quadrato
+                    // dentro una pillola arrotondata sembra un errore.
+                    // ⚠️ È un'onda senza limiti, non un ritaglio: un ritaglio tondo taglierebbe
+                    // le etichette del Menu 'Start', più larghe del tasto (voce `4.33-07`).
                     interactionSource = press,
                     indication = ripple(bounded = false, radius = size / 2),
                     enabled = enabled,
@@ -214,10 +209,10 @@ internal fun PillKey(
 }
 
 /**
- * 'Cerca nelle cartelle', or 'Cerca in *X*' with the folder's name in bold.
+ * 'Cerca nelle cartelle', oppure 'Cerca in *X*' col nome della cartella in grassetto.
  *
- * ⚠️ The template carries `%1$s`: it is split on a sentinel in place of the name, so languages
- * that put the name elsewhere stay right.
+ * Il modello contiene `%1$s`: si divide su un segnaposto messo al posto del nome, così restano
+ * giuste le lingue che mettono il nome altrove.
  */
 @Composable
 fun searchInvitation(folderName: String?): AnnotatedString {
@@ -233,5 +228,5 @@ fun searchInvitation(folderName: String?): AnnotatedString {
     }
 }
 
-/** How much ink a key keeps when it cannot act: the value Material uses for disabled content. */
+/** L'opacità di un tasto che non può agire: il valore di Material per i contenuti disattivati. */
 private const val DISABLED_INK = 0.38f

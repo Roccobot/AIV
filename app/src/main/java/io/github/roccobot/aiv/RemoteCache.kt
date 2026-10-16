@@ -10,40 +10,30 @@ import java.time.format.DateTimeFormatter
 /**
  * I byte delle immagini prese dalla rete, tenuti da parte.
  *
- * ⚠️⚠️ **ESISTE PERCHÉ UN'IMMAGINE DEL WEB SI PAGAVA A OGNI SGUARDO.** Le foto del
- * telefono si riaprono in un istante perché il file è già lì; un indirizzo diretto
- * invece ripartiva dalla connessione ogni volta, anche tornando indietro sulla stessa
- * immagine di dieci secondi prima. È la differenza che rendeva l'online la parte
- * trascurata dell'app, ed è quello che questo file toglie.
+ * Esiste perché un indirizzo diretto, senza, ripartirebbe dalla connessione a ogni sguardo, anche
+ * tornando sulla stessa immagine di dieci secondi prima.
  *
- * ⚠️⚠️ **DALLA `6.27` UNA VOCE HA UNA SCADENZA** (rilievo C1 della revisione della 6.25): prima si
- * teneva per sempre, quindi un indirizzo il cui contenuto cambia (l'istantanea di una webcam,
- * un'immagine sostituita sul server con lo stesso nome) mostrava la prima versione finché la voce
- * non usciva per anzianità. Adesso si fa come un browser: finché la voce è fresca ([Entry.fresh]) si
- * serve senza rete, poi si chiede al server se è cambiata (`If-None-Match`, `If-Modified-Since`),
- * che risponde `304` senza corpo se è uguale. Il percorso vive in `ImageSource.loadRemote`.
+ * ⚠️ **Una voce ha una scadenza**, come in un browser: un indirizzo il cui contenuto cambia
+ * (l'istantanea di una webcam, un'immagine sostituita sul server) mostrerebbe per sempre la prima
+ * versione. Finché la voce è fresca ([Entry.fresh]) si serve senza rete, poi si chiede al server se
+ * è cambiata (`If-None-Match`, `If-Modified-Since`), che risponde `304` senza corpo se è uguale. Il
+ * percorso vive in `ImageSource.loadRemote`.
  *
- * ⚠️ **NON è la cache di Coil, e le due non si uniscono.** Quella serve le miniature
- * delle foto locali e ha il disco spento apposta (i file sono già sul telefono, vedi
- * `Thumbs`). Questa tiene i byte di ciò che sul telefono **non c'è**. Chi le unificasse
- * spegnerebbe l'una o accenderebbe l'altra dove non serve.
+ * ⚠️ **Non è la cache di Coil, e le due non si uniscono.** Quella serve le miniature dei file
+ * locali e ha il disco spento apposta (vedi `Thumbs`); questa tiene i byte di ciò che sul telefono
+ * non c'è.
  *
- * ⚠️ **Sta in `cacheDir` e non in una cartella dell'app**, ed è la scelta corretta anche
- * quando fa perdere qualcosa: quello che c'è dentro si rifà scaricandolo, quindi il
- * sistema può cancellarlo quando lo spazio scarseggia, e l'utente lo svuota da
- * 'Cancella cache' senza toccare le impostazioni. Una cartella nostra chiederebbe di
- * gestire a mano una cosa che il sistema gestisce meglio.
+ * Vive in `cacheDir`: il contenuto si rifà scaricandolo, quindi il sistema può cancellarlo quando
+ * lo spazio scarseggia, e l'utente lo svuota da 'Cancella cache' senza toccare le impostazioni.
  */
 object RemoteCache {
 
     /**
-     * Il tetto di UN file, e il file più grande del tetto semplicemente non si tiene.
+     * Il tetto di un file solo: un file più grande non si tiene.
      *
-     * ⚠️ Senza questo limite un'immagine sola potrebbe riempire tutta la cache e buttare
-     * fuori le venti che c'erano: il caso peggiore diventerebbe 'ho guardato un
-     * panorama da 40 MB e ho perso tutto il resto'. Il tetto del trasferimento resta
-     * quello di `ImageSource`, molto più alto: qui si decide che cosa **conservare**,
-     * non che cosa si può aprire.
+     * ⚠️ Senza, un'immagine sola potrebbe riempire la cache e far uscire tutte le altre. Il
+     * tetto del trasferimento è quello di `ImageSource`, molto più alto: qui si decide che cosa
+     * conservare, non che cosa si può aprire.
      */
     private const val MAX_ENTRY_BYTES = 16L * 1024 * 1024
 
@@ -71,10 +61,10 @@ object RemoteCache {
     private const val HEURISTIC_CAP_MS = 24L * 60 * 60 * 1000
 
     /**
-     * Il segno che apre una voce scritta dalla `6.27`, con la riga delle intestazioni dopo.
+     * Il segno che apre una voce, con la riga delle intestazioni dopo.
      *
-     * ⚠️ Una voce senza questo segno è di prima, cioè solo byte: si legge come scaduta e senza
-     * niente con cui chiedere, quindi si riscarica una volta e si riscrive nel formato nuovo.
+     * ⚠️ Una voce senza questo segno è del formato vecchio, solo byte: si legge come scaduta e
+     * senza niente con cui chiedere, quindi si riscarica una volta e si riscrive nel formato nuovo.
      */
     private val MAGIC = "AIVC2\n".toByteArray()
 
@@ -99,10 +89,9 @@ object RemoteCache {
     /**
      * La voce di questo indirizzo, o null.
      *
-     * ⚠️ La lettura **tocca** il file, e non è un dettaglio: la data di modifica è
-     * l'unico ordinamento che questa cache ha, quindi senza quel tocco la sfoltitura
-     * butterebbe fuori l'immagine guardata più spesso solo perché è stata scaricata per
-     * prima.
+     * ⚠️ La lettura aggiorna la data di modifica del file, che è l'unico ordinamento di questa
+     * cache: senza, la sfoltitura toglierebbe l'immagine guardata più spesso solo perché è stata
+     * scaricata per prima.
      */
     fun entry(context: Context, uri: Uri): Entry? {
         val file = fileFor(context, uri)
@@ -120,9 +109,8 @@ object RemoteCache {
      * [cacheControl], [etag] e [lastModified] sono le intestazioni della risposta, tali e quali,
      * o null quando mancano.
      *
-     * ⚠️ Con [AtomicWrite]: un'app chiusa a metà scrittura lascerebbe altrimenti un file
-     * **troncato** con il nome giusto, cioè una cache che serve immagini rotte, che è peggio di
-     * una cache vuota.
+     * ⚠️ Con [AtomicWrite]: un'app chiusa a metà scrittura lascerebbe un file troncato con il
+     * nome giusto, cioè una cache che serve immagini rotte.
      * ⚠️ **Con `no-store` la voce di prima si cancella**: il server ha appena detto che quella
      * risposta non va tenuta, e una copia vecchia ancora fresca la smentirebbe.
      */
@@ -205,9 +193,8 @@ object RemoteCache {
     /**
      * Le più vecchie escono finché il totale non rientra.
      *
-     * ⚠️ Si sfoltisce **dopo** aver scritto e non prima: prima vorrebbe dire indovinare
-     * quanto occuperà la scrittura, e sbagliare la stima per difetto lascia la cartella
-     * sopra il tetto fino al giro successivo.
+     * ⚠️ Si sfoltisce dopo aver scritto: prima vorrebbe dire stimare quanto occuperà la
+     * scrittura, e una stima per difetto lascia la cartella sopra il tetto fino al giro dopo.
      */
     private fun trim(directory: File?) {
         val files = directory?.listFiles()?.filter { it.isFile } ?: return
@@ -223,13 +210,10 @@ object RemoteCache {
     /**
      * Il nome del file per un indirizzo.
      *
-     * ⚠️⚠️ **SHA-256 dell'indirizzo INTERO, query compresa**, e nessuna parte di quel
-     * testo finisce nel nome: un indirizzo può contenere un gettone di autenticazione, e
-     * un nome di file leggibile lo scriverebbe in chiaro in una cartella che altre app
-     * col permesso giusto possono elencare. Il digest risolve insieme questo e i
-     * caratteri che un filesystem non accetta.
-     * ⚠️ **La query fa parte della chiave**: su moltissimi siti è lei a dire *quale*
-     * immagine è, e troncarla farebbe servire una foto al posto di un'altra.
+     * ⚠️ **SHA-256 dell'indirizzo intero, query compresa**: il digest evita i caratteri che un
+     * filesystem non accetta e i nomi troppo lunghi. La query fa parte della chiave perché su
+     * moltissimi siti è lei a dire quale immagine è, e troncarla farebbe servire un'immagine al
+     * posto di un'altra.
      */
     private fun fileFor(context: Context, uri: Uri): File =
         File(File(context.cacheDir, "remote"), sha256(uri.toString()))
@@ -238,8 +222,8 @@ object RemoteCache {
 /**
  * Il digest SHA-256 di [text], in esadecimale: il nome di un file di cache.
  *
- * ⚠️ **Lo usano le due cache su disco**, questa e quella delle miniature (`AvifCache`, dalla
- * `6.27`): un hash di 32 bit faceva collidere due miniature su cento a diecimila voci.
+ * Lo usano le due cache su disco, questa e quella delle miniature (`AvifCache`): un hash di 32 bit
+ * fa collidere due miniature su cento a diecimila voci.
  */
 internal fun sha256(text: String): String =
     MessageDigest.getInstance("SHA-256")
