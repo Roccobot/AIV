@@ -8,66 +8,47 @@ import kotlin.math.sqrt
 /**
  * Il tasto **'Auto'** dell'editor completo: che cosa scrivere nei cursori guardando l'immagine.
  *
- * ⚠️⚠️ **È 'COLORE AUTOMATICO' DI PHOTOSHOP, ED È SUA RICHIESTA ALLA LETTERA** (campo libero del
- * giro della `2.31`: *aggiungi un tasto 'Auto' che imita 'Colore automatico' di Photoshop ...
- * dev'essere annullabile*). Quel comando fa **due** cose e non una: porta i due estremi
- * dell'intervallo tonale al nero e al bianco, e **toglie la dominante** neutralizzando i tre canali
- * uno per uno.
+ * Imita 'Colore automatico' di Photoshop, annullabile (richiesta dell'utente, giro della 2.31):
+ * porta gli estremi dell'intervallo tonale al nero e al bianco e toglie la dominante. Sistema
+ * anche la luce media, con esposizione e contrasto (risposta `piu` a `d-auto-quanto`): in tutto
+ * sei cursori, e nessun altro si muove.
  *
- * ⚠️⚠️ **E DALLA `2.34` SISTEMA ANCHE LA LUCE MEDIA, CHE È LA SUA RISPOSTA `piu` A
- * `d-auto-quanto`** (giro della `2.32`: *che tocchi anche esposizione e contrasto*, cioè *un colpo
- * solo che sistema anche la luce media, in un tasto solo*). Photoshop quelle due le tiene in due
- * comandi separati ('Tono automatico' e 'Contrasto automatico'); qui la domanda gli chiedeva se
- * accorparle, e la risposta è sì. I cursori mossi passano da quattro a **sei**, e nessun altro si
- * muove.
+ * ⚠️ **I sei si calcolano nell'ordine in cui la catena li applica**: nello shader l'esposizione
+ * viene prima dei punti, quindi prima il guadagno dalla mediana, poi i due estremi già esposti,
+ * per ultimo il contrasto sulla distribuzione che ne risulta. Calcolati tutti sull'immagine di
+ * partenza, i punti di bianco e di nero mancherebbero il bersaglio.
  *
- * ⚠️⚠️ **I SEI SI CALCOLANO NELL'ORDINE IN CUI LA CATENA LI APPLICA, E SENZA QUELLA CURA I DUE
- * NUOVI ROMPEREBBERO I DUE VECCHI**: nello shader l'esposizione viene **prima** dei punti, quindi
- * i percentili misurati sull'immagine com'è non sono più quelli che i punti troveranno. Il conto
- * segue la catena: prima il guadagno dalla mediana, poi i due estremi **già esposti**, e per ultimo
- * il contrasto sulla distribuzione che ne esce. Calcolati tutti sull'immagine di partenza, i punti
- * di bianco e di nero mancherebbero il bersaglio di quanto l'esposizione ha spostato.
+ * ⚠️ **Scrive nei cursori e non dipinge niente**: il risultato è un [Look] come un altro, quindi
+ * entra nella storia dei passi e 'Annulla' lo disfa. I valori compaiono sui cursori, e si può
+ * continuare a mano da lì.
  *
- * ⚠️⚠️ **SCRIVE NEI CURSORI E NON DIPINGE NIENTE, ED È QUELLO CHE LO RENDE ANNULLABILE**: il
- * risultato è un [Look] come un altro, quindi entra nella storia dei passi come un gesto qualunque
- * e 'Annulla' lo disfa. Un comando che avesse toccato i pixel avrebbe avuto bisogno di una strada
- * sua per tornare indietro, e di un secondo posto in cui dire che l'immagine è cambiata.
- * ⚠️ **E si vede**: i quattro valori compaiono sui cursori dei due moduli, quindi dopo un 'Auto' si
- * può continuare a mano da dove il conto è arrivato.
- *
- * ⚠️⚠️ **I QUATTRO CURSORI SI SOSTITUISCONO INVECE DI SOMMARSI**: 'Auto' risponde alla domanda
- * *dove dovrebbero stare questi quattro*, e quella risposta non dipende da dove stavano prima.
- * Sommando, due tocchi di fila darebbero due immagini diverse e il secondo non vorrebbe dire
- * niente. ⚠️ **Gli altri cursori non si toccano**: chi ha già scelto un contrasto o una vividezza
- * li tiene, perché il comando che ha chiesto lui riguarda i punti e la dominante.
+ * I sei cursori si sostituiscono, non si sommano: 'Auto' dice dove dovrebbero essere, a
+ * prescindere da dove erano, e due tocchi di fila danno la stessa immagine.
  */
 object Auto {
 
     /**
      * Quanta parte dei pixel si lascia fuori da ogni estremo, cioè il *clip* di Photoshop.
      *
-     * ⚠️⚠️ **SENZA IL TAGLIO BASTA UN PIXEL PER ROVINARE IL CONTO**: un singolo punto nero (un
-     * granello di rumore, la cornice di una scansione) porterebbe il percentile basso a zero, e
-     * allora il punto di nero non si muoverebbe affatto. Photoshop taglia mezzo per cento da ogni
-     * parte, ed è il numero che si ritrova in ogni pannello di livelli automatici.
+     * ⚠️ Senza il taglio un solo punto nero (un granello di rumore, la cornice di una scansione)
+     * porterebbe il percentile basso a zero, e il punto di nero non si muoverebbe. Photoshop
+     * taglia mezzo per cento da ogni parte.
      */
     const val CLIP = 0.005f
 
     /**
      * Quanti punti si leggono dall'immagine, per lato, e non di più.
      *
-     * ⚠️⚠️ **SI CAMPIONA INVECE DI LEGGERE TUTTO, E IL CONTO NON CAMBIA**: quello che si misura
-     * sono percentili e medie, cioè due statistiche che su duecentomila punti valgono quanto su
-     * due milioni. Leggere un'anteprima intera a ogni tocco costerebbe una pausa visibile per una
-     * cifra che non si muoverebbe di un livello.
+     * Basta un campione: percentili e medie su centomila punti valgono quanto su due milioni, e
+     * leggere l'anteprima intera costerebbe una pausa visibile a ogni tocco.
      */
     const val PROBE = 320
 
     /**
      * I sei valori che 'Auto' scrive dentro [look], guardando i pixel [pixels].
      *
-     * ⚠️ **I pixel arrivano già campionati** (vedi [probe]): questa funzione è pura, quindi il banco
-     * la può misurare senza aprire nessun file.
+     * I pixel arrivano già campionati ([probe]): la funzione è pura, e il banco la prova senza
+     * aprire file.
      */
     fun tuned(look: Look, pixels: IntArray): Look {
         if (pixels.isEmpty()) return look
@@ -79,10 +60,9 @@ object Auto {
         val stop = exposureFor(conto, n)
         val gain = 2f.pow(stop)
         /*
-         * ⚠️ **Un'immagine piatta non si stira**: se i due percentili si toccano, allungare
-         * l'intervallo vorrebbe dire moltiplicare per un numero enorme quello che c'è in mezzo,
-         * cioè trasformare una nebbia in un mosaico di due colori. ⚠️ **L'esposizione invece resta**:
-         * una nebbia scura si porta al grigio lo stesso, ed è la sola cosa sensata da farle.
+         * ⚠️ **Un'immagine piatta non si stira**: con i due percentili quasi uguali, allungare
+         * l'intervallo trasformerebbe una nebbia in un mosaico di due colori. L'esposizione
+         * resta: una nebbia scura si porta comunque al grigio.
          */
         if (hi - lo < FLAT) {
             return look.copy(
@@ -108,8 +88,8 @@ object Auto {
     /**
      * I pixel di [src] letti a passo largo: al massimo [PROBE] per lato.
      *
-     * ⚠️ **Vive qui e non nella schermata** perché è la metà impura dello stesso conto: chi chiama
-     * 'Auto' ha un bitmap in mano, e questa riga è quella che lo trasforma in numeri.
+     * Vive qui perché è la metà impura dello stesso conto: trasforma in numeri il bitmap di chi
+     * chiama 'Auto'.
      */
     fun probe(src: Bitmap): IntArray {
         val passo = max(1, max(src.width, src.height) / PROBE)
@@ -133,13 +113,11 @@ object Auto {
     /**
      * Quanti pixel cadono su ognuno dei 256 livelli di **luminanza percettiva**.
      *
-     * ⚠️ **Si misura sulla LUMINANZA e non per canale**, al contrario di Photoshop: là ogni canale
-     * si stira per conto suo, e quello **è** il modo in cui toglie la dominante; qui i punti sono
-     * due cursori soli, e la dominante la toglie il bilanciamento, che è l'altra metà di [tuned].
-     * Stirando anche per canale, le due correzioni si sommerebbero sullo stesso difetto.
-     * ⚠️ **Lo leggono in tre** (i punti, l'esposizione e il contrasto), ed è la ragione per cui non
-     * vive più dentro il conto dei punti: tre giri sui pixel per la stessa tabella sarebbero tre
-     * volte il costo del comando.
+     * ⚠️ **Sulla luminanza, non per canale**, al contrario di Photoshop, che toglie la dominante
+     * stirando ogni canale: qui i punti sono due cursori soli, e la dominante la toglie il
+     * bilanciamento, l'altra metà di [tuned]. Stirando anche per canale le due correzioni si
+     * sommerebbero sullo stesso difetto.
+     * La tabella la leggono i punti, l'esposizione e il contrasto: si calcola una volta sola.
      */
     private fun histogram(pixels: IntArray): IntArray {
         val conto = IntArray(256)
@@ -156,20 +134,15 @@ object Auto {
     /**
      * Il cursore dell'esposizione, in stop, che porta la **mediana** al grigio di mezzo.
      *
-     * ⚠️⚠️ **IL BERSAGLIO È `MID` PERCHÉ È IL PERNO DEL CONTRASTO, e le due cose vanno insieme**:
-     * la curva a S dello shader lavora attorno a `0,5`, quindi un'immagine la cui luce media cade
-     * lì riceve un contrasto simmetrico, mentre una mediana spostata darebbe una S che allarga da
-     * una parte e schiaccia dall'altra. Il numero non è una taratura: è quello che la formula del
-     * cursore accanto usa come centro.
-     * ⚠️⚠️ **SI GUARDA LA MEDIANA E NON LA MEDIA**, ed è la stessa ragione per cui i punti tagliano
-     * mezzo per cento: un cielo bianco o un fondo nero tirano la media di parecchi livelli, mentre
-     * la mediana dice dove cade davvero la metà dell'immagine.
-     * ⚠️ **Il conto è l'inversa di `gain`**, che moltiplica la **luce lineare**: per portare il
-     * tono `m` al bersaglio serve `2^stop = linear(MID) / linear(m)`. Fatto in sRGB darebbe un
-     * guadagno sbagliato di quanto la curva del formato è storta, cioè di molto.
-     * ⚠️ **La corsa è quella del cursore** ([Light.EXPOSURE_RANGE]): una fotografia quasi nera
-     * chiederebbe sei stop, e scriverne uno che il cursore non può mostrare vorrebbe dire un
-     * comando che sposta la manopola oltre il suo fondo.
+     * ⚠️ **Il bersaglio è `MID` perché è il perno del contrasto**: la curva a S dello shader
+     * lavora attorno a `0,5`, e una mediana spostata darebbe una S che allarga da una parte e
+     * schiaccia dall'altra.
+     * La mediana, non la media: un cielo bianco o un fondo nero spostano la media di parecchi
+     * livelli.
+     * ⚠️ **Il conto è l'inversa di `gain`**, che moltiplica la luce lineare:
+     * `2^stop = linear(MID) / linear(m)`. In sRGB il guadagno sarebbe sbagliato di molto.
+     * La corsa è quella del cursore ([Light.EXPOSURE_RANGE]): un'immagine quasi nera chiederebbe
+     * più stop di quanti il cursore ne possa mostrare.
      */
     private fun exposureFor(conto: IntArray, totale: Int): Float {
         val m = percentile(conto, totale, 0.5f) / 255f
@@ -181,27 +154,20 @@ object Auto {
     /**
      * Il cursore del contrasto, dalla **dispersione** dei toni dopo l'esposizione e i punti.
      *
-     * ⚠️⚠️ **SI MISURA DOVE IL CURSORE AGIRÀ, cioè sull'immagine già esposta e già stirata**: il
-     * contrasto è il quarto passo della catena, e una dispersione letta sull'immagine di partenza
-     * direbbe quanto era piatta prima che gli altri tre la aprissero, cioè quasi sempre troppo poco.
-     * ⚠️⚠️ **IL LEGAME FRA `k` E LA DISPERSIONE È LA PENDENZA AL PERNO, E IL NUMERO SI LEGGE DALLA
-     * CURVA**: `sCurve` posa sulla diagonale una gobba che al perno vale [CONTRAST_RISE] per `k`,
-     * quindi là la pendenza è `1 + k * CONTRAST_RISE` e i toni vicini si allontanano di tanto.
-     * Portare la dispersione da `s` a [SPREAD] chiede perciò `k = (SPREAD / s - 1) / CONTRAST_RISE`.
-     * ⚠️⚠️ **FINO ALLA `2.58` QUEL DIVISORE ERA `0,5` E IL CONTO PORTAVA UN `2`**, perché la curva
-     * di allora arrivava a pendenza 1,5 a fondo corsa: con la curva nuova quel due darebbe il
-     * doppio del contrasto voluto, senza che niente dia errore. ⚠️ **Il valore del cursore si
-     * dimezza e lo stacco resta lo stesso**, perché la curva è il doppio più ripida al perno. ⚠️ **È
-     * un'approssimazione del primo ordine e si dichiara**: lontano dal perno la curva è più piatta
-     * della sua tangente, quindi il contrasto che ne esce è semmai un po' timido, che è il verso
-     * giusto in cui sbagliare per un comando automatico.
-     * ⚠️ **Il tetto [AUTO_K] tiene il conto innocuo**: mezza corsa corregge un'immagine piatta, e
-     * oltre quella un comando automatico starebbe decidendo l'aspetto della fotografia invece di
-     * correggerla.
-     * ⚠️⚠️ **E IL CONTRASTO AUTOMATICO VA SOLO IN SU, come quello di Photoshop**: un'immagine più
-     * dispersa del bersaglio non ha un difetto da correggere, ha un carattere, e spianarla vorrebbe
-     * dire che 'Auto' toglie qualcosa a chi lo tocca su una fotografia già buona. Quello che il
-     * comando sa fare è aprire una fotografia piatta.
+     * ⚠️ **Si misura dove il cursore agirà**, sull'immagine già esposta e stirata: il contrasto è
+     * il quarto passo della catena, e sull'immagine di partenza la dispersione risulterebbe quasi
+     * sempre troppo bassa.
+     * ⚠️ **Il legame fra `k` e la dispersione è la pendenza al perno**: `sCurve` posa sulla
+     * diagonale una gobba che al perno vale [CONTRAST_RISE] per `k`, quindi la pendenza è
+     * `1 + k * CONTRAST_RISE`, e portare la dispersione da `s` a [SPREAD] chiede
+     * `k = (SPREAD / s - 1) / CONTRAST_RISE`. Chi cambia la curva cambia questo conto.
+     * È un'approssimazione del primo ordine: lontano dal perno la curva è più piatta della
+     * tangente, quindi il contrasto è semmai un po' timido, il verso giusto per un comando
+     * automatico.
+     * Il tetto [AUTO_K] lo tiene innocuo: mezza corsa corregge un'immagine piatta, oltre si
+     * deciderebbe l'aspetto dell'immagine.
+     * Va solo in su, come in Photoshop: un'immagine più dispersa del bersaglio ha un carattere, non
+     * un difetto.
      */
     private fun contrastFor(conto: IntArray, totale: Int, gain: Float, lo: Float, hi: Float): Float {
         val ampiezza = max(hi - lo, TINY.toFloat())
@@ -227,17 +193,14 @@ object Auto {
     /**
      * I due cursori del bilanciamento, cioè `temp` e `tint`, dalla dominante media.
      *
-     * ⚠️⚠️ **LA MEDIA SI FA IN LUCE LINEARE, PERCHÉ È LÀ CHE IL BILANCIAMENTO MOLTIPLICA**: una
-     * media di valori sRGB è la media di numeri passati per una curva, quindi due immagini con la
-     * stessa dominante ma esposizioni diverse darebbero due correzioni diverse.
-     * ⚠️⚠️ **E IL CONTO È L'INVERSA DI `balance`, CIOÈ DUE RAPPORTI E NON DUE DIFFERENZE**: là i
-     * moltiplicatori sono `(1 + w*WB_REACH, 1 + g*WB_REACH, 1 - w*WB_REACH)` normalizzati sulla
-     * luminanza, quindi quello che conta è il **rapporto** fra il primo e il terzo (che è la
-     * temperatura) e quello del secondo con la loro media geometrica (che è la tinta). La
-     * normalizzazione si semplifica da sé: due rapporti non la vedono.
-     * ⚠️ **L'ipotesi dichiarata è quella di ogni bilanciamento automatico**: che la media
-     * dell'immagine debba essere grigia. Su un tramonto è falsa, e là 'Auto' toglie il caldo che
-     * uno voleva: è la ragione per cui il comando si annulla con un tocco.
+     * ⚠️ **La media si fa in luce lineare**, dove il bilanciamento moltiplica: in sRGB due
+     * immagini con la stessa dominante ed esposizioni diverse darebbero correzioni diverse.
+     * ⚠️ **Il conto è l'inversa di `balance`, con due rapporti**: là i moltiplicatori sono
+     * `(1 + w*WB_REACH, 1 + g*WB_REACH, 1 - w*WB_REACH)` normalizzati sulla luminanza, quindi la
+     * temperatura è il rapporto fra il primo e il terzo, la tinta quello del secondo con la loro
+     * media geometrica, e la normalizzazione si semplifica.
+     * L'ipotesi è quella di ogni bilanciamento automatico, cioè che la media sia grigia: su un
+     * tramonto è falsa, e il comando si annulla con un tocco.
      */
     private fun grey(pixels: IntArray): Pair<Float, Float> {
         var sr = 0.0
@@ -285,15 +248,10 @@ object Auto {
     /**
      * Di quanto un cursore dei punti sposta il proprio estremo: è `POINT_SHIFT` dello shader.
      *
-     * ⚠️⚠️ **LE TRE COSTANTI QUI SOTTO SONO RICOPIATE DA UNA STRINGA DI PROGRAMMA, E LA COPIA HA
-     * UN PRESIDIO**: quei valori vivono dentro `LOOK_AGSL`, che il compilatore di Kotlin tratta
-     * come un testo qualunque, quindi cambiarne uno di là lascerebbe questo conto a lavorare sul
-     * numero di ieri **senza che niente dia errore**. A tenerli d'accordo è il banco, che
-     * `LOOK_AGSL` la legge davvero: cerca la riga della costante e la confronta con la copia.
-     * ⚠️ **La nota di prima diceva che da Kotlin non si potevano leggere, ed era falsa**: è una
-     * stringa, e leggerla costa una riga. Chi ne aggiunge una quarta la metta qui e nella prova.
-     * ⚠️ **Sono `internal` per quel presidio e non perché servano fuori di qui**: una costante che
-     * nessuno può leggere non si può nemmeno confrontare con la sua sorgente.
+     * ⚠️ **Le tre costanti qui sotto sono copie di valori di `LOOK_AGSL`**, che il compilatore
+     * tratta come testo: cambiarne uno di là lascerebbe questo conto sul numero vecchio, senza
+     * errori. Le tiene d'accordo `SviluppoTest`, che legge la stringa e confronta. Chi ne aggiunge
+     * una quarta la mette qui e nella prova. Sono `internal` per la prova.
      */
     internal const val POINT_SHIFT = 0.25f
 
@@ -316,10 +274,9 @@ object Auto {
     /**
      * La dispersione dei toni a cui punta il contrasto automatico.
      *
-     * ⚠️ **Il numero cade fra due che si possono misurare**: una distribuzione perfettamente uniforme
-     * su tutto l'intervallo vale `0,289`, cioè un istogramma piatto che nessuna fotografia ha e che
-     * nessuno vuole, e un'immagine addensata attorno al centro resta sotto `0,18`. Il bersaglio è a
-     * metà strada, e a tenerlo innocuo c'è comunque [AUTO_K].
+     * Il numero è fra due misurabili: una distribuzione uniforme su tutto l'intervallo vale
+     * `0,289`, un'immagine addensata attorno al centro resta sotto `0,18`. [AUTO_K] lo tiene
+     * comunque innocuo.
      */
     private const val SPREAD = 0.25f
 
