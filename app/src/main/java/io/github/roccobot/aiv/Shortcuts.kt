@@ -67,6 +67,21 @@ object Shortcuts {
     /** The share of the icon's side the AIV folder takes: larger than an action's glyph, it is the icon. */
     private const val FOLDER_SHARE = 0.45f
 
+    /**
+     * How far the AIV folder sits below the icon's centre, in dp of the 108 of the icon, since 6.29.
+     *
+     * ⚠️⚠️ **HIS CHOICE, ON PREVIEWS, AND THE NUMBER IS HIS** (2026-10-16, `Cartellina`: *fa' in modo
+     * che risulti la stessa centratura (bilanciamento ottico tra cartella e glifo interno)*, then
+     * *1,5dp: VAI!* on three previews). Centred as a 64-unit square, the folder's body is at the
+     * centre and the tab adds weight above it, so the folder reads high. He started from an eighth of
+     * the drawing's side (6.075 dp) and raised it by 1.5 dp: 4.575. His SVG is not touched; the
+     * whole drawing moves, as one object.
+     * ⚠️ **What it comes to, measured** (`CartellinaTest`): the folder's whole box, tab included,
+     * centred in the icon to a tenth of a dp; at 6.28 it sat 4.5 dp above. A drawing with another
+     * outline would need its own number, so the number stays his and is not derived from the box.
+     */
+    internal const val FOLDER_DROP_DP = 4.575f
+
     /** The opacity of the AIV folder in white and in black, out of 255: *in semitrasparenza*. */
     private const val INK_WHITE = 217
     private const val INK_DARK = 140
@@ -150,15 +165,18 @@ object Shortcuts {
         val info = ShortcutInfoCompat.Builder(context, "$ID_PINNED$path")
             .setShortLabel(name)
             .setLongLabel(name)
-            .setIcon(
-                IconCompat.createWithAdaptiveBitmap(
-                    iconBitmap(context, Glyphs.folderHome(context), ground, folderInk(ground), FOLDER_SHARE)
-                )
-            )
+            .setIcon(IconCompat.createWithAdaptiveBitmap(folderBitmap(context, ground)))
             .setIntent(Intent(context, ViewerActivity::class.java).setAction(TREE).putExtra(PATH, path))
             .build()
         ShortcutManagerCompat.requestPinShortcut(context, info, null)
     }
+
+    /** The picture of a 'Faro' icon on [ground], apart so the test bench can measure it. */
+    internal fun folderBitmap(context: Context, ground: Int): Bitmap =
+        iconBitmap(
+            context, Glyphs.folderHome(context), ground, folderInk(ground), FOLDER_SHARE,
+            dropDp = FOLDER_DROP_DP
+        )
 
     /**
      * The colour of the AIV folder on [ground]: white in transparency, or, where white does not hold
@@ -206,17 +224,20 @@ object Shortcuts {
 
     /**
      * The picture of an icon, apart so the test bench can read its pixels: [glyph] in [ink] on
-     * [ground], its viewport [share] of the side and centred. The actions take the launcher icon's
-     * two colours swapped; a folder pinned with 'Faro' its own.
+     * [ground], its viewport [share] of the side and centred, then [dropDp] lower. The actions take
+     * the launcher icon's two colours swapped; a folder pinned with 'Faro' its own, and
+     * [FOLDER_DROP_DP].
      */
     internal fun iconBitmap(
         context: Context,
         glyph: ImageVector,
         ground: Int = context.getColor(R.color.launcher_foreground),
         ink: Int = context.getColor(R.color.launcher_background),
-        share: Float = GLYPH_SHARE
+        share: Float = GLYPH_SHARE,
+        dropDp: Float = 0f
     ): Bitmap {
-        val side = (ICON_DP * context.resources.displayMetrics.density).roundToInt()
+        val density = context.resources.displayMetrics.density
+        val side = (ICON_DP * density).roundToInt()
         val bitmap = Bitmap.createBitmap(side, side, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         canvas.drawColor(ground)
@@ -224,7 +245,7 @@ object Shortcuts {
         val scale = side * share / glyph.viewportWidth
         canvas.translate(
             (side - glyph.viewportWidth * scale) / 2f,
-            (side - glyph.viewportHeight * scale) / 2f
+            (side - glyph.viewportHeight * scale) / 2f + dropDp * density
         )
         canvas.scale(scale, scale)
         draw(canvas, glyph.root, paint)
