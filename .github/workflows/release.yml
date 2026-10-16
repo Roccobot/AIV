@@ -59,6 +59,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     outputs:
       version: ${{ steps.ver.outputs.version }}
       tag: ${{ steps.ver.outputs.tag }}
@@ -243,6 +244,8 @@ jobs:
   # release did before 4.46.
   gate:
     runs-on: ubuntu-latest
+    # Up to 30 minutes waiting for check.yml, then a whole bench of its own.
+    timeout-minutes: 75
 
     steps:
       - name: Ask check.yml how this commit went
@@ -295,6 +298,7 @@ jobs:
         uses: ./.github/actions/toolchain
 
       - name: Run the bench
+        timeout-minutes: 30
         if: steps.ask.outputs.green != 'true'
         # The same command as `check.yml`, and the reason for its two halves is there.
         run: ./gradlew --no-daemon :app:testGithubDebugUnitTest :app:testPlayDebugUnitTest --tests '*PlayTest'
@@ -314,7 +318,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bench-report
-          path: app/build/reports/tests/
+          path: |
+            app/build/reports/tests/
+            app/build/test-results/
           if-no-files-found: ignore
 
 
