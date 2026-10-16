@@ -446,9 +446,6 @@ private val SLIDE_INSET = 6.dp
 /** Quanto inchiostro tiene la ×: semitrasparente, la parola dell'utente. */
 private const val CLOSE_INK = 0.6f
 
-/** Quanto si rimpicciolisce il simbolo che se ne va, e cresce quello che arriva: lo 0,35 del FAB. */
-private const val SWAP_ZOOM = 0.35f
-
 /**
  * La pillola del telefono in verticale, nella modalità che l'impostazione chiede.
  *
@@ -668,7 +665,7 @@ private fun SlidePill(
                                 alpha = 1f - p
                                 // ⚠️ Senza un buffer: vedi [MARK_FADE].
                                 compositingStrategy = MARK_FADE
-                                val s = 1f - SWAP_ZOOM * p
+                                val s = 1f - GLIFO_ZOOM * p
                                 scaleX = s
                                 scaleY = s
                             }
@@ -683,7 +680,7 @@ private fun SlidePill(
                                 alpha = p
                                 // ⚠️ Senza un buffer: vedi [MARK_FADE].
                                 compositingStrategy = MARK_FADE
-                                val s = 1f - SWAP_ZOOM * (1f - p)
+                                val s = 1f - GLIFO_ZOOM * (1f - p)
                                 scaleX = s
                                 scaleY = s
                             }

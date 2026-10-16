@@ -700,9 +700,9 @@ private val HANDLE_TOUCH = 24.dp
 /**
  * Quanto inchiostro hanno le righe della maniglia.
  *
- * La metà di 0,38 (voce `3.72-02`: opacità dimezzata).
+ * La metà di [OFF_INK] (voce `3.72-02`: opacità dimezzata).
  */
-private const val HANDLE_INK = 0.38f / 2
+private const val HANDLE_INK = OFF_INK / 2
 
 /** L'opacità dell'invito a scegliere una cartella: il numero è dell'utente (voce `3.70-05`). */
 private const val PICK_HINT_INK = 0.5f

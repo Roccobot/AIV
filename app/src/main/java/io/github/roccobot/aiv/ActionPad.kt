@@ -1072,10 +1072,11 @@ private const val VIA_MS = 100
  * È `Icons.Default.Close` (`Rules.md` § '🖌️ Come entra un disegno').
  * Lo zoom è una frazione e non una misura: il glifo dell'app può non essere quadrato (il
  * marchio), e una misura lo schiaccerebbe. Chi entra parte piccolo e chi esce finisce piccolo,
- * quindi a metà strada i due simboli hanno la stessa misura.
+ * quindi a metà strada i due simboli hanno la stessa misura. Lo zoom lo legge anche lo scambio
+ * dei simboli nella pillola a scomparsa, che deve muoversi come il FAB.
  */
 private val CHIUDI_LATO = 20.dp
-private const val GLIFO_ZOOM = 0.35f
+internal const val GLIFO_ZOOM = 0.35f
 
 /** Lo smusso dell'alone del tocco su una cella. */
 private val PAD_CORNER = 10.dp

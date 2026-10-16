@@ -925,7 +925,7 @@ private fun EditorSheet(
  *
  * ⚠️ **Disattivato si vede disattivato** (voce `originale-completo` dell'utente): `Surface` con
  * `enabled = false` non risponde al tocco ma non cambia colore. I valori sono quelli dello stato
- * disattivato del `FilterChip` (`FilterChipTokens` di material3): testo e icona a [CHIP_OFF_INK],
+ * disattivato del `FilterChip` (`FilterChipTokens` di material3): testo e icona a [OFF_INK],
  * fondo del gettone scelto e filetto degli altri a [CHIP_OFF_FILL]. Vale anche durante un
  * salvataggio e prima che l'anteprima arrivi.
  */
@@ -967,7 +967,7 @@ internal fun SheetChip(
             else -> scheme.onSurface.copy(alpha = CHIP_OFF_FILL)
         },
         contentColor = when {
-            !enabled -> scheme.onSurface.copy(alpha = CHIP_OFF_INK)
+            !enabled -> scheme.onSurface.copy(alpha = OFF_INK)
             selected -> scheme.onSecondaryContainer
             else -> scheme.onSurfaceVariant
         },
@@ -1181,11 +1181,10 @@ private val CHIP_EDGE = 1.dp
 private val CHIP_PAD = 6.dp
 
 /**
- * Le due opacità di un gettone disattivato ([SheetChip]): quelle di Material
- * (`FilterChipTokens.DisabledLabelTextOpacity` e `FlatDisabledSelectedContainerOpacity`), come
- * per tutti gli altri comandi disattivati dell'app.
+ * Il fondo del gettone scelto e il filetto degli altri, quando [SheetChip] è disattivato:
+ * l'opacità di Material (`FilterChipTokens.FlatDisabledSelectedContainerOpacity`). Il testo e
+ * l'icona prendono [OFF_INK], come tutti gli altri comandi disattivati dell'app.
  */
-private const val CHIP_OFF_INK = 0.38f
 private const val CHIP_OFF_FILL = 0.12f
 
 /**

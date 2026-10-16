@@ -5320,8 +5320,8 @@ private class Placed {
 /** I quattro tasti sopra la tavolozza, disegnati invece che scritti (`ArtKey`). */
 internal enum class KeyKind { STROKE, FILL, DASH, WIDTH }
 
-/** Quanto colore tengono le strisce che non si staccherebbero: il 38% di un tasto spento. */
-private const val OFF_SWATCHES = 0.38f
+/** Quanto colore tengono le strisce che non si staccherebbero: quanto un tasto spento. */
+private const val OFF_SWATCHES = OFF_INK
 
 /** Quanto il modulo aspetta fermo prima che una modifica all'elemento scelto entri nella storia. */
 private const val RESTYLE_SETTLE_MS = 400L
@@ -5389,7 +5389,7 @@ private fun ArtKey(
     Box(
         modifier
             .height(FilterChipDefaults.Height)
-            .alpha(if (enabled) 1f else 0.38f)
+            .alpha(if (enabled) 1f else OFF_INK)
             .clip(forma)
             .background(if (selected) schema.secondaryContainer else Color.Transparent)
             .then(if (selected) Modifier else Modifier.border(1.dp, schema.outlineVariant, forma))
@@ -6598,7 +6598,7 @@ private fun LookDial(
     val rail = MaterialTheme.colorScheme.surfaceVariant
     val mark = MaterialTheme.colorScheme.outline
     val face = MaterialTheme.colorScheme.surfaceContainerHigh
-    val faded = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+    val faded = MaterialTheme.colorScheme.onSurface.copy(alpha = OFF_INK)
     /*
      * ⚠️ **Il valore si legge vivo**: il corpo di un `pointerInput` si ricostruisce solo quando
      * cambiano le sue chiavi. Serve a sapere dov'è il tondo quando il dito scende: con un valore
@@ -7166,7 +7166,7 @@ private fun TextKey(
     Box(
         modifier
             .height(FilterChipDefaults.Height)
-            .alpha(if (enabled) 1f else 0.38f)
+            .alpha(if (enabled) 1f else OFF_INK)
             .clip(forma)
             .background(if (selected) schema.secondaryContainer else Color.Transparent)
             .then(if (selected) Modifier else Modifier.border(1.dp, schema.outlineVariant, forma))

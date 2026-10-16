@@ -197,7 +197,7 @@ internal fun PillKey(
                     hapticFeedbackEnabled = false
                 )
                 .semantics { contentDescription = entry.label }
-                .alpha(if (entry.enabled) 1f else DISABLED_INK)
+                .alpha(if (entry.enabled) 1f else OFF_INK)
         ) {
             if (glyph != null) {
                 glyph()
@@ -227,6 +227,3 @@ fun searchInvitation(folderName: String?): AnnotatedString {
         if (parts.size > 1) append(parts[1])
     }
 }
-
-/** L'opacità di un tasto che non può agire: il valore di Material per i contenuti disattivati. */
-private const val DISABLED_INK = 0.38f
