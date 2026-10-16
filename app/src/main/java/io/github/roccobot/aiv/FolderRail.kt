@@ -47,6 +47,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Offset
@@ -394,7 +395,15 @@ fun FolderRailList(
     }
 
     val context = LocalContext.current
-    val granted by remember { mutableStateOf(Folder.granted(context)) }
+    // ⚠️ Riletto a ogni ritorno nell'app e dopo la domanda, come nella casa del telefono (dalla
+    // `6.27`, rilievo D28): il permesso si concede anche dalle impostazioni di sistema, e prima la
+    // colonna restava sul testo finché non si ricomponeva da capo.
+    var granted by remember { mutableStateOf(Folder.granted(context)) }
+    LifecycleResumeEffect(Unit) {
+        granted = Folder.granted(context)
+        onPauseOrDispose { }
+    }
+    val askAccess = Store.rememberAccessRequest(explain = false) { granted = Folder.granted(context) }
     LaunchedEffect(granted) { onRead(granted) }
 
     // ⚠️ The column is a list: favourites first from the `5.80`, and no grid order.
@@ -403,12 +412,7 @@ fun FolderRailList(
     var holding by remember { mutableStateOf<Folder.Bucket?>(null) }
 
     when {
-        !granted -> Text(
-            text = stringResource(R.string.folders_permission),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(16.dp)
-        )
+        !granted -> AccessPlea(onAsk = askAccess, modifier = Modifier.padding(16.dp))
         folders == null -> Box(
             modifier = Modifier.fillMaxWidth().padding(24.dp),
             contentAlignment = Alignment.Center

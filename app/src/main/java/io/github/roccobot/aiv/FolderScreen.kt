@@ -28,11 +28,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -75,6 +72,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -243,6 +241,8 @@ fun FolderScreen(
      * say (`ViewerViewModel.rereadFeed`), because renaming or moving changes no key of its own.
      */
     onFeedChanged: () -> Unit,
+    /** Whether a selection is alive in the Feed: `ViewerViewModel.feedBusy`. */
+    onFeedBusy: (Boolean) -> Unit = {},
     /**
      * Cambia il numero di colonne, dalla `0.78`: lo scrive la scorciatoia del tocco lungo.
      *
@@ -382,6 +382,11 @@ fun FolderScreen(
     // ⚠️ Leaving the Feed lets the selection go, as leaving a folder does.
     LaunchedEffect(view) { if (view != FolderView.FEED) feedChosen = emptySet() }
     BackHandler(enabled = feedPicking) { feedChosen = emptySet() }
+    // ⚠️ While something is chosen the model puts off reading the Feed from outside (6.27, finding
+    // D15 of the 6.25 review), as it does for a folder's grid: a new page is a new key of the
+    // gesture, and the drag under the finger would end. The reading is paid when the choice ends.
+    LaunchedEffect(feedPicking) { onFeedBusy(feedPicking) }
+    DisposableEffect(Unit) { onDispose { onFeedBusy(false) } }
 
     /**
      * Se si sta battendo il nome di una sottocartella nuova, dalla `1.82`.
@@ -467,12 +472,17 @@ fun FolderScreen(
      * parte giusta: le cartelle ci scorrono sotto e l'ultima riga resta raggiungibile.
      * ⚠️ **Con lui la sfumatura in fondo arriva al vetro**, e non è un effetto da correggere: è
      * quello che tiene la barra gestuale sopra un fondo neutro invece che sopra le copertine.
+     * ⚠️ **`steadyDrawing` e non `safeDrawing`, dalla `6.27`** (rilievo D13 della revisione della
+     * 6.25), come nella griglia di una cartella dalla `3.73`: dalla `6.02` il Feed apre il
+     * visualizzatore dalla casa, e tornando le barre ricompaiono animate; `safeDrawing` le seguiva
+     * fotogramma per fotogramma, e la fascia e il Feed scendevano a scatti. La ragione intera vive
+     * su [steadyDrawing].
      */
     BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
             .windowInsetsPadding(
-                WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
+                steadyDrawing().only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
             )
     ) {
         val density = LocalDensity.current
@@ -661,23 +671,7 @@ fun FolderScreen(
             if (home && partial) PartialAccess(onAllowAll = allowAll)
 
             when {
-                !granted -> Column(
-                    modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        // ⚠️ Il testo dice quale permesso serve, e i permessi sono due: quello di
-                        // `github` nomina tutti i file e una pagina di sistema, che in AIV Play
-                        // non esistono.
-                        text = stringResource(
-                            if (Store.files) R.string.folders_permission else R.string.folders_permission_media
-                        ),
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    FilledTonalButton(onClick = askAccess) { Text(stringResource(R.string.folders_grant)) }
-                }
+                !granted -> AccessPlea(onAsk = askAccess, modifier = Modifier.padding(top = 24.dp))
 
                 // ⚠️ Prima dei rami che guardano `folders`, e non dopo: la vista delle
                 // cartelle di sistema legge il disco, non il MediaStore, quindi non ha
@@ -1019,7 +1013,8 @@ fun FolderScreen(
     // and the stream is read again after it.
     FileJobDialogs(job = feedTask, fields = factFields, onClose = { feedTask = null }) { kind, work ->
         feedChosen = emptySet()
-        scope.launch {
+        // ⚠️ In [FileWork], as every file job from 6.27: see the note there.
+        FileWork.scope.launch {
             val out = work()
             if (kind.speaks(out)) Notices.say(outcomeText(context.resources, out, kind), NOTICE_LONG_MS)
             onFeedChanged()
@@ -3015,6 +3010,33 @@ private const val FOLDER_KIND = "folder"
 
 /** Come sopra, per le righe dell'elenco. */
 private const val ROW_KIND = "folder-row"
+
+/**
+ * Le cartelle senza il permesso: che cosa serve e il tasto per chiederlo.
+ *
+ * ⚠️ Il testo dice quale permesso serve, e i permessi sono due: quello di `github` nomina tutti i
+ * file e una pagina di sistema, che in AIV Play non esistono.
+ * ⚠️⚠️ **UNO SOLO PER LA CASA E PER LA COLONNA, dalla `6.27`** (rilievo D28 della revisione della
+ * 6.25): la colonna del tablet e del telefono in orizzontale aveva una sua copia, col solo testo di
+ * AIV GitHub e senza il tasto, quindi da quella casa il permesso non si poteva chiedere.
+ */
+@Composable
+fun AccessPlea(onAsk: () -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = stringResource(
+                if (Store.files) R.string.folders_permission else R.string.folders_permission_media
+            ),
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center
+        )
+        Spacer(Modifier.height(16.dp))
+        FilledTonalButton(onClick = onAsk) { Text(stringResource(R.string.folders_grant)) }
+    }
+}
 
 /**
  * La riga che dice, in AIV Play, che l'app vede solo le immagini che la persona ha scelto, col

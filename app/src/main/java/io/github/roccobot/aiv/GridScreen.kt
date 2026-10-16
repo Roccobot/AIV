@@ -1121,7 +1121,8 @@ fun GridScreen(
      */
     val perform: (FileKind, suspend () -> FileTree.Outcome) -> Unit = { kind, work ->
         chosen = emptySet()
-        scope.launch {
+        // ⚠️ In [FileWork] e non nell'ambito della schermata (dalla `6.27`): vedi la nota là.
+        FileWork.scope.launch {
             val out = work()
             // ⚠️ **Il cestino tace, e chi decide è [FileKind.speaks]**: la sua notifica
             // dice la stessa cosa e in più offre di disfare, e due messaggi in fondo
@@ -1705,6 +1706,14 @@ fun GridScreen(
                         )
                     )
                 }
+                /*
+                 * ⚠️ Fuori dal ramo del campo (dalla `6.27`, rilievo D6 della revisione della
+                 * 6.25): una selezione toglie il campo dalla scena e la sua fine lo rimette, e un
+                 * ricordo tenuto là dentro ripartiva da capo e ridava il fuoco. La chiave è l'esserci
+                 * della ricerca: se la stessa griglia passa da una cartella a una ricerca nuova, la
+                 * visita è nuova e il fuoco si ridà.
+                 */
+                var focusGiven by rememberSaveable(query != null) { mutableStateOf(false) }
                 Column(modifier = Modifier.weight(1f)) {
                     if (query != null && !picking) {
                         /*
@@ -1712,12 +1721,18 @@ fun GridScreen(
                          * apre su una schermata che non fa niente**: chi tocca 'Cerca' ha già
                          * in mente la parola, e trovarsi davanti un campo spento con la
                          * tastiera chiusa vuol dire un tocco in più prima di poter scrivere.
-                         * ⚠️ Una volta sola per visita: rimettere il fuoco a ogni
-                         * ricomposizione riaprirebbe la tastiera dopo che la si è chiusa per
-                         * guardare i risultati, che è precisamente quando la si vuole via.
+                         * ⚠️ Una volta sola per visita ([focusGiven]): rimettere il fuoco
+                         * riaprirebbe la tastiera dopo che la si è chiusa per guardare i
+                         * risultati, che è precisamente quando la si vuole via. Vale anche per
+                         * la fine di una selezione e per una rotazione.
                          */
                         val focus = remember { FocusRequester() }
-                        LaunchedEffect(Unit) { focus.requestFocus() }
+                        LaunchedEffect(Unit) {
+                            if (!focusGiven) {
+                                focus.requestFocus()
+                                focusGiven = true
+                            }
+                        }
                         TextField(
                             value = query,
                             onValueChange = onQuery,

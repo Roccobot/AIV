@@ -13,6 +13,7 @@ import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
@@ -159,9 +160,10 @@ object MediaDelete {
  * ⚠️⚠️ **It lives at the top of `FileJobDialogs`, never in the branch of a job**: the job goes on
  * after its window closes, and a launcher removed from the composition would never deliver the
  * answer.
- * ⚠️ **If the activity is recreated while the system window is open, the answer is lost** and the
- * job waits: the system window is an activity of its own, and the new launcher does not know the
- * old question. It is accepted, and declared.
+ * ⚠️ **If the activity is recreated while the system window is open, the answer is lost**: the
+ * system window is an activity of its own, and the new launcher does not know the old question.
+ * From 6.27 the old screen answers 'no' as it goes ([rememberSystemAsk]), so the job counts that
+ * file as not done and ends; until 6.26 it waited, and the screen's scope ended it.
  */
 class SystemAsk internal constructor(
     private val context: Context,
@@ -182,8 +184,8 @@ class SystemAsk internal constructor(
     }
 
     /**
-     * ⚠️ **Called on the main thread**, where a launcher wants to be: the jobs run in the screens'
-     * scopes and in a `LaunchedEffect`, all of them on the main thread. A hop to the main
+     * ⚠️ **Called on the main thread**, where a launcher wants to be: the jobs run in `FileWork`
+     * and in a `LaunchedEffect`, all of them on the main thread. A hop to the main
      * dispatcher here would wait forever under a caller that blocks that thread.
      */
     private suspend fun await(launch: () -> Unit): Boolean {
@@ -213,7 +215,12 @@ fun rememberSystemAsk(): SystemAsk {
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
         holder[0]?.answer(it)
     }
-    return remember(window, permission) {
+    val ask = remember(window, permission) {
         SystemAsk(context, { window.launch(it) }, { permission.launch(it) }).also { holder[0] = it }
     }
+    // ⚠️ When the screen goes (the activity recreated with the system window open), a question still
+    // waiting is answered 'no' (6.27): the jobs live in `FileWork` and no longer end with the
+    // screen, so without this the job would wait for an answer that never comes.
+    DisposableEffect(ask) { onDispose { ask.answer(false) } }
+    return ask
 }

@@ -66,6 +66,7 @@ import coil3.compose.setSingletonImageLoaderFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
@@ -1145,7 +1146,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * server lento. Senza, l'unica via era tornare indietro e rifare tutto il giro
      * dell'indirizzo, e con un URL incollato dagli appunti vuol dire ritrovarlo.
      * ⚠️ Riprovando **si ripassa dalla cache**, quindi un errore avvenuto dopo un
-     * download riuscito (la memoria finita in decodifica) si ritenta senza rete.
+     * download riuscito (la memoria finita in decodifica) si ritenta senza rete. Dalla `6.27` una
+     * copia scaduta si rivalida col server (`RemoteCache`), quindi anche da qui un'immagine
+     * cambiata arriva nuova.
      */
     fun retry() {
         val uri = source ?: return
@@ -1168,16 +1171,14 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         // chiesto sarebbe peggio che chiudersi.
         viewerBack = if (backToApp) HOME else null
         screen = Screen.Viewer
-        listed = null
+        putList(null)
         startLoad(target, Arrival.HANDED, remember = true)
         // ⚠️ The folder is looked for in its OWN coroutine, and not inside the one
         // above: it is a database query that the picture does not wait for, and
         // hanging it off the load would delay what the person is looking at in
         // order to prepare a gesture they may never make.
         val context = getApplication<Application>()
-        viewModelScope.launch {
-            listed = if (WebSeries.isWeb(target)) webWindow(target) else Folder.seriesAround(context, target)
-        }
+        relist { if (WebSeries.isWeb(target)) webWindow(target) else Folder.seriesAround(context, target) }
     }
 
     /**
@@ -1201,7 +1202,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         source = first
         viewerBack = HOME
         screen = Screen.Viewer
-        listed = Folder.Lookup.Found(page)
+        putList(Folder.Lookup.Found(page))
         startLoad(first, Arrival.HANDED, remember = true)
     }
 
@@ -1591,7 +1592,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     fun openGrid(bucket: Long, name: String) {
         gridFilter = MediaKind.ALL
         screen = Screen.Grid(bucket, name)
-        listed = null
+        putList(null)
         source = null
         // Cartella nuova, nessuna foto ancora guardata.
         gridVisited = false
@@ -1615,14 +1616,22 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         // toglie compare solo se c'è, e col ricordo della cartella di prima comparirebbe dove
         // non c'è niente da togliere.
         cover = null
-        viewModelScope.launch { listed = Folder.newestIn(context, bucket).atSequenceStart() }
+        relist { Folder.newestIn(context, bucket).atSequenceStart() }
         // ⚠️ In un lancio a sé e non in coda all'altro: i due numeri servono alla fascia in
         // cima, che si vede subito, mentre le miniature arrivano quando arrivano. Uno dopo
         // l'altro, la cartella si peserebbe solo dopo aver letto tutta la lista.
-        viewModelScope.launch { facts = Folder.weigh(context, bucket) }
-        viewModelScope.launch { tint = FolderTints.of(context, bucket) }
-        viewModelScope.launch { cover = FolderCovers.of(context, bucket) }
+        // ⚠️ E dentro [folderJob], per la stessa ragione di [listJob]: aprendo due cartelle di
+        // seguito, i numeri della prima non devono arrivare nella seconda.
+        folderJob?.cancel()
+        folderJob = viewModelScope.launch {
+            launch { facts = Folder.weigh(context, bucket) }
+            launch { tint = FolderTints.of(context, bucket) }
+            launch { cover = FolderCovers.of(context, bucket) }
+        }
     }
+
+    /** Le letture dei dati della cartella aperta (numeri, tinta, copertina), annullate insieme. */
+    private var folderJob: Job? = null
 
     /**
      * Il testo che si sta cercando. Vuoto quando la ricerca si apre.
@@ -1634,15 +1643,41 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         private set
 
     /**
-     * La ricerca in corso, per poterla **annullare** quando ne parte un'altra.
+     * La lettura di [listed] in corso, per poterla **annullare** quando la lista cambia di nuovo.
      *
      * ⚠️⚠️ **Senza questo la risposta più lenta vincerebbe sulla più recente**: digitando
      * `mare` partono quattro ricerche, e l'ordine in cui il MediaStore risponde non è quello
      * in cui sono partite. Chi non annulla si ritrova i risultati di `mar` sopra quelli di
      * `mare`, e il difetto si vede solo quando il telefono è occupato, cioè quasi mai
      * durante una prova.
+     * ⚠️⚠️ **Dalla `6.27` è uno solo per TUTTE le letture della lista**, non più per la sola
+     * ricerca (rilievo C30 della revisione della 6.25): una cascata del web lasciata a metà, o una
+     * ricerca chiusa entro la pausa, arrivava dopo e metteva la sua lista nella schermata nuova. Chi
+     * scrive [listed] passa da [relist] o da [putList], e tutti e due annullano la lettura di prima.
      */
-    private var searching: Job? = null
+    private var listJob: Job? = null
+
+    /**
+     * Legge la lista nuova fuori dal thread principale, e annulla la lettura di prima.
+     *
+     * ⚠️ **`ensureActive` prima di scrivere**: una lettura annullata mentre finisce un lavoro che
+     * non si interrompe (una query già partita) non deve scrivere lo stesso. `withContext` lo
+     * garantisce già al ritorno, e la riga lo rende vero anche per una [read] che non lo usa.
+     */
+    private fun relist(read: suspend () -> Folder.Lookup?) {
+        listJob?.cancel()
+        listJob = viewModelScope.launch {
+            val fresh = read()
+            ensureActive()
+            listed = fresh
+        }
+    }
+
+    /** Scrive la lista subito, e annulla la lettura che stava per scriverne un'altra. */
+    private fun putList(value: Folder.Lookup?) {
+        listJob?.cancel()
+        listed = value
+    }
 
     /**
      * Apre il cestino.
@@ -1656,12 +1691,12 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     fun openBin() {
         gridFilter = MediaKind.ALL
         screen = Screen.Bin
-        listed = null
+        putList(null)
         source = null
         gridVisited = false
         stopLoad()
         val context = getApplication<Application>()
-        viewModelScope.launch { listed = binLookup(context) }
+        relist { binLookup(context) }
     }
 
     /**
@@ -2147,7 +2182,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         gridFilter = MediaKind.ALL
         screen = Screen.Search(bucket, name)
         query = ""
-        listed = Folder.Lookup.Found(Folder.Series(emptyList(), 0))
+        putList(Folder.Lookup.Found(Folder.Series(emptyList(), 0)))
         source = null
         gridVisited = false
         stopLoad()
@@ -2166,19 +2201,18 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      */
     fun search(text: String) {
         query = text
-        searching?.cancel()
         val context = getApplication<Application>()
         val hidden = settings?.hiddenFolders.orEmpty()
         // ⚠️ Il confine si legge dalla schermata a ogni ricerca e non si tiene in un campo: è un
         // dato della schermata (vedi [Screen.Search]), e una seconda copia direbbe il falso il
         // giorno che si passa da una ricerca ristretta a una globale.
         val entro = (screen as? Screen.Search)?.bucket
-        searching = viewModelScope.launch {
+        // Una ricerca nuova è un elenco nuovo: l'anello dell'ultima foto vista indicherebbe una
+        // posizione della lista di prima.
+        gridVisited = false
+        relist {
             delay(SEARCH_PAUSE_MS)
-            listed = Folder.byName(context, text, hidden, entro, settings?.folderSelection ?: FolderSelection()).atSequenceStart()
-            // Una ricerca nuova è un elenco nuovo: l'anello dell'ultima foto vista
-            // indicherebbe una posizione della lista di prima.
-            gridVisited = false
+            Folder.byName(context, text, hidden, entro, settings?.folderSelection ?: FolderSelection()).atSequenceStart()
         }
     }
 
@@ -2205,22 +2239,18 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         gridVisited = false
         val context = getApplication<Application>()
         when (val here = screen) {
-            is Screen.Grid ->
-                viewModelScope.launch {
-                    listed = Folder.newestIn(context, here.bucket).atSequenceStart()
-                }
+            is Screen.Grid -> relist { Folder.newestIn(context, here.bucket).atSequenceStart() }
             is Screen.Search -> {
                 val hidden = settings?.hiddenFolders.orEmpty()
                 val text = query
                 val entro = here.bucket
-                searching?.cancel()
-                searching = viewModelScope.launch {
-                    listed = Folder.byName(context, text, hidden, entro, settings?.folderSelection ?: FolderSelection()).atSequenceStart()
+                relist {
+                    Folder.byName(context, text, hidden, entro, settings?.folderSelection ?: FolderSelection()).atSequenceStart()
                 }
             }
             // ⚠️ Il cestino si rilegge dal disco e non dal MediaStore, che là non guarda:
             // dopo un ripristino o uno svuotamento è l'unica cosa che dice la verità.
-            Screen.Bin -> viewModelScope.launch { listed = binLookup(context) }
+            Screen.Bin -> relist { binLookup(context) }
             else -> Unit
         }
     }
@@ -2482,7 +2512,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      */
     fun leaveGrid() {
         screen = HOME
-        listed = null
+        putList(null)
     }
 
     /**
@@ -2582,6 +2612,25 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         }
 
     /**
+     * Se nel Feed c'è una selezione viva, dalla `6.27` (rilievo D15 della revisione della 6.25).
+     *
+     * ⚠️ **È [gridBusy] per il Feed**: una pagina nuova è una chiave nuova del gesto di selezione,
+     * quindi un trascinamento in corso finiva sotto il dito, e le immagini arrivate in cima
+     * spostavano tutte le altre. La rilettura rimandata si fa quando la selezione si scioglie.
+     */
+    var feedBusy: Boolean = false
+        set(value) {
+            field = value
+            if (!value && feedStale) {
+                feedStale = false
+                if (screen is Screen.Folders) feedArgs?.let { (granted, selection, date) -> readFeed(granted, selection, date) }
+            }
+        }
+
+    /** Il Feed è cambiato fuori mentre c'era una selezione: si rilegge quando finisce. */
+    private var feedStale = false
+
+    /**
      * L'orecchio sul MediaStore, acceso finché il modello vive.
      *
      * ⚠️ **`notifyForDescendants` acceso**: l'indirizzo registrato è quello della collezione,
@@ -2640,8 +2689,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 screen is Screen.Folders -> {
                     bucketsFor?.let { readBuckets(it.first) }
                     // ⚠️ And the Feed, with what it was last read for: a picture arrived from
-                    // outside belongs at the top of the stream.
-                    feedArgs?.let { (granted, selection, date) -> readFeed(granted, selection, date) }
+                    // outside belongs at the top of the stream. Not while something is chosen
+                    // there ([feedBusy]).
+                    if (feedBusy) feedStale = true
+                    else feedArgs?.let { (granted, selection, date) -> readFeed(granted, selection, date) }
                 }
                 else -> Unit
             }
@@ -2680,7 +2731,12 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         val context = getApplication<Application>()
         val place = series?.index ?: 0
         val from = viewerBack
-        viewModelScope.launch {
+        // ⚠️ Nel lavoro della lista ([listJob]), perché scrive la lista anche lei: una strisciata o
+        // un'uscita arrivate durante la rilettura la annullano. [showAt] chiama [putList], che
+        // annulla questo stesso lavoro mentre finisce: non c'è più niente da sospendere, quindi
+        // non toglie niente.
+        listJob?.cancel()
+        listJob = viewModelScope.launch {
             val fresh = when (from) {
                 is Screen.Grid -> Folder.newestIn(context, from.bucket)
                 is Screen.Search ->
@@ -2761,7 +2817,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         // ⚠️ `current` sta nell'ordine di lettura, `listed` in quello grezzo: si
         // rigira per riscriverlo, e la stessa funzione basta perché girare una serie
         // è la sua stessa inversa.
-        listed = Folder.Lookup.Found(current.copy(index = index)).oriented()
+        putList(Folder.Lookup.Found(current.copy(index = index)).oriented())
         startLoad(uri, from)
         /*
          * ⚠️⚠️ **LA FINESTRA DEL WEB SI RIFÀ A OGNI PASSO, e quella di una cartella mai.**
@@ -2772,9 +2828,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
          * cartella e le immagini di una pagina), che è ordinata come quella di una cartella
          * vera: rifarla vorrebbe dire riscaricare la stessa pagina a ogni fotografia.
          */
-        if (WebSeries.isWeb(uri) && webRule !in WebSeries.WHOLE) {
-            viewModelScope.launch { listed = webWindow(uri) }
-        }
+        if (WebSeries.isWeb(uri) && webRule !in WebSeries.WHOLE) relist { webWindow(uri) }
     }
 
     /** Called once the permission dialog has been answered, whatever the answer. */
@@ -2784,15 +2838,13 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         // Granted while a picture is already open: the folder is looked for now,
         // instead of making the person open the same picture a second time.
         val uri = source
-        if (allowed && uri != null) {
-            viewModelScope.launch { listed = Folder.seriesAround(context, uri) }
-        }
+        if (allowed && uri != null) relist { Folder.seriesAround(context, uri) }
     }
 
     fun goHome() {
         screen = HOME
         source = null
-        listed = null
+        putList(null)
         stopLoad()
     }
 
@@ -3759,6 +3811,7 @@ private fun Stage(
                     // that asked for a picture, otherwise the viewer.
                     onFeedOpen = { items, at -> if (!consegna(items, at)) model.openFromTree(items, at) },
                     onFeedChanged = model::rereadFeed,
+                    onFeedBusy = { model.feedBusy = it },
                     // ⚠️ La scorciatoia scrive la STESSA impostazione della riga di pastiglie
                     // nelle preferenze, e non una sua: era la richiesta (*che resta globale per
                     // tutte le cartelle*), ed è la ragione per cui passa da `updateSettings`

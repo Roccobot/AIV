@@ -148,11 +148,13 @@ object AvifCache {
      * ⚠️ **La chiave è un hash e non il nome del file**: un nome di file può contenere
      * qualunque cosa, barre comprese, e ricavarne un percorso vorrebbe dire ripulirlo, cioè
      * far collidere due nomi diversi. Un hash non ha questo problema e ha lunghezza fissa.
+     * ⚠️⚠️ **SHA-256 E NON `hashCode`, dalla `6.27`** (rilievo C8 della revisione della 6.25):
+     * con 2^32 nomi possibili e fino a [KEEP] voci, due file si scambiavano la miniatura circa una
+     * volta su cento a diecimila voci. Il cambio di nome rifà le miniature una volta.
      */
-    private fun fileFor(context: Context, uri: Uri, box: Int): File? {
+    internal fun fileFor(context: Context, uri: Uri, box: Int): File? {
         val when1 = stamp(context, uri) ?: return null
-        val key = "$uri|$when1|$box".hashCode().toString(HEX)
-        return File(dirOf(context), "$key.webp")
+        return File(dirOf(context), "${sha256("$uri|$when1|$box")}.webp")
     }
 
     /** La cartella in cui vivono le miniature, che esista o no. */
@@ -185,7 +187,6 @@ object AvifCache {
     }
 
     private const val DIR = "avif-thumbs"
-    private const val HEX = 16
     private const val QUALITY = 88
     private const val KEEP = 30_000
     private const val PRUNE_EVERY = 100

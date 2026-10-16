@@ -3,6 +3,7 @@ package io.github.roccobot.aiv
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.LruCache
@@ -171,8 +172,12 @@ suspend fun weightOf(context: Context, uris: List<Uri>): Long = withContext(Disp
  *
  * ⚠️⚠️ **SI PASSA DAL FILE VERO QUANDO C'È, e non è un'ottimizzazione**: da Android 10 il
  * MediaStore **censura la posizione** nei dati EXIF che serve attraverso un `content://`, a
- * meno di chiedere un permesso in più. Questa app ha già l'accesso a tutti i file, quindi
- * legge il percorso e apre il file: le coordinate arrivano intere e senza chiedere niente.
+ * meno di chiedere un permesso in più. AIV GitHub ha l'accesso a tutti i file, quindi legge il
+ * percorso e apre il file: le coordinate arrivano intere e senza chiedere niente.
+ * ⚠️⚠️ **AIV PLAY CHIEDE QUEL PERMESSO IN PIÙ, DALLA `6.27`** (sua scelta R1, rilievo C21 della
+ * revisione della 6.25): fino alla `6.26` la nota qui sopra valeva per le due varianti, e in AIV
+ * Play la riga della posizione non compariva per le foto della fotocamera. Col permesso l'EXIF si
+ * legge dall'originale ([withPlace]).
  * ⚠️ **Per una fotografia senza percorso** (una chat, il web) la riga della posizione
  * semplicemente non compare, che è la regola di tutta la schermata e non un caso speciale.
  */
@@ -191,7 +196,11 @@ suspend fun factsOf(context: Context, uris: List<Uri>): Facts = withContext(Disp
     }
     val exif = runCatching {
         if (file != null) ExifInterface(file)
-        else streamOf(context, uri)?.use { ExifInterface(it) }
+        else streamOf(context, withPlace(context, uri))?.use { ExifInterface(it) }
+    }.recoverCatching {
+        // ⚠️ The original refused (a permission withdrawn in the meantime): the EXIF without the
+        // place is still worth the other rows.
+        streamOf(context, uri)?.use { ExifInterface(it) }
     }.getOrNull()
 
     // ⚠️ Le misure si girano come l'EXIF dice, o una foto verticale scattata col telefono
@@ -355,6 +364,18 @@ private fun streamOf(context: Context, uri: Uri): java.io.InputStream? =
         "http", "https" -> RemoteCache.read(context, uri)?.inputStream()
         else -> context.contentResolver.openInputStream(uri)
     }
+
+/**
+ * L'indirizzo da cui l'EXIF di una foto del MediaStore arriva con le coordinate, dalla `6.27`.
+ *
+ * ⚠️ `MediaStore.setRequireOriginal` chiede al sistema i byte senza la censura della posizione, e
+ * si può chiedere solo col permesso della posizione ([Store.seesLocation]): senza, aprire quel
+ * indirizzo va in errore. Da Android 10, dove la censura comincia.
+ */
+internal fun withPlace(context: Context, uri: Uri): Uri =
+    if (uri.authority == MediaStore.AUTHORITY && Store.seesLocation(context) &&
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+    ) MediaStore.setRequireOriginal(uri) else uri
 
 /**
  * Quanti byte pesa il file dietro un indirizzo, o `0` se non si sa.

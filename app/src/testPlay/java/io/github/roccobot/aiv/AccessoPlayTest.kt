@@ -81,9 +81,11 @@ class AccessoPlayTest {
     /**
      * **'Consenti' opens the system dialog with the three media permissions**, the third one being
      * what makes Android 14 offer 'select photos'. AIV GitHub opens a settings page here.
+     * ⚠️ **And the location of the photos, from 6.27** (his choice R1): the fourth permission is
+     * asked in the same dialog, so the 'Posizione' row of the details can show (`PosizionePlayTest`).
      */
     @Test
-    fun `Consenti chiede i tre permessi sulle foto`() {
+    fun `Consenti chiede i permessi sulle foto e la loro posizione`() {
         banco.setContent { AivTheme { Casa() } }
         banco.onNodeWithText(voce(R.string.folders_grant)).performClick()
         banco.waitForIdle()
@@ -92,7 +94,8 @@ class AccessoPlayTest {
             listOf(
                 Manifest.permission.READ_MEDIA_IMAGES,
                 Manifest.permission.READ_MEDIA_VIDEO,
-                Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+                Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
+                Manifest.permission.ACCESS_MEDIA_LOCATION
             ),
             chiesti
         )
