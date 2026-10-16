@@ -1213,6 +1213,13 @@ il job le scrive su disco per la durata di una sola esecuzione.
     trova più scuri del 6-7%; e nella prova della luminosità di `DisegnoTest` la cattura del palco
     non si aggiorna, anche se il valore arriva all'elemento. Banco intero: quattro corse con 3-5
     prove rosse sulla 37, due verdi sulla 36 con lo stesso codice.
+    ⚠️⚠️ **Nella `6.25` il secondo tentativo ha mostrato che il difetto è del disegno della 37, non
+    di una prova** (sua scelta B1 del 2026-10-16: il banco resta sulla 36 finché Robolectric non lo
+    corregge). Aggirate l'onda e la luminosità, su GitHub sono cadute `ColoreTest`, `VeloTest` e
+    `UscitaFabTest`, verdi in locale, tutte con pixel che non mostrano il contenuto aggiornato. Non
+    lo cambiano le due impostazioni di cattura di Robolectric (`useEmbeddedViewRoot`,
+    `pixelCopyRenderMode`); il dettaglio vive in `robolectric.properties`. Chi riprova la 37 con una
+    Robolectric nuova guarda il banco su GitHub, dove il difetto capita più spesso.
     ⚠️⚠️ **E la 37 vuole Compose 1.13**: la 1.12 si porta dietro Espresso 3.5.0, che al primo tocco
     cerca per riflessione un metodo di Android (`InputManager.getInstance()`) che sulla 37 non
     esiste più, e al primo tentativo sono fallite 521 prove su 766. La 1.13, in uso dalla `6.24`, si
