@@ -1125,7 +1125,9 @@ private fun Hub(
     modifier: Modifier = Modifier
 ) {
     val menu = rememberMenuState()
-    var asking by remember { mutableStateOf(false) }
+    // Salvata e non ricordata: girando il telefono la finestra dell'indirizzo resta aperta, come
+    // quella aperta dall'azione del launcher (`addressAsked` del modello).
+    var asking by rememberSaveable { mutableStateOf(false) }
 
     val picker = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia()
@@ -1421,7 +1423,8 @@ fun HomePill(
     onSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var asking by remember { mutableStateOf(false) }
+    // Salvata e non ricordata, come nell'altro FAB della casa: il perché è là.
+    var asking by rememberSaveable { mutableStateOf(false) }
     val picker = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia()
     ) { picked -> picked?.let(onOpen) }

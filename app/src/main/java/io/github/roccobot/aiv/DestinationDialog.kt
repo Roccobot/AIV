@@ -42,6 +42,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -131,7 +132,9 @@ fun DestinationDialog(
      * radici sono due, e serve un livello sopra per passare dall'una all'altra. Con una memoria
      * sola si entra dritti dentro, appena le radici sono lette.
      */
-    var here by remember { mutableStateOf<File?>(null) }
+    // Salvata per percorso, come la scelta di essere nell'albero (`sfoglia`): girando il telefono
+    // si resta nella cartella in cui si è, invece di tornare alla radice.
+    var here by rememberSaveable(stateSaver = FILE_BY_PATH) { mutableStateOf<File?>(null) }
     LaunchedEffect(roots) {
         if (here == null) roots?.singleOrNull()?.let { here = it }
     }
@@ -597,3 +600,12 @@ internal fun NewFolderDialog(onDismiss: () -> Unit, onCreate: (String) -> Unit) 
         }
     )
 }
+
+/**
+ * Una cartella salvata col suo percorso: un `File` il `Bundle` non lo sa scrivere, una stringa sì.
+ * Interno per `RotazioneTest`.
+ */
+internal val FILE_BY_PATH = Saver<File?, String>(
+    save = { it?.absolutePath },
+    restore = { File(it) }
+)
