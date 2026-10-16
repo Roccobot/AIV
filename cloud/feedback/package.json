@@ -6,7 +6,7 @@
     "test": "node worker-test.mjs && node supabase-sql-test.mjs && node supabase-test.mjs && node feedback-transfer-test.mjs"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "0.3.14",
-    "wrangler": "4.45.0"
+    "@electric-sql/pglite": "0.5.10",
+    "wrangler": "4.151.1"
   }
 }
