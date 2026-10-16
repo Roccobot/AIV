@@ -24,7 +24,7 @@ import org.robolectric.annotation.GraphicsMode
 
 /**
  * Il lavoro delle rampe durante uno scorrimento, nella `6.28` (rilievi D26 e D34 della revisione
- * della 6.25, voce C2 del rapporto): si conta con [RampWork], come vuole la sua scelta B1, e si
+ * della 6.25, voce C2 del rapporto): si conta con [DrawWork], come vuole la sua scelta B1, e si
  * toglie solo il lavoro rifatto identico.
  *
  * ⚠️ **Dieci fotogrammi, dieci posizioni o altezze**: è lo scorrimento visto da chi disegna, senza
@@ -55,13 +55,13 @@ class RampeTest {
         }
         banco.waitForIdle()
         banco.onRoot().captureToImage()
-        RampWork.programs = 0
+        DrawWork.programs = 0
         repeat(10) {
             alto -= 10
             banco.waitForIdle()
             banco.onRoot().captureToImage()
         }
-        assertEquals("Il programma si è ricompilato mentre l'intestazione si chiudeva", 0, RampWork.programs)
+        assertEquals("Il programma si è ricompilato mentre l'intestazione si chiudeva", 0, DrawWork.programs)
     }
 
     /**
@@ -82,12 +82,12 @@ class RampeTest {
         }
         banco.waitForIdle()
         banco.onRoot().captureToImage()
-        RampWork.gradients = 0
+        DrawWork.gradients = 0
         repeat(10) {
             giu += 7
             banco.waitForIdle()
             banco.onRoot().captureToImage()
         }
-        assertEquals("Il gradiente si è rifatto a ogni posizione", 0, RampWork.gradients)
+        assertEquals("Il gradiente si è rifatto a ogni posizione", 0, DrawWork.gradients)
     }
 }
