@@ -34,7 +34,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
@@ -790,7 +789,8 @@ class DisegnoTest {
         opacitaPiena()
         val rosso = androidx.compose.ui.graphics.Color(Draw.INK)
         val tasto = banco.onNodeWithContentDescription(testo(R.string.draw_width))
-        tasto.scegli()
+        tasto.performClick()
+        banco.waitForIdle()
         val cursore = banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[0]
         cursore.performSemanticsAction(SemanticsActions.SetProgress) { it(Draw.WIDTH_MIN) }
         banco.waitForIdle()
@@ -827,7 +827,8 @@ class DisegnoTest {
         opacitaPiena()
         val rosso = androidx.compose.ui.graphics.Color(Draw.INK)
         val tasto = banco.onNodeWithContentDescription(testo(R.string.draw_width))
-        tasto.scegli()
+        tasto.performClick()
+        banco.waitForIdle()
         val cursore = banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[0]
         cursore.performSemanticsAction(SemanticsActions.SetProgress) { it(Draw.WIDTH_MIN) }
         banco.waitForIdle()
@@ -1167,19 +1168,11 @@ class DisegnoTest {
      * dal vivo già dalla `4.60`.
      * ⚠️⚠️ **CONTROPROVATA** due volte: col codice della `4.62` (nel gesto unico il valore aspetta
      * lo stacco, e la prima metà fallisce), e col cursore che non posa niente (la seconda metà).
-     * ⚠️⚠️ **DALLA 6.25 LA SECONDA METÀ LEGGE IL DISEGNO SALVATO, E NON IL PALCO** (sua scelta A1,
-     * `Diciassette`): sul simulatore di Android 17 il palco, a caso e circa due corse su tre, resta
-     * identico al pixel dopo il cursore, anche se il valore arriva (da 0,54 a -1), il palco si
-     * ridisegna e l'immagine del disegno risulta cambiata; identica anche la cattura della schermata
-     * intera, anche dopo due secondi. Non lo cambiano un'immagine nuova a ogni cambio,
-     * `prepareToDraw()` né il tocco lungo senza onda. Che si veda dal vivo lo misura la prima metà,
-     * che sulla 37 è sempre verde.
      */
     @Test
     @Config(qualifiers = "w411dp-h891dp")
     fun `la luminosita si vede sull'elemento scelto mentre il dito scorre`() {
-        var salvato: Look? = null
-        banco.setContent { Scena(onSave = { salvato = it }) }
+        banco.setContent { Scena() }
         pronta()
         apriDisegno()
         trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
@@ -1203,13 +1196,11 @@ class DisegnoTest {
         banco.onNodeWithContentDescription(testo(R.string.ink_red)).performTouchInput { longClick() }
         banco.waitForIdle()
         assertEquals("a dito alzato il cursore doveva restare", 1, luci())
+        val fermo = palco.captureToImage().toPixelMap()
         banco.onNode(cursoreLuce()).performSemanticsAction(SemanticsActions.SetProgress) { it(-1f) }
         banco.waitForIdle()
-        // With the slider open the touch outside does not reach the button (see the test of MenuGuard).
-        banco.onNodeWithText(testo(R.string.editor_save)).performSemanticsAction(SemanticsActions.OnClick)
-        banco.waitForIdle()
-        assertEquals("trascinando il cursore l'elemento scelto doveva prendere la luminosità",
-            Draw.withAlpha(Draw.lit(Draw.INK, -1f), Draw.INK_ALPHA), salvato!!.drawing.marks.single().ink)
+        assertTrue("trascinando il cursore l'elemento scelto doveva cambiare colore",
+            differenza(fermo, palco.captureToImage().toPixelMap()) > 40)
     }
 
     /**
@@ -2770,7 +2761,8 @@ class DisegnoTest {
         val spento = sfondo.captureToImage().toPixelMap()
         val striscia = androidx.compose.ui.graphics.Color(Draw.LABEL_INK)
         assertEquals("spento, il tasto Sfondo non ha il colore della striscia", 0, inchiostro(spento, striscia))
-        sfondo.scegli()
+        sfondo.performClick()
+        banco.waitForIdle()
         banco.onNodeWithContentDescription("$fondo 1").assertExists()
         assertEquals("col Testo il cursore doveva restare dov'era", prima.top.value, cursore().top.value, 0.5f)
         assertEquals("e la fila dei tasti", tasti.top.value,
@@ -3072,23 +3064,6 @@ class DisegnoTest {
      */
     private fun apriDisegno() {
         banco.onNodeWithContentDescription(testo(R.string.look_draw)).performScrollTo().performClick()
-        banco.waitForIdle()
-    }
-
-    /**
-     * **Sceglie un tasto con l'azione di accessibilità, senza il tocco**, per le prove che subito
-     * dopo ne leggono i colori (6.25, `Diciassette`).
-     * ⚠️⚠️ **COL TOCCO, SU ANDROID 17 IL TASTO RESTA VELATO DALL'ONDA**: Compose 1.13 disegna l'onda
-     * del tocco con quella di Android (`RippleDrawable`, letto nel bytecode di
-     * `Ripple_androidKt.createPlatformRippleNode`), che si dissolve con un'animazione di Android e
-     * non con l'orologio di Compose, e sul simulatore della 37 la dissolvenza non finisce: il rosso
-     * del segmento di `Spessore` legge `ee483c` invece di `ff4c3f` anche dopo un secondo, e le
-     * lettere in negativo di `Sfondo` non hanno più il colore del fondo. Sul telefono l'onda si
-     * dissolve in un attimo, quindi il difetto è del banco. L'azione di accessibilità esegue lo
-     * stesso `onClick` senza una pressione, quindi senza onda.
-     */
-    private fun SemanticsNodeInteraction.scegli() {
-        performSemanticsAction(SemanticsActions.OnClick)
         banco.waitForIdle()
     }
 

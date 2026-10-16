@@ -307,7 +307,7 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
 - **Il banco di prova è `./gradlew :app:testGithubDebugUnitTest`**, più le prove `*PlayTest` di
   `app/src/testPlay/` con `:app:testPlayDebugUnitTest --tests '*PlayTest'` (Robolectric, app finta,
   niente nell'APK): si lancia prima di aprire la PR, e `check.yml` e `release.yml` sono la rete. Prende i
-  difetti di struttura, non quelli di resa o di apparecchio; la piattaforma 37 vuole Java 21
+  difetti di struttura, non quelli di resa o di apparecchio; la piattaforma 36 vuole Java 21
   (`Rules.md` § '🧰 Gli strumenti che questo repo si porta dietro').
 - **Quando si scrive una prova**: anche senza un difetto alle spalle se la modifica tocca la
   gerarchia dei tocchi (un nodo che copre lo schermo, un modificatore che misura e posa, una

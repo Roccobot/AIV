@@ -14,11 +14,11 @@ activityCompose = "1.13.0"
 # `dl.google.com`). Scelta dell'utente del 2026-10-15 (*l'ultimo compose*), sulla
 # stessa linea di material3 del 2026-08-26: il progetto è sperimentale, quindi si
 # accetta una versione di prova.
-# ⚠️⚠️ E DA LÌ DIPENDE IL BANCO SU ANDROID 17, DALLA 6.25: `ui-test-junit4` 1.13
+# ⚠️⚠️ E DA LÌ DIPENDE IL BANCO SU ANDROID 17 (`Diciassette`): `ui-test-junit4` 1.13
 # si porta dietro Espresso 3.7.0, mentre la 1.12 si fermava alla 3.5.0, che chiede ad
 # Android un `InputManager.getInstance()` che sulla 37 non esiste più e fa fallire
-# quasi tutte le prove. Chi torna al BOM stabile prima che arrivi una 1.13 stabile deve
-# riportare il banco sulla 36 (`app/src/test/resources/robolectric.properties`).
+# quasi tutte le prove. Chi torna al BOM stabile prima che arrivi una 1.13 stabile non
+# può portare il banco sulla 37 (`app/src/test/resources/robolectric.properties`).
 # material3 non ha più una versione sua: le API Expressive (MaterialExpressiveTheme,
 # MotionScheme) sono pubbliche solo sulla linea 1.5.0, e il BOM alpha porta già la
 # 1.5.0-beta01, la stessa che il catalogo fissava a mano fra la 6.22 e la 6.23.
