@@ -1081,7 +1081,9 @@ def check(path):
             dispatch = '''(field, shift) => field.dispatchEvent(new KeyboardEvent('keydown', {
                 key: '<', code: 'IntlBackslash', metaKey: true, ctrlKey: true, altKey: true,
                 shiftKey: shift, bubbles: true, cancelable: true}))'''
-            for code, shown in italian + [('KeyC', 'C')]:
+            # The digits write ⌘0 to ⌘9 (his request of 2026-10-16).
+            digits = [('Digit' + digit, digit) for digit in '0123456789']
+            for code, shown in italian + [('KeyC', 'C')] + digits:
                 for shift, prefix in [('', '⌘'), ('Shift+', '⌘⇧')]:
                     fill_plain(field, 'vedi ')
                     field.press('End')

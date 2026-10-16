@@ -618,7 +618,8 @@
      and the key (his request of the same day). The key is read from its place, because ⌥ changes
      what event.key reports: the letters in capitals, and the other keys he asked for as an
      Italian ISO keyboard prints them. The key left of 1 is \, and macOS can report it as
-     IntlBackslash on an ISO keyboard, so both names write it. */
+     IntlBackslash on an ISO keyboard, so both names write it. The digits write ⌘0 to ⌘9 (his
+     request of 2026-10-16). */
   const SHORTCUT_KEYS = {
     Quote: "À", BracketLeft: "È", Equal: "Ì", Semicolon: "Ò", Backslash: "Ù",
     Minus: "'", BracketRight: "+", Backquote: "\\", IntlBackslash: "\\",
@@ -626,7 +627,7 @@
   };
   function shortcutText(event) {
     if (!event.metaKey || !event.ctrlKey || !event.altKey) return null;
-    const key = /^Key([A-Z])$/.exec(event.code)?.[1] || SHORTCUT_KEYS[event.code];
+    const key = /^(?:Key|Digit)([A-Z0-9])$/.exec(event.code)?.[1] || SHORTCUT_KEYS[event.code];
     return key ? (event.shiftKey ? "⌘⇧" : "⌘") + key : null;
   }
   function keySymbol(event) {

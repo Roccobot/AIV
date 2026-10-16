@@ -220,7 +220,8 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
       spazio normale, così il testo che segue è semplice (richiesta di Rocco del 2026-10-14, scelta
       B1): `⌃⌘⌥C` scrive `⌘C`. Valgono le lettere, maiuscole, e i tasti che ha chiesto lo stesso
       giorno, come li stampa una tastiera italiana ISO: `À`, `È`, `Ì`, `Ò`, `Ù`, `'`, `+`, `\`,
-      `,`, `.` e `-`. Con `⇧` in più la scorciatoia diventa `⌘⇧` e il tasto (`⌃⌘⌥⇧C` scrive
+      `,`, `.` e `-`; dal 2026-10-16 anche le cifre, da `⌃⌘⌥0` (`⌘0`) a `⌃⌘⌥9` (`⌘9`), su
+      sua richiesta. Con `⇧` in più la scorciatoia diventa `⌘⇧` e il tasto (`⌃⌘⌥⇧C` scrive
       `⌘⇧C`). Come i simboli, vale nei campi con la formattazione, e il tasto si legge dalla sua
       posizione, perché `⌥` cambia il carattere (`shortcutText` e `SHORTCUT_KEYS` in
       `feedback-format.js`). Il tasto a sinistra dell'1 scrive `\` con tutti e due i nomi che macOS
