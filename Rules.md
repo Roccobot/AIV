@@ -809,6 +809,11 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   due grafie tornano nella stessa pagina.
 - ⚠️ **Le chiavi delle stringhe non si toccano** (`settings_colour`, `facts_colour_grey`), e le
   altre lingue non c'entrano.
+- ⚠️⚠️ **L'indonesiano si traduce in `values-id`, e la build lo copia anche in `values-in`** (6.29,
+  scelta Q1 dell'utente): Android cerca l'indonesiano col codice vecchio `in`, e fino alla 6.28 un
+  telefono in indonesiano vedeva l'app in inglese. La copia la fa il compito `indonesianIn` di
+  `app/build.gradle.kts`, e `IndonesianoTest` legge una stringa con tutti e due i codici. La
+  cartella `values-in` non si crea a mano: sarebbe una seconda copia da tenere allineata.
 
 ## 🧪 Quando si scrive una prova, e quando no
 

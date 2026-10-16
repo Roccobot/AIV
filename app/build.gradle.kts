@@ -339,6 +339,38 @@ tasks.withType<Test>().configureEach {
     inputs.file(rootProject.file(".github/workflows/release.yml")).withPathSensitivity(PathSensitivity.RELATIVE)
 }
 
+/*
+ * ⚠️ INDONESIAN ANSWERS TO BOTH ITS CODES (6.29, the user's choice Q1). The translations live in
+ * `values-id`, the only folder in the source; Android matches Indonesian with the old code `in`,
+ * so with `values-id` alone a phone in Indonesian showed the app in English (measured with
+ * `IndonesianoTest`: both codes answered `Settings`), while AndroidX keeps its own strings in
+ * `values-in`. The build copies the folder under the old name too, as a generated resource folder
+ * of every variant: one folder to translate, two names in the APK.
+ */
+abstract class IndonesianIn : DefaultTask() {
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val source: DirectoryProperty
+
+    @get:OutputDirectory
+    abstract val output: DirectoryProperty
+
+    @TaskAction
+    fun copy() {
+        val folder = output.get().asFile
+        folder.deleteRecursively()
+        source.get().asFile.copyRecursively(folder.resolve("values-in"))
+    }
+}
+val indonesianIn = tasks.register<IndonesianIn>("indonesianIn") {
+    source.set(layout.projectDirectory.dir("src/main/res/values-id"))
+}
+androidComponents {
+    onVariants { variant ->
+        variant.sources.res?.addGeneratedSourceDirectory(indonesianIn, IndonesianIn::output)
+    }
+}
+
 if (providers.environmentVariable("CI").isPresent) {
     tasks.withType<Test>().configureEach {
         testLogging { events(org.gradle.api.tasks.testing.logging.TestLogEvent.STARTED) }
