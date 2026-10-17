@@ -1131,7 +1131,13 @@ private fun Hub(
     val picker = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia()
     ) { picked -> picked?.let(onOpen) }
-    val voci = hubEntries(
+    // Le voci della pillola e quelle del menu angolare sono le stesse, e cambia solo `steady`: un
+    // argomento dimenticato in una delle due chiamate darebbe due menu diversi.
+    val onPickImage = {
+        picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+    }
+    @Composable
+    fun entries(steady: Boolean) = hubEntries(
         view = view,
         granted = granted,
         hiddenCount = hiddenCount,
@@ -1141,31 +1147,14 @@ private fun Hub(
         onView = onView,
         onSearch = onSearch,
         onAddress = { asking = true },
-        onPickImage = {
-            picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-        },
-        onNewFolder = onNewFolder,
-        onBin = onBin,
-        onSettings = onSettings
-    )
-    val angolo = if (LocalPillLook.current.corner) hubEntries(
-        view = view,
-        granted = granted,
-        hiddenCount = hiddenCount,
-        peeking = peeking,
-        onPeek = onPeek,
-        onPeekList = onPeekList,
-        onView = onView,
-        onSearch = onSearch,
-        onAddress = { asking = true },
-        onPickImage = {
-            picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-        },
+        onPickImage = onPickImage,
         onNewFolder = onNewFolder,
         onBin = onBin,
         onSettings = onSettings,
-        steady = true
-    ) else null
+        steady = steady
+    )
+    val voci = entries(steady = false)
+    val angolo = if (LocalPillLook.current.corner) entries(steady = true) else null
 
     /*
      * Al posto del FAB può esserci la pillola (richiesta dell'utente): le stesse voci, nello
