@@ -205,6 +205,21 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
     `plainAfterCode` la sposta fuori all'evento `input`. Un codice vuoto non si scrive e non si
     rilegge: prima diventava due apici inversi, e al caricamento tornava come una pastiglia vuota
     che non si cancellava.
+  - **Dopo uno stile su una selezione il cursore torna allo stile di partenza** (richieste di
+    Rocco del 2026-10-16 e del 2026-10-17): `Grassetto`, `Corsivo`, `Codice` e `Link`, e i tasti
+    che li tolgono, lasciano la selezione per mezzo secondo, il tempo di un secondo stile sulla
+    stessa parola; poi il cursore va dopo l'ultimo carattere selezionato, con lo stile che il testo
+    aveva lì prima del primo tasto. Codice su testo normale ridà testo normale; corsivo su un testo
+    in grassetto ridà il solo grassetto. Una lettera scritta o un cursore spostato in quel mezzo
+    secondo, e `⌘Z`, lasciano tutto com'è. Senza selezione non cambia niente: lo stile vale per
+    quello che si scrive dopo. Lo fa `settle`, in `feedback-format.js`: grassetto e corsivo sono lo
+    stato di scrittura del browser, e lì si rimettono come in partenza; un cursore finito dentro un
+    codice in cui non era lo lascia come `Codice` a cursore fermo, e il punto in cui resta esce dal
+    grassetto e dal corsivo che non c'erano (`leaveStyles`). Chromium scrive dentro l'elemento che
+    precede il cursore, un grassetto o un codice, e `plainAfterCode` sposta fuori le lettere; il
+    link non chiede niente, perché la lettera scritta subito dopo un link ne esce. ⚠️ Misurato in
+    Chromium: Safari e Firefox non si provano da qui. Lo presidia
+    `tools/feedback-interactive-check.py`.
   - **I simboli dei tasti del Mac si scrivono da tastiera e dalla fila sopra Altro** (richieste
     di Rocco del 2026-10-13, la fila dal suo mockup, i tasti come li ha riassegnati la sera): nell'ordine
     della fila, `⌘⇧C` scrive `⌘`; `⌘⇧M` e `⌘⇧S` `⇧`; `⌘⇧O` e `⌘⇧A` `⌥`; `⌘⇧Ì` `⌃`; `⌘⇧Ù` `→`;
@@ -220,7 +235,8 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
       spazio normale, così il testo che segue è semplice (richiesta di Rocco del 2026-10-14, scelta
       B1): `⌃⌘⌥C` scrive `⌘C`. Valgono le lettere, maiuscole, e i tasti che ha chiesto lo stesso
       giorno, come li stampa una tastiera italiana ISO: `À`, `È`, `Ì`, `Ò`, `Ù`, `'`, `+`, `\`,
-      `,`, `.` e `-`. Con `⇧` in più la scorciatoia diventa `⌘⇧` e il tasto (`⌃⌘⌥⇧C` scrive
+      `,`, `.` e `-`; dal 2026-10-16 anche le cifre, da `⌃⌘⌥0` (`⌘0`) a `⌃⌘⌥9` (`⌘9`), su
+      sua richiesta. Con `⇧` in più la scorciatoia diventa `⌘⇧` e il tasto (`⌃⌘⌥⇧C` scrive
       `⌘⇧C`). Come i simboli, vale nei campi con la formattazione, e il tasto si legge dalla sua
       posizione, perché `⌥` cambia il carattere (`shortcutText` e `SHORTCUT_KEYS` in
       `feedback-format.js`). Il tasto a sinistra dell'1 scrive `\` con tutti e due i nomi che macOS
@@ -229,6 +245,10 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
       seguito da uno spazio normale, come una scorciatoia `⌃⌘⌥` (sua richiesta del 2026-10-16). Il
       tasto non è nella fila sopra Altro, che segue il suo mockup (`spaceSymbol` in
       `feedback-format.js`).
+    - `⌘⌥⇥` scrive `⇥`, il simbolo del tasto Tab (sua richiesta e sua scelta del 2026-10-16), fuori
+      dalla fila come `␣` (`isTabSymbol`). ⚠️ `⌘⇧⇥` era la prima richiesta, ma è di macOS (le app al
+      contrario) e la pagina non la riceve. Se anche `⌘⌥⇥` apre il selettore delle app, la prende il
+      sistema, e la combinazione va cambiata.
     - La fila vive sopra il campo di Altro, solo su desktop (sotto i 720 px è nascosta): dieci tasti
       quadrati, che prendono la larghezza dalla fila (34,6 px nella colonna laterale di una
       finestra larga), per sua richiesta. La `×` è più grande del 20% (28,8 px) e Roboto la disegna
@@ -440,18 +460,26 @@ Il JSON usa `schema: 1`, `project: AIV`. La bozza contiene:
 | `updated`, `completed` | Data del salvataggio e della preparazione del giro |
 
 `images` è il nome storico anche per gli ZIP: non cambiarlo senza migrazione.
-**Al cambio di giro la bozza si alleggerisce** (dal 2026-10-03, scelta dell'utente): restano
-telefono, tablet, le risposte alle prove ancora in pagina, le etichette ancora aperte e le
-decisioni; escono `Altro` coi suoi allegati, la conferma della versione installata, e le risposte
-alle prove chiuse coi loro allegati. Prima si accumulavano: un JSON del 3.42 conteneva 76 risposte
-dal giro 3.13 in poi, e importato sembrava vuoto. L'importazione dice quante risposte riguardano
-prove non più in pagina.
+**Al cambio di giro la bozza riparte da capo** (dal 2026-10-16, scelta B1 di Rocco): restano
+telefono, tablet e decisioni; escono `Altro` coi suoi allegati, la conferma della versione
+installata, e **tutte** le risposte e le revisioni delle etichette, comprese quelle delle prove
+riproposte. Il giro inviato le ha già consegnate, quindi una prova che torna dopo una correzione
+riparte da `Non provato`. Dal 2026-10-03 al 2026-10-16 restavano le risposte alle prove ancora in
+pagina: la pagina 2.10 di Aomidori ha riproposto due prove col loro identificativo, e Rocco le ha
+ritrovate già su `Non approvato`, coi commenti del giro 2.01. Prima del 2026-10-03 si accumulavano
+tutte: un JSON del 3.42 conteneva 76 risposte dal giro 3.13 in poi, e importato sembrava vuoto.
+L'importazione dice quante risposte riguardano prove non più in pagina. Lo presidia
+`tools/feedback-interactive-check.py`, con una bozza di un giro inviato che ha una risposta su una
+prova ancora in pagina: col codice di prima fallisce.
 ⚠️⚠️ **Un DF cumulativo conserva `Altro` del giro che prosegue** (regola di Rocco del 2026-10-12,
 `Roccobot.md` § '🚪 Il lavoro nuovo comincia dopo l'invio del giro precedente': con la deroga la
 versione nuova si rilascia, e il DF cumulativo va in scena subito dopo la release, mentre lui sta
 ancora compilando il giro vecchio). La fonte lo dichiara con una riga sua sotto il titolo,
 `Prosegue il giro **5.71**.`, che il generatore passa alla pagina come `continues`: una bozza di quel
-giro tiene `Altro` e i suoi allegati, e perde solo la conferma della versione installata. Il
+giro tiene `Altro` coi suoi allegati e le risposte alle prove ancora in pagina, e perde solo la
+conferma della versione installata. ⚠️⚠️ **La riga vale solo finché il giro non è inviato**: il DF
+che esce dopo l'invio la toglie, o la pagina terrà `Altro` e le risposte di un giro già consegnato
+(è successo con la 2.10 di Aomidori, che l'aveva copiata dal DF precedente). Il
 generatore si ferma se il giro nominato è quello in corso o non ha più prove in pagina. Fino a quel
 giorno il DF cumulativo svuotava `Altro` come ogni cambio di giro. Lo presidia
 `tools/feedback-interactive-check.py`, con una bozza del giro che prosegue.

@@ -347,6 +347,9 @@
     inline(md, editor.box);
     editor.lastMarkdown = md;
     editor.range = null;
+    // An undo or a change from outside drops the caret a style key was about to leave.
+    clearTimeout(editor.settling?.timer);
+    editor.settling = null;
   }
   // One step back (-1) or forward (+1): the text of that step, and the selection around it.
   function travel(editor, step) {
@@ -582,6 +585,66 @@
       choose(caret);
     }
   }
+  /* A style key on a selection keeps it for half a second, time for a second style on the same
+     text, and then leaves the caret after it with the style the text had there before the first
+     key (his requests of 2026-10-16 and 2026-10-17): code on plain text gives plain text back,
+     italic on bold gives bold alone. A caret moved or a letter typed in that time cancels it. Bold
+     and italic are the browser's typing state, set there to the starting style. The browser types
+     into the element before the caret, a code or a bold, so a caret left in a code it did not
+     start in leaves it like the key at a caret does, and the gap goes out of the bold and italic
+     it did not start in, or the letters moved into it would still be in them. A link needs
+     nothing: typing after one goes outside it. */
+  const SETTLE_MS = 500;
+  const TYPING_STYLES = ["B", "STRONG", "I", "EM"];
+  // Read as markdown() reads it: the nearest element that says something about it wins.
+  function stylesAt(editor, point) {
+    const element = point.nodeType === Node.ELEMENT_NODE ? point : point.parentElement;
+    const said = test => {
+      for (let up = element; up && up !== editor.box; up = up.parentElement) {
+        const value = test(up);
+        if (value !== undefined) return value;
+      }
+      return false;
+    };
+    return {bold: said(weightOf), italic: said(slantOf), code: Boolean(codeAt(editor, point))};
+  }
+  function leaveStyles(gap, origin) {
+    const kept = name => name === "B" || name === "STRONG" ? origin.bold : origin.italic;
+    for (let parent = gap.parentElement; TYPING_STYLES.includes(parent?.nodeName) && !kept(parent.nodeName); parent = gap.parentElement) {
+      const tail = document.createRange();
+      tail.setStartAfter(gap);
+      tail.setEndAfter(parent.lastChild);
+      const rest = tail.extractContents();
+      parent.after(gap);
+      if (rest.textContent) {
+        const piece = parent.cloneNode(false);
+        piece.append(rest);
+        gap.after(piece);
+      }
+    }
+    // Moving the gap took the caret out of it.
+    const caret = document.createRange();
+    caret.setStart(gap, 0);
+    choose(caret);
+  }
+  function settle(editor) {
+    const pending = editor.settling;
+    editor.settling = null;
+    const now = selectionOf(editor);
+    if (document.activeElement !== editor.box || !now || now.start !== pending.chosen.start || now.end !== pending.chosen.end) return;
+    const selected = window.getSelection();
+    selected.collapseToEnd();
+    const caret = selected.getRangeAt(0);
+    const code = codeAt(editor, caret.startContainer);
+    if (code && !pending.origin.code) {
+      leaveCode(editor, code, caret);
+      leaveStyles(editor.plain.gap, pending.origin);
+    }
+    for (const command of ["bold", "italic"]) {
+      if (browserState(command) !== pending.origin[command]) browserEdit(command);
+    }
+    showPressed(editor, window.getSelection().getRangeAt(0));
+  }
   function showPressed(editor, range) {
     for (const kind of ["bold", "italic"]) {
       editor.box.parentElement.querySelector('[data-format="' + kind + '"]').setAttribute("aria-pressed", String(browserState(kind)));
@@ -618,7 +681,8 @@
      and the key (his request of the same day). The key is read from its place, because ⌥ changes
      what event.key reports: the letters in capitals, and the other keys he asked for as an
      Italian ISO keyboard prints them. The key left of 1 is \, and macOS can report it as
-     IntlBackslash on an ISO keyboard, so both names write it. */
+     IntlBackslash on an ISO keyboard, so both names write it. The digits write ⌘0 to ⌘9 (his
+     request of 2026-10-16). */
   const SHORTCUT_KEYS = {
     Quote: "À", BracketLeft: "È", Equal: "Ì", Semicolon: "Ò", Backslash: "Ù",
     Minus: "'", BracketRight: "+", Backquote: "\\", IntlBackslash: "\\",
@@ -626,7 +690,7 @@
   };
   function shortcutText(event) {
     if (!event.metaKey || !event.ctrlKey || !event.altKey) return null;
-    const key = /^Key([A-Z])$/.exec(event.code)?.[1] || SHORTCUT_KEYS[event.code];
+    const key = /^(?:Key|Digit)([A-Z0-9])$/.exec(event.code)?.[1] || SHORTCUT_KEYS[event.code];
     return key ? (event.shiftKey ? "⌘⇧" : "⌘") + key : null;
   }
   function keySymbol(event) {
@@ -641,10 +705,24 @@
     if (event.code !== "Space" || !event.metaKey || !event.shiftKey || event.altKey) return null;
     return event.ctrlKey ? "code" : "text";
   }
+  /* The tab key's symbol, ⇥, as text (his request of 2026-10-16): ⌘⌥⇥, his choice, since ⌘⇧⇥ is
+     macOS's own and never reaches the page. Out of the row over Altro, like ␣. */
+  const TAB_SYMBOL = "⇥";
+  function isTabSymbol(event) {
+    return event.code === "Tab" && event.metaKey && event.altKey && !event.ctrlKey && !event.shiftKey;
+  }
   function edit(editor, kind) {
     if (editor.area.disabled) return;
     editor.box.focus({preventScroll: true});
     const range = selection(editor);
+    // Asked before the style changes the range: only a selection gives the caret after it, and
+    // the starting style is the one of the first key in a row.
+    const selecting = !range.collapsed;
+    const now = selectionOf(editor), held = editor.settling;
+    const same = held && now && now.start === held.chosen.start && now.end === held.chosen.end;
+    const origin = selecting ? (same ? held.origin : stylesAt(editor, range.endContainer)) : null;
+    clearTimeout(held?.timer);
+    editor.settling = null;
     editor.before = selectionOf(editor);
     if (kind === "link") {
       const selected = range.toString();
@@ -682,7 +760,8 @@
         for (const code of [start, end]) code?.replaceWith(...code.childNodes);
       } else {
         // The selection's bold and italic go on the new code: replacing the text emptied its <b>.
-        let made = node("code", range.toString() || "codice");
+        const code = node("code", range.toString() || "codice");
+        let made = code;
         for (const [command, tag] of [["italic", "em"], ["bold", "strong"]]) {
           if (!browserState(command)) continue;
           const wrap = node(tag);
@@ -690,9 +769,16 @@
           made = wrap;
         }
         insertNodes(editor, [made]);
+        // Like the other styles, the selection is on the new code, and settle takes the caret from there.
+        if (selecting) {
+          const chosen = document.createRange();
+          chosen.selectNodeContents(code);
+          choose(chosen);
+        }
       }
     } else browserEdit(kind === "bold" ? "bold" : "italic");
     sync(editor, "format");
+    if (selecting) editor.settling = {origin, chosen: selectionOf(editor), timer: setTimeout(() => settle(editor), SETTLE_MS)};
     if (window.getSelection().rangeCount) showPressed(editor, window.getSelection().getRangeAt(0));
   }
   for (const [index, area] of Array.from(document.querySelectorAll("textarea:not([readonly])")).entries()) {
@@ -734,7 +820,7 @@
     }
     actions.append(toolbar);
     wrapper.append(area, box, actions);
-    const editor = {area, box, range: null, lastMarkdown: null, history: fresh(area.value), before: null, plain: null};
+    const editor = {area, box, range: null, lastMarkdown: null, history: fresh(area.value), before: null, plain: null, settling: null};
     editors.push(editor);
     for (const [kind, title, key] of [["bold", "Grassetto", "B"], ["italic", "Corsivo", "I"], ["code", "Codice", "M"], ["link", "Link", "K"]]) {
       const button = node("button");
@@ -856,6 +942,11 @@
       if ((event.metaKey || event.ctrlKey) && !event.altKey && (key === "z" || key === "y" && !event.shiftKey)) {
         event.preventDefault();
         travel(editor, key === "y" || event.shiftKey ? 1 : -1);
+        return;
+      }
+      if (isTabSymbol(event)) {
+        event.preventDefault();
+        if (!editor.area.disabled) document.execCommand("insertText", false, TAB_SYMBOL);
         return;
       }
       const space = spaceSymbol(event);

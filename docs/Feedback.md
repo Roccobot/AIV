@@ -108,6 +108,9 @@ In basso a destra: Meno recenti
 ### e-folder_pin_home · La voce nella pressione lunga su una cartella
 Aggiungi alla schermata Home
 
+### e-folder_create_fail · L'avviso quando una cartella nuova non si può creare
+Non è stato possibile creare la cartella
+
 ## Aggiornamenti recenti
 
 | Funzione | Versione | Stato | Riscontro dell'utente | Azione successiva |

@@ -1048,6 +1048,77 @@ def check_style_undo_and_code(formatting):
     expect(stored).to_have_value('x `abcq`')
 
 
+def check_style_keeps_selection(formatting, destination):
+    """A style key on a selection keeps it for half a second, then leaves the caret after it with
+    the style the text had before the first key."""
+    from playwright.sync_api import expect
+    card = formatting.locator('.test').first
+    field = card.locator('.rich-editor')
+    stored = card.locator('.comment')
+    # A style key on a selection keeps it for half a second, time for a second style, and
+    # then leaves the caret after it with the style the text had there before the first key
+    # (his requests of 2026-10-16 and 2026-10-17). Chromium types into the bold or the code
+    # before the caret, which is what the check measures.
+    def settled():
+        formatting.wait_for_timeout(700)
+    for key, mark in [('Meta+b', '**'), ('Meta+i', '*'), ('Meta+m', '`')]:
+        fill_plain(field, 'prima abc dopo')
+        select(field,6,9)
+        field.press(key)
+        assert formatting.evaluate('getSelection().toString()') == 'abc', 'Per mezzo secondo la selezione resta.'
+        settled()
+        assert formatting.evaluate('getSelection().isCollapsed'), 'Dopo ' + key + ' il cursore va dopo la selezione.'
+        field.press_sequentially('Z')
+        expect(stored).to_have_value('prima ' + mark + 'abc' + mark + 'Z dopo')
+    fill_plain(field, 'prima abc dopo')
+    select(field,6,9)
+    formatting.once('dialog',lambda dialog:dialog.accept(destination))
+    field.press('Meta+k')
+    settled()
+    field.press_sequentially('Z')
+    expect(stored).to_have_value('prima [abc]('+destination+')Z dopo')
+    fill_plain(field, 'prima abc dopo')
+    select(field,6,9)
+    card.locator('[data-format="bold"]').click()
+    settled()
+    field.press_sequentially('Z')
+    expect(stored).to_have_value('prima **abc**Z dopo')
+    # Two styles in a row on the same selection, and the caret back to plain text.
+    fill_plain(field, 'prima abc dopo')
+    select(field,6,9)
+    field.press('Meta+b')
+    field.press('Meta+i')
+    settled()
+    field.press_sequentially('Z')
+    expect(stored).to_have_value('prima ***abc***Z dopo')
+    # The starting style comes back: italic or code on bold leaves bold alone.
+    for key, styled in [('Meta+i', '***abc***'), ('Meta+m', '**`abc`**')]:
+        fill_plain(field, 'prima abc dopo')
+        select(field,6,9)
+        field.press('Meta+b')
+        settled()
+        select(field,6,9)
+        field.press(key)
+        settled()
+        field.press_sequentially('Z')
+        expect(stored).to_have_value('prima ' + styled + '**Z** dopo')
+    # A letter typed in the half second replaces the selection, and the caret stays where
+    # the typing left it.
+    fill_plain(field, 'prima abc dopo')
+    select(field,6,9)
+    field.press('Meta+b')
+    field.press_sequentially('Q')
+    settled()
+    field.press_sequentially('R')
+    expect(stored).to_have_value('prima **QR** dopo')
+    # A caret without a selection keeps the old way: the style is the typing state.
+    fill_plain(field, 'abc')
+    select(field,3,3)
+    field.press('Meta+b')
+    field.press_sequentially('Z')
+    expect(stored).to_have_value('abc**Z**')
+
+
 def check_symbol_shortcuts(formatting):
     """The keyboard shortcuts that write the Mac's key symbols and the outcome emoji, as text or as
     inline code, read by the place of the key on an Italian keyboard."""
@@ -1090,6 +1161,11 @@ def check_symbol_shortcuts(formatting):
     field.press('Control+Meta+Shift+Space')
     field.press('x')
     expect(stored).to_have_value('premi `␣` x')
+    # The tab key's symbol (his request of the same day): ⌘⌥⇥ writes ⇥ as text.
+    fill_plain(field, 'tasto ')
+    field.press('End')
+    field.press('Meta+Alt+Tab')
+    expect(stored).to_have_value('tasto ⇥')
     # The other keys of an Italian ISO keyboard he asked for, read by place, and with ⇧ the
     # shortcut gets ⌘⇧ (his requests of the same day). The key left of 1 is \ under both
     # of the names macOS can report for it.
@@ -1101,7 +1177,9 @@ def check_symbol_shortcuts(formatting):
     dispatch = '''(field, shift) => field.dispatchEvent(new KeyboardEvent('keydown', {
         key: '<', code: 'IntlBackslash', metaKey: true, ctrlKey: true, altKey: true,
         shiftKey: shift, bubbles: true, cancelable: true}))'''
-    for code, shown in italian + [('KeyC', 'C')]:
+    # The digits write ⌘0 to ⌘9 (his request of 2026-10-16).
+    digits = [('Digit' + digit, digit) for digit in '0123456789']
+    for code, shown in italian + [('KeyC', 'C')] + digits:
         for shift, prefix in [('', '⌘'), ('Shift+', '⌘⇧')]:
             fill_plain(field, 'vedi ')
             field.press('End')
@@ -1257,6 +1335,7 @@ def check_formatting(browser, url, data, errors, temporary):
     check_bold_italic_and_links(formatting, destination, data, temporary)
     check_line_breaks_and_paste(formatting, destination)
     check_style_undo_and_code(formatting)
+    check_style_keeps_selection(formatting, destination)
     check_symbol_shortcuts(formatting)
     check_symbol_row(formatting)
     check_editor_layout(formatting)
@@ -1542,7 +1621,9 @@ def check_desktop_intro(page, data):
     expect(play).to_have_text('Scarica e installa AIV Play ' + data['version'])
     expect(play).to_have_attribute(
         'href', f"https://github.com/Roccobot/AIV/releases/download/v{data['version']}/AIV-Play-{data['version']}.apk")
-    assert page.evaluate("document.querySelector('.feedback-primary').firstElementChild.firstElementChild.firstElementChild.classList.contains('test')")
+    # The tests come first in the main column. Since 6.29 (H13) their section opens with a
+    # heading for screen readers only, so the first card is the first one of the list.
+    assert page.evaluate("document.querySelector('.feedback-primary').firstElementChild.matches('section.tests') && document.querySelector('#tests').firstElementChild.classList.contains('test')")
     assert page.locator('text=Prove sui dispositivi').count() == 0 and page.locator('#answered').count() == 0
     # The title starts with the icon of the theme in use, as in his mockup of 2026-10-10:
     # a square 1.1167em wide, 1.5px left of the lines below, 24.5px from the ink of the F,
@@ -2185,6 +2266,39 @@ PUT_DRAFT = """async draft => {
 }"""
 
 
+# Reads the page's saved draft: decisions, the answered tests, the revised labels, and the size of
+# every attached file next to the size it declares.
+GET_DRAFT = """async () => {
+    const db = await new Promise((resolve, reject) => {
+        const request = indexedDB.open('aiv-feedback', 1);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+    const draft = await new Promise((resolve, reject) => {
+        const request = db.transaction('drafts').objectStore('drafts').get('current');
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+    db.close();
+    // The base64 of an old draft is stored as real files, with their bytes.
+    const files = Object.values(draft.entries).flatMap((value) => value.images);
+    const sizes = await Promise.all(files.map((file) =>
+        file.blob instanceof Blob && !('data' in file) ? file.blob.size : -1));
+    return {decisions: draft.decisions, sizes, expected: files.map((file) => file.size),
+            // Saving writes an empty entry for every test: only answers count.
+            entries: Object.keys(draft.entries).filter((id) => {
+                const value = draft.entries[id];
+                return value.status || value.comment || value.images.length;
+            }),
+            labels: Object.keys(draft.labels).filter((id) => draft.labels[id].revision)};
+}"""
+
+
+def read_draft(page):
+    """The draft the page saved, as [GET_DRAFT] reads it."""
+    return page.evaluate(GET_DRAFT)
+
+
 def reopen_with(page, draft):
     """The page reopened over a draft saved earlier."""
     from playwright.sync_api import expect
@@ -2197,14 +2311,22 @@ def check_cumulative_round(migration, legacy, data):
     """A cumulative document keeps Altro of the round it continues, and of a page in the middle of
     the series, and resets only 'installed'."""
     from playwright.sync_api import expect
-    # A cumulative document (the user's rule of 2026-10-12) keeps the free field of the
-    # round it continues, which he has not sent yet; only 'installed' resets.
+    # A cumulative document (the user's rule of 2026-10-12) goes on with a round he has not
+    # sent yet: a draft of that round, or of any page of the series up to this one, keeps
+    # Altro and the answers to tests still listed; only 'installed' resets.
     if not data.get('continues'):
         return
     reopen_with(migration, dict(legacy, version=data['continues'], installed=data['continues'],
                                 notes='Altro del giro che prosegue'))
     expect(migration.locator('#notes')).to_have_value('Altro del giro che prosegue')
     expect(migration.locator('#installed-confirm')).not_to_be_checked()
+    expect(migration.locator('.test').first.locator('.image-list img')).to_have_count(3)
+    migration.keyboard.press('Control+s')
+    expect(migration.locator('#saved')).to_contain_text('Salvato in questo browser')
+    going_on = read_draft(migration)
+    listed_ids = {item['id'] for item in data['items']}
+    assert going_on['entries'] and set(going_on['entries']) <= listed_ids, 'Risposte del giro che prosegue: ' + str(going_on['entries'])
+    assert 'e-chiusa' not in going_on['labels'], 'Etichetta di un giro chiuso rimasta.'
     # The round can go on for more releases in a row (6.20, 6.21 and 6.22, the user's
     # go-ahead of 2026-10-15): a draft saved on a page in the middle of the series is
     # the same round, and keeps Altro too. Until 6.22 the page kept it only for a
@@ -2259,41 +2381,29 @@ def check_draft_migration(browser, url, data, errors, exported, exported_files):
     # The page asks no decisions, but an old draft's answers survive a save through the page.
     migration.keyboard.press('Control+s')
     expect(migration.locator('#saved')).to_contain_text('Salvato in questo browser')
-    kept_decisions = migration.evaluate("""async () => {
-        const db = await new Promise((resolve, reject) => {
-            const request = indexedDB.open('aiv-feedback', 1);
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
-        });
-        const draft = await new Promise((resolve, reject) => {
-            const request = db.transaction('drafts').objectStore('drafts').get('current');
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
-        });
-        db.close();
-        // The base64 of the old draft is now stored as real files, with their bytes.
-        const files = Object.values(draft.entries).flatMap((value) => value.images);
-        const sizes = await Promise.all(files.map((file) =>
-            file.blob instanceof Blob && !('data' in file) ? file.blob.size : -1));
-        return {decisions: draft.decisions, sizes, expected: files.map((file) => file.size),
-                entries: Object.keys(draft.entries), labels: Object.keys(draft.labels)};
-    }""")
+    kept_decisions = read_draft(migration)
     assert kept_decisions['decisions'] == legacy['decisions'], 'Decisioni della bozza precedente perse.'
-    # A new round drops the answers and label revisions of tests no longer on the page.
-    listed_ids = {item['id'] for item in data['items']}
-    assert kept_decisions['entries'] and set(kept_decisions['entries']) <= listed_ids, 'Risposte di prove chiuse rimaste: ' + str(kept_decisions['entries'])
-    assert 'e-chiusa' not in kept_decisions['labels'], 'Etichetta di un giro chiuso rimasta.'
-    assert kept_decisions['sizes'] and kept_decisions['sizes'] == kept_decisions['expected'], 'Allegati salvati come testo: ' + str(kept_decisions)
+    # A new round that does not go on with the previous one starts from scratch (the user's
+    # choice B1 of 2026-10-16): the round he sent delivered every answer and label revision,
+    # so a test proposed again after a fix starts from Non provato. Until then the answers to
+    # tests still listed stayed, and Aomidori's 2.10 page showed the 2.01 verdicts again.
+    assert not kept_decisions['entries'], 'Risposte di un giro inviato rimaste: ' + str(kept_decisions['entries'])
+    assert not kept_decisions['labels'], 'Etichette di un giro inviato rimaste: ' + str(kept_decisions['labels'])
     expect(migration.locator('#installed-confirm')).not_to_be_checked()
     expect(migration.locator('.intro-actions a')).to_contain_text(data['version'])
-    expect(migration.locator('.test').first.locator('.image-list img')).to_have_count(3)
+    expect(migration.locator('.test').first.locator('.image-list img')).to_have_count(0)
     for item in data['items']:
-        if item['id'] == first_id:
-            continue
-        if item['version'] == data['version']:
-            expect(migration.locator(f'[data-id="{item["id"]}"] .item-state')).to_have_count(0)
+        expect(migration.locator(f'[data-id="{item["id"]}"] .item-state')).to_have_count(0)
     # A closed round's free field goes with it.
     expect(migration.locator('#notes')).to_have_value('')
+    # A draft of this same round keeps its answers, and its base64 becomes real files.
+    reopen_with(migration, dict(legacy, version=data['version'], installed=data['version']))
+    expect(migration.locator('.test').first.locator('.image-list img')).to_have_count(3)
+    migration.keyboard.press('Control+s')
+    expect(migration.locator('#saved')).to_contain_text('Salvato in questo browser')
+    same_round = read_draft(migration)
+    assert first_id in same_round['entries'], 'Risposte del giro in corso perse: ' + str(same_round['entries'])
+    assert same_round['sizes'] and same_round['sizes'] == same_round['expected'], 'Allegati salvati come testo: ' + str(same_round)
     check_cumulative_round(migration, legacy, data)
     migration_context.close()
 
