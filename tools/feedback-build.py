@@ -37,17 +37,64 @@ if tuple(int(x) for x in version.split('.')) > tuple(int(x) for x in app_version
     raise SystemExit(f'Il giro {version} di docs/Feedback.md supera versionName {app_version}.')
 identifiers = re.findall(r'^\| (\d+\.\d+-\d+) \|', md, re.M)
 items = []
+# The words that may not end a line (Legatura, the user's note on the 2.01 round of Aomidori, the
+# same here: a word of one or two letters left alone at the end of a line, `a`, `di`, `il`, or a
+# number apart from its unit): the space after them becomes a non-breaking one. Only plain text is
+# bound, never code or a link. Up to the end of the run too: `il` before a `code` span is bound to it.
+SHORT_WORD = re.compile(r"(?<![\w'’])(\w{1,2}) (?=\S|\Z)")
+UNIT = re.compile(r'(\d) (?=(?:pt|px|ms|s|min|h|%|KB|MB|GB|mm|cm|m|km|kg|g)\b)')
+
+
+def bind(text):
+    """The plain text with its short words and its numbers tied to what follows."""
+    text = UNIT.sub('\\1\u00a0', text)
+    # Twice, for a run of short words (`e a`): a match takes the space a following one starts at.
+    for _ in range(2):
+        text = SHORT_WORD.sub('\\1\u00a0', text)
+    return text
+
+
+LAST_SHORT_WORD = re.compile(r"(?<![\w'’])\w{1,2}$")
+
+
+def tie_after(body, text, i, out):
+    """After a bold, an italic or a link whose last word is short (`note A e **B** (`), the space
+    that follows belongs to the next run, where bind() cannot see the word: it is tied here."""
+    if LAST_SHORT_WORD.search(body) and text.startswith(" ", i):
+        out.append(" ")
+        return i + 1
+    return i
+
+
 def inline_md(text):
     """Render code, links, bold, italic used in Feedback.md paragraphs."""
     out = []
+    plain = []
+
+    def flush():
+        if plain:
+            out.append(html.escape(bind(''.join(plain))))
+            plain.clear()
+
     i = 0
     n = len(text)
     while i < n:
+        if text[i] not in "`[*_\\":
+            plain.append(text[i])
+            i += 1
+            continue
+        flush()
         if text[i] == "`":
             j = text.find("`", i + 1)
             if j != -1:
-                out.append("<code>" + html.escape(text[i + 1:j]) + "</code>")
+                # A sentence of the interface in code is bound like the text; a key of one or two
+                # characters (`L`) is tied to the word after it.
+                code = text[i + 1:j]
+                out.append("<code>" + html.escape(bind(code)) + "</code>")
                 i = j + 1
+                if len(code) <= 2 and text.startswith(" ", i):
+                    out.append("\u00a0")
+                    i += 1
                 continue
         m = re.match(r"\[((?:\\.|[^\]\\])+)\]\((https?://[^\s)]+)\)", text[i:])
         if m:
@@ -55,6 +102,7 @@ def inline_md(text):
             href = html.escape(m.group(2), quote=True)
             out.append(f'<a target="_blank" rel="noopener noreferrer" href="{href}">' + inline_md(label) + "</a>")
             i += m.end()
+            i = tie_after(label, text, i, out)
             continue
         matched = False
         for marker, open_t, close_t in (
@@ -77,17 +125,18 @@ def inline_md(text):
                 continue
             body = text[i + len(marker):end]
             out.append(open_t + inline_md(body) + close_t)
-            i = end + len(marker)
+            i = tie_after(body, text, end + len(marker), out)
             matched = True
             break
         if matched:
             continue
         if text[i] == "\\" and i + 1 < n and text[i + 1] in "\\*`[]_":
-            out.append(html.escape(text[i + 1]))
+            plain.append(text[i + 1])
             i += 2
         else:
-            out.append(html.escape(text[i]))
+            plain.append(text[i])
             i += 1
+    flush()
     return "".join(out)
 
 for match in re.finditer(r'^## (\d+)\. ([^\n]+)\n(.*?)(?=^## |\Z)', md, re.M | re.S):
@@ -119,7 +168,9 @@ if labels_match:
         proposal = re.sub(r'<!--.*?-->', '', raw, flags=re.S).strip()
         if not proposal:
             raise SystemExit(f'Etichetta {lid}: manca il testo ITA proposto')
-        entry = dict(id=lid.strip(), title=ltitle.strip(), proposal=proposal)
+        # The title bound as the tests' (the page writes it from the data); the proposal is the
+        # interface's own text, left as it is.
+        entry = dict(id=lid.strip(), title=bind(ltitle.strip()), proposal=proposal)
         if a11y:
             entry['a11y'] = True
         labels.append(entry)
@@ -282,7 +333,7 @@ if rounds:
 esc = html.escape
 cards = []
 for index, item in enumerate(items, 1):
-    cards.append(f'<article class="card test" id="{item["id"]}" data-id="{item["id"]}"><p class="check-position">Verifica <strong>{index}</strong>/{len(items)}</p><p class="eyebrow">{item["id"]} · AIV {item["version"]}</p><h3>{esc(item["title"])}</h3>')
+    cards.append(f'<article class="card test" id="{item["id"]}" data-id="{item["id"]}"><p class="check-position">Verifica <strong>{index}</strong>/{len(items)}</p><p class="eyebrow">{item["id"]} · AIV {item["version"]}</p><h3>{esc(bind(item["title"]))}</h3>')
     cards.extend('<p>' + inline_md(p) + '</p>' for p in item['paragraphs'])
     cards.append('<fieldset><legend>Esito della prova</legend>')
     for status, kind in OUTCOMES:
@@ -292,9 +343,9 @@ for index, item in enumerate(items, 1):
 # `Rimando` keeps the question in the brief for ten more rounds.
 questions_html = ''
 if questions:
-    parts = ['<section id="questions"><h2>Domande</h2><p>Domande del brief, da decidere. Tocca '
-             'un\'opzione, o <strong>Rimando</strong> per lasciarla nel brief altri dieci giri; '
-             'un secondo tocco la toglie. Non sono prove di collaudo.</p>']
+    parts = ['<section id="questions"><h2>Domande</h2><p>' + inline_md(
+        'Domande del brief, da decidere. Tocca un\'opzione, o **Rimando** per lasciarla nel brief '
+        'altri dieci giri; un secondo tocco la toglie. Non sono prove di collaudo.') + '</p>']
     for question in questions:
         qid = esc(question['id'])
         parts.append(f'<article class="card question" id="{qid}" data-id="{qid}"><p class="question-id">{qid}</p><h3>{inline_md(question["title"])}</h3>')

@@ -576,6 +576,16 @@ conservazione illimitata né considerare un dump SQL una copia degli allegati St
    python3 tools/feedback-check.py publish/feedback.html
    ```
 
+   Il controllo misura anche le righe vere della pagina, in Chromium, alla larghezza di un
+   telefono e di un desktop (`check_line_ends`): nessuna riga finisce con una parola di una o due
+   lettere, né con un numero la cui unità va a capo (`Legatura`, 2026-10-17, come in Aomidori
+   dalla 2.10, dove la stessa prova gira in WebKit). Il generatore lega quelle parole a ciò che
+   segue con uno spazio unificatore, anche nel codice, nei titoli delle etichette e dopo un
+   grassetto, un corsivo o un link che finisce con una parola corta (`tie_after`); il testo
+   proposto di un'etichetta resta com'è. La frase fissa delle etichette in
+   `tools/feedback-page.html.in` ha i suoi `&nbsp;` scritti a mano, perché il modello non passa
+   dal generatore. Nel foglio di stile, `text-wrap: pretty` su tutta la pagina.
+
    Con un giro senza prove aperte il controllo verifica che la pagina parta senza errori e
    senza schede, poi genera una copia temporanea con una prova di sintesi (lo stesso
    generatore, con `--source` e `--output`) e la esercita per intero: la copia non tocca

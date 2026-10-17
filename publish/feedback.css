@@ -155,6 +155,9 @@ body {
     sans-serif;
   background: var(--bg);
   color: var(--ink);
+  /* Lines balanced at their ends (Legatura, as in Aomidori's document since its 2.10), with the
+     non-breaking spaces feedback-build.py puts after the short words. */
+  text-wrap: pretty;
 }
 .intro,
 main,
