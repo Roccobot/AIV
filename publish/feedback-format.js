@@ -585,6 +585,44 @@
       choose(caret);
     }
   }
+  /* Enter in a code or at its end starts a line of plain text (his note of 2026-10-17). The
+     browser carries the code to the new line: an empty one, which dropEmptyCodes takes away,
+     leaving a line with nothing in it and no height, where the caret could not stay and the typing
+     went back into the code on the line above; or the code's second half, which the typing
+     joined. The second half stays code, and the caret goes before it as the code key leaves it. */
+  function plainNewLine(editor) {
+    const selected = window.getSelection();
+    if (!selected.rangeCount) return;
+    const caret = selected.getRangeAt(0);
+    const code = codeAt(editor, caret.startContainer);
+    if (code) {
+      leaveCode(editor, code, caret);
+      return;
+    }
+    const element = caret.startContainer.nodeType === Node.ELEMENT_NODE ? caret.startContainer : caret.startContainer.parentElement;
+    const line = element?.closest("div, p");
+    if (!line || line === editor.box || !editor.box.contains(line) || line.textContent || line.querySelector("br")) return;
+    // The empty line holds the caret with a BR, the browser's own placeholder, and nothing else.
+    line.replaceChildren(node("br"));
+    const start = document.createRange();
+    start.setStart(line, 0);
+    choose(start);
+  }
+  /* A line with no letters and no BR shows nothing, yet markdown() writes it as a newline: the
+     browser leaves one when ⌘A and Delete take away a code on a line of its own, and the empty
+     field was saved as two newlines (found with the fix above). A line the user made empty
+     always holds the browser's BR, so it stays. */
+  function dropEmptyLines(editor) {
+    for (const line of [...editor.box.querySelectorAll("div, p")].reverse()) {
+      if (!line.isConnected || line.textContent || line.querySelector("br")) continue;
+      const selected = window.getSelection();
+      const held = selected.rangeCount && line.contains(selected.getRangeAt(0).startContainer);
+      const spot = document.createRange();
+      spot.setStartBefore(line);
+      line.remove();
+      if (held) choose(spot);
+    }
+  }
   /* A style key on a selection keeps it for half a second, time for a second style on the same
      text, and then leaves the caret after it with the style the text had there before the first
      key (his requests of 2026-10-16 and 2026-10-17): code on plain text gives plain text back,
@@ -878,6 +916,8 @@
       if (!event.isComposing) {
         plainAfterCode(editor);
         dropEmptyCodes(editor);
+        if (event.inputType === "insertParagraph") plainNewLine(editor);
+        dropEmptyLines(editor);
       }
       links(editor);
       sync(editor, event.inputType);

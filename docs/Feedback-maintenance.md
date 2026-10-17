@@ -205,6 +205,17 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
     `plainAfterCode` la sposta fuori all'evento `input`. Un codice vuoto non si scrive e non si
     rilegge: prima diventava due apici inversi, e al caricamento tornava come una pastiglia vuota
     che non si cancellava.
+  - **Un a capo dentro o alla fine di un codice comincia una riga di testo normale** (segnalazione
+    di Rocco del 2026-10-17, per i due DF): `Invio` e `⇧Invio` vanno a capo, e quello che si scrive
+    dopo non è codice. Il browser porta il codice nella riga nuova: alla fine di un codice ne
+    portava uno vuoto, che `dropEmptyCodes` toglieva lasciando una riga senza niente dentro e alta
+    zero, dove il cursore non restava, e la lettera tornava dentro il codice della riga sopra; a
+    metà di un codice la seconda metà resta codice, e la lettera la raggiungeva. `plainNewLine`
+    mette nella riga vuota il segnaposto `<br>` del browser, e davanti alla seconda metà il cursore
+    come lo lascia `Codice` a cursore fermo. `dropEmptyLines` toglie le righe senza lettere e
+    senza `<br>`, che non si vedono ma `markdown()` scriveva come a capo: `⌘A` e `Canc` su un codice
+    in una riga a sé lasciavano il campo vuoto salvato come due a capo. Lo presidia
+    `tools/feedback-interactive-check.py` (`check_enter_leaves_code`).
   - **Dopo uno stile su una selezione il cursore torna allo stile di partenza** (richieste di
     Rocco del 2026-10-16 e del 2026-10-17): `Grassetto`, `Corsivo`, `Codice` e `Link`, e i tasti
     che li tolgono, lasciano la selezione per mezzo secondo, il tempo di un secondo stile sulla

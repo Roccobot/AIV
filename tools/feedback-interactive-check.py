@@ -1122,6 +1122,49 @@ def check_style_undo_and_code(formatting):
     expect(stored).to_have_value('x `abcq`')
 
 
+def check_enter_leaves_code(formatting):
+    """Enter in or at the end of inline code starts a new line of plain text (his note of
+    2026-10-17: with the caret in a code the field sometimes did not go to a new line, and the
+    new line must not keep the code)."""
+    from playwright.sync_api import expect
+    card = formatting.locator('.test').first
+    field = card.locator('.rich-editor')
+    stored = card.locator('.comment')
+    for enter in ('Enter', 'Shift+Enter'):
+        for text, (start, end), caret, typed, expected in (
+            ('x abc', (2, 5), 5, 'y', 'x `abc`\ny'),
+            ('x abc z', (2, 5), 5, 'y', 'x `abc`\ny z'),
+            ('x abcdef', (2, 8), 5, 'y', 'x `abc`\ny`def`'),
+        ):
+            fill_plain(field, text)
+            select(field, start, end)
+            field.press('Meta+m')
+            select(field, caret, caret)
+            field.press(enter)
+            # The lines the field shows (an empty line has no height and does not count), and
+            # whether the caret is still in a code.
+            shown = field.evaluate("""box => {
+                const tops = new Set();
+                const walker = document.createTreeWalker(box, NodeFilter.SHOW_ALL);
+                for (let node; (node = walker.nextNode());) {
+                    const range = document.createRange();
+                    range.selectNode(node);
+                    for (const rect of range.getClientRects()) if (rect.height) tops.add(Math.round(rect.top));
+                }
+                const caret = getSelection().getRangeAt(0).startContainer;
+                const element = caret.nodeType === Node.ELEMENT_NODE ? caret : caret.parentElement;
+                return {lines: tops.size, inCode: Boolean(element.closest('code'))};
+            }""")
+            assert shown['lines'] >= 2, f'{enter} su {text!r}: il campo non va a capo ({shown}).'
+            assert not shown['inCode'], f'{enter} su {text!r}: la riga nuova è ancora codice.'
+            field.press_sequentially(typed)
+            expect(stored).to_have_value(expected)
+            # ⌘A and Delete empty the field: the line the code was on goes with it.
+            field.press('ControlOrMeta+a')
+            field.press('Backspace')
+            expect(stored).to_have_value('')
+
+
 def check_style_keeps_selection(formatting, destination):
     """A style key on a selection keeps it for half a second, then leaves the caret after it with
     the style the text had before the first key."""
@@ -1409,6 +1452,7 @@ def check_formatting(browser, url, data, errors, temporary):
     check_bold_italic_and_links(formatting, destination, data, temporary)
     check_line_breaks_and_paste(formatting, destination)
     check_style_undo_and_code(formatting)
+    check_enter_leaves_code(formatting)
     check_style_keeps_selection(formatting, destination)
     check_symbol_shortcuts(formatting)
     check_symbol_row(formatting)
