@@ -582,6 +582,43 @@
       choose(caret);
     }
   }
+  /* A style key on a selection leaves the caret after it, ready for plain text (his request of
+     2026-10-16). Bold and italic are the browser's typing state, so what the caret carries is
+     switched off there. The browser types into the element before the caret, a code or a bold, so a
+     caret in a code leaves it like the key at a caret does, and the gap goes out of the bold and
+     italic around it, or the letters moved into it would still be in them. A link needs nothing:
+     typing after one goes outside it. */
+  const TYPING_STYLES = ["B", "STRONG", "I", "EM"];
+  function leaveStyles(gap) {
+    for (let parent = gap.parentElement; TYPING_STYLES.includes(parent?.nodeName); parent = gap.parentElement) {
+      const tail = document.createRange();
+      tail.setStartAfter(gap);
+      tail.setEndAfter(parent.lastChild);
+      const rest = tail.extractContents();
+      parent.after(gap);
+      if (rest.textContent) {
+        const piece = parent.cloneNode(false);
+        piece.append(rest);
+        gap.after(piece);
+      }
+    }
+    // Moving the gap took the caret out of it.
+    const caret = document.createRange();
+    caret.setStart(gap, 0);
+    choose(caret);
+  }
+  function settle(editor) {
+    const selected = window.getSelection();
+    if (!selected.rangeCount) return;
+    selected.collapseToEnd();
+    const caret = selected.getRangeAt(0);
+    const code = codeAt(editor, caret.startContainer);
+    if (code) {
+      leaveCode(editor, code, caret);
+      leaveStyles(editor.plain.gap);
+    }
+    for (const command of ["bold", "italic"]) if (browserState(command)) browserEdit(command);
+  }
   function showPressed(editor, range) {
     for (const kind of ["bold", "italic"]) {
       editor.box.parentElement.querySelector('[data-format="' + kind + '"]').setAttribute("aria-pressed", String(browserState(kind)));
@@ -652,6 +689,8 @@
     if (editor.area.disabled) return;
     editor.box.focus({preventScroll: true});
     const range = selection(editor);
+    // Asked before the style changes the range: only a selection gives the caret after it.
+    const selecting = !range.collapsed;
     editor.before = selectionOf(editor);
     if (kind === "link") {
       const selected = range.toString();
@@ -689,7 +728,8 @@
         for (const code of [start, end]) code?.replaceWith(...code.childNodes);
       } else {
         // The selection's bold and italic go on the new code: replacing the text emptied its <b>.
-        let made = node("code", range.toString() || "codice");
+        const code = node("code", range.toString() || "codice");
+        let made = code;
         for (const [command, tag] of [["italic", "em"], ["bold", "strong"]]) {
           if (!browserState(command)) continue;
           const wrap = node(tag);
@@ -697,8 +737,15 @@
           made = wrap;
         }
         insertNodes(editor, [made]);
+        // Like the other styles, the selection is on the new code, and settle takes the caret from there.
+        if (selecting) {
+          const chosen = document.createRange();
+          chosen.selectNodeContents(code);
+          choose(chosen);
+        }
       }
     } else browserEdit(kind === "bold" ? "bold" : "italic");
+    if (selecting) settle(editor);
     sync(editor, "format");
     if (window.getSelection().rangeCount) showPressed(editor, window.getSelection().getRangeAt(0));
   }

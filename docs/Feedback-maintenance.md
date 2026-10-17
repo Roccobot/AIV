@@ -205,6 +205,17 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
     `plainAfterCode` la sposta fuori all'evento `input`. Un codice vuoto non si scrive e non si
     rilegge: prima diventava due apici inversi, e al caricamento tornava come una pastiglia vuota
     che non si cancellava.
+  - **Uno stile su una selezione lascia il cursore dopo di lei, senza stili** (richiesta di Rocco
+    del 2026-10-16): `Grassetto`, `Corsivo`, `Codice` e `Link`, e i tasti che li tolgono, chiudono la
+    selezione sul suo ultimo carattere, e quello che si scrive dopo è testo normale. Per rimettere
+    uno stile sulla stessa parola la si seleziona di nuovo. Senza selezione non cambia niente: lo
+    stile vale per quello che si scrive dopo. Lo fa `settle`, in `feedback-format.js`: grassetto e
+    corsivo sono lo stato di scrittura del browser, e lì si spengono; un cursore dentro un codice
+    lo lascia come `Codice` a cursore fermo, e il punto in cui resta esce da grassetto e corsivo
+    (`leaveStyles`). Chromium scrive dentro l'elemento che precede il cursore, un grassetto o un
+    codice, e `plainAfterCode` sposta fuori le lettere; il link non chiede niente, perché
+    la lettera scritta subito dopo un link ne esce. ⚠️ Misurato in Chromium: Safari e Firefox non
+    si provano da qui. Lo presidia `tools/feedback-interactive-check.py`.
   - **I simboli dei tasti del Mac si scrivono da tastiera e dalla fila sopra Altro** (richieste
     di Rocco del 2026-10-13, la fila dal suo mockup, i tasti come li ha riassegnati la sera): nell'ordine
     della fila, `⌘⇧C` scrive `⌘`; `⌘⇧M` e `⌘⇧S` `⇧`; `⌘⇧O` e `⌘⇧A` `⌥`; `⌘⇧Ì` `⌃`; `⌘⇧Ù` `→`;
