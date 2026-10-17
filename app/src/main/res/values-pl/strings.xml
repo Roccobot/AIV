@@ -476,6 +476,7 @@
     <string name="tree_hidden">ukryty</string>
     <string name="tree_unopenable">Żadna aplikacja w tym telefonie tego nie otworzy</string>
     <string name="clip_pause">Wstrzymaj</string>
+    <string name="clip_show_controls">Pokaż sterowanie</string>
     <string name="settings_images_only">Przeglądaj tylko zdjęcia</string>
     <string name="settings_images_only_desc">W przeglądarce przesunięcie pomija filmy i przegląda tylko obrazy. Film nadal otwiera się dotknięciem w widoku zwykłym.</string>
     <string name="settings_clip_autoplay">Odtwarzaj filmy od razu</string>

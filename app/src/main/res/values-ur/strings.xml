@@ -444,6 +444,7 @@
     <string name="tree_hidden">پوشیدہ</string>
     <string name="tree_unopenable">اس فون میں کوئی ایپ اسے نہیں کھول سکتی</string>
     <string name="clip_pause">وقفہ</string>
+    <string name="clip_show_controls">کنٹرولز دکھائیں</string>
     <string name="settings_images_only">صرف تصاویر دیکھیں</string>
     <string name="settings_images_only_desc">ناظر میں سرکانا ویڈیو چھوڑ دیتا ہے اور صرف تصویریں دکھاتا ہے۔ ویڈیو کو عام منظر سے ایک لمس کے ساتھ کھولا جا سکتا ہے۔</string>
     <string name="settings_clip_autoplay">ویڈیو براہِ راست چلائیں</string>

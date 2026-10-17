@@ -428,6 +428,7 @@
     <string name="tree_hidden">숨김</string>
     <string name="tree_unopenable">이 휴대전화에는 열 수 있는 앱이 없습니다</string>
     <string name="clip_pause">일시정지</string>
+    <string name="clip_show_controls">컨트롤 표시</string>
     <string name="settings_images_only">사진만 넘기기</string>
     <string name="settings_images_only_desc">뷰어에서 밀면 동영상을 건너뛰고 이미지만 넘깁니다. 동영상은 일반 화면에서 한 번 누르면 열립니다.</string>
     <string name="settings_clip_autoplay">동영상 바로 재생</string>

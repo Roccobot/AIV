@@ -444,6 +444,7 @@
     <string name="tree_hidden">மறைக்கப்பட்டது</string>
     <string name="tree_unopenable">இதைத் திறக்கக்கூடிய பயன்பாடு இந்தத் தொலைபேசியில் இல்லை</string>
     <string name="clip_pause">இடைநிறுத்து</string>
+    <string name="clip_show_controls">கட்டுப்பாடுகளைக் காட்டு</string>
     <string name="settings_images_only">படங்களை மட்டும் புரட்டு</string>
     <string name="settings_images_only_desc">காட்டியில் தள்ளுவது காணொளிகளைத் தவிர்த்து படங்களை மட்டும் புரட்டும். வழக்கமான காட்சியிலிருந்து ஒரு தொடுதலில் காணொளியைத் திறக்கலாம்.</string>
     <string name="settings_clip_autoplay">காணொளிகளை உடனே இயக்கு</string>

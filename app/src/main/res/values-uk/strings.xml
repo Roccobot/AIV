@@ -476,6 +476,7 @@
     <string name="tree_hidden">прихована</string>
     <string name="tree_unopenable">Жодна програма на цьому телефоні не може це відкрити</string>
     <string name="clip_pause">Пауза</string>
+    <string name="clip_show_controls">Показати елементи керування</string>
     <string name="settings_images_only">Гортати лише фотографії</string>
     <string name="settings_images_only_desc">У переглядачі проведення пропускає відео й гортає лише зображення. Відео все одно можна відкрити дотиком зі звичайного вигляду.</string>
     <string name="settings_clip_autoplay">Відразу відтворювати відео</string>

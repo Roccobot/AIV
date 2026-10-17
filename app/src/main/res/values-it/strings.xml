@@ -728,6 +728,7 @@
     <string name="tree_hidden">nascosta</string>
     <string name="tree_unopenable">Nessuna app di questo telefono sa aprirlo</string>
     <string name="clip_pause">Metti in pausa</string>
+    <string name="clip_show_controls">Mostra i comandi</string>
     <string name="settings_images_only">Sfoglia solo le immagini</string>
     <string name="settings_images_only_desc">Nel visualizzatore lo scorrimento salta i video e sfoglia solo le immagini. Puoi comunque aprire i video con un tocco dalla vista normale.</string>
     <string name="settings_clip_autoplay">Riproduci i video direttamente</string>

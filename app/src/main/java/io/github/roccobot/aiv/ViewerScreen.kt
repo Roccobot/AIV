@@ -1660,13 +1660,20 @@ internal fun BoxScope.ClipKeys(
     }
     // Il tocco che richiama i comandi è un riquadro trasparente sopra il video, che esiste solo
     // quando i comandi sono nascosti: quando ci sono, non ruba il tocco al tasto.
+    // ⚠️ Per TalkBack è un pulsante col suo nome, `Mostra i comandi` (scelta A1 dell'utente,
+    // domanda `d-comandi-filmato`, rilievo C39): è l'unica via per riavere il tasto di
+    // riproduzione, e senza nome si annunciava come un elemento attivabile qualsiasi.
     if (!visible) {
+        val mostra = stringResource(R.string.clip_show_controls)
         Box(
             modifier = Modifier
                 .matchParentSize()
+                .semantics { contentDescription = mostra }
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = null
+                    indication = null,
+                    onClickLabel = mostra,
+                    role = Role.Button
                 ) { visible = true }
         )
     }

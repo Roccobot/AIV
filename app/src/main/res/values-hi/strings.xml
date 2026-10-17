@@ -444,6 +444,7 @@
     <string name="tree_hidden">छिपा हुआ</string>
     <string name="tree_unopenable">इस फ़ोन में कोई ऐप इसे नहीं खोल सकता</string>
     <string name="clip_pause">रोकें</string>
+    <string name="clip_show_controls">नियंत्रण दिखाएँ</string>
     <string name="settings_images_only">सिर्फ़ तस्वीरें देखें</string>
     <string name="settings_images_only_desc">दर्शक में सरकाने पर वीडियो छूट जाते हैं और केवल छवियाँ पलटती हैं। सामान्य दृश्य से एक स्पर्श पर वीडियो खोला जा सकता है।</string>
     <string name="settings_clip_autoplay">वीडियो सीधे चलाएँ</string>

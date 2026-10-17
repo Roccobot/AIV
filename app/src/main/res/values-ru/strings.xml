@@ -476,6 +476,7 @@
     <string name="tree_hidden">скрыта</string>
     <string name="tree_unopenable">Ни одно приложение на этом телефоне не может это открыть</string>
     <string name="clip_pause">Пауза</string>
+    <string name="clip_show_controls">Показать элементы управления</string>
     <string name="settings_images_only">Листать только фотографии</string>
     <string name="settings_images_only_desc">В просмотре смахивание пропускает видео и листает только изображения. Видео всё равно открывается касанием из обычного вида.</string>
     <string name="settings_clip_autoplay">Сразу воспроизводить видео</string>

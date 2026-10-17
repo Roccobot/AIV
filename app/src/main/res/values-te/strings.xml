@@ -444,6 +444,7 @@
     <string name="tree_hidden">దాచినది</string>
     <string name="tree_unopenable">దీన్ని తెరవగల యాప్ ఈ ఫోన్‌లో లేదు</string>
     <string name="clip_pause">పాజ్ చేయి</string>
+    <string name="clip_show_controls">నియంత్రణలను చూపు</string>
     <string name="settings_images_only">చిత్రాలను మాత్రమే తిప్పు</string>
     <string name="settings_images_only_desc">వీక్షకిలో జరపడం వీడియోలను దాటవేసి చిత్రాలను మాత్రమే తిరగేస్తుంది. సాధారణ వీక్షణ నుండి ఒక్క తాకిడితో వీడియోను తెరవవచ్చు.</string>
     <string name="settings_clip_autoplay">వీడియోలను నేరుగా ఆడించు</string>

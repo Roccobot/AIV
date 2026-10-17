@@ -444,6 +444,7 @@
     <string name="tree_hidden">লুকানো</string>
     <string name="tree_unopenable">এই ফোনের কোনও অ্যাপ এটি খুলতে পারে না</string>
     <string name="clip_pause">থামান</string>
+    <string name="clip_show_controls">নিয়ন্ত্রণ দেখান</string>
     <string name="settings_images_only">শুধু ছবি দেখুন</string>
     <string name="settings_images_only_desc">দর্শকে সরালে ভিডিও বাদ পড়ে, কেবল ছবি দেখা যায়। সাধারণ দৃশ্য থেকে এক ছোঁয়ায় ভিডিও খোলা যায়।</string>
     <string name="settings_clip_autoplay">ভিডিও সঙ্গে সঙ্গে চালান</string>

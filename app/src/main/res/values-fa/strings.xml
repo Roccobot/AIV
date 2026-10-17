@@ -444,6 +444,7 @@
     <string name="tree_hidden">پنهان</string>
     <string name="tree_unopenable">هیچ برنامه‌ای در این گوشی نمی‌تواند آن را باز کند</string>
     <string name="clip_pause">توقف</string>
+    <string name="clip_show_controls">نمایش کنترل‌ها</string>
     <string name="settings_images_only">فقط تصویرها را ورق بزن</string>
     <string name="settings_images_only_desc">در نمایشگر، کشیدن ویدیوها را رد می‌کند و تنها تصویرها را ورق می‌زند. می‌توان ویدیو را با یک لمس از نمای عادی باز کرد.</string>
     <string name="settings_clip_autoplay">پخش مستقیم ویدیوها</string>

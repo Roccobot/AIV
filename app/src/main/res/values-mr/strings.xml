@@ -444,6 +444,7 @@
     <string name="tree_hidden">लपवलेले</string>
     <string name="tree_unopenable">या फोनवरील कोणतेही ॲप हे उघडू शकत नाही</string>
     <string name="clip_pause">थांबवा</string>
+    <string name="clip_show_controls">नियंत्रणे दाखवा</string>
     <string name="settings_images_only">फक्त चित्रे पाहा</string>
     <string name="settings_images_only_desc">दर्शकात सरकवल्यावर व्हिडिओ वगळले जातात आणि फक्त प्रतिमा पलटतात. सामान्य दृश्यातून एका स्पर्शाने व्हिडिओ उघडता येतो.</string>
     <string name="settings_clip_autoplay">व्हिडिओ थेट चालवा</string>
