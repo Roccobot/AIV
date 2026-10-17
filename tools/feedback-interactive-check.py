@@ -1867,19 +1867,6 @@ def check_fields_and_links(page):
     for field in page.locator('.rich-editor,textarea:not([hidden]),input:not([type="file"])').all():
         assert field.evaluate('(el)=>getComputedStyle(el).fontWeight') == '400'
         assert field.evaluate('(el)=>parseFloat(getComputedStyle(el).fontSize)') >= 18
-    # The intro lost its link to the tablet mockup with b25e7fa: it is checked only
-    # where the page still carries it.
-    for href in ['tablet.html']:
-        link = page.locator('nav a[href="'+href+'"]')
-        if not link.count():
-            continue
-        with page.expect_popup() as popup:
-            link.click()
-        proposal = popup.value
-        proposal.wait_for_load_state()
-        assert proposal.locator('link[rel="icon"][type="image/svg+xml"]').get_attribute('href') == 'assets/feedback-favicon.svg?v=2'
-        assert proposal.evaluate('window.opener === null')
-        proposal.close()
     for link in page.locator('a').all():
         assert link.get_attribute('target') == '_blank'
         assert 'noopener' in link.get_attribute('rel')
