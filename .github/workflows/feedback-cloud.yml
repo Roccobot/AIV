@@ -55,9 +55,10 @@ jobs:
           /tmp/aiv-cloud-tests/bin/python tools/feedback-cloud-check.py
       # Since 6.29 (H33 of the 6.25 review) the check of the page is part of the gate of its
       # deploy: before, it ran only when whoever published remembered step 4 of the guide.
-      # ⚠️ `feedback-build.py --check` is not here yet: the generator stops on Italian texts that
-      # have no label in the document, and the labels of 6.26-6.30 arrive with their cumulative
-      # document (`Filiera`), which adds the line.
+      # The generator checks the page against its sources too: a page not rebuilt, or an Italian
+      # text without its label, stops the deploy (since 6.30, with the labels of 6.26-6.30).
+      - name: Verifica che la pagina sia quella delle fonti
+        run: python3 tools/feedback-build.py --check
       - name: Verifica la pagina del DF
         run: /tmp/aiv-cloud-tests/bin/python tools/feedback-check.py publish/feedback.html
   # ⚠️ Since 6.29 only the default branch goes to production: 'Run workflow' lets anyone pick a

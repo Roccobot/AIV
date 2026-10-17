@@ -8,6 +8,20 @@
 > `rules/Roccobot.md` di `Roccobot/tools`, § '🗄️ Le cose tolte vivono in Removed.md').
 > Le voci vanno dalla più recente alla più vecchia.
 
+## 🗂️ La proposta di riordino delle impostazioni
+
+- **Che cosa faceva**: una pagina che confrontava le impostazioni della 3.13 con il riordino
+  proposto, per deciderlo nel documento di feedback.
+- **Applicata nella `3.27`**, **tolta nella `6.30`** (scelta G24a dell'utente, 2026-10-16): il
+  confronto era fermo alla 3.13, mentre le impostazioni sono state riordinate più volte dopo.
+- **Si recupera dal tag `v6.29`**. Dove viveva:
+  - la fonte `Settings-proposal.md` nella cartella `docs`, e il suo generatore
+    `settings-build.py` nella cartella `tools`;
+  - la pagina `settings.html` col foglio di stile `settings.css`, nella cartella `publish`;
+  - il link dalla pagina del tablet, due comandi del README di `publish` e una riga della prova
+    interattiva del documento di feedback.
+- Il comando che mostra la fonte di allora: `git show v6.29:docs/Settings-proposal.md`.
+
 ## 🖼️ Il bordo d'accento dei pannelli
 
 - **Che cosa faceva**: un contorno nel colore d'accento intorno a menu, dialoghi, schede e
