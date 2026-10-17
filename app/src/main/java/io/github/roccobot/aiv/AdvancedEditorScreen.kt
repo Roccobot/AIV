@@ -2294,12 +2294,13 @@ private fun LookStage(
          * rimpicciolita (vedi `hold` di [Warp.plan]), e il riquadro che resterà si disegna sopra.
          */
         val armato = corners != null
-        fun stendi(mappa: Bitmap, dove: RectF, nitido: Boolean) {
-            val paint = pennello(mappa, dove, nitido, dentro)
+        /*
+         * L'immagine, il disegno e la selezione passano tutti di qui, così la scelta fra rettangolo
+         * e maglia, e la vista di 'Angoli', sono una sola per i tre.
+         */
+        fun maglia(paint: android.graphics.Paint) {
             if (look.geo.idle && !armato) {
-                drawIntoCanvas { tela ->
-                    tela.drawRect(dove.left, dove.top, dove.right, dove.bottom, paint)
-                }
+                drawIntoCanvas { tela -> tela.nativeCanvas.drawRect(view, paint) }
                 return
             }
             /*
@@ -2312,13 +2313,14 @@ private fun LookStage(
                 look.geo, view.centerX(), view.centerY(), view.width(), view.height(),
                 hold = if (armato) ARMED_FIT else null
             )
-            clipRect(dove.left, dove.top, dove.right, dove.bottom) {
+            clipRect(view.left, view.top, view.right, view.bottom) {
                 drawIntoCanvas { tela ->
-                    Warp.draw(
-                        tela.nativeCanvas, dove, piano, paint.nativePaint, look.geo.liquify
-                    )
+                    Warp.draw(tela.nativeCanvas, view, piano, paint, look.geo.liquify)
                 }
             }
+        }
+        fun stendi(mappa: Bitmap, nitido: Boolean) {
+            maglia(pennello(mappa, view, nitido, dentro).nativePaint)
         }
 
         /*
@@ -2329,7 +2331,7 @@ private fun LookStage(
          */
         val visto = cutout(view, framed)
         clipRect(visto.left, visto.top, visto.right, visto.bottom) {
-            stendi(posed, view, false)
+            stendi(posed, false)
         }
 
         /*
@@ -2365,19 +2367,7 @@ private fun LookStage(
             val paint = android.graphics.Paint(android.graphics.Paint.FILTER_BITMAP_FLAG).apply {
                 this.shader = shader
             }
-            clipRect(visto.left, visto.top, visto.right, visto.bottom) {
-                drawIntoCanvas { canvas ->
-                    if (look.geo.idle && !armato) canvas.nativeCanvas.drawRect(view, paint)
-                    else Warp.draw(
-                        canvas.nativeCanvas, view,
-                        Warp.plan(
-                            look.geo, view.centerX(), view.centerY(), view.width(), view.height(),
-                            hold = if (armato) ARMED_FIT else null
-                        ),
-                        paint, look.geo.liquify
-                    )
-                }
-            }
+            clipRect(visto.left, visto.top, visto.right, visto.bottom) { maglia(paint) }
         }
         paintDrawing()
 
@@ -2391,20 +2381,13 @@ private fun LookStage(
             val paint = android.graphics.Paint(android.graphics.Paint.FILTER_BITMAP_FLAG).apply {
                 this.shader = shader; alpha = 128
             }
-            clipRect(visto.left,visto.top,visto.right,visto.bottom) {
-                drawIntoCanvas { canvas ->
-                    if (look.geo.idle) canvas.nativeCanvas.drawRect(view,paint)
-                    else Warp.draw(canvas.nativeCanvas,view,
-                        Warp.plan(look.geo,view.centerX(),view.centerY(),view.width(),view.height()),
-                        paint,look.geo.liquify)
-                }
-            }
+            clipRect(visto.left, visto.top, visto.right, visto.bottom) { maglia(paint) }
         }
         paintSelection()
 
         fun DrawScope.pictureForLens() {
             clipRect(visto.left, visto.top, visto.right, visto.bottom) {
-                stendi(posed, view, true)
+                stendi(posed, true)
             }
             if (fine != null) {
                 val dove = fine.place(view)
@@ -5233,8 +5216,9 @@ private const val DASH_OFF = 0.35f
  *   la diagonale rossa del tondo 'Nessuno'.
  *
  * ⚠️ **Un tasto suo e non un `FilterChip`**: un chip tiene l'etichetta lontana dai bordi, e il
- * disegno dell'utente arriva fino a loro. Forma, colori e altezza sono del chip, così la fila si
- * legge come gli strumenti sopra. La parola resta la descrizione per il lettore di schermo.
+ * disegno dell'utente arriva fino a loro. Il tasto è [TextKey], con il disegno al posto della
+ * parola, così la fila si legge come gli strumenti sopra. La parola resta la descrizione per il
+ * lettore di schermo.
  */
 @Composable
 private fun ArtKey(
@@ -5247,25 +5231,9 @@ private fun ArtKey(
     onClick: () -> Unit,
     modifier: Modifier
 ) {
-    val nome = stringResource(name)
-    val forma = FilterChipDefaults.shape
-    val schema = MaterialTheme.colorScheme
-    val scelta = Modifier
-        .then(
-            when {
-                toggle -> Modifier.toggleable(selected, enabled = enabled, role = Role.Switch) { onClick() }
-                else -> Modifier.selectable(selected, enabled = enabled, role = Role.RadioButton, onClick = onClick)
-            }
-        )
-        .semantics { contentDescription = nome }
-    Box(
-        modifier
-            .height(FilterChipDefaults.Height)
-            .alpha(if (enabled) 1f else OFF_INK)
-            .clip(forma)
-            .background(if (selected) schema.secondaryContainer else Color.Transparent)
-            .then(if (selected) Modifier else Modifier.border(1.dp, schema.outlineVariant, forma))
-            .then(scelta)
+    TextKey(
+        name = stringResource(name), selected = selected, enabled = enabled, toggle = toggle,
+        onClick = onClick, modifier = modifier, choice = true
     ) {
         Canvas(Modifier.fillMaxSize()) {
             val banda = KEY_BAND.toPx()
@@ -5333,13 +5301,6 @@ private fun ArtKey(
                 }
             }
         }
-        /*
-         * Un bordo pieno attorno al tasto scelto (nota A sul giro della `4.60`): i disegni arrivano
-         * ai bordi dei tasti, e la sola tinta si leggeva male.
-         * ⚠️ Sopra il disegno e non sotto: le bande di 'Traccia' e 'Tratteggio' vanno da bordo a
-         * bordo, e sotto di loro il bordo si interromperebbe ai due lati.
-         */
-        if (selected) Box(Modifier.matchParentSize().border(KEY_RIM, schema.primary, forma))
     }
 }
 
@@ -7000,9 +6961,10 @@ private fun DeleteKey(
 }
 
 /**
- * Un tasto del Disegno (strumenti, tasti del testo, 'Elimina'): forma, colori, altezza e bordo del
- * tasto scelto sono quelli di [ArtKey], così le file si leggono uguali; la parola resta la
- * descrizione per il lettore di schermo, e [content] disegna il tasto nel colore che riceve.
+ * Un tasto del Disegno (strumenti, tasti del testo, 'Elimina', e i tasti disegnati di [ArtKey]):
+ * forma, colori e altezza sono del `FilterChip`, e vivono solo qui, così tutte le file si leggono
+ * uguali; la parola resta la descrizione per il lettore di schermo, e [content] disegna il tasto
+ * nel colore che riceve.
  */
 @Composable
 private fun TextKey(
@@ -7046,6 +7008,12 @@ private fun TextKey(
         contentAlignment = Alignment.Center
     ) {
         content(if (selected) schema.primary else schema.onSurfaceVariant)
+        /*
+         * Un bordo pieno attorno al tasto scelto (nota A sul giro della `4.60`): i disegni arrivano
+         * ai bordi dei tasti, e la sola tinta si leggeva male.
+         * ⚠️ Sopra il contenuto e non sotto: le bande di 'Traccia' e 'Tratteggio' vanno da bordo a
+         * bordo, e sotto di loro il bordo si interromperebbe ai due lati.
+         */
         if (selected) Box(Modifier.matchParentSize().border(KEY_RIM, schema.primary, forma))
     }
 }
