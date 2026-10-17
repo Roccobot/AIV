@@ -1525,7 +1525,9 @@ def check(path):
             expect(play).to_have_text('Scarica e installa AIV Play ' + data['version'])
             expect(play).to_have_attribute(
                 'href', f"https://github.com/Roccobot/AIV/releases/download/v{data['version']}/AIV-Play-{data['version']}.apk")
-            assert page.evaluate("document.querySelector('.feedback-primary').firstElementChild.firstElementChild.firstElementChild.classList.contains('test')")
+            # The tests come first in the main column. Since 6.29 (H13) their section opens with a
+            # heading for screen readers only, so the first card is the first one of the list.
+            assert page.evaluate("document.querySelector('.feedback-primary').firstElementChild.matches('section.tests') && document.querySelector('#tests').firstElementChild.classList.contains('test')")
             assert page.locator('text=Prove sui dispositivi').count() == 0 and page.locator('#answered').count() == 0
             # The title starts with the icon of the theme in use, as in his mockup of 2026-10-10:
             # a square 1.1167em wide, 1.5px left of the lines below, 24.5px from the ink of the F,
