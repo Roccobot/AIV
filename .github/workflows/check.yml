@@ -49,34 +49,10 @@ jobs:
       - name: Set up the Android toolchain
         uses: ./.github/actions/toolchain
 
-      # ⚠️⚠️ TWO VARIANTS SINCE 5.10, AND THE BENCH RUNS ON BOTH, IN TWO DIFFERENT WAYS.
-      # The whole bench runs on `github`, the app as it has always been. On `play` only
-      # the classes named `*PlayTest` run (`app/src/testPlay`): the shared tests click
-      # Delete, Rename, Move and the rest, which `play` leaves out, so there they would
-      # fail by design. Which functions `play` leaves out lives in `Rules.md`.
-      # ⚠️⚠️ A TIME LIMIT ON THE STEP, NOT ONLY ON THE JOB (6.25, Setaccio E1). Without one GitHub
-      # waits 6 hours, and a bench stuck on a DataStore write once stood still for four. A
-      # step that runs out of time FAILS, so the report below is kept; a job that runs out is
-      # cancelled, and `failure()` does not see it. A whole bench takes 5-7 minutes here.
-      - name: Run the bench
-        timeout-minutes: 30
-        run: ./gradlew --no-daemon :app:testGithubDebugUnitTest :app:testPlayDebugUnitTest --tests '*PlayTest'
-
-      - name: Check the translations
-        run: python3 tools/i18n-check.py
-
-      # ⚠️ Same reason as in `release.yml`: without the report a failure gives a
-      # name and nothing else.
-      - name: Keep the bench report when it fails
-        if: failure()
-        uses: actions/upload-artifact@v7
-        with:
-          name: bench-report
-          # The XML results say which class was running when a bench stopped.
-          path: |
-            app/build/reports/tests/
-            app/build/test-results/
-          if-no-files-found: ignore
+      # Translations, the bench of the two variants with its time limit, and the report when
+      # it fails: the same steps as the gate of `release.yml`, written once in the action.
+      - name: Run the translation check and the bench
+        uses: ./.github/actions/bench
 
   # ⚠️⚠️ THE CACHES ARE PRUNED HERE, AND A PERSON DID IT BY HAND BEFORE. GitHub
   # keeps 10 GB of Actions caches per repository, and every run on main saves a

@@ -24,51 +24,41 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 /**
- * What the long press menu can do with the picture on screen.
+ * Che cosa può fare il menu del tocco lungo con l'immagine sullo schermo.
  *
- * ⚠️⚠️ **Save and Share hand over the ORIGINAL file, not a PNG re-encoded from
- * the pixels on screen**, and the difference is not academic: a JPEG photograph
- * written out as PNG comes out several times heavier, and one that was sampled
- * down to fit in memory would be saved at the reduced size, silently. The
- * original is copied straight from wherever it came from, so what lands in the
- * gallery is the file the address points at.
+ * ⚠️ **Salva e Condividi consegnano il file originale, non un PNG ricodificato dai pixel a
+ * schermo**: un JPEG scritto come PNG pesa molte volte di più, e uno campionato per entrare in
+ * memoria sarebbe salvato ridotto, in silenzio. L'originale si copia da dove viene.
  *
- * Copying to the clipboard is the one place where a PNG IS the right answer: the
- * app that pastes wants an image it can read now, not an address it has to go and
- * fetch, so there the pixels are re-encoded on purpose.
+ * Negli appunti invece il PNG è la risposta giusta: l'app che incolla vuole un'immagine da
+ * leggere subito, non un indirizzo da andare a prendere.
  */
 object ImageActions {
 
-    /** The authority declared in the manifest. Written once, or the two would drift. */
+    /** L'autorità dichiarata nel manifesto, scritta una volta sola. */
     private fun authority(context: Context) = "${context.packageName}.files"
 
-    /** Everything handed to another app goes through here and nowhere else. */
+    /** La cartella delle consegne: tutto quello che passa a un'altra app passa da qui. */
     private fun shareDir(context: Context) = File(context.cacheDir, "share").apply { mkdirs() }
 
     /**
-     * Quanto puo restare in giro nella cartella delle consegne, fra una consegna e l'altra.
+     * Quanto può restare nella cartella delle consegne, fra una consegna e l'altra.
      *
-     * ⚠️⚠️ **FINO ALLA 1.46 NON C'ERA NESSUN TETTO, e quella cartella cresceva per sempre**:
-     * ogni consegna ci scrive una copia INTERA dell'immagine, e niente la ripuliva. Consegnare
-     * cinquanta immagini lasciava cinquanta file interi sul telefono, che nessuna schermata
-     * dell'app mostra. Le altre due riserve su disco il loro limite ce l'avevano gia, quindi
-     * qui la coppia prendere e rilasciare era fatta a meta.
-     * ⚠️ **Il tetto governa quello che AVANZA, non la consegna in corso**: si pota all'inizio,
-     * quindi un lotto piu grande del tetto passa comunque intero e viene potato alla consegna
-     * dopo. Con un tetto applicato in coda, invece, la consegna si mangerebbe i propri file.
+     * Ogni consegna vi scrive una copia intera dell'immagine, che nessuna schermata mostra:
+     * senza tetto la cartella crescerebbe per sempre.
+     * ⚠️ **Il tetto governa quello che avanza, non la consegna in corso**: si pota all'inizio,
+     * quindi un lotto più grande del tetto passa intero e si pota alla consegna dopo.
      */
     private const val MAX_SHARE_BYTES = 64L * 1024 * 1024
 
     /**
-     * Le copie piu vecchie escono finche la cartella delle consegne rientra nel tetto.
+     * Le copie più vecchie si cancellano finché la cartella delle consegne rientra nel tetto.
      *
-     * ⚠️⚠️ **SI POTA PRIMA DI SCRIVERE, ed e il contrario di quello che fa la riserva remota**
-     * (là si sfoltisce dopo, e il perche sta su `RemoteCache`). Qui non si puo fare altrimenti:
-     * il permesso di lettura che l'altra app riceve vive quanto la consegna, quindi cancellare
-     * subito dopo vorrebbe dire toglierle il file da sotto le mani mentre lo sta leggendo. Alla
-     * consegna dopo, invece, quel permesso e finito e la copia e spazzatura.
-     * ⚠️ **Sta in `cacheDir`**, quindi in ogni caso Android puo svuotarla quando lo spazio
-     * finisce: questa potatura serve a non arrivarci.
+     * ⚠️ **Si pota prima di scrivere**, al contrario di `RemoteCache`: il permesso di lettura che
+     * l'altra app riceve dura quanto la consegna, e cancellare subito dopo le toglierebbe il file
+     * mentre lo legge. Alla consegna dopo quel permesso è finito.
+     * La cartella è in `cacheDir`, che Android può svuotare quando lo spazio finisce: questa
+     * potatura serve a non arrivarci.
      */
     private fun trimShare(context: Context) {
         val files = shareDir(context).listFiles()?.filter { it.isFile } ?: return
@@ -81,17 +71,15 @@ object ImageActions {
         }
     }
 
-    // ── Clipboard ───────────────────────────────────────────────────────────
+    // ── Appunti ─────────────────────────────────────────────────────────────
 
     /**
-     * Puts the picture itself in the clipboard, as a content URI: an app that
-     * pastes gets read access from the system, which is the whole reason this goes
-     * through a FileProvider instead of a plain file path.
+     * Mette negli appunti l'immagine stessa, come `content://`: l'app che incolla riceve dal
+     * sistema il permesso di lettura, ed è la ragione del FileProvider.
      *
-     * ⚠️⚠️ **Suspending, with the PNG written on `Dispatchers.IO`, since 6.27**
-     * (findings C40 and E31 of the 6.25 review): a full-size PNG of a 24-megapixel photo takes
-     * seconds, and it used to run inside the tap, with the app frozen under the finger. The menu
-     * hands it to [MenuOps], whose scope outlives the menu.
+     * ⚠️ **Sospende, e il PNG si scrive su `Dispatchers.IO`**: un PNG a piena misura di una foto
+     * da 24 megapixel richiede secondi, e dentro il tocco fermerebbe l'app. Il menu la passa a
+     * [MenuOps], il cui ambito sopravvive al menu.
      */
     suspend fun copyImage(context: Context, image: LoadedImage): Boolean = try {
         val file = withContext(Dispatchers.IO) {
@@ -112,15 +100,12 @@ object ImageActions {
     /**
      * Mette negli appunti i **nomi** dei file scelti, uno per riga.
      *
-     * ⚠️⚠️ **ORDINE ALFABETICO DI NOME E POI DI ESTENSIONE** (richiesta dell'utente,
-     * 2026-08-31), che è una cosa diversa dall'ordinare il nome intero: così `foto.jpg` e
-     * `foto.png` restano vicine invece di finire una prima e una dopo `foto2.jpg`. E
-     * l'ordine dentro ognuno dei due pezzi è quello **naturale**, cioè `foto9` prima di
-     * `foto10`, come dappertutto in questa app.
-     * ⚠️ **L'ordine NON è quello della griglia**, che è per data: chi copia una lista la
-     * incolla da qualche parte per leggerla, e una lista di nomi si legge in ordine di nome.
-     * ⚠️ [folder] è il percorso da mettere in testa, e `null` quando l'impostazione è
-     * spenta: la decisione sta in chi chiama, che le impostazioni le ha già in mano.
+     * Ordine alfabetico di nome e poi di estensione (richiesta dell'utente): così `foto.jpg` e
+     * `foto.png` restano vicine, senza `foto2.jpg` in mezzo. Dentro ognuno dei due pezzi l'ordine
+     * è quello naturale, `foto9` prima di `foto10`, come in tutta l'app.
+     * Non è l'ordine della griglia, che è per data: una lista di nomi si legge in ordine di nome.
+     * [folder] è il percorso da mettere in testa, `null` quando l'impostazione è spenta: decide
+     * chi chiama, che ha le impostazioni.
      */
     suspend fun copyNames(context: Context, uris: List<Uri>, folder: String? = null): Int {
         val names = uris.map { Names.of(context, it) }.sortedWith { a, b ->
@@ -134,14 +119,11 @@ object ImageActions {
     /**
      * Mette negli appunti UN nome, intero.
      *
-     * ⚠️⚠️ **PRENDE IL NOME GIÀ IN MANO A CHI CHIAMA, e non lo va a rileggere**: chi la usa è
-     * il dialogo delle info, che il nome ce l'ha perché lo sta mostrando, e una seconda
-     * interrogazione al MediaStore potrebbe rispondere una cosa diversa da quella che si legge
-     * a schermo. Quello che si copia dev'essere quello che si vede.
-     * ⚠️ **È [copyNames] con una lista di uno? No, e la differenza conta**: quella legge i nomi
-     * dagli indirizzi, li ordina e ci può mettere davanti il percorso della cartella. Qui il
-     * risultato deve essere il nome e basta, senza una riga in più da cancellare a mano dopo
-     * averlo incollato.
+     * Prende il nome che chi chiama ha già, senza rileggerlo: il dialogo delle info lo sta
+     * mostrando, e una seconda interrogazione al MediaStore potrebbe rispondere altro. Si copia
+     * quello che si vede.
+     * Non è [copyNames] con una lista di uno: quella può mettere in testa il percorso della
+     * cartella, qui serve il nome e basta.
      */
     fun copyName(context: Context, name: String) = copyText(context, name)
 
@@ -152,30 +134,24 @@ object ImageActions {
     }
 
     /**
-     * The first web address the clipboard holds, or null.
+     * Il primo indirizzo web negli appunti, o `null`.
      *
-     * Two shapes are accepted, because both happen: a piece of text that contains
-     * an address, and a clip that is itself a URI (what a gallery puts there).
-     * ⚠️ A URL is looked for INSIDE the text rather than requiring the text to be
-     * one: what gets copied from a page is often an address with a word or a
-     * newline stuck to it, and refusing that would look like the clipboard was
-     * empty.
+     * Valgono due forme, perché capitano tutte e due: un testo che contiene un indirizzo, e un
+     * elemento che è già un URI (quello che mette una galleria).
+     * L'indirizzo si cerca dentro il testo: quello che si copia da una pagina ha spesso una
+     * parola o un a capo attaccati.
      */
     fun urlInClipboard(context: Context): Uri? = clipInClipboard(context)?.address
 
     /**
      * L'indirizzo negli appunti **e quando ci è finito**.
      *
-     * ⚠️⚠️ **L'ISTANTE SERVE A DISTINGUERE 'COPIATO ADESSO' DA 'STA LÀ DA TRE GIORNI', dalla
-     * 1.45** (segnalazione dell'utente, 2026-09-03: *se l'URL è negli appunti, non si apre
-     * all'avvio*). Chi apre l'app da sé guarda un solo indirizzo per volta e non lo riapre
-     * (vedi `clipboardDone`), ma ricopiare lo stesso link è una richiesta esplicita, e col
-     * solo confronto delle stringhe era indistinguibile da un link vecchio.
-     * ⚠️ **Lo dice il sistema**: `ClipDescription.getTimestamp` è l'ora in cui quel contenuto
-     * è stato messo negli appunti. Un'ora nostra direbbe quando lo abbiamo letto, che non
-     * risponde alla domanda.
-     * ⚠️ **Zero se il sistema non lo sa**, e allora resta il confronto dell'indirizzo: è il
-     * comportamento della `0.94`, cioè si perde la novità e non si sbaglia.
+     * ⚠️ **L'istante distingue 'copiato adesso' da 'copiato tre giorni fa'**: l'avvio non riapre
+     * un indirizzo già aperto (vedi `clipboardDone`), ma ricopiare lo stesso link è una
+     * richiesta esplicita, e il solo confronto delle stringhe non la riconosce.
+     * È l'ora del sistema, `ClipDescription.getTimestamp`, cioè quando il contenuto è stato
+     * messo negli appunti, non quando l'app l'ha letto. Zero se il sistema non lo sa: allora
+     * resta il confronto dell'indirizzo.
      */
     fun clipInClipboard(context: Context): Clip? {
         val clipboard = context.getSystemService(ClipboardManager::class.java)
@@ -190,25 +166,23 @@ object ImageActions {
         return null
     }
 
-    /** Quello che gli appunti portano: l'indirizzo e l'istante in cui ci è stato messo. */
+    /** Quello che gli appunti contengono: l'indirizzo e l'istante in cui vi è stato messo. */
     class Clip(val address: Uri, val at: Long)
 
     private val WEB_ADDRESS = Regex("""https?://[^\s"'<>\\]+""", RegexOption.IGNORE_CASE)
 
-    // ── Does this address lead to a picture? ────────────────────────────────
+    // ── Questo indirizzo porta a un'immagine? ───────────────────────────────
 
     /**
-     * ⚠️ The extension is asked FIRST and the network only when it says nothing.
-     * Plenty of image addresses end in `.jpg` and answering them without a
-     * request keeps the common case instant; but plenty of others end in nothing
-     * at all (a CDN with an id, a query string), and refusing those on the
-     * strength of the name would turn away perfectly good pictures. So the
-     * fallback is a HEAD, which asks the server what it is going to send.
+     * Prima si guarda l'estensione, e la rete solo quando l'estensione non dice niente: molti
+     * indirizzi finiscono in `.jpg` e rispondono subito, ma molti altri non hanno estensione (una
+     * CDN con un identificativo, una coda), e rifiutarli per il nome scarterebbe immagini buone.
+     * Il ripiego è una HEAD, che chiede al server che cosa manderà.
      */
     suspend fun leadsToImage(uri: Uri): Boolean = withContext(Dispatchers.IO) {
         val scheme = uri.scheme?.lowercase()
-        // A local address is not ours to interrogate: the resolver will say soon
-        // enough, and a content:// URI has no extension to read anyway.
+        // Un indirizzo locale non si interroga: risponderà il resolver, e un content:// non ha
+        // un'estensione da leggere.
         if (scheme != "http" && scheme != "https") return@withContext true
         val path = uri.path?.lowercase() ?: ""
         if (IMAGE_SUFFIXES.any { path.endsWith(it) }) return@withContext true
@@ -218,8 +192,8 @@ object ImageActions {
                 connectTimeout = 8_000
                 readTimeout = 8_000
                 instanceFollowRedirects = true
-                setRequestProperty("Accept", "image/avif,image/webp,image/apng,image/*,*/*;q=0.8")
-                setRequestProperty("User-Agent", "Mozilla/5.0 (Android) AIV")
+                setRequestProperty("Accept", WEB_ACCEPT)
+                setRequestProperty("User-Agent", WEB_AGENT)
             }
             try {
                 val type = connection.contentType?.substringBefore(';')?.trim()?.lowercase()
@@ -228,9 +202,8 @@ object ImageActions {
                 connection.disconnect()
             }
         } catch (e: Exception) {
-            // A HEAD that fails is not a verdict: some servers refuse the method
-            // outright. Letting it through means the loader gets its say, and the
-            // loader's error message is the accurate one.
+            // Una HEAD che fallisce non è un verdetto: alcuni server rifiutano il metodo. Si
+            // lascia decidere il caricatore, il cui messaggio d'errore è quello esatto.
             true
         }
     }
@@ -238,13 +211,10 @@ object ImageActions {
     /**
      * Se l'immagine arriva dalla rete, cioè se non c'è nessun file su cui lavorare.
      *
-     * ⚠️⚠️ **SERVE A SPEGNERE 'Rinomina', DALLA `1.83`** (campo libero del giro della `1.82`,
-     * punto E: *'Rinomina' deve essere disattivato (semitrasparente/meno visibile) nel menu
-     * contestuale delle immagini remote (Web)*). Un indirizzo `http` non ha un nome di file che
-     * questa app possa cambiare: il tasto apriva la finestra e l'operazione non riusciva, che è
-     * il peggiore dei due modi di dire di no.
-     * ⚠️ **La domanda si fa sullo SCHEMA e non sul nome**: un indirizzo remoto può finire con
-     * `.jpg` come no, e un file locale ha sempre uno schema che non è quello.
+     * Spegne 'Rinomina' per le immagini del Web (richiesta dell'utente, 1.83): un indirizzo
+     * `http` non ha un nome di file che l'app possa cambiare.
+     * La domanda si fa sullo schema e non sul nome: un indirizzo remoto può finire con `.jpg` o
+     * no.
      */
     fun isRemote(uri: Uri): Boolean {
         val scheme = uri.scheme?.lowercase()
@@ -254,14 +224,12 @@ object ImageActions {
     /**
      * Se l'indirizzo **si dichiara** un'immagine, cioè senza chiedere a nessuno.
      *
-     * ⚠️⚠️ **NON è [leadsToImage] con meno passi: è la domanda che si può fare SENZA
-     * RETE**, e serve dove una richiesta sarebbe fuori posto. Il caso per cui esiste è
-     * l'avvio dell'app, che guarda negli appunti: là una `HEAD` farebbe aspettare
-     * l'apertura dell'app a un server, e per un indirizzo che la persona magari aveva
-     * copiato per tutt'altro. ⚠️ Il prezzo, dichiarato: un'immagine servita da un
-     * indirizzo senza estensione (moltissime, sui siti moderni) qui risponde **no**. È
-     * il verso giusto in cui sbagliare, perché l'errore opposto sarebbe aprire da soli
-     * qualcosa che nessuno ha chiesto.
+     * È la domanda che si può fare senza rete, per l'avvio dell'app che guarda negli appunti:
+     * là una `HEAD` farebbe aspettare l'apertura a un server, per un indirizzo forse copiato per
+     * tutt'altro.
+     * ⚠️ Un'immagine servita da un indirizzo senza estensione qui risponde no: è il verso giusto
+     * in cui sbagliare, perché l'errore opposto aprirebbe da sola una cosa che nessuno ha
+     * chiesto.
      */
     fun looksLikeImage(uri: Uri): Boolean {
         val scheme = uri.scheme?.lowercase()
@@ -273,51 +241,27 @@ object ImageActions {
     /**
      * Le code che [looksLikeImage] riconosce.
      *
-     * ⚠️⚠️ **`.svg` C'È DALLA 1.31, e l'ha chiesto l'utente insieme alla visualizzazione**
-     * (*va anche aggiunta l'estensione nello schema di ricerca dell'URL da aprire
-     * all'avvio*): senza, un indirizzo di SVG copiato negli appunti non veniva nemmeno
-     * proposto, cioè il formato si sapeva aprire ma non si sapeva **offrire**.
-     * ⚠️ **Non è l'elenco del manifest e non è quello di [Folder]**, ed è la ragione per cui
-     * i tre non si possono unire senza pensarci: questo decide se **proporre da soli** un
-     * indirizzo che nessuno ha chiesto di aprire, quindi sbaglia nel verso giusto se è più
-     * corto.
-     * ⚠️ **Dalla `1.32` i tre elenchi combaciano su `tif`**: qui non c'era mai stato, e nella
-     * `1.32` è uscito anche dagli altri due perché l'app non lo sa aprire. Il perché sta su
-     * [Folder] e nel manifest.
-     * ⚠️⚠️ **MA QUESTA RIGA DICHIARAVA QUELLA DISCORDANZA L'ULTIMA, ED ERA FALSO**: ne
-     * restavano due, `bmp` e `jpe`. La prima è chiusa dalla `1.47`, che ha messo il BMP anche
-     * nei filtri del manifest; la seconda resta, ed è **voluta**, perché `.jpe` è una grafia
-     * che nessuno scrive in un indirizzo e questo elenco sbaglia nel verso giusto quando è
-     * più corto. ⚠️ Un conto scritto a mano in un commento invecchia al primo elenco toccato:
-     * qui la lezione è costata due discordanze passate inosservate per quindici versioni.
-     * ⚠️ **`.svgz` arriva con la `1.34`**, su richiesta dell'utente, e nei tre elenchi
-     * insieme: il decodificatore lo leggeva già (vedi [Folder]), quindi qui non c'era niente
-     * da aspettare.
-     * ⚠️ **`.dng` arrives with the `5.80`**, in the three lists together, for the same reason (see
-     * [Folder]).
+     * ⚠️ **Non è l'elenco del manifesto né quello di [Folder]**, e i tre non si uniscono senza
+     * pensarci: questo decide se proporre da sola un indirizzo che nessuno ha chiesto di aprire,
+     * quindi se è più corto sbaglia nel verso giusto. Per questo manca `.jpe`, una grafia che
+     * nessuno scrive in un indirizzo. Un formato nuovo entra nei tre elenchi insieme.
      */
     private val IMAGE_SUFFIXES = listOf(
         ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".heic", ".heif", ".avif",
         ".svg", ".svgz", ".dng"
     )
 
-    // ── Copying the original out ────────────────────────────────────────────
+    // ── La copia dell'originale ─────────────────────────────────────────────
 
     /**
-     * Streams the original file to [out]. Streamed and not buffered: the ceiling
-     * on a picture this viewer will open is high, and holding a second copy of it
-     * in memory to write it to disk would be the one avoidable way to run out.
+     * Copia l'originale in [out], in streaming: il tetto delle immagini che l'app apre è alto, e
+     * una seconda copia in memoria per scriverla su disco esaurirebbe la memoria senza ragione.
      */
     suspend fun copyOriginalTo(context: Context, uri: Uri, out: OutputStream): Boolean =
         withContext(Dispatchers.IO) {
-            /*
-             * ⚠️⚠️ **LA CONNESSIONE SI TIENE IN UNA VARIABILE E SI CHIUDE NEL BLOCCO FINALE, e
-             * fino alla 1.46 questo era il solo punto dell'app che non lo faceva**: chiudeva il
-             * flusso e basta. L'effetto e piccolo, perche chiudere il flusso rende il
-             * collegamento al serbatoio dei riusi, ma un errore che arrivi PRIMA di quella
-             * chiusura lascia la connessione aperta fino al raccoglitore. Adesso la coppia e
-             * intera, come negli altri punti che aprono la rete.
-             */
+            // La connessione si tiene in una variabile e si chiude nel blocco finale, come negli
+            // altri punti che aprono la rete: un errore prima della chiusura del flusso la
+            // lascerebbe aperta fino al raccoglitore.
             var connection: HttpURLConnection? = null
             try {
                 val input = when (uri.scheme?.lowercase()) {
@@ -325,7 +269,7 @@ object ImageActions {
                         connectTimeout = 20_000
                         readTimeout = 60_000
                         instanceFollowRedirects = true
-                        setRequestProperty("User-Agent", "Mozilla/5.0 (Android) AIV")
+                        setRequestProperty("User-Agent", WEB_AGENT)
                         connection = this
                     }.inputStream
                     else -> context.contentResolver.openInputStream(uri)
@@ -340,9 +284,9 @@ object ImageActions {
         }
 
     /**
-     * A file name for the picture: the one the source gave, or one built from the
-     * address, and in both cases with an extension that matches the type. Without
-     * the extension the gallery cannot tell what it is holding.
+     * Un nome di file per l'immagine: quello della sorgente, o uno ricavato dall'indirizzo, in
+     * tutti e due i casi con un'estensione che corrisponde al tipo. Senza estensione la galleria
+     * non sa che cosa contiene il file.
      */
     fun fileName(image: LoadedImage, uri: Uri?): String {
         val fromSource = image.displayName?.takeIf { it.isNotBlank() }
@@ -360,17 +304,17 @@ object ImageActions {
 
     /**
      * I caratteri che un nome di file non può contenere: quelli che il filesystem o il
-     * MediaStore rifiutano, e dalla `6.26` i caratteri di controllo (rilievo E30), fra cui il
-     * carattere nullo che un `%00` dell'indirizzo diventa una volta decodificato.
+     * MediaStore rifiutano, e i caratteri di controllo, fra cui il carattere nullo che un `%00`
+     * dell'indirizzo diventa una volta decodificato.
      */
     private val FORBIDDEN = Regex("""[\\/:*?"<>|\p{Cntrl}]""")
 
     /**
-     * ⚠️⚠️ **IL TETTO È IN BYTE E NON IN CARATTERI** (rilievo E30): il filesystem ne accetta 255
-     * per nome, e oltre `FileOutputStream` dà errore. L'ultimo pezzo dell'indirizzo di
-     * un'immagine del web è spesso un identificativo di centinaia di caratteri, e una lettera
-     * accentata o un ideogramma ne occupano da due a quattro. 180 lasciano il posto al suffisso
-     * e al contatore di [FileTree.freeName].
+     * ⚠️ **Il tetto del nome è in byte, non in caratteri**: il filesystem ne accetta 255 per
+     * nome, e oltre `FileOutputStream` dà errore. L'ultimo pezzo dell'indirizzo di un'immagine
+     * del Web è spesso un identificativo di centinaia di caratteri, e una lettera accentata o un
+     * ideogramma occupano da due a quattro byte. 180 lasciano il posto al suffisso e al
+     * contatore di [FileTree.freeName].
      */
     private const val NAME_BYTES = 180
 
@@ -391,21 +335,14 @@ object ImageActions {
     /**
      * Il nome spezzato in due: quello che si può cambiare, e il suffisso che non si tocca.
      *
-     * ⚠️⚠️ **SERVE PERCHÉ LA FINESTRA DEL NOME CHIEDE IL SOLO NOME** (specifica dell'utente
-     * per la `1.77`: *una finestra col solo nome, ispirata a 'Rinomina', precompilata col nome
-     * senza estensione*). Chi la apre non deve poter cancellare il suffisso: senza di lui la
-     * galleria non sa che cosa tiene in mano, ed è la stessa ragione per cui [fileName] lo
+     * Serve alla finestra del nome, che chiede il solo nome (specifica dell'utente, 1.77): chi la
+     * apre non deve poter cancellare il suffisso, per la stessa ragione per cui [fileName] lo
      * aggiunge quando manca.
-     * ⚠️⚠️ **IL TAGLIO È ESATTAMENTE QUELLO DI [fileName], e devono restare uguali**: da due a
-     * cinque caratteri alfanumerici dopo l'ultimo punto. Se questa funzione fosse più stretta,
-     * un nome che [fileName] considera già completo verrebbe qui letto come senza suffisso, e
-     * salvando se ne prenderebbe un secondo in coda.
-     * ⚠️ **Quindi anche una coda di sole cifre conta come suffisso** (`foto.2026` si spezza in
-     * `foto` e `.2026`): non è una bella lettura, ma è la stessa che fa il resto dell'app, e due
-     * letture diverse dello stesso nome sarebbero peggio.
-     * ⚠️ **Quello che è ricomposto è identico all'intero**, sempre: la coppia non perde né
-     * aggiunge un carattere, ed è la sola proprietà su cui si può contare quando si rimette
-     * insieme un nome battuto a mano.
+     * ⚠️ **Il taglio è esattamente quello di [fileName], e devono restare uguali**: da due a
+     * cinque caratteri alfanumerici dopo l'ultimo punto. Più stretta, un nome già completo per
+     * [fileName] sarebbe letto qui senza suffisso, e salvando ne prenderebbe un secondo.
+     * Quindi anche una coda di sole cifre conta come suffisso (`foto.2026`).
+     * Le due parti ricomposte sono sempre identiche all'intero.
      */
     fun splitName(full: String): Pair<String, String> {
         val dot = full.lastIndexOf('.')
@@ -418,10 +355,9 @@ object ImageActions {
     /**
      * Se in questo telefono si può scrivere in Download senza chiedere un permesso.
      *
-     * ⚠️⚠️ **SI CHIEDE PRIMA, E NON SI DEDUCE DA UN `false` DI [saveToDownloads]**: quella
-     * funzione dice `no` sia per un guasto sia perché la via non esiste, e chi deve decidere se
-     * tornare al selettore di sistema non può distinguere i due casi da un booleano. Con questa
-     * la decisione si prende prima di provare, e il `false` dell'altra vuol dire una cosa sola.
+     * Si chiede prima di provare: [saveToDownloads] risponde `false` sia per un guasto sia perché
+     * la via non esiste, e chi deve decidere se tornare al selettore di sistema non distingue i
+     * due casi da un booleano.
      */
     val downloadsWritable: Boolean
         get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
@@ -429,32 +365,25 @@ object ImageActions {
     /**
      * Scrive l'originale in **Download**, e dice se ce l'ha fatta.
      *
-     * ⚠️⚠️ **SEMPRE DOWNLOAD, E NIENTE SELETTORE, dalla `1.77`** (istruzione dell'utente:
-     * *niente scelta della cartella, sempre Downloads*). Fino alla `1.76` questo gesto passava
-     * dal selettore di sistema (`ACTION_CREATE_DOCUMENT`), che lasciava scegliere il posto e
-     * costava due schermate a ogni salvataggio. La cartella pubblica dei download è l'unica in
-     * cui si può scrivere **senza chiedere un permesso**, e questo conta anche in vista di Play,
-     * dove `MANAGE_EXTERNAL_STORAGE` va motivato.
+     * Sempre Download, senza selettore (istruzione dell'utente, 1.77): è l'unica cartella
+     * pubblica in cui si scrive senza chiedere un permesso, e su Play `MANAGE_EXTERNAL_STORAGE`
+     * va motivato.
      *
-     * ⚠️⚠️ **DA ANDROID 10 IN SU, E SU 9 NON C'È NIENTE DA FARE QUI**: `MediaStore.Downloads`
-     * nasce con l'API 29, e su 28 la stessa cartella si raggiunge solo con
-     * `WRITE_EXTERNAL_STORAGE`, che AIV Play non chiede (AIV GitHub sì, dalla `6.23`, per i
-     * comandi sui file, e il gesto resta lo stesso nelle due varianti). Là questa
-     * funzione dice **no** e il chiamante torna al selettore di sistema: è una via in meno, non
-     * una funzione mancante, ed è dichiarata invece di essere scoperta.
+     * ⚠️ **Da Android 10 in su**: `MediaStore.Downloads` esiste dall'API 29, e su 28 la cartella
+     * si raggiunge solo con `WRITE_EXTERNAL_STORAGE`, che AIV Play non chiede (il gesto resta lo
+     * stesso nelle due varianti). Là la funzione risponde no e il chiamante torna al selettore di
+     * sistema.
      *
-     * ⚠️ **`IS_PENDING` è la metà che si dimentica**: un file scritto senza di lui compare in
-     * galleria mentre lo si sta ancora copiando, quindi un download interrotto lascia in vista
-     * un'immagine tagliata. Con la riga in sospeso, il resto del telefono la vede solo alla
-     * fine.
-     * ⚠️ **I nomi doppi li risolve il MediaStore**, che aggiunge `(1)` da sé: farlo qui vorrebbe
-     * dire elencare la cartella per indovinare un nome libero, e fra l'elenco e la scrittura
-     * qualcun altro può aver creato quel file.
+     * ⚠️ **`IS_PENDING`**: senza, il file compare in galleria mentre si sta ancora copiando, e un
+     * download interrotto lascia in vista un'immagine tagliata. Con la riga in sospeso, il resto
+     * del telefono la vede solo alla fine.
+     * I nomi doppi li risolve il MediaStore, che aggiunge `(1)` da sé: elencare la cartella per
+     * trovare un nome libero lascerebbe a un altro il tempo di creare quel file.
      *
-     * @param name il nome **senza** suffisso, come lo scrive la finestra. Nullo vuol dire
-     *   'quello che aveva', ed è il caso del salvataggio diretto.
-     * @param suffix il suffisso scelto nella finestra, **col punto** e vuoto per 'nessuno'.
-     *   Nullo vuol dire 'quello che aveva'.
+     * @param name il nome senza suffisso, come lo scrive la finestra; nullo vuol dire 'quello che
+     *   aveva', ed è il caso del salvataggio diretto.
+     * @param suffix il suffisso scelto nella finestra, col punto, vuoto per 'nessuno'; nullo vuol
+     *   dire 'quello che aveva'.
      */
     suspend fun saveToDownloads(
         context: Context,
@@ -471,31 +400,24 @@ object ImageActions {
         val chosen = name?.trim()?.takeIf { it.isNotBlank() }
         val display = if (chosen == null) whole else safeName(chosen) + tail
         /*
-         * ⚠️⚠️ **SE IL SUFFISSO È CAMBIATO, IL TIPO DICHIARATO SEGUE IL NOME E NON I BYTE, O IL
-         * `MediaStore` RIMETTE IL SUO**: quando il tipo e l'estensione del `DISPLAY_NAME` non
-         * vanno d'accordo, il fornitore **aggiunge** l'estensione che corrisponde al tipo, quindi
-         * un `foto.png` dichiarato `image/jpeg` finisce in Download come `foto.png.jpg`. Cioè il
-         * comando 'Estensione' non avrebbe fatto niente, senza dare nessun errore.
-         * ⚠️ **Che il file menta è dichiarato e voluto**: cambiare l'estensione non converte
-         * niente, e il pannellino lo dice a chi lo apre (vedi `ExtensionDialog`). Chi vuole
-         * cambiare davvero formato ha 'Esporta/Converti'.
-         * ⚠️ **Un'estensione che nessuno conosce lascia il tipo NULLO**, e va bene: là il tipo lo
-         * deduce il fornitore dal nome, che è la sola cosa che si sa.
-         * ⚠️ **Se il suffisso non è cambiato resta [LoadedImage.mimeType], e non si ricava dal
-         * nome**: il nome può mentire già in partenza (il JPEG di Pexels dichiarato AVIF), e là
-         * il tipo vero è quello che il caricamento ha misurato.
+         * ⚠️ **Se il suffisso è cambiato, il tipo dichiarato segue il nome e non i byte**:
+         * quando tipo ed estensione del `DISPLAY_NAME` non concordano, il `MediaStore` aggiunge
+         * l'estensione del tipo, e un `foto.png` dichiarato `image/jpeg` finirebbe in Download
+         * come `foto.png.jpg`, senza errori. Che il file menta è voluto: cambiare l'estensione
+         * non converte niente, e il pannellino lo dice (vedi `ExtensionDialog`). Le altre regole
+         * sono su [declaredType].
          */
         val declared = declaredType(image, tail, had)
         intoDownloads(context, display, declared) { out -> copyOriginalTo(context, uri, out) }
     }
 
     /**
-     * A file the app wrote in its own folder, copied into **Download** (AIV Play's editors, since
-     * 5.10): the same road as [saveToDownloads], because in AIV Play that folder is the only
-     * shared one the app may write in.
+     * Un file che l'app ha scritto nella sua cartella, copiato in Download (gli editor di AIV
+     * Play): la stessa strada di [saveToDownloads], perché in AIV Play quella è l'unica cartella
+     * condivisa in cui l'app può scrivere.
      *
-     * ⚠️ The type follows the name, as in [declaredType]: the editors write JPEG and PNG, and
-     * the name they choose already says which.
+     * Il tipo segue il nome, come in [declaredType]: gli editor scrivono JPEG e PNG, e il nome lo
+     * dice già.
      */
     suspend fun fileToDownloads(context: Context, file: File): Boolean = withContext(Dispatchers.IO) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return@withContext false
@@ -507,11 +429,8 @@ object ImageActions {
     }
 
     /**
-     * The row in Download, written and then released: the half that [saveToDownloads] and
-     * [fileToDownloads] share.
-     *
-     * ⚠️ **One copy of the pending row and of its clean-up**: the notes on `IS_PENDING` and on the
-     * half-written row live on [saveToDownloads], and they hold for both callers.
+     * La riga in Download, scritta e poi rilasciata: la parte comune a [saveToDownloads] e
+     * [fileToDownloads]. Le note su `IS_PENDING` sono su [saveToDownloads].
      */
     @RequiresApi(Build.VERSION_CODES.Q)
     private suspend fun intoDownloads(
@@ -538,10 +457,8 @@ object ImageActions {
             false
         }
         if (!written) {
-            /*
-             * ⚠️ **La riga a metà si cancella**: senza, in Download resterebbe un file vuoto e
-             * in sospeso, che la galleria non mostra e che nessuno sa di avere.
-             */
+            // La riga a metà si cancella: senza, in Download resterebbe un file vuoto e in
+            // sospeso, che la galleria non mostra.
             try {
                 resolver.delete(row, null, null)
             } catch (e: Exception) {
@@ -564,16 +481,13 @@ object ImageActions {
     }
 
     /**
-     * Il tipo da dichiarare a chi scrive il file, che **segue il nome** e non i byte.
+     * Il tipo da dichiarare a chi scrive il file, che segue il nome e non i byte.
      *
-     * ⚠️⚠️ **STA IN UNA FUNZIONE PERCHÉ I CHIAMANTI SONO DUE**, dalla `1.81`: [saveToDownloads] e
-     * [saveToFolder]. Copiato, il giorno che questa regola cambia ne cambierebbe uno solo, e il
-     * difetto sarebbe un file che finisce con due estensioni in una sola delle due strade.
-     * ⚠️ **Se il suffisso non è cambiato resta [LoadedImage.mimeType], e non si ricava dal nome**:
-     * il nome può mentire già in partenza (il JPEG di Pexels dichiarato AVIF), e là il tipo vero è
-     * quello che il caricamento ha misurato.
-     * ⚠️ **Un'estensione che nessuno conosce lascia il tipo NULLO**, e va bene: là il tipo lo
-     * deduce il fornitore dal nome, che è la sola cosa che si sa.
+     * Una funzione sola per i due chiamanti, [saveToDownloads] e [saveToFolder].
+     * ⚠️ **Se il suffisso non è cambiato resta [LoadedImage.mimeType]**: il nome può mentire già in
+     * partenza (il JPEG di Pexels dichiarato AVIF), e il tipo vero è quello misurato dal
+     * caricamento.
+     * Un'estensione sconosciuta lascia il tipo nullo, e allora lo deduce il fornitore dal nome.
      */
     private fun declaredType(image: LoadedImage, tail: String, had: String): String? =
         if (tail.equals(had, ignoreCase = true)) image.mimeType else {
@@ -581,27 +495,18 @@ object ImageActions {
         }
 
     /**
-     * Scrive l'originale nella **cartella che ha scelto lui**, e dice se ce l'ha fatta.
+     * Scrive l'originale nella cartella scelta dall'utente, e dice se ce l'ha fatta.
      *
-     * ⚠️⚠️ **NASCE NELLA `1.81` PERCHÉ IL SELETTORE DI SISTEMA SALVAVA INVECE DI SCEGLIERE**
-     * (riscontro del giro della `1.80`, voce `scarica-percorso`: *Voglio solo SELEZIONARE la
-     * destinazione, non salvare. A quello pensa la finestra di dialogo di salvataggio quando
-     * tocchi 'Salva'*). Fino alla `1.80`'Percorso' apriva `ACTION_CREATE_DOCUMENT`, che è la
-     * finestra 'Salva file' del sistema: scriveva il file e chiudeva la partita, quindi il nome
-     * battuto nella finestra dell'app e il tocco su 'Salva' non servivano più a niente. Adesso
-     * quel comando apre `ACTION_OPEN_DOCUMENT_TREE`, che **restituisce una cartella**, e a
-     * scrivere ci pensa questa funzione quando lui tocca 'Salva'.
+     * 'Percorso' apre `ACTION_OPEN_DOCUMENT_TREE`, che restituisce una cartella, e a scrivere è
+     * questa funzione al tocco su 'Salva' (voce `scarica-percorso`: scegliere la destinazione,
+     * non salvare).
      *
-     * ⚠️⚠️ **IL PERMESSO SULLA CARTELLA VA PRESO IN MODO PERSISTENTE, o alla riapertura dell'app
-     * la destinazione memorizzata non è più scrivibile**: lo fa il richiamo che riceve l'albero
-     * (`takePersistableUriPermission`), e senza quella riga qui si otterrebbe un `SecurityException`
-     * il giorno dopo. È la ragione per cui l'indirizzo memorizzato **non basta** da solo.
-     * ⚠️ **Un tipo sconosciuto diventa `application/octet-stream`**: `createDocument` vuole un
-     * tipo, e un flusso di byte è la dichiarazione onesta per un'estensione che nessuno conosce.
-     * ⚠️ **I nomi doppi li risolve il fornitore**, che aggiunge un contatore come fa il
-     * `MediaStore`: non c'è niente da contare a mano.
-     * ⚠️ **Il documento a metà si cancella**, per la stessa ragione della riga in sospeso di
-     * [saveToDownloads]: senza, nella cartella resterebbe un file vuoto.
+     * ⚠️ **Il permesso sulla cartella va preso in modo persistente**: lo fa il richiamo che
+     * riceve l'albero (`takePersistableUriPermission`), e senza, il giorno dopo qui si avrebbe
+     * una `SecurityException`. L'indirizzo memorizzato da solo non basta.
+     * Un tipo sconosciuto diventa `application/octet-stream`, perché `createDocument` vuole un
+     * tipo. I nomi doppi li risolve il fornitore, come il `MediaStore`.
+     * Il documento a metà si cancella, come la riga in sospeso di [saveToDownloads].
      */
     suspend fun saveToFolder(
         context: Context,
@@ -648,23 +553,22 @@ object ImageActions {
     /**
      * Toglie da un nome scritto a mano i caratteri che un file non può portare.
      *
-     * ⚠️ **Gli stessi di [fileName]**, e per la stessa ragione: `MediaStore` rifiuta o riscrive
-     * un `DISPLAY_NAME` che contiene una barra, e un nome riscritto da lui non è quello che la
-     * persona ha appena battuto.
-     * ⚠️ **Lo usa anche il file di uno stile solo** (`StyleSettings`), che prende il nome dallo
-     * stile: 'T&O - Blu/Rosso' ha una barra.
+     * Gli stessi caratteri di [fileName]: `MediaStore` rifiuta o riscrive un `DISPLAY_NAME` che
+     * contiene una barra, e il nome non sarebbe più quello scritto.
+     * La usa anche il file di uno stile solo (`StyleSettings`), che prende il nome dallo stile:
+     * 'T&O - Blu/Rosso' ha una barra.
      */
     internal fun safeName(raw: String): String =
         raw.replace(FORBIDDEN, "_").trim().ifBlank { "image" }
 
-    // ── Sharing ─────────────────────────────────────────────────────────────
+    // ── Condivisione ────────────────────────────────────────────────────────
 
     /**
-     * Hands the original to whatever the person picks from the chooser.
+     * Consegna l'originale all'app che la persona sceglie dal selettore.
      *
-     * ⚠️⚠️ **La copia è su `Dispatchers.IO` e dentro un `runCatching`, dalla `6.26`** (rilievo
-     * E30): prima un nome che il filesystem rifiutava dava un errore che nessuno raccoglieva, e
-     * l'app si chiudeva; e la potatura della cartella girava sul filo dell'interfaccia.
+     * ⚠️ **La copia è su `Dispatchers.IO` e dentro un `runCatching`**: un nome che il filesystem
+     * rifiuta darebbe un errore che nessuno raccoglie, e l'app si chiuderebbe; e la potatura
+     * della cartella non deve girare sul thread dell'interfaccia.
      */
     suspend fun share(context: Context, image: LoadedImage, uri: Uri?): Boolean {
         if (uri == null) return false
@@ -687,44 +591,18 @@ object ImageActions {
     }
 
     /**
-     * Consegna PIÙ immagini insieme, quelle scelte nella griglia.
+     * Gli stessi file, in indirizzi che un'altra app può leggere.
      *
-     * ⚠️⚠️ **UN `content://` DEL MEDIASTORE SI PASSA COM'È, e non si ricopia**: è già un
-     * indirizzo che il sistema sa concedere in lettura, e copiarne cinquanta nella cache
-     * vorrebbe dire scrivere qualche gigabyte per un gesto che dura un secondo. La copia
-     * resta per i `file://`, che un'altra app non può leggere e che il nostro FileProvider
-     * serve solo dalla sua cartella (`file_paths.xml`, una cartella sola apposta).
-     * ⚠️ **Il tipo dichiarato è un jolly**, e qui non si può fare di meglio: una selezione
-     * può mescolare JPEG e HEIF, e dichiararne uno solo direbbe il falso su metà. ⚠️ Ma è
-     * il jolly **della selezione** e non sempre quello delle immagini, dalla `0.83`: vedi
-     * la nota nel corpo.
-     * ⚠️⚠️ **E quel jolly NON si scrive dentro un commento a blocco**: in Kotlin i
-     * commenti a blocco si ANNIDANO, quindi una barra seguita da un asterisco ne apre un
-     * secondo, e la chiusura che dovrebbe chiudere questo chiude quello. L'errore che ne
-     * esce parla di commento non chiuso a fine file, cioè lontanissimo dalla riga
-     * colpevole. Per la stessa ragione qui non si scrive nemmeno la sequenza di
-     * chiusura: nominarla la esegue.
-     * ⚠️ **Quello che non si riesce a consegnare si SCARTA invece di far fallire tutto**:
-     * su una selezione grande, una copia andata storta non deve mangiarsi le altre
-     * quarantanove. Se non ne resta nessuna, torna `false` e chi chiama lo dice.
-     */
-    /**
-     * Gli stessi file, in indirizzi che **un'altra app può leggere**.
-     *
-     * ⚠️⚠️ **UN `content://` DEL MEDIASTORE SI PASSA COM'È, e non si ricopia**: è già un
-     * indirizzo che il sistema sa concedere in lettura, e copiarne cinquanta nella cache
-     * vorrebbe dire scrivere qualche gigabyte per un gesto che dura un secondo. La copia resta
-     * per i `file://`, che un'altra app non può leggere e che il nostro FileProvider serve solo
-     * dalla sua cartella (`file_paths.xml`).
-     * ⚠️ **Quello che non si riesce a preparare si SCARTA invece di far fallire tutto**: su una
-     * selezione grande, una copia andata storta non deve mangiarsi le altre quarantanove. Chi
-     * chiama guarda quante ne tornano.
-     * ⚠️⚠️ **VIVE IN UNA FUNZIONE SUA DALLA `1.89`, e non è un riordino di comodo**: da quella
-     * versione la leggono in due, la condivisione e la **consegna al selettore di sistema**
-     * (`ViewerActivity`, modalità scelta). Scritta due volte, il giorno che il FileProvider
-     * cambia cartella una delle due comincia a consegnare indirizzi che nessuno può aprire.
-     * ⚠️ **Chi chiama aggiunge il permesso all'intento**: un indirizzo preparato non concede
-     * niente da sé, serve `FLAG_GRANT_READ_URI_PERMISSION` su chi lo trasporta.
+     * ⚠️ **Un `content://` del MediaStore si passa com'è**: il sistema sa già concederlo in
+     * lettura, e copiarne cinquanta nella cache scriverebbe gigabyte per un gesto di un secondo.
+     * Si copiano solo i `file://`, che un'altra app non può leggere e che il FileProvider serve
+     * solo dalla sua cartella (`file_paths.xml`).
+     * Quello che non si riesce a preparare si scarta: una copia andata storta non deve far
+     * perdere le altre. Chi chiama guarda quante ne tornano.
+     * La usano la condivisione e la consegna al selettore di sistema (`ViewerActivity`,
+     * modalità scelta): una copia sola, che segue il FileProvider.
+     * Chi chiama aggiunge `FLAG_GRANT_READ_URI_PERMISSION` all'intento: un indirizzo preparato
+     * non concede niente da sé.
      */
     suspend fun readableOutside(context: Context, uris: List<Uri>): List<Uri> {
         val ready = ArrayList<Uri>(uris.size)
@@ -742,14 +620,23 @@ object ImageActions {
         return ready
     }
 
+    /**
+     * Consegna più immagini insieme, quelle scelte nella griglia.
+     *
+     * Il tipo dichiarato è un jolly della selezione: una selezione può mescolare JPEG e HEIF, o
+     * immagini e video, e un tipo solo direbbe il falso su una parte.
+     * ⚠️ **Il jolly generale non si scrive in un commento a blocco**: in Kotlin i commenti a
+     * blocco si annidano, e la barra seguita dall'asterisco ne aprirebbe un secondo, con un
+     * errore di commento non chiuso a fine file.
+     * Se nessun file si riesce a preparare torna `false`, e chi chiama lo dice.
+     */
     suspend fun shareMany(context: Context, uris: List<Uri>): Boolean {
-        // ⚠️ La potatura sta QUI e non dentro il giro: là cancellerebbe le copie appena
-        // scritte da questo stesso lotto. Vedi [trimShare].
+        // La potatura è prima del giro: dentro cancellerebbe le copie appena scritte da questo
+        // stesso lotto. Vedi [trimShare].
         trimShare(context)
-        // ⚠️ **Il tipo si ricava dalla selezione dalla `0.83`**, da quando una cartella può
-        // contenere anche filmati: dichiarare `image/*` su un video farebbe comparire nel
-        // dialogo gli editor di fotografie, cioè programmi che quel file non aprono. Il
-        // jolly buono per un insieme misto è quello generale.
+        // Il tipo si ricava dalla selezione: `image/*` su un video farebbe comparire nel
+        // dialogo gli editor di immagini, che quel file non aprono. Per un insieme misto vale
+        // il jolly generale.
         val kind = when {
             uris.none { Videos.isVideo(it) } -> "image/*"
             uris.all { Videos.isVideo(it) } -> "video/*"

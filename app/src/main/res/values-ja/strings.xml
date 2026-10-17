@@ -2,7 +2,6 @@
 <!-- ja. Tradotto da AIV: la fonte di verità resta values/strings.xml, e ogni chiave nuova va aggiunta anche qui. -->
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
-    <string name="app_short_name">AIV</string>
     <string name="no_image">表示できるものがありません</string>
     <string name="open_failed">このファイルを開けませんでした</string>
     <string name="open_cleartext">暗号化されていないアドレス (http) です。Android がブロックし、https でも応答がありません</string>
@@ -21,11 +20,7 @@
     <string name="save_name_date">日付</string>
     <string name="menu_convert">書き出して変換</string>
     <string name="convert_format">形式</string>
-    <string name="convert_jpeg">JPEG</string>
-    <string name="convert_png">PNG</string>
-    <string name="convert_webp">WebP</string>
     <string name="convert_webp_lossless">WebP 可逆</string>
-    <string name="convert_quality">画質</string>
     <string name="convert_quality_at">画質\u0020\u0020\u0020%1$d%%</string>
     <string name="convert_percent">%1$d%%</string>
     <string name="convert_pixels">%1$d x %2$d</string>
@@ -35,7 +30,7 @@
     <string name="convert_elsewhere">ほかの形式</string>
     <string name="convert_elsewhere_desc">Android が書き出せるのは上の形式だけです。ほかの形式には次のサービスがあり、ブラウザーで開きます。画像はそこで、端末のストレージから選びます。</string>
     <string name="convert_clean">整理する</string>
-    <string name="convert_clean_why">ヘッダー、メタデータ、コメント、スクリプト、C2PA、エディタの残骸を取り除きます。いずれも最も容量を占めるデータ（ファイルの最大99%）で、必要になることはまれです。</string>
+    <string name="convert_clean_why" formatted="false">ヘッダー、メタデータ、コメント、スクリプト、C2PA、エディタの残骸を取り除きます。いずれも最も容量を占めるデータ（ファイルの最大99%）で、必要になることはまれです。</string>
     <string name="convert_clean_keeps">画像の内容は変更しません（パス、図形、線、描画、テキストなど）。イラストは100%そのまま残ります。</string>
     <string name="convert_clean_c2pa">⚠️ 注意: 誰がファイルを作ったかを示す C2PA の来歴も消えます。必要ならコピーを残してください。</string>
     <string name="clean_now">整理する</string>
@@ -45,11 +40,8 @@
     <string name="clean_not_svg">このファイルは読める SVG ではありません。</string>
     <string name="convert_open">開く</string>
     <string name="convert_export">書き出す</string>
-    <string name="convert_ezgif">EzGif</string>
     <string name="convert_ezgif_why">ほぼあらゆる形式から、あらゆる形式へ変換できます。アニメーション GIF も含みます。</string>
-    <string name="convert_squoosh">Squoosh</string>
     <string name="convert_squoosh_why">Google 製で、ブラウザー内で動きます。画像はどこにもアップロードされません。</string>
-    <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">対応形式がもっとも多く、AVIF や TIFF も含みます。</string>
     <string name="toast_image_copied">画像をコピーしました</string>
     <string name="toast_name_copied">ファイル名をコピーしました</string>
@@ -106,7 +98,6 @@
     <string name="front_tint">ヘッダーの色</string>
     <string name="front_tint_none">既定の色</string>
     <string name="folder_cover">カバーを選ぶ</string>
-    <string name="folder_cover_auto">既定のカバー</string>
     <string name="folder_cover_pick">\'%1$s\' のカバーを選んでください</string>
     <string name="folder_cover_done">カバーを更新しました</string>
     <string name="folder_cover_fail">この画像はカバーに使えません</string>
@@ -165,7 +156,7 @@
     <string name="settings_info_position">位置</string>
     <string name="settings_zoom_menu">ビューアーのメニューに拡大表示</string>
     <string name="settings_zoom_menu_desc">\'画面に合わせる\' と \'100%\' をビューアーのコンテキストメニューに追加します。</string>
-    <string name="hint_zoom_tap">クイックズーム: 画像をダブルタップすると画面に合わせ、もう一度ダブルタップすると実寸のピクセルになります。続けてタップすると、合わせた表示と100%を交互に切り替えます。</string>
+    <string name="hint_zoom_tap" formatted="false">クイックズーム: 画像をダブルタップすると画面に合わせ、もう一度ダブルタップすると実寸のピクセルになります。続けてタップすると、合わせた表示と100%を交互に切り替えます。</string>
     <string name="hint_ext_warn">⚠️ 拡張子を変えることは形式を変換することとは違います。変換には \'書き出して変換\' があります。\n\n⚠️ 画像や動画にメディアファイル以外の拡張子を付けると、その項目はグリッド表示とリスト表示から消えます。</string>
     <string name="settings_anim_counter">フレームカウンター</string>
     <string name="settings_anim_counter_desc">アニメーション画像の操作バーに表示します。</string>
@@ -185,9 +176,9 @@
     <string name="folders_permission_media">フォルダを一覧にするには画像と動画へのアクセスが必要です。</string>
     <string name="folders_none">中身のあるフォルダがありません。</string>
     <string name="folders_tablet_pick">ナビゲーションバーからフォルダを選んでください</string>
-    <string name="folders_rail_search">Search in folders</string>
-    <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move the folder list</string>
+    <string name="folders_rail_search">フォルダ内を検索</string>
+    <string name="folders_rail_search_in">%1$s 内を検索</string>
+    <string name="folders_rail_move">フォルダリストを移動</string>
     <string name="hub_open">その他</string>
     <string name="hub_view_list">リスト表示</string>
     <string name="hub_view_grid">グリッド表示</string>
@@ -211,7 +202,6 @@
     <string name="show_folder_desc">グリッド表示とリスト表示のフォルダの中に、また普通に出るようになります。</string>
     <string name="hide_folder_do">隠す</string>
     <string name="settings_hidden">隠したフォルダ</string>
-    <string name="settings_hidden_desc">フォルダを長押しすると隠せます。一覧には出ませんが、端末の中ではそのままです。</string>
     <string name="settings_hidden_show">表示する</string>
     <string name="search_hint">ファイル名で検索</string>
     <string name="search_clear">消す</string>
@@ -273,8 +263,6 @@
     <string name="facts_duration">長さ</string>
     <string name="facts_colour_grey">グレースケール</string>
     <string name="facts_colour_indexed">インデックスカラー</string>
-    <string name="facts_colour_rgb">RGB</string>
-    <string name="facts_colour_rgba">RGBA</string>
     <string name="facts_colour_bits">%1$s %2$d ビット</string>
     <string name="facts_colour_channel">%1$d ビット/チャンネル</string>
     <string name="facts_colour_alpha">透明部分あり</string>
@@ -363,7 +351,6 @@
     <string name="settings_facts_down">下へ</string>
     <string name="settings_group_look">外観</string>
     <string name="settings_group_viewer">ビューア</string>
-    <string name="settings_group_input">操作と表示</string>
     <string name="settings_group_files">ファイル管理</string>
     <string name="settings_group_browse">ファイルとフォルダ</string>
     <string name="settings_group_start">起動</string>
@@ -386,9 +373,6 @@
     <string name="settings_thumbs_gen_title">サムネイルの生成</string>
     <string name="settings_thumbs_gen_done">サムネイルを生成しました。</string>
     <string name="settings_hidden_none">非表示のフォルダーはありません</string>
-    <plurals name="settings_hidden_count">
-        <item quantity="other">%1$d 件のフォルダー</item>
-    </plurals>
     <plurals name="settings_facts_count">
         <item quantity="other">%1$d 項目を表示</item>
     </plurals>
@@ -465,7 +449,6 @@
     <string name="look_vibrance">自然な彩度</string>
     <string name="look_filter">モノクロフィルター</string>
     <string name="look_bw">白黒</string>
-    <string name="look_mix">HSL</string>
     <string name="look_hue">色相</string>
     <string name="look_lum">輝度</string>
     <string name="look_band_red">レッド</string>
@@ -490,7 +473,6 @@
     <string name="look_grain_lift">ハイライト</string>
     <string name="look_vignette_feather">ぼかし</string>
     <string name="look_tone">カーブ</string>
-    <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">トーンカーブ</string>
     <string name="look_target">ターゲット</string>
     <string name="look_auto">自動</string>
@@ -736,8 +718,8 @@
     <string name="folder_add">フォルダを追加</string>
     <string name="folder_authorize">フォルダを許可</string>
     <string name="folder_authorize_title">表示するフォルダに追加</string>
-    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
-    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_list_remove_title">このフォルダをリストから削除しますか？</string>
+    <string name="folder_list_remove_do">削除</string>
     <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">許可を取り消す</string>
     <string name="folder_remove_desc">このフォルダを許可リストから削除しますか？内容はグリッドとリストのモードに表示されなくなります。</string>

@@ -33,49 +33,49 @@ import kotlin.math.min
 import kotlin.math.sin
 
 /**
- * The **Disegno** module of the full editor, first phase (G1, 4.40): free hand, lines, arrows,
- * rounded rectangles and ellipses, with a colour, a width, a dashed stroke and an optional fill.
+ * Il modulo **Disegno** dell'editor completo: mano libera, linee, frecce, rettangoli arrotondati,
+ * ellissi, testo, pillola e pannello, con colore, spessore, tratteggio e riempimento.
  *
- * ⚠️⚠️ **His four answers decide its shape** (2026-10-06, `d-disegno-*`):
- * - D1a: it lives only in the full editor, as the last module of the row, so below Android 13
- *   there is no drawing;
- * - D2a: the drawing is attached to the image, so it turns, warps and is cut with it;
- * - D3a: it melts into the saved image like the watermark, and a reopened file holds pixels, not
- *   shapes;
- * - D4a: three versions in sequence (G1 shapes, G2 selection and handles, G3 text).
+ * ⚠️ **Le quattro risposte dell'utente ne decidono la forma** (`d-disegno-*`):
+ * - D1a: vive solo nell'editor completo, come ultimo modulo della fila, quindi sotto Android 13
+ *   non c'è;
+ * - D2a: il disegno è attaccato all'immagine, quindi gira, si deforma e si ritaglia con lei;
+ * - D3a: si fonde nell'immagine salvata come la filigrana, e un file riaperto contiene pixel, non
+ *   forme;
+ * - D4a: tre versioni in fila (G1 forme, G2 selezione e maniglie, G3 testo).
  *
- * ⚠️⚠️ **The points live in the ORIGINAL frame of the image, as fractions of its sides**, the same
- * choice as the Correggi/Rimuovi selection: a quarter turn or a mirror after drawing moves
- * nothing in the model, and the drawing follows the image for free. A point in the posed frame
- * would have to be rewritten at every pose, like the crop rectangle is.
+ * ⚠️ **I punti vivono nel riferimento ORIGINALE dell'immagine, in frazioni dei suoi lati**, come la
+ * selezione di Correggi e Rimuovi: un quarto di giro o uno specchio dopo il disegno non cambiano
+ * niente nel modello, e il disegno segue l'immagine da sé. Un punto nel riferimento della posa
+ * andrebbe riscritto a ogni posa, come il rettangolo del ritaglio.
  *
- * ⚠️⚠️ **It is laid after the development and before the geometry**, on the stage and in the saved
- * file alike: after, so the colour sliders don't repaint the ink the user picked; before, so
- * straightening, the keystones, the lens distortion, Fluidifica and the crop move it with the
- * image (D2a). The two places run the same functions of this file.
+ * ⚠️ **Si posa dopo lo sviluppo e prima della geometria**, sul palco e nel file salvato: dopo, così
+ * i cursori del colore non ridipingono l'inchiostro scelto; prima, così raddrizzamento, trapezi,
+ * distorsione dell'obiettivo, Fluidifica e ritaglio lo spostano con l'immagine (D2a). I due posti
+ * chiamano le stesse funzioni di questo file.
  */
 data class Drawing(val marks: List<Mark> = emptyList()) {
 
-    /** Whether there is nothing drawn, so the image leaves exactly as it came. */
+    /** Se non c'è niente di disegnato, e l'immagine esce esattamente com'è entrata. */
     val idle: Boolean get() = marks.isEmpty()
 
-    /** This drawing with [mark] on top. */
+    /** Questo disegno con [mark] in cima. */
     fun with(mark: Mark): Drawing = Drawing(marks + mark)
 
-    /** This drawing with the mark at [index] replaced by [mark] (G2, 4.60). */
+    /** Questo disegno con l'elemento in [index] sostituito da [mark]. */
     fun replacing(index: Int, mark: Mark): Drawing =
         Drawing(marks.mapIndexed { i, m -> if (i == index) mark else m })
 
-    /** This drawing without the mark at [index] (G2, 4.60). */
+    /** Questo disegno senza l'elemento in [index]. */
     fun without(index: Int): Drawing = Drawing(marks.filterIndexed { i, _ -> i != index })
 
-    /** This drawing with [mark] put at [index], the marks from there on one place higher (4.70). */
+    /** Questo disegno con [mark] in [index], e gli elementi da lì in poi un posto più su. */
     fun inserting(index: Int, mark: Mark): Drawing =
         Drawing(marks.toMutableList().apply { add(index.coerceIn(0, size), mark) })
 
     /**
-     * This drawing with the marks at [i] and [j] changed places (4.70, 'Sposta sopra' and 'Sposta
-     * sotto'): the list is the order of the layers, the last one on top.
+     * Questo disegno con gli elementi in [i] e [j] scambiati ('Sposta sopra' e 'Sposta sotto'):
+     * l'elenco è l'ordine dei livelli, l'ultimo in cima.
      */
     fun swapping(i: Int, j: Int): Drawing {
         if (i !in marks.indices || j !in marks.indices) return this
@@ -87,37 +87,33 @@ data class Drawing(val marks: List<Mark> = emptyList()) {
     }
 }
 
-/**
- * The five shapes of the first phase, the text and the pill of the third (4.90), and the panel
- * (4.91), in the order the module shows them.
- */
+/** Gli strumenti del modulo, nell'ordine in cui il modulo li mostra. */
 enum class Pen {
     FREE, LINE, ARROW, RECT, ELLIPSE, TEXT, PILL, PANEL;
 
-    /** Whether this pen closes a shape, so a fill means something. */
+    /** Se lo strumento chiude una forma, e un riempimento ha senso. */
     val closed: Boolean get() = this == RECT || this == ELLIPSE
 
-    /** Whether this pen writes words: the text, the pill (4.90) and the panel (4.91). */
+    /** Se lo strumento scrive parole: il testo, la pillola e il pannello. */
     val written: Boolean get() = this == TEXT || framed
 
     /**
-     * **Whether this pen is a box drawn by its two corners, with its words fitted inside**: the pill
-     * (4.90) and the panel (4.91), which differ only in their look.
+     * Se lo strumento è un riquadro disegnato dai due angoli, con le parole adattate dentro: la
+     * pillola e il pannello, che differiscono solo nell'aspetto.
      */
     val framed: Boolean get() = this == PILL || this == PANEL
 
     /**
-     * Whether this pen is a box that turns by its [Mark.angle]: the rectangle and the ellipse
-     * (4.70), and the text and the pill (4.90), which turn as a whole and keep their lines straight.
+     * Se lo strumento è un riquadro che gira col suo [Mark.angle]: il rettangolo, l'ellisse e gli
+     * strumenti che scrivono, che girano interi e tengono dritte le righe.
      */
     val boxed: Boolean get() = closed || written
 }
 
 /**
- * **The four faces of the text** (G3, 4.90, his choice of 2026-10-08 from the artefact of the
- * faces: *tengo: Roboto, Montserrat, Archivo Narrow, Literata*), each an upright and an italic
- * file in `res/font`, variable in their weight. Roboto is the factory face (*il predefinito
- * dev'essere roboto*). All four are under the SIL Open Font License, in `docs/fonts`.
+ * I quattro caratteri del testo, scelti dall'utente (Roboto di fabbrica, Montserrat, Archivo
+ * Narrow, Literata): ognuno un file dritto e uno corsivo in `res/font`, variabili nel peso. Tutti
+ * sotto la SIL Open Font License, in `docs/fonts`.
  */
 enum class Face(val upright: Int, val italic: Int, val label: String) {
     ROBOTO(R.font.roboto, R.font.roboto_italic, "Roboto"),
@@ -127,17 +123,15 @@ enum class Face(val upright: Int, val italic: Int, val label: String) {
 }
 
 /**
- * **Where the lines of a text or a pill sit** (4.90, his `B2` of 2026-10-08: *Aggiungo volentieri B2
- * e B3 sul testo*): to the left, in the middle (the factory value, as before) or to the right of the
- * text's box.
+ * Dove sono le righe di un testo o di una pillola nel riquadro: a sinistra, al centro (di fabbrica)
+ * o a destra (scelta `B2` dell'utente).
  */
 enum class Align {
     LEFT, CENTER, RIGHT;
 
     /**
-     * **The place the `Allineamento` key goes to next** (4.92, his note A on the 4.91 round: *il primo
-     * tocco deve portare il testo a sinistra, poi destra. Il ciclo è: centro, sinistra, destra*).
-     * Until 4.91 the key went from the middle to the right first.
+     * Il posto successivo del tasto `Allineamento`: centro, sinistra, destra (nota A dell'utente,
+     * giro della 4.91).
      */
     val next: Align get() = when (this) {
         CENTER -> LEFT
@@ -147,9 +141,9 @@ enum class Align {
 }
 
 /**
- * **The words of a text element and how they look** (G3, 4.90): the three styles (*grassetto,
- * corsivo, barrato*), the label behind them and its colour. The text's own colour is [Mark.ink]
- * and its size [Mark.width], as for the other elements.
+ * Le parole di un elemento di testo e il loro aspetto: i tre stili (grassetto, corsivo, barrato),
+ * l'etichetta dietro e il suo colore. Il colore del testo è [Mark.ink] e la sua dimensione
+ * [Mark.width], come per gli altri elementi.
  */
 data class Words(
     val text: String,
@@ -158,47 +152,50 @@ data class Words(
     val italic: Boolean = false,
     val strike: Boolean = false,
     /**
-     * **Whether a label's strip sits behind the text**, one per line, the strips melting into one
-     * shape (his example of 2026-10-08, *etichetta*). ⚠️ Until 4.90 a highlighter's band was the
-     * other ground: since 4.91 it is gone (his note on `4.90-04`: *'Etichetta' è talmente ben fatta
-     * che 'Evidenziato' non serve più a niente*), and `Sfondo` turns the strip on and off.
+     * Se dietro il testo c'è la striscia dell'etichetta, una per riga, fuse in una forma sola. Il
+     * tasto `Sfondo` la accende e la spegne.
      */
     val label: Boolean = false,
-    /** The colour of the strip, with its alpha; read only when [label] is on. */
+    /** Il colore della striscia, con l'alfa; si legge solo con [label] acceso. */
     val ground: Int = Draw.LABEL_INK,
-    /** Where the lines sit in the box (4.90, `B2`). */
+    /** Dove sono le righe nel riquadro (`B2`). */
     val align: Align = Align.CENTER,
     /**
-     * **The width the lines wrap at**, as a fraction of the image's long side, or 0 for lines that
-     * break only where Invio breaks them (4.90, his `B3`). Like the words it belongs to the element:
-     * a style copied onto a text leaves it its own.
+     * La larghezza a cui le righe vanno a capo, in frazione del lato lungo dell'immagine, o 0 per
+     * righe che vanno a capo solo con Invio (`B3`). Come le parole, è dell'elemento: uno stile
+     * copiato su un testo gli lascia la sua.
      */
     val wrap: Float = 0f
 )
 
 /**
- * **The typefaces of the four [Face]s**, loaded once from the app's resources (4.90). The drawing
- * is painted where there is no context to hand (the stage's overlay, the saved file), so the
- * editor and the save load them first; until then the text falls back on the system's face.
+ * I caratteri tipografici dei quattro [Face], caricati una volta dalle risorse dell'app. Il disegno
+ * si dipinge dove non c'è un contesto a portata (la sovrapposizione del palco, il file salvato),
+ * quindi l'editor e il salvataggio li caricano prima; fino ad allora il testo usa il carattere di
+ * sistema.
  */
 internal object Faces {
     private data class Key(val face: Face, val italic: Boolean, val bold: Boolean)
 
-    // ⚠️ A concurrent map: the editor loads the faces off the main thread, which paints with them.
+    // Una mappa concorrente: l'editor carica i caratteri fuori dal thread principale, che ci
+    // dipinge.
     private val loaded = ConcurrentHashMap<Key, Typeface>()
 
-    /** The weights of the variable files: regular and bold. */
+    /** I pesi dei file variabili: normale e grassetto. */
     const val REGULAR = 400
     const val BOLD = 700
 
     /**
-     * How many times the faces have been loaded: the keys that show a face read it, so they draw it
-     * again once the faces arrive, the editor loading them off the main thread.
+     * Quante volte i caratteri sono stati caricati: i tasti che mostrano un carattere lo leggono,
+     * così si ridisegnano quando i caratteri arrivano.
      */
     var loads by mutableIntStateOf(0)
         private set
 
-    /** Loads the sixteen typefaces of the eight files, once: later calls find them loaded. */
+    /**
+     * Carica una volta i sedici caratteri degli otto file: le chiamate successive li trovano
+     * pronti.
+     */
     fun load(context: Context) {
         if (loaded.size == Face.entries.size * 4) return
         synchronized(loaded) {
@@ -211,12 +208,12 @@ internal object Faces {
     }
 
     /**
-     * **One typeface, with its weight set on the font itself** (4.90).
-     * ⚠️⚠️ The weight is a variation of the file, and it goes on the [android.graphics.fonts.Font]:
-     * a variation set on the paint (`Paint.fontVariationSettings`) left the bold as wide as the
-     * regular on the bench, which measured it. The editor that draws exists from Android 13, so
-     * the builder of Android 10 is always there; below it the file opens at its own weight.
-     * ⚠️ The system's fallback stays behind the face, for the scripts the four files do not cover.
+     * Un carattere, col peso impostato sul font stesso.
+     * ⚠️ **Il peso è una variazione del file, e va sul [android.graphics.fonts.Font]**: impostata
+     * sul paint (`Paint.fontVariationSettings`) lasciava il grassetto largo come il normale,
+     * misurato sul banco. L'editor che disegna esiste da Android 13, quindi il costruttore di
+     * Android 10 c'è sempre; sotto, il file si apre al suo peso. Il ripiego di sistema resta
+     * dietro, per le scritture che i quattro file non coprono.
      */
     private fun build(context: Context, key: Key): Typeface {
         val res = if (key.italic) key.face.italic else key.face.upright
@@ -229,7 +226,8 @@ internal object Faces {
                     .setWeight(weight)
                     .setSlant(slant)
                     .build()
-                // ⚠️ The typeface asks for the font's own style: the builder's default is 400 upright.
+                // Il carattere chiede lo stile del font: quello di serie del costruttore è 400
+                // dritto.
                 return Typeface.CustomFallbackBuilder(FontFamily.Builder(font).build())
                     .setStyle(FontStyle(weight, slant)).build()
             }
@@ -237,19 +235,19 @@ internal object Faces {
         return ResourcesCompat.getFont(context, res) ?: Typeface.DEFAULT
     }
 
-    /** The typeface of [face], upright or [italic], regular or [bold]. */
+    /** Il carattere di [face], dritto o [italic], normale o [bold]. */
     fun of(face: Face, italic: Boolean, bold: Boolean): Typeface =
         loaded[Key(face, italic, bold)] ?: Typeface.create(Typeface.DEFAULT, if (bold) BOLD else REGULAR, italic)
 }
 
 /**
- * One shape of the drawing.
+ * Un elemento del disegno.
  *
- * ⚠️ **[points] are fractions of the original image**: x of its width, y of its height. A free
- * hand stroke keeps every point the finger passed; the other four keep where the finger went
- * down and where it is (or was lifted).
- * ⚠️ **[width] is a fraction of the long side of the original image**, so the stroke looks the
- * same on the preview and in the saved file at full resolution, which have different sizes.
+ * ⚠️ **[points] sono frazioni dell'immagine originale**: x della larghezza, y dell'altezza. Un
+ * tratto a mano libera tiene ogni punto toccato dal dito; gli altri tengono dove il dito si è
+ * appoggiato e dove è (o si è alzato).
+ * ⚠️ **[width] è una frazione del lato lungo dell'immagine originale**, così il tratto si vede
+ * uguale nell'anteprima e nel file salvato a piena risoluzione.
  */
 data class Mark(
     val pen: Pen,
@@ -258,76 +256,83 @@ data class Mark(
     val width: Float,
     val dashed: Boolean,
     /**
-     * The fill of a closed shape (rectangle, ellipse) as a colour with its alpha, or `null` for
-     * none; the other three pens ignore it.
-     *
-     * ⚠️⚠️ **Its own colour and its own opacity, apart from the outline**: his note during G1
-     * (2026-10-06) gives the example of a red border with a white fill at 50%, so a fill in the
-     * outline's ink, as G1 was first written, could not say it.
+     * Il riempimento di una forma chiusa, colore con l'alfa, o `null` per nessuno; gli altri
+     * strumenti lo ignorano. Ha colore e opacità suoi, separati dal contorno (esempio dell'utente:
+     * un bordo rosso con un riempimento bianco al 50%).
      */
     val fill: Int?,
     /**
-     * How the module chose [ink] and [fill], or `null` for a mark made elsewhere (the tests): the
-     * module loads it back when the mark is chosen (G2, 4.60). See [Tint].
+     * Come il modulo ha scelto [ink] e [fill], o `null` per un elemento fatto altrove (le prove):
+     * il modulo lo ricarica quando l'elemento è scelto. Vedi [Tint].
      */
     val tint: Tint? = null,
     /**
-     * **The turn of a rectangle or an ellipse around the centre of its box**, in degrees,
-     * clockwise on the original image (4.70, his answer on `4.64-04`: *toccando `Ruota` si passa in
-     * modalità rotazione*). [points] stay the two corners of the box before the turn.
+     * La rotazione del riquadro intorno al suo centro, in gradi, in senso orario sull'immagine
+     * originale ('Ruota'). [points] restano i due angoli del riquadro prima della rotazione.
      *
-     * ⚠️ **Only the two closed pens keep an angle**: a line, an arrow and a free hand stroke turn
-     * by turning their points, which say everything about them, so a second place for the same
-     * turn would be a second truth. [turned] does both.
-     * ⚠️ The turn is in the pixels of the original image, not in its fractions: on an image that
-     * is not square, a fraction turned would shear the shape.
+     * ⚠️ **Solo gli strumenti a riquadro ([Pen.boxed]) tengono un angolo**: una linea, una freccia
+     * e un tratto a mano libera girano girando i loro punti, che dicono tutto di loro, e un secondo
+     * posto per la stessa rotazione sarebbe una seconda verità. [turned] fa le due cose.
+     * ⚠️ La rotazione è nei pixel dell'immagine originale, non nelle sue frazioni: su un'immagine
+     * non quadrata una frazione ruotata deformerebbe la forma.
      */
     val angle: Float = 0f,
     /**
-     * **How much a panel blurs the image under it**, as a fraction of the longer side of its box
-     * (4.80 for the rectangle and the ellipse, his specification in the brief, round of 4.43: *da
-     * 0,5% a 25% del lato maggiore dell'oggetto*), or `null` for the other pens. The blur is laid by
-     * [Draw.blurAreas], with the image.
-     * ⚠️⚠️ **Since 4.91 only the panel blurs** (his `Non approvato` on `4.81-01`: *l'area sfocata
-     * non sarà più attributo di ogni forma, bensì uno strumento a parte. Si chiamerà 'Pannello'*):
-     * until then a rectangle or an ellipse with a value ignored its line and its fill.
+     * Quanto il pannello sfoca l'immagine sotto di sé, in frazione del lato lungo del suo riquadro
+     * (dallo 0,5% al 25%, numeri dell'utente), o `null`. La sfocatura la posa [Draw.blurAreas], con
+     * l'immagine. Solo il pannello sfoca: la sfocatura è uno strumento a parte (non approvato di
+     * `4.81-01`).
      */
     val blur: Float? = null,
     /**
-     * **The words of a text element** (G3, 4.90), or `null` for the other pens. A text has one
-     * point, the centre of its box, and the box is measured from the words every time it is needed
-     * ([Draw.textHalf]): a second copy of its size could drift from the words. A pill (4.90) keeps
-     * the two corners of its box, as a rectangle, and its words fit inside ([Draw.textFrame]).
+     * Le parole di un elemento di testo, o `null` per gli altri strumenti. Un testo ha un punto
+     * solo, il centro del riquadro, e il riquadro si misura dalle parole ogni volta che serve
+     * ([Draw.textFrame]): una seconda copia della misura potrebbe divergere dalle parole. Una
+     * pillola e un pannello tengono i due angoli del riquadro, come un rettangolo, e le parole ci
+     * si adattano dentro.
      */
     val words: Words? = null
 ) {
-    /** Whether this element lays a glass under itself: a pill always, a panel with its [blur]. */
+    /**
+     * Se l'elemento posa un vetro sotto di sé: la pillola sempre, il pannello con la sua [blur].
+     */
     val glass: Boolean get() = pen == Pen.PILL || (pen == Pen.PANEL && blur != null)
 
-    /** This mark with its last point moved to [to], or appended for a free hand stroke. */
+    /**
+     * Questo elemento con l'ultimo punto spostato in [to], o aggiunto per un tratto a mano libera.
+     */
     fun reaching(to: Offset): Mark = when (pen) {
         Pen.FREE -> copy(points = points + to)
         else -> copy(points = listOf(points.first(), to))
     }
 
-    /** This mark moved by [by], in fractions of the original image (G2, 4.60). */
+    /** Questo elemento spostato di [by], in frazioni dell'immagine originale. */
     fun moved(by: Offset): Mark = copy(points = points.map { it + by })
 
     /**
-     * **The frame the handles of this mark live in**, in the pixels of a [w] x [h] original
-     * (4.70): the centre of its box, its half sides, and the cosine and sine of its turn. For the
-     * free hand the box holds every point, and the turn is zero.
+     * Il riferimento in cui vivono le maniglie dell'elemento, nei pixel di un originale [w] x [h]:
+     * il centro del riquadro, i semilati, e coseno e seno della rotazione. Per la mano libera il
+     * riquadro contiene ogni punto, e la rotazione è zero.
      */
     private class Frame(val c: Offset, val hw: Float, val hh: Float, val cos: Float, val sin: Float) {
-        /** A point of the box's own axes, from its centre, as a point of the image. */
+        /** Un punto negli assi del riquadro, dal suo centro, come punto dell'immagine. */
         fun out(x: Float, y: Float) = Offset(c.x + x * cos - y * sin, c.y + x * sin + y * cos)
 
-        /** A point of the image, in the box's own axes from its centre. */
+        /** Un punto dell'immagine, negli assi del riquadro dal suo centro. */
         fun into(p: Offset): Offset {
             val dx = p.x - c.x
             val dy = p.y - c.y
             return Offset(dx * cos + dy * sin, -dx * sin + dy * cos)
         }
+
+        /**
+         * Le otto maniglie negli assi del riquadro, nell'ordine di [handles]: i quattro angoli, poi
+         * il centro di ogni lato. Vive qui una volta sola perché [reshaped] legge lo stesso ordine.
+         */
+        fun eight() = listOf(
+            -hw to -hh, hw to -hh, hw to hh, -hw to hh,
+            0f to -hh, hw to 0f, 0f to hh, -hw to 0f
+        )
     }
 
     private fun frame(w: Float, h: Float): Frame {
@@ -343,19 +348,17 @@ data class Mark(
     }
 
     /**
-     * **Where the chosen mark shows its handles**, in fractions of a [w] x [h] original (G2, 4.60,
-     * his specification: *il rettangolo selezionato mostra 4 vertici color accento, la freccia 2
-     * punti color accento*; 4.70, *le maniglie di base permetteranno di ridimensionare gli
-     * oggetti*).
+     * Dove l'elemento scelto mostra le maniglie, in frazioni di un originale [w] x [h] (specifica
+     * dell'utente: vertici e punti color accento per scegliere e ridimensionare).
      *
-     * - The line and the arrow: their two ends.
-     * - The rectangle, the ellipse and the free hand: the four corners of the box, then the middle
-     *   of each side, in the order top left, top right, bottom right, bottom left, then top,
-     *   right, bottom, left of the box's own axes. The four corners were there in 4.60; the middles
-     *   of the sides came with 4.70, to stretch along one axis (a reading of the session, declared
-     *   in the test item). The text and the pill (4.90) have the same eight.
+     * - Linea e freccia: i due estremi.
+     * - Rettangolo, ellisse, mano libera e gli strumenti che scrivono: i quattro angoli del
+     * riquadro,
+     *   poi il centro di ogni lato, nell'ordine alto a sinistra, alto a destra, basso a destra,
+     *   basso a sinistra, poi alto, destra, basso, sinistra negli assi del riquadro. I centri dei
+     *   lati servono a stirare lungo un asse.
      *
-     * ⚠️ The index of a handle is what [reshaped] reads, so the order is a contract.
+     * ⚠️ L'indice di una maniglia è quello che [reshaped] legge, quindi l'ordine è un contratto.
      */
     fun handles(w: Int, h: Int): List<Offset> {
         if (points.isEmpty()) return emptyList()
@@ -363,26 +366,24 @@ data class Mark(
         val fw = w.toFloat()
         val fh = h.toFloat()
         val f = frame(fw, fh)
-        return listOf(
-            -f.hw to -f.hh, f.hw to -f.hh, f.hw to f.hh, -f.hw to f.hh,
-            0f to -f.hh, f.hw to 0f, 0f to f.hh, -f.hw to 0f
-        ).map { (x, y) -> f.out(x, y).let { Offset(it.x / fw, it.y / fh) } }
+        return f.eight().map { (x, y) -> f.out(x, y).let { Offset(it.x / fw, it.y / fh) } }
     }
 
     /**
-     * **This mark with the handle [handle] of [handles] dragged to [to]**, in fractions of a [w] x
-     * [h] original (4.70, 'Trasforma').
+     * Questo elemento con la maniglia [handle] di [handles] trascinata in [to], in frazioni di un
+     * originale [w] x [h] ('Trasforma').
      *
-     * - A corner moves its two sides and the opposite corner stays; the middle of a side moves that
-     *   side and the opposite one stays. The sides are those of the box's own axes, so a turned
-     *   rectangle stretches along itself and not along the image.
-     * - An end of a line or of an arrow goes where it is dragged.
-     * - The free hand stretches its points with its box, and dragged past the opposite side it
-     *   mirrors, as in the drawing programs; the rectangle and the ellipse, being symmetric, just
-     *   grow on the other side.
+     * - Un angolo muove i suoi due lati e l'angolo opposto resta; il centro di un lato muove quel
+     * lato
+     *   e l'opposto resta. I lati sono quelli degli assi del riquadro, quindi un rettangolo ruotato
+     *   si stira lungo se stesso e non lungo l'immagine.
+     * - Un estremo di linea o di freccia va dove è trascinato.
+     * - La mano libera stira i punti col riquadro, e trascinata oltre il lato opposto si specchia,
+     *   come nei programmi di disegno; rettangolo ed ellisse, simmetrici, crescono dall'altra
+     *   parte.
      *
-     * ⚠️ The gesture calls it with the mark as it was when the finger went down, every frame: from
-     * the last frame the rounding would add up.
+     * ⚠️ Il gesto la chiama a ogni fotogramma con l'elemento com'era quando il dito si è
+     * appoggiato: partendo dall'ultimo fotogramma gli arrotondamenti si sommerebbero.
      */
     fun reshaped(handle: Int, to: Offset, w: Int, h: Int): Mark {
         if (points.isEmpty()) return this
@@ -395,9 +396,9 @@ data class Mark(
         val p = f.into(Offset(to.x * fw, to.y * fh))
         if (pen == Pen.TEXT) {
             /*
-             * ⚠️⚠️ **The middles of the left and the right side set the width the lines wrap at,
-             * since 4.90** (his `B3`: the text goes to a new line by itself): the opposite side stays
-             * and the words flow again, at least one size wide. The other six handles scale the text.
+             * ⚠️ **I centri dei lati sinistro e destro decidono la larghezza a cui le righe vanno a
+             * capo** (`B3`): il lato opposto resta e le parole si ridispongono, larghe almeno una
+             * dimensione. Le altre sei maniglie scalano il testo.
              */
             val parole = words
             if ((handle == 5 || handle == 7) && parole != null) {
@@ -410,15 +411,12 @@ data class Mark(
                 return copy(points = listOf(Offset(c.x / fw, c.y / fh)), words = parole.copy(wrap = (wide - 2f * pad) / long))
             }
             /*
-             * ⚠️⚠️ **A text grows and shrinks as a whole, around its centre** (4.90): its box is
-             * its words measured, so a handle sets the size, by how far along its own direction it
-             * is dragged. A text stretched along one axis would be a distorted face. The width it
-             * wraps at grows with it, so the lines stay the same.
+             * ⚠️ **Un testo cresce e cala intero, intorno al centro**: il riquadro sono le parole
+             * misurate, quindi una maniglia decide la dimensione, secondo quanto è trascinata lungo
+             * la sua direzione. Un testo stirato su un asse sarebbe un carattere deformato. La
+             * larghezza di a capo cresce con lui, e le righe restano le stesse.
              */
-            val h0 = listOf(
-                -f.hw to -f.hh, f.hw to -f.hh, f.hw to f.hh, -f.hw to f.hh,
-                0f to -f.hh, f.hw to 0f, 0f to f.hh, -f.hw to 0f
-            ).getOrNull(handle) ?: return this
+            val h0 = f.eight().getOrNull(handle) ?: return this
             val d = h0.first * h0.first + h0.second * h0.second
             if (d < 1f) return this
             val scale = (p.x * h0.first + p.y * h0.second) / d
@@ -438,9 +436,9 @@ data class Mark(
             else -> return this
         }
         if (pen == Pen.FREE) {
-            // ⚠️ A free hand stroke has no turn, so its box's axes are the image's: each point
-            // keeps its place in the box. A box with no width (a straight stroke) has nothing to
-            // stretch along that axis.
+            // Un tratto a mano libera non ha rotazione, quindi gli assi del riquadro sono quelli
+            // dell'immagine: ogni punto tiene il suo posto nel riquadro. Un riquadro senza
+            // larghezza (un tratto dritto) non ha niente da stirare su quell'asse.
             fun along(v: Float, lo: Float, size: Float, nlo: Float, nsize: Float) =
                 if (size > FLAT) nlo + (v - lo) / size * nsize else v
             val x0 = f.c.x - f.hw
@@ -459,18 +457,17 @@ data class Mark(
     }
 
     /**
-     * **This mark turned by [delta] degrees, clockwise, around the centre of its box**, in a [w] x
-     * [h] original (4.70, 'Ruota'), with the snap to the multiples of 45 degrees within
-     * [Draw.SNAP_DEG] (a reading of the session, declared in the test item: the R2 of his question,
-     * *libera, con scatti a 0, 45 e 90 gradi*).
+     * Questo elemento ruotato di [delta] gradi, in senso orario, intorno al centro del riquadro, in
+     * un originale [w] x [h] ('Ruota'), con lo scatto sui multipli di 45 gradi entro
+     * [Draw.SNAP_DEG] (lettura R2 della domanda all'utente, dichiarata nella voce di collaudo).
      *
-     * - The rectangle and the ellipse turn their [angle], and the snap is on where they end up.
-     * - The line and the arrow turn their points around their middle, and the snap is on the
-     *   direction of the line: a line that comes near the horizontal lies on it.
-     * - The free hand turns its points around the centre of its box, and the snap is on [delta]:
-     *   a stroke has no direction of its own.
+     * - Gli strumenti a riquadro girano il loro [angle], e lo scatto è sulla posizione d'arrivo.
+     * - Linea e freccia girano i punti intorno al loro centro, e lo scatto è sulla direzione: una
+     *   linea vicina all'orizzontale ci si posa.
+     * - La mano libera gira i punti intorno al centro del riquadro, e lo scatto è su [delta]: un
+     *   tratto non ha una direzione sua.
      *
-     * ⚠️ Like [reshaped], it is called with the mark of when the finger went down.
+     * ⚠️ Come [reshaped], si chiama con l'elemento di quando il dito si è appoggiato.
      */
     fun turned(delta: Float, w: Int, h: Int): Mark {
         if (points.isEmpty()) return this
@@ -494,7 +491,10 @@ data class Mark(
         })
     }
 
-    /** The centre of this mark's box, in fractions of a [w] x [h] original: what [turned] turns around. */
+    /**
+     * Il centro del riquadro, in frazioni di un originale [w] x [h]: quello intorno a cui [turned]
+     * gira.
+     */
     fun centre(w: Int, h: Int): Offset {
         if (points.isEmpty()) return Offset.Zero
         val f = frame(w.toFloat(), h.toFloat())
@@ -502,21 +502,21 @@ data class Mark(
     }
 
     /**
-     * **This mark with the style of [source]** (4.70, his answer on `4.64-03`: *È C2 (stile), che è
-     * poi applicato (nelle parti compatibili/applicabili) ad un altro oggetto selezionato*): the
-     * line's colour, light and opacity, the width and the dashes always; the fill only between two
-     * closed shapes, since a line has no fill to give and an arrow none to take. The pen, the points
-     * and the turn are the mark's own.
+     * Questo elemento con lo stile di [source] (risposta dell'utente a `4.64-03`: lo stile si
+     * applica nelle parti compatibili a un altro oggetto): colore, luminosità e opacità del
+     * contorno, spessore e tratteggio sempre; il riempimento solo fra due forme chiuse. Strumento,
+     * punti e rotazione restano dell'elemento.
      */
     fun styledLike(source: Mark): Mark {
         /*
-         * ⚠️ **Between two texts the style is the text's** (4.90): colour, size, face, the three
-         * styles, the label and where the lines sit, the words being the element's own. Between a text and a shape
-         * only the colour passes: a size is not a line's width, and a shape has no face.
-         * ⚠️ **A pill has its own look and no colour to give or take** (his note A on the 4.43
-         * round: *senza dover configurare ogni volta tratto, riempimento, opacità*): from a text or
-         * to one only the face and the three styles pass. Between two pills the colour passes too
-         * (4.91), as a fill passes between two closed shapes.
+         * ⚠️ **Fra due testi lo stile è quello del testo**: colore, dimensione, carattere, i tre
+         * stili, l'etichetta e l'allineamento; le parole restano dell'elemento. Fra un testo e una
+         * forma passa solo il colore: una dimensione non è uno spessore, e una forma non ha un
+         * carattere.
+         * ⚠️ **Pillola e pannello non danno né prendono il colore da un testo**: hanno un aspetto
+         * loro (nota A dell'utente, giro della 4.43); da un testo o verso un testo passano
+         * carattere, i tre stili e l'allineamento. Fra due elementi dello stesso strumento passano
+         * anche colore e sfocatura.
          */
         if (pen.written && source.pen.written) {
             val mine = words ?: return this
@@ -532,8 +532,8 @@ data class Mark(
         }
         if (pen.framed || source.pen.framed) return this
         if (pen == Pen.TEXT || source.pen == Pen.TEXT) {
-            // ⚠️ The recipe goes with the colour: the module loads the swatch from [tint], so a
-            // recipe left behind would show the old colour once the element is chosen.
+            // La ricetta va col colore: il modulo carica il campione da [tint], e una ricetta
+            // rimasta indietro mostrerebbe il colore vecchio quando l'elemento è scelto.
             return copy(
                 ink = (source.ink and 0xFFFFFF) or (ink and 0xFF000000.toInt()),
                 tint = tint?.copy(ink = source.tint?.ink ?: (source.ink or 0xFF000000.toInt()), inkLight = source.tint?.inkLight ?: 0f)
@@ -557,18 +557,17 @@ data class Mark(
     }
 
     private companion object {
-        /** Below this size, in pixels, a free hand box has no side to stretch. */
+        /** Sotto questa misura, in pixel, un riquadro a mano libera non ha un lato da stirare. */
         const val FLAT = 0.5f
     }
 }
 
 /**
- * **How the module chose a mark's colours**: the swatch, its light and its opacity, for the
- * outline and the fill (G2, 4.60).
+ * Come il modulo ha scelto i colori di un elemento: campione, luminosità e opacità, per contorno e
+ * riempimento.
  *
- * ⚠️ The mark draws [Mark.ink] and [Mark.fill], which are these values already mixed: from them
- * alone the module could not tell which swatch was chosen and how far its light was moved, and
- * choosing a mark has to show its swatch chosen and its sliders where they were.
+ * ⚠️ L'elemento disegna [Mark.ink] e [Mark.fill], che sono questi valori già mescolati: da loro il
+ * modulo non saprebbe quale campione era scelto e dove erano i cursori.
  */
 data class Tint(
     val ink: Int,
@@ -579,57 +578,48 @@ data class Tint(
     val fillAlpha: Float
 )
 
-/** How a drawing becomes pixels, the same way on the stage and in the saved file. */
+/** Come un disegno diventa pixel, allo stesso modo sul palco e nel file salvato. */
 internal object Draw {
 
-    /** The width slider, as fractions of the long side. */
+    /** Il cursore dello spessore, in frazioni del lato lungo. */
     const val WIDTH_MIN = 0.001f
     const val WIDTH_MAX = 0.03f
 
     /**
-     * The factory width: the slider at 66% of its travel since 4.95 (his note A on the 4.94 round:
-     * *dimensione 66% dello slider*, and his answer `A3`: the factory values of every pen of a
-     * shape, not of the arrow alone). It was 40% from 4.50, 60% from 4.42, and 0.004 before.
+     * Lo spessore di fabbrica: il cursore al 66% della corsa (nota A dell'utente sul giro della
+     * 4.94, e risposta `A3`: vale per tutti gli strumenti di forma).
      */
     const val WIDTH = WIDTH_MIN + 0.66f * (WIDTH_MAX - WIDTH_MIN)
 
     /**
-     * The factory light of the stroke: zero since 4.95, so the red of the first swatch as it is
-     * (note A on the 4.94 round: *dev'essere rossa*; a reading declared in the test item). From
-     * 4.50 to 4.94 it was -0.5, the slider at 25% of its travel, a darker red.
+     * La luminosità di fabbrica del tratto: zero, cioè il rosso del primo campione com'è (nota A,
+     * giro della 4.94).
      */
     const val INK_LIGHT = 0f
 
-    /**
-     * The factory opacity of the stroke: 95% since 4.95 (note A on the 4.94 round: *opacità 95%*).
-     * From 4.50 to 4.94 it was the slider (0.1 to 1) at 50% of its travel, 0.55.
-     */
+    /** L'opacità di fabbrica del tratto: 95% (nota A, giro della 4.94). */
     const val INK_ALPHA = 0.95f
 
     /**
-     * The factory ink of the stroke, the first swatch: `#FFFF4C3F` (his palette of 4.44, answer
-     * `D1`). In 4.42 and 4.43 it was `#FFFF4B3D`, his value; his palette of 4.44 starts with a red a
-     * shade away, and he chose to move the factory ink onto it.
+     * L'inchiostro di fabbrica del tratto, il primo campione della tavolozza dell'utente:
+     * `#FFFF4C3F` (risposta `D1`).
      */
     const val INK = 0xFFFF4C3F.toInt()
 
     /**
-     * The factory fill of a closed shape, `#33FF4C3F` in ARGB since 4.95: the red of the first
-     * swatch at 20%, so rectangles and ellipses are born filled (his message of 2026-10-09:
-     * *sostituisci il riempimento giallo con quello rosso, stessa opacità*). From 4.44 to 4.94 it was
-     * the amber swatch at 20% (`#33FFBF00`, his answer `D2`), and in 4.42 and 4.43 a salmon at about
-     * 15% (`#26FFAE8E`), which his palette of 4.44 no longer has.
+     * Il riempimento di fabbrica di una forma chiusa, `#33FF4C3F` in ARGB: il rosso del primo
+     * campione al 20%, così rettangoli ed ellissi nascono riempiti (richiesta dell'utente).
      */
     const val FILL = 0x33FF4C3F
 
     /**
-     * **[colour] made lighter or darker by [shift]**, from -1 (the darkest) to 1 (the lightest),
-     * with 0 the colour itself (Luminosità, 4.45; his note on `4.43-01`: *dal colore mostrato lo
-     * schiarisce o scurisce senza avvicinarsi troppo né al bianco né al nero*).
+     * [colour] schiarito o scurito di [shift], da -1 (il più scuro) a 1 (il più chiaro), con 0 il
+     * colore com'è (Luminosità; nota dell'utente su `4.43-01`: senza avvicinarsi troppo al bianco o
+     * al nero).
      *
-     * ⚠️ It moves the HSL lightness towards [LIGHT_MAX] or [LIGHT_MIN] and never past them, so hue
-     * and saturation stay those of the swatch. A colour already beyond a bound does not move that
-     * way: white does not get lighter, black does not get darker. The alpha is kept.
+     * ⚠️ Sposta la luminosità HSL verso [LIGHT_MAX] o [LIGHT_MIN] e mai oltre, quindi tinta e
+     * saturazione restano quelle del campione. Un colore già oltre un limite non si muove in quel
+     * verso: il bianco non schiarisce, il nero non scurisce. L'alfa resta.
      */
     fun lit(colour: Int, shift: Float): Int {
         if (shift == 0f) return colour
@@ -642,27 +632,28 @@ internal object Draw {
     }
 
     /**
-     * How far Luminosità goes, as HSL lightness: 15% and 85%, so it never reaches black or white.
-     * A choice of the session, declared in the test item.
+     * Fin dove arriva Luminosità, in luminosità HSL: 15% e 85%, così non tocca mai il nero o il
+     * bianco. Scelta della sessione, dichiarata nella voce di collaudo.
      */
     const val LIGHT_MIN = 0.15f
     const val LIGHT_MAX = 0.85f
 
-    /** [colour] with its alpha set to [alpha], from 0 to 1. */
+    /** [colour] con l'alfa portata ad [alpha], da 0 a 1. */
     fun withAlpha(colour: Int, alpha: Float): Int =
         ((alpha.coerceIn(0f, 1f) * 255f + 0.5f).toInt() shl 24) or (colour and 0xFFFFFF)
 
     /**
-     * The nine inks of the palette, his of 4.44 in his order: six hues, then white, grey and black
-     * last. The grey is a 30% black, `#B3B3B3` (his note on `4.44-01`, read as a graphic designer
-     * says it; declared in the test item, the other reading being `#4D4D4D`).
+     * I nove inchiostri della tavolozza, quella dell'utente nel suo ordine: sei tinte, poi bianco,
+     * grigio e nero. Il grigio è un nero al 30%, `#B3B3B3` (lettura da grafico della nota su
+     * `4.44-01`, dichiarata nella voce di collaudo; l'altra lettura era `#4D4D4D`).
      *
-     * ⚠️ **No colour picker in G1**: eight swatches cover the use the module is for (marking,
-     * pointing, underlining), and a picker costs a dialog.
-     * ⚠️ **The factory colours are swatches**: [INK] is the first, and [FILL] is the amber at 20%.
-     * A swatch is chosen when its colour equals the current one, so a factory colour off the palette
-     * would open the module with no swatch chosen. The stroke takes the first swatch by
-     * construction (`Gaze.ink`); the fill keeps its own constant, and `DisegnoTest` watches it.
+     * ⚠️ **Niente selettore di colore**: nove campioni coprono l'uso del modulo (segnare, indicare,
+     * sottolineare), e un selettore costa una finestra.
+     * ⚠️ **I colori di fabbrica sono campioni**: [INK] è il primo, e [FILL] è il rosso del primo
+     * campione al 20%. Un campione è scelto quando il suo colore è quello corrente, quindi un
+     * colore di fabbrica fuori tavolozza aprirebbe il modulo senza campione scelto. Il tratto
+     * prende il primo campione per costruzione (`Gaze.ink`); il riempimento ha la sua costante,
+     * presidiata da `DisegnoTest`.
      */
     val INKS = listOf(
         INK, 0xFFFFBF00.toInt(), 0xFF5ACB8C.toInt(), 0xFF3EB7FF.toInt(),
@@ -670,21 +661,22 @@ internal object Draw {
     )
 
     /**
-     * **The sizes of the text, as fractions of the long side, and its factory size** (4.90).
-     * ⚠️⚠️ **The largest is 1,5 since 4.91** (his note on `4.90-02`: *voglio poter fare un testo
-     * grande come l'intera immagine e anche oltre*; 1,1 or more, the number is the session's,
-     * declared in the test item): one letter as tall as the image and half again. Until 4.90 it
-     * was 0,2.
+     * Le dimensioni del testo, in frazioni del lato lungo, e quella di fabbrica. La più grande è
+     * 1,5 (nota dell'utente su `4.90-02`: un testo grande come l'immagine e oltre; il numero è
+     * della sessione, dichiarato nella voce di collaudo): una lettera alta una volta e mezza
+     * l'immagine.
      */
     const val TEXT_MIN = 0.01f
     const val TEXT_MAX = 1.5f
     const val TEXT = 0.05f
 
     /**
-     * **Where the size slider is for a text of [size]**, from 0 to 1, and back with [textSize]
-     * (4.91). ⚠️⚠️ **The scale is a ratio's, not a difference's**: from 0,01 to 1,5 an even slider
-     * would leave the sizes a text is written at (0,02 to 0,1) in the first twentieth of the track,
-     * under the width of a finger. Each step along the track multiplies the size by the same amount.
+     * Dove è il cursore della dimensione per un testo di [size], da 0 a 1, e ritorno con
+     * [textSize].
+     * ⚠️ **La scala è di rapporti, non di differenze**: da 0,01 a 1,5 un cursore uniforme
+     * lascerebbe le dimensioni d'uso (da 0,02 a 0,1) nel primo ventesimo della corsa, sotto la
+     * larghezza di un dito. Ogni passo lungo la corsa moltiplica la dimensione per lo stesso
+     * fattore.
      */
     fun textTrack(size: Float): Float =
         (ln(size.coerceIn(TEXT_MIN, TEXT_MAX) / TEXT_MIN) / ln(TEXT_MAX / TEXT_MIN)).coerceIn(0f, 1f)
@@ -693,15 +685,14 @@ internal object Draw {
         .coerceIn(TEXT_MIN, TEXT_MAX)
 
     /**
-     * **The size a new text is born at** (4.92, his note on `4.91-03`: *forse è bene stabilire una
-     * dimensione predefinita dei testi: la riga più lunga deve misurare il 50% della larghezza
-     * dell'immagine*): the size, as a fraction of the long side of a [w] x [h] original, at which the
-     * widest line of [words] is [FIT_WIDE] of the width, within [TEXT_MIN] and [TEXT_MAX]. A pill and
-     * a panel laid by a tap take it too, for their words (a reading of the session, declared in the
-     * test item).
-     * ⚠️ Measured with the paint the text is drawn with ([lines]), first at [FIT_PROBE] pixels and
-     * then once more at the size found: a line's width grows with the size, but not exactly in
-     * proportion, since the letters are fitted to whole pixels.
+     * La dimensione con cui nasce un testo (nota dell'utente su `4.91-03`: la riga più lunga misura
+     * il 50% della larghezza dell'immagine): la dimensione, in frazione del lato lungo di un
+     * originale [w] x [h], a cui la riga più larga di [words] è [FIT_WIDE] della larghezza, fra
+     * [TEXT_MIN] e [TEXT_MAX]. La prendono anche pillola e pannello posati con un tocco, per le
+     * loro parole (lettura della sessione, dichiarata nella voce di collaudo).
+     * ⚠️ Misurata col paint con cui il testo si dipinge ([lines]), prima a [FIT_PROBE] pixel e poi
+     * di nuovo alla dimensione trovata: la larghezza di una riga non cresce esattamente in
+     * proporzione, perché le lettere si adattano ai pixel interi.
      */
     fun fitSize(words: Words, w: Float, h: Float): Float {
         if (w <= 0f || h <= 0f) return TEXT
@@ -720,33 +711,36 @@ internal object Draw {
         return (px / max(w, h)).coerceIn(TEXT_MIN, TEXT_MAX)
     }
 
-    /** How wide the widest line of a new text is, as a part of the image's width (his 50%). */
+    /**
+     * Quanto è larga la riga più larga di un testo nuovo, in parte della larghezza dell'immagine
+     * (il suo 50%).
+     */
     const val FIT_WIDE = 0.5f
     private const val FIT_PROBE = 100f
 
-    /** The factory colour of the text: white (his factory label, *testo #FFFFFF*; reading `A4`). */
+    /** Il colore di fabbrica del testo: bianco (lettura `A4`). */
     const val TEXT_INK = 0xFFFFFFFF.toInt()
 
-    /** The factory strip of the label (his value of 2026-10-08). */
+    /** La striscia di fabbrica dell'etichetta (valore dell'utente). */
     const val LABEL_INK = 0xFFA3408F.toInt()
 
     /**
-     * **The strips the module offers** (4.90, his note: *il colore dev'essere selezionabile tra 4-8
-     * colori proposti da te*): six, his factory one first. The strip holds white words, so its
-     * colours are deep. [readable] says which of them stand out where the text lies.
+     * Le strisce che il modulo offre: sei, quella di fabbrica per prima (nota dell'utente: da 4 a 8
+     * colori proposti). La striscia porta parole bianche, quindi i colori sono scuri. [readable]
+     * dice quali risaltano dove il testo si trova.
      */
     val LABEL_INKS = listOf(
         LABEL_INK, 0xFF1F5FA8.toInt(), 0xFF1E7A4A.toInt(), 0xFFB3261E.toInt(), 0xFFB35400.toInt(), 0xFF262626.toInt()
     )
 
     /**
-     * **Whether a ground [ground] stands out from the image [under] it and keeps [ink] readable**
-     * (4.90, his note: *solo colori che contrastano a sufficienza*, read as 'where the label lies':
-     * reading `A5`, declared in the test item): at least [GROUND_DISTANCE] from the image in the
-     * CIELAB space, and at least [WORDS_CONTRAST] of the WCAG's contrast ratio against the words.
-     * ⚠️⚠️ **Two measures, since the two questions differ**: the words are read by their lightness
-     * against the ground, and the ground stands out by its hue too, so a strip as light as the
-     * image under it can still stand out from it by its colour.
+     * Se un fondo [ground] risalta sull'immagine [under] e tiene leggibile [ink] (nota dell'utente:
+     * solo colori che contrastano, letta come 'dove si trova l'etichetta', lettura `A5`): almeno
+     * [GROUND_DISTANCE] dall'immagine nello spazio CIELAB, e almeno [WORDS_CONTRAST] di rapporto di
+     * contrasto WCAG con le parole.
+     * ⚠️ **Due misure perché le domande sono due**: le parole si leggono per luminosità sul fondo,
+     * e il fondo risalta anche per tinta, quindi una striscia chiara come l'immagine può risaltare
+     * per il colore.
      */
     fun readable(ground: Int, under: Int, ink: Int): Boolean {
         val a = DoubleArray(3)
@@ -758,9 +752,9 @@ internal object Draw {
     }
 
     /**
-     * **The colour of the words [ink] on the ground [ground]** (4.90, when the `Sfondo` key lays the
-     * strip): white or black words take whichever of the two reads better on it, and words of
-     * another colour stay, unless they would not be readable, and then turn white or black too.
+     * Il colore delle parole [ink] sul fondo [ground], quando il tasto `Sfondo` posa la striscia:
+     * parole bianche o nere prendono quella delle due che si legge meglio, e parole di un altro
+     * colore restano, salvo diventare bianche o nere se non si leggerebbero.
      */
     fun wordsOn(ground: Int, ink: Int): Int {
         val fondo = ground or OPAQUE
@@ -774,9 +768,9 @@ internal object Draw {
     private const val BLACK = 0xFF000000.toInt()
 
     /**
-     * **The colour of [image] under [mark]'s box, or of the whole image without one** (4.90): the
-     * average of its pixels, which [readable] holds the grounds against. The box is the text's
-     * measured one, in the original frame the drawing lives in.
+     * Il colore di [image] sotto il riquadro di [mark], o di tutta l'immagine senza: la media dei
+     * pixel, su cui [readable] misura i fondi. Il riquadro è quello misurato del testo, nel
+     * riferimento originale del disegno.
      */
     fun under(image: Bitmap, mark: Mark?): Int {
         val w = image.width
@@ -797,21 +791,21 @@ internal object Draw {
         return (0xFF shl 24) or ((sr / n).toInt() shl 16) or ((sg / n).toInt() shl 8) or (sb / n).toInt()
     }
 
-    /** The side of the small copy whose pixels [under] averages. */
+    /** Il lato della copia piccola di cui [under] fa la media. */
     private const val UNDER = 8
 
     /**
-     * How much a ground must differ from the image under it (a distance in CIELAB, where 2 or so is
-     * the least difference an eye sees), and the words from the ground (the WCAG's large text).
+     * Quanto un fondo deve differire dall'immagine sotto (una distanza CIELAB, dove circa 2 è la
+     * minima differenza visibile), e le parole dal fondo (il testo grande delle WCAG).
      */
     const val GROUND_DISTANCE = 20.0
     const val WORDS_CONTRAST = 3.0
     private const val OPAQUE = 0xFF000000.toInt()
 
     /**
-     * The text's lines, as multiples of its size: the step between two lines, the ground's margin
-     * at the ends of a line, the strip's round corners, and the strip's shadow (blur and drop).
-     * Choices of the session, declared in the test item.
+     * Le misure delle righe, in multipli della dimensione: il passo fra due righe, il margine del
+     * fondo ai capi di una riga, gli angoli tondi della striscia e la sua ombra (sfocatura e
+     * scostamento). Scelte della sessione, dichiarate nella voce di collaudo.
      */
     private const val LINE = 1.3f
     const val PAD = 0.35f
@@ -820,17 +814,19 @@ internal object Draw {
     private const val SHADOW_DROP = 0.06f
     private const val SHADOW_INK = 0x40000000
 
-    /** A text laid out: its paint, its lines with their widths, and the measures the box reads. */
+    /**
+     * Un testo disposto: il paint, le righe con le larghezze, e le misure che il riquadro legge.
+     */
     private class Lines(
         val paint: Paint, val lines: List<String>, val widths: List<Float>,
         val size: Float, val step: Float, val cap: Float, val pad: Float, val hw: Float, val hh: Float,
         val content: Float, val align: Align
     ) {
-        /** Where the middle of line [i] is, from the box's middle. */
+        /** Dove è il centro della riga [i], dal centro del riquadro. */
         fun x(i: Int): Float = lineX(align, content, widths[i])
     }
 
-    /** Where the middle of a line [line] wide sits, from the middle of a box [content] wide. */
+    /** Dove è il centro di una riga larga [line], dal centro di un riquadro largo [content]. */
     private fun lineX(align: Align, content: Float, line: Float): Float = when (align) {
         Align.LEFT -> (line - content) / 2f
         Align.CENTER -> 0f
@@ -838,8 +834,8 @@ internal object Draw {
     }
 
     /**
-     * **[text] broken into the lines that fit [wide] pixels with [paint]**: every line of the text
-     * breaks where it no longer fits, as a paragraph does (4.90, `B3`).
+     * [text] spezzato nelle righe che entrano in [wide] pixel con [paint]: ogni riga va a capo dove
+     * non entra più, come un paragrafo (`B3`).
      */
     private fun wrapped(text: String, paint: TextPaint, wide: Float): List<String> = text.split('\n').flatMap { riga ->
         if (riga.isEmpty()) return@flatMap listOf("")
@@ -849,15 +845,16 @@ internal object Draw {
     }
 
     /**
-     * **[mark]'s words laid out for a [w] x [h] original** (4.90): one line per line of the text,
-     * centred, [LINE] sizes apart; the box half as wide as the widest line, the ground's margin
-     * included, and half as tall as the lines.
-     * ⚠️⚠️ **The lines sit on the middle of the capitals, not on the face's own box** (his note:
-     * *Literata ha una baseline stranamente bassa*): Literata's ascent is 1177 units for capitals of
-     * 700, so a strip centred on its box would hold the words low. Centred on half the height of an
-     * 'H' above the baseline, the four faces sit alike, with no correction for one face. Since 4.92 a
-     * text made mostly of lowercase sits on the middle of an 'x' instead ([core]).
-     * ⚠️ The weight comes with the typeface ([Faces]): Montserrat's file opens at its thinnest, 100.
+     * Le parole di [mark] disposte per un originale [w] x [h]: una riga per riga del testo, a
+     * [LINE] dimensioni di distanza; il riquadro largo la metà della riga più larga, margine del
+     * fondo compreso, e alto la metà delle righe.
+     * ⚠️ **Le righe sono centrate sulla metà delle maiuscole, non sul riquadro del carattere**
+     * (nota dell'utente: la linea di base di Literata è bassa): l'ascendente di Literata è 1177
+     * unità per maiuscole di 700, e una striscia centrata sul riquadro terrebbe le parole in basso.
+     * Centrati su metà altezza di una 'H', i quattro caratteri sono allineati senza correzioni; un
+     * testo quasi tutto in minuscolo si centra sulla 'x' ([core]).
+     * ⚠️ Il peso arriva col carattere ([Faces]): il file di Montserrat si apre al suo peso più
+     * sottile, 100.
      */
     private fun lines(mark: Mark, w: Float, h: Float): Lines? {
         val words = mark.words ?: return null
@@ -880,15 +877,13 @@ internal object Draw {
     }
 
     /**
-     * **The height of the band a line of [text] is centred on**, for [paint]: the lowercase letters'
-     * when the text has more of them than of capitals and figures, the capitals' otherwise.
-     * ⚠️⚠️ **The lowercase band since 4.92** (his note B on the 4.91 round: *mi piacerebbe che la
-     * centratura fosse 'ottica', sui pixel reali del peso maggiore del testo inserito ... quasi tutto il
-     * testo ha il baricentro in un compatto rettangolo che potrebbe contenere tutte le minuscole, è
-     * quello che andrebbe centrato in verticale*, with a pill measured 126 px above its lowercase and
-     * 96 px below): until 4.91 every line sat on the middle of an 'H', so a line of lowercase sat low.
-     * ⚠️ One band for the whole text, read on its letters: a band per line would space the lines
-     * unevenly. The majority is a reading of the session, declared in the test item.
+     * L'altezza della fascia su cui si centra una riga di [text], per [paint]: quella delle
+     * minuscole quando il testo ne ha più che di maiuscole e cifre, delle maiuscole altrimenti
+     * (nota B dell'utente sul giro della 4.91: una centratura ottica, sul rettangolo che contiene
+     * le minuscole).
+     * ⚠️ Una fascia per tutto il testo, letta sulle sue lettere: una per riga spazierebbe le righe
+     * in modo irregolare. La maggioranza è una lettura della sessione, dichiarata nella voce di
+     * collaudo.
      */
     private fun core(paint: Paint, text: String): Float {
         val minuscole = text.count { it.isLowerCase() }
@@ -897,15 +892,12 @@ internal object Draw {
         return android.graphics.Rect().also { paint.getTextBounds(segno, 0, 1, it) }.height().toFloat()
     }
 
-    /** **Half the width and half the height of [mark]'s text**, in the pixels of a [w] x [h] original (4.90). */
-    fun textHalf(mark: Mark, w: Float, h: Float): Pair<Float, Float> =
-        textFrame(mark, w, h).let { it.second to it.third }
-
     /**
-     * **The centre of a text's or a pill's box and its two half sides**, in the pixels of a [w] x [h]
-     * original, in the box's own axes (4.90): what the handles, the touch, the outline and the guides
-     * read. A text's box is its words measured around its point; a pill's is the box drawn, grown
-     * downward when its words need more room ([pill]).
+     * Il centro del riquadro di un testo o di una pillola e i due semilati, nei pixel di un
+     * originale [w] x [h], negli assi del riquadro: quello che leggono maniglie, tocco, contorno e
+     * guide. Il riquadro di un testo sono le parole misurate intorno al punto; quello di una
+     * pillola o di un pannello è il riquadro disegnato, allungato in basso quando le parole
+     * chiedono più spazio ([pill]).
      */
     fun textFrame(mark: Mark, w: Float, h: Float): Triple<Offset, Float, Float> {
         if (mark.points.isEmpty()) return Triple(Offset.Zero, 0f, 0f)
@@ -915,17 +907,15 @@ internal object Draw {
     }
 
     /**
-     * **The pill's look** (4.90, his note A on the 4.43 round, in ARGB: *il riempimento dev'essere
-     * #ccff4b3d, deve applicare sotto di sé un effetto vetro con sfocatura 12px, e deve avere 2 tracce
-     * sottili che aumentano in proporzione con le sue dimensioni. dall'interno: contorno pari al 0,5%
-     * della misura del lato maggiore in colore #e6fffefa, poi 0,5% del lato maggiore di colore
-     * #e6373737*; and the words *sempre bianco opaco, #ffffffff*).
-     * ⚠️ **The two traces are inside the box**, the dark one on its edge and the light one within, so
-     * the box drawn is the pill's whole extent and rests on the edges like a rectangle.
-     * ⚠️⚠️ **The glass's 12 px are a fraction of the pill's long side** (a reading of the session,
-     * declared in the test item): 12 px on the screen of a pill half as wide as a phone's, about
-     * 545 px. A fixed number of pixels would blur a pill on a large photo by nothing, and the same
-     * pill in the preview and in the file by different amounts.
+     * L'aspetto della pillola (nota A dell'utente sul giro della 4.43, in ARGB: riempimento
+     * `#ccff4b3d`, vetro sfocato di 12 px sotto, due tracce sottili proporzionali, dall'interno lo
+     * 0,5% del lato lungo in `#e6fffefa` e poi lo 0,5% in `#e6373737`; parole bianche opache).
+     * ⚠️ **Le due tracce sono dentro il riquadro**, la scura sul bordo e la chiara dentro, così il
+     * riquadro disegnato è tutta la pillola e si posa sui bordi come un rettangolo.
+     * ⚠️ **I 12 px del vetro sono una frazione del lato lungo della pillola** (lettura della
+     * sessione, dichiarata nella voce di collaudo): 12 px sullo schermo di una pillola larga metà
+     * telefono, circa 545 px. Un numero fisso di pixel non sfocherebbe niente su una foto grande, e
+     * sfocherebbe diversamente anteprima e file.
      */
     const val PILL_FILL = 0xCCFF4B3D.toInt()
     const val PILL_LIGHT = 0xE6FFFEFA.toInt()
@@ -935,63 +925,61 @@ internal object Draw {
     const val PILL_BLUR = 12f / 545f
 
     /**
-     * **The pill's colours** (4.91, his note on `4.90-05`: *si potesse selezionare il colore di sfondo
-     * della pillola, ma devo avere a disposizione una palette diversa (proponi tu: tutti colori
-     * 'stravaganti', neon e ben visibili); gli altri parametri come bordo, trasparenza, ecc. restano
-     * invariati*): eight, opaque, his red first; the pill lays them at the alpha of [PILL_FILL].
-     * ⚠️⚠️ **Vivid and not light**: each keeps the pill's white words at a contrast of 3 or more
-     * (the WCAG's large text, [WORDS_CONTRAST]), so neon yellow and lime, which would hide them, are
-     * out. Red, orange, pink, magenta, indigo, blue, teal and green: the session's choice, declared
-     * in the test item.
+     * I colori della pillola (nota dell'utente su `4.90-05`: una tavolozza a parte, colori vivaci,
+     * il resto invariato): otto, opachi, il suo rosso per primo; la pillola li posa all'alfa di
+     * [PILL_FILL].
+     * ⚠️ **Vivaci e non chiari**: ognuno tiene le parole bianche a un contrasto di almeno 3 (il
+     * testo grande delle WCAG, [WORDS_CONTRAST]), quindi giallo e lime fluorescenti sono fuori. La
+     * scelta è della sessione, dichiarata nella voce di collaudo.
      */
     val PILL_INKS = listOf(
         PILL_FILL or OPAQUE, 0xFFFF5A00.toInt(), 0xFFFF1F8E.toInt(), 0xFFD500F9.toInt(),
         0xFF6B2BFF.toInt(), 0xFF2962FF.toInt(), 0xFF009E9E.toInt(), 0xFF00A651.toInt()
     )
 
-    /** **[ink] laid at the pill's alpha**, the one of [PILL_FILL] (4.91). */
+    /** [ink] posato all'alfa della pillola, quella di [PILL_FILL]. */
     fun pillFill(ink: Int): Int = (ink and 0xFFFFFF) or (PILL_FILL and OPAQUE)
 
     /**
-     * **The least size of a pill's words, as a fraction of the image's long side** (his note: *fino ad
-     * un minimo di leggibilità (da definire)*): 2%, about 16 sp when the whole of a photo fills a
-     * phone's screen. A reading of the session, declared in the test item.
+     * La dimensione minima delle parole di una pillola, in frazione del lato lungo dell'immagine
+     * (nota dell'utente: fino a un minimo di leggibilità): 2%, circa 16 sp quando una foto intera
+     * riempie lo schermo di un telefono. Lettura della sessione, dichiarata nella voce di collaudo.
      */
     const val PILL_MIN = 0.02f
 
     /**
-     * How far the words keep from the pill's edge, beyond the two traces, as a part of the radius of
-     * its round ends: at 0.35 the corners of a line of words stay inside the round ends.
+     * Quanto le parole restano lontane dal bordo della pillola, oltre le due tracce, in parte del
+     * raggio delle estremità tonde: a 0,35 gli angoli di una riga restano dentro le estremità.
      */
     private const val PILL_INSET = 0.35f
 
     /**
-     * **The panel's look** (4.91, his `Non approvato` on `4.81-01`: *Forma: rettangolo con un
-     * arrotondamento piccolissimo (0,3% del lato lungo). Sfocatura: come adesso ... Supporto testo:
-     * esattamente come l'altra pillola. Colore ... si applica sempre e solo al 20% di opacità e deve
-     * esserci anche 'nessuna'*): the radius of its corners as a part of its own long side (a reading
-     * of the session, declared in the test item: the panel's and not the image's), and the alpha
-     * of its colour. The words are the pill's, white.
-     * ⚠️ No traces, which are the pill's: he listed the panel's attributes, and they were not there.
-     * ⚠️⚠️ **The radius is 1% since 4.92** (his note on `4.91-01`: *0,3% di arrotondamento è troppo
-     * poco, facciamo 1%*); 0,3% in 4.91.
+     * L'aspetto del pannello (non approvato di `4.81-01`: rettangolo appena arrotondato, sfocatura,
+     * testo come la pillola, colore sempre al 20% di opacità, anche 'nessuno'): il raggio degli
+     * angoli in parte del lato lungo del pannello stesso (lettura della sessione, dichiarata nella
+     * voce di collaudo), e l'alfa del colore. Le parole sono quelle della pillola, bianche. Niente
+     * tracce, che sono della pillola: l'utente non le ha elencate. Il raggio è 1% (nota su
+     * `4.91-01`).
      */
     const val PANEL_ROUND = 0.01f
     private const val PANEL_ALPHA = 0x33000000
 
-    /** **[ink] laid at the panel's 20%** (4.91). */
+    /** [ink] posato al 20% del pannello. */
     fun panelFill(ink: Int): Int = (ink and 0xFFFFFF) or PANEL_ALPHA
 
     /**
-     * How far the words keep from the panel's edge, as a part of its shorter half side: less than
-     * the pill's, whose round ends take room. A choice of the session, declared in the test item.
+     * Quanto le parole restano lontane dal bordo del pannello, in parte del semilato minore: meno
+     * della pillola, le cui estremità tonde prendono spazio. Scelta della sessione, dichiarata
+     * nella voce di collaudo.
      */
     private const val PANEL_INSET = 0.15f
 
-    /** The margin of [pen]'s words from its edge, beyond the traces, as a part of the shorter half side. */
+    /**
+     * Il margine delle parole di [pen] dal bordo, oltre le tracce, in parte del semilato minore.
+     */
     private fun insetOf(pen: Pen): Float = if (pen == Pen.PANEL) PANEL_INSET else PILL_INSET
 
-    /** A pill laid out: its box, its traces, and its words fitted. */
+    /** Una pillola disposta: il riquadro, le tracce e le parole adattate. */
     private class Pill(
         val c: Offset, val hw: Float, val hh: Float, val trace: Float,
         val paint: Paint?, val lines: List<String>, val step: Float, val cap: Float,
@@ -999,13 +987,14 @@ internal object Draw {
     )
 
     /**
-     * **[mark]'s pill laid out for a [w] x [h] original** (4.90): the words wrap to the box's width
-     * and take the largest size at which they fit its height (*si dispone al suo interno andando a capo
-     * automaticamente e massimizzando la propria dimensione*), down to [PILL_MIN]. Words that do not
-     * fit at that size keep it, and the box grows downward to hold them, its top edge staying where it
-     * was drawn: a reading of the session, declared in the test item, since words cut off would be
-     * lost without a word.
-     * ⚠️ The lines are spaced and centred as a text's ([lines]), on the band of [core].
+     * La pillola di [mark] disposta per un originale [w] x [h]: le parole vanno a capo alla
+     * larghezza del riquadro e prendono la dimensione più grande a cui entrano in altezza
+     * (specifica dell'utente), fino a [PILL_MIN]. Parole che a quella dimensione non entrano la
+     * tengono, e il riquadro si allunga verso il basso col lato di sopra fermo: lettura della
+     * sessione, dichiarata nella voce di collaudo, perché parole tagliate si perderebbero in
+     * silenzio.
+     * ⚠️ Le righe sono spaziate e centrate come quelle di un testo ([lines]), sulla fascia di
+     * [core].
      */
     private fun pill(mark: Mark, w: Float, h: Float): Pill {
         val a = Offset(mark.points.first().x * w, mark.points.first().y * h)
@@ -1013,7 +1002,7 @@ internal object Draw {
         val c0 = Offset((a.x + b.x) / 2f, (a.y + b.y) / 2f)
         val hw = abs(b.x - a.x) / 2f
         val hh0 = abs(b.y - a.y) / 2f
-        // ⚠️ A panel has no traces (4.91), so its words keep only their margin from the edge.
+        // Un pannello non ha tracce, quindi le parole tengono solo il margine dal bordo.
         val trace = if (mark.pen == Pen.PILL) PILL_TRACE * 2f * max(hw, hh0) else 0f
         val words = mark.words
         if (words == null || words.text.isBlank()) return Pill(c0, hw, hh0, trace, null, emptyList(), 0f, 0f)
@@ -1041,7 +1030,8 @@ internal object Draw {
         val lines = laid(lo)
         val need = lines.size * lo * LINE
         val hh = max(hh0, need / 2f + inset)
-        // ⚠️ The growth goes down the pill's own axes, so a turned pill grows along itself.
+        // La crescita va lungo gli assi della pillola, quindi una pillola ruotata cresce lungo se
+        // stessa.
         val rad = Math.toRadians(mark.angle.toDouble())
         val grow = hh - hh0
         val c = Offset(c0.x - grow * sin(rad).toFloat(), c0.y + grow * cos(rad).toFloat())
@@ -1049,14 +1039,16 @@ internal object Draw {
         return Pill(c, hw, hh, trace, paint, lines, lo * LINE, cap, wide, words.align)
     }
 
-    /** How many halvings the fitting of a pill's words takes: a size within a thousandth. */
+    /**
+     * Quanti dimezzamenti fa l'adattamento delle parole di una pillola: una dimensione entro un
+     * millesimo.
+     */
     private const val FIT_STEPS = 12
 
     /**
-     * **Paints a pill** (4.90): the dark trace on the edge, the light one within, the fill inside,
-     * then the white words. The glass under it is laid by [blurAreas], with the image.
-     * ⚠️ A panel (4.91) is painted here too: its colour, when it has one, on its slightly round box,
-     * then the same words.
+     * Dipinge una pillola: la traccia scura sul bordo, quella chiara dentro, il riempimento, poi le
+     * parole bianche. Il vetro sotto lo posa [blurAreas], con l'immagine. Qui si dipinge anche il
+     * pannello: il suo colore, se c'è, sul riquadro appena arrotondato, poi le stesse parole.
      */
     private fun paintPill(canvas: Canvas, mark: Mark, w: Float, h: Float) {
         val p = pill(mark, w, h)
@@ -1091,7 +1083,8 @@ internal object Draw {
         val dentro = RectF(-p.hw + 2f * t, -p.hh + 2f * t, p.hw - 2f * t, p.hh - 2f * t)
         if (dentro.width() > 0f && dentro.height() > 0f) {
             canvas.drawRoundRect(dentro, r - 2f * t, r - 2f * t, Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                // ⚠️ A pill made elsewhere (the tests) has no fill, and takes his red (4.91).
+                // Una pillola fatta altrove (le prove) non ha riempimento, e prende il rosso
+                // dell'utente.
                 color = mark.fill ?: PILL_FILL
                 style = Paint.Style.FILL
             })
@@ -1100,7 +1093,7 @@ internal object Draw {
         canvas.restoreToCount(kept)
     }
 
-    /** The words of a laid out pill or panel, on a canvas centred on its box. */
+    /** Le parole di una pillola o di un pannello disposti, su una tela centrata sul riquadro. */
     private fun words(canvas: Canvas, p: Pill) {
         p.paint?.let { paint ->
             val top = -p.lines.size * p.step / 2f
@@ -1110,17 +1103,17 @@ internal object Draw {
         }
     }
 
-    /** The radius of a panel's corners, for half sides [hw] and [hh] (4.91). */
+    /** Il raggio degli angoli di un pannello, per i semilati [hw] e [hh]. */
     private fun panelRound(hw: Float, hh: Float): Float = min(PANEL_ROUND * 2f * max(hw, hh), min(hw, hh))
 
-    /** **The radius of the glass under a pill**, in the pixels of a [w] x [h] original (4.90). */
+    /** Il raggio del vetro sotto una pillola, nei pixel di un originale [w] x [h]. */
     fun pillGlass(mark: Mark, w: Float, h: Float): Float = pill(mark, w, h).let { PILL_BLUR * 2f * max(it.hw, it.hh) }
 
     /**
-     * **The box of a pill that holds [words] at [size]**, centred on [at], as its two corners in
-     * fractions of a [w] x [h] original (4.90): a tap with Pillola lays a pill around its words, one
-     * line per line written, with the same insets [pill] keeps. A tap with Pannello lays a panel
-     * the same way (4.91), with its own margin and no traces ([pen]).
+     * Il riquadro di una pillola che contiene [words] a [size], centrato in [at], come due angoli
+     * in frazioni di un originale [w] x [h]: un tocco con Pillola posa una pillola intorno alle
+     * parole, una riga per riga scritta, coi margini che [pill] tiene. Un tocco con Pannello posa
+     * un pannello allo stesso modo, col suo margine e senza tracce ([pen]).
      */
     fun pillAround(words: Words, size: Float, at: Offset, w: Float, h: Float, pen: Pen = Pen.PILL): List<Offset> {
         val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -1130,7 +1123,8 @@ internal object Draw {
         val lines = words.text.split('\n')
         val wide = lines.maxOf { paint.measureText(it) }
         val tall = lines.size * paint.textSize * LINE
-        // ⚠️ The insets are a part of the radius, which is half the box's height: solved for it.
+        // I margini sono in parte del raggio, che è metà dell'altezza del riquadro: risolti per
+        // lei.
         val traces = if (pen == Pen.PILL) 4f * PILL_TRACE else 0f
         val boxH = tall / (1f - insetOf(pen) - traces)
         val boxW = max(boxH, wide + boxH * (insetOf(pen) + traces) + 2f * paint.textSize * PILL_SIDE)
@@ -1138,14 +1132,16 @@ internal object Draw {
         return listOf(Offset((c.x - boxW / 2f) / w, (c.y - boxH / 2f) / h), Offset((c.x + boxW / 2f) / w, (c.y + boxH / 2f) / h))
     }
 
-    /** A little air at the ends of a pill laid by a tap, as a part of the words' size. */
+    /**
+     * Un po' d'aria ai capi di una pillola posata con un tocco, in parte della dimensione delle
+     * parole.
+     */
     private const val PILL_SIDE = 0.2f
 
     /**
-     * **Paints a text element** (4.90): the ground first, as one shape (the strips of the lines melt
-     * into each other, as in his example), then the lines, centred on the element's point and turned
-     * by its angle.
-     * ⚠️ The label's strip has a soft shadow below (his example).
+     * Dipinge un elemento di testo: prima il fondo, come forma unica (le strisce delle righe si
+     * fondono, come nell'esempio dell'utente) con un'ombra morbida sotto, poi le righe, centrate
+     * sul punto dell'elemento e ruotate col suo angolo.
      */
     private fun paintText(canvas: Canvas, mark: Mark, w: Float, h: Float) {
         val words = mark.words ?: return
@@ -1168,19 +1164,18 @@ internal object Draw {
     }
 
     /**
-     * **The label's ground for the lines [t]**, centred on the text's point (4.90): one strip per line
-     * that has words, melted into one shape.
-     * ⚠️⚠️ **Round only where a strip stands out, and a concave fillet where it meets a wider one,
-     * since 4.92** (his note D on the 4.91 round, with a mockup: *gli arrotondamenti non devono stare
-     * nelle linee intermedie, anzi lì ci vorrebbe un arrotondamento contrario, che crea una maggiore
-     * armonia*). Until 4.91 every strip had four round corners, so where two strips met the corners
-     * left a notch. Now each corner that meets the next line looks at it:
-     * - the wider of the two keeps its corner round, as the outer corners are;
-     * - the narrower has a square corner, and a concave fillet fills the angle between its side and
-     *   the wider strip's edge;
-     * - two sides within half a pixel go on straight, with no round and no fillet.
-     * ⚠️ The round and the fillet share a radius, at most half of the step between the two sides, so
-     * they never cross.
+     * Il fondo dell'etichetta per le righe [t], centrato sul punto del testo: una striscia per ogni
+     * riga con parole, fuse in una forma sola.
+     * ⚠️ **Tondo solo dove una striscia sporge, con un raccordo concavo dove incontra una più
+     * larga** (nota D dell'utente sul giro della 4.91, con un mockup): ogni angolo che incontra la
+     * riga vicina la guarda:
+     * - la più larga delle due tiene l'angolo tondo, come gli angoli esterni;
+     * - la più stretta ha l'angolo vivo, e un raccordo concavo riempie l'angolo fra il suo lato e
+     * il
+     *   bordo della striscia più larga;
+     * - due lati entro mezzo pixel proseguono dritti, senza tondo e senza raccordo.
+     * ⚠️ Tondo e raccordo hanno lo stesso raggio, al massimo metà della differenza fra i due lati,
+     * così non si incrociano.
      */
     private fun labelGround(t: Lines): Path {
         val ground = Path()
@@ -1190,8 +1185,9 @@ internal object Draw {
         fun left(i: Int): Float = t.x(i) - t.widths[i] / 2f - t.pad
         fun right(i: Int): Float = t.x(i) + t.widths[i] / 2f + t.pad
         /*
-         * The radius of a corner of line [i] on the side [onLeft], against the line [n] above or below
-         * it: a convex corner's, or 0 for a square one, whose fillet it lays into the ground.
+         * Il raggio di un angolo della riga [i] sul lato [onLeft], contro la riga [n] sopra o
+         * sotto: quello di un angolo convesso, o 0 per un angolo vivo, il cui raccordo si aggiunge
+         * al fondo.
          */
         fun corner(i: Int, n: Int, onLeft: Boolean, top: Boolean): Float {
             if (n !in pieni) return r
@@ -1199,7 +1195,7 @@ internal object Draw {
             if (abs(sporge) < JOIN_SLACK) return 0f
             val rr = min(r, abs(sporge) / 2f)
             if (sporge > 0f) return rr
-            // ⚠️ The narrower strip: a square corner, and the fillet in its own band, outside it.
+            // La striscia più stretta: angolo vivo, e il raccordo nella sua fascia, fuori da lei.
             val x = if (onLeft) left(i) else right(i)
             val y = -t.hh + t.step * i + if (top) 0f else t.step
             val fuori = if (onLeft) -rr else rr
@@ -1229,16 +1225,16 @@ internal object Draw {
         return ground
     }
 
-    /** Within how many pixels two sides of the label's strips count as one straight side. */
+    /** Entro quanti pixel due lati delle strisce contano come un lato dritto solo. */
     private const val JOIN_SLACK = 0.5f
 
     /**
-     * The matrix from the original frame ([w] x [h] pixels) to the posed frame.
+     * La matrice dal riferimento originale ([w] x [h] pixel) a quello della posa.
      *
-     * ⚠️⚠️ **It is the same transform as `spunBy`, step by step**: mirror, then turn, then bring
-     * the bounds back to the origin, which is what `Bitmap.createBitmap` does with a matrix. A
-     * second derivation (say, from `Healing.unpose`) would agree on the corners and could still
-     * disagree by a pixel; `DisegnoTest` compares the two on a dot.
+     * ⚠️ **È la stessa trasformazione di `spunBy`, passo per passo**: specchio, poi rotazione, poi
+     * i limiti riportati all'origine, che è quello che fa `Bitmap.createBitmap` con una matrice.
+     * Una seconda derivazione (per esempio da `Healing.unpose`) coinciderebbe sugli angoli e
+     * potrebbe sbagliare di un pixel; `DisegnoTest` confronta le due su un punto.
      */
     fun posed(w: Int, h: Int, spin: Spin): Matrix = Matrix().apply {
         if (spin.mirror) postScale(-1f, 1f)
@@ -1249,8 +1245,8 @@ internal object Draw {
     }
 
     /**
-     * Paints [drawing] on [canvas], whose coordinates are the original frame of a [w] x [h]
-     * image (the caller sets the pose on the canvas).
+     * Dipinge [drawing] su [canvas], le cui coordinate sono il riferimento originale di un'immagine
+     * [w] x [h] (la posa sulla tela la imposta il chiamante).
      */
     fun paint(canvas: Canvas, drawing: Drawing, w: Int, h: Int) {
         val long = max(w, h).toFloat()
@@ -1270,14 +1266,13 @@ internal object Draw {
         val pts = mark.points.map { Offset(it.x * w, it.y * h) }
         val a = pts.first()
         val b = pts.last()
-        // ⚠️ A turned rectangle or ellipse is the same shape drawn on a turned canvas (4.70): its
-        // fill, its outline, its round corners and its dashes all turn with it, with no second
-        // drawing of the turned shape.
+        // Un rettangolo o un'ellisse ruotati sono la stessa forma su una tela ruotata: riempimento,
+        // contorno, angoli tondi e tratteggio girano con lei, senza un secondo disegno.
         val turned = mark.pen.closed && mark.angle != 0f
         val kept = if (turned) canvas.save() else -1
         if (turned) canvas.rotate(mark.angle, (a.x + b.x) / 2f, (a.y + b.y) / 2f)
-        // ⚠️ The fill goes first and on its own: its opacity is its own, and the outline's layer
-        // below must not multiply it.
+        // Il riempimento va prima e da solo: ha la sua opacità, e il livello del contorno sotto non
+        // deve moltiplicarla.
         if (mark.pen.closed) mark.fill?.let {
             val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 color = it
@@ -1291,10 +1286,10 @@ internal object Draw {
             }
         }
         /*
-         * ⚠️⚠️ **The outline's opacity is laid on the whole mark, through a layer** (Opacità of
-         * Traccia, 4.47, his answer `S1`): drawn with a translucent paint, every place where two
-         * strokes of the same mark cross (the arrow's head on its shaft, the round caps of the
-         * dashes, a free hand stroke over itself) would come out darker than the rest.
+         * ⚠️ **L'opacità del contorno si posa sull'elemento intero, con un livello** (Opacità di
+         * Traccia, risposta `S1`): con un paint traslucido ogni punto in cui due tratti dello
+         * stesso elemento si incrociano (la punta della freccia sull'asta, i capi tondi del
+         * tratteggio, una mano libera sopra se stessa) verrebbe più scuro del resto.
          */
         val alpha = mark.ink ushr 24
         val layer = if (alpha < 255) canvas.saveLayerAlpha(null, alpha) else -1
@@ -1304,10 +1299,12 @@ internal object Draw {
     }
 
     /**
-     * **The outline of a turned rectangle or ellipse**, as points in fractions of a [w] x [h]
-     * original (4.70): enough of them that the box they span is the shape's box on the screen,
-     * round corners included. The stage reads it to lay a turned element on an edge.
-     * ⚠️ Points and not a box: the geometry can bend the outline, and only points go through it.
+     * Il contorno di un elemento a riquadro, come punti in frazioni di un originale [w] x [h]:
+     * tanti che il riquadro che coprono sia quello della forma sullo schermo, angoli tondi
+     * compresi. Il palco lo legge per posare un elemento ruotato su un bordo, e [blurAreas] per
+     * tagliare la sfocatura.
+     * ⚠️ Punti e non un riquadro: la geometria può piegare il contorno, e solo i punti la
+     * attraversano.
      */
     fun outline(mark: Mark, w: Int, h: Int): List<Offset> = outline(mark, w.toFloat(), h.toFloat())
 
@@ -1317,13 +1314,14 @@ internal object Draw {
         val cs = cos(rad).toFloat()
         val sn = sin(rad).toFloat()
         if (mark.pen == Pen.TEXT) {
-            // ⚠️ A text's box is its four corners, turned with it (4.90).
+            // Il riquadro di un testo sono i suoi quattro angoli, ruotati con lui.
             val (c, hw, hh) = textFrame(mark, fw, fh)
             return listOf(-hw to -hh, hw to -hh, hw to hh, -hw to hh).map { (x, y) ->
                 Offset((c.x + x * cs - y * sn) / fw, (c.y + x * sn + y * cs) / fh)
             }
         }
-        // ⚠️ A pill's box is the one its words need (4.90): it can be taller than the one drawn.
+        // Il riquadro di una pillola è quello che chiedono le parole: può essere più alto di quello
+        // disegnato.
         val (c, hw, hh) = if (mark.pen.framed) textFrame(mark, fw, fh) else {
             val a = Offset(mark.points.first().x * fw, mark.points.first().y * fh)
             val b = Offset(mark.points.last().x * fw, mark.points.last().y * fh)
@@ -1336,13 +1334,11 @@ internal object Draw {
                 local += Offset(hw * cos(t).toFloat(), hh * sin(t).toFloat())
             }
         } else {
-            // ⚠️⚠️ One way round, corner after corner: top left from the left side to the top, top
-            // right from the top to the right side, and so on. In 4.80 the arcs of the top right
-            // and bottom left corners ran backwards, so the outline crossed itself: harmless for
-            // the box it spans (4.70), and a slanted area with two loose corners once Sfocatura
-            // cut the image along it (his `Non approvato` on `4.80-01`).
-            // ⚠️ A pill is a rectangle with ends as round as they can be (4.90), a panel one with
-            // corners barely round (4.91).
+            // ⚠️ Un verso solo, angolo dopo angolo: in alto a sinistra dal lato sinistro alla cima,
+            // in alto a destra dalla cima al lato destro, e così via. Con due archi percorsi al
+            // contrario il contorno si incrocerebbe, e la sfocatura taglierebbe l'immagine con due
+            // angoli sbagliati. Una pillola è un rettangolo con le estremità più tonde possibile,
+            // un pannello uno con gli angoli appena tondi.
             val r = when (mark.pen) {
                 Pen.PILL -> min(hw, hh)
                 Pen.PANEL -> panelRound(hw, hh)
@@ -1360,17 +1356,20 @@ internal object Draw {
         return local.map { Offset((c.x + it.x * cs - it.y * sn) / fw, (c.y + it.x * sn + it.y * cs) / fh) }
     }
 
-    /** How many points [outline] takes on an ellipse, and on each round corner of a rectangle. */
+    /** Quanti punti [outline] prende su un'ellisse, e su ogni angolo tondo di un rettangolo. */
     private const val OUTLINE_STEPS = 72
     private const val CORNER_STEPS = 6
 
-    /** How many points [outline] takes on each quarter of a pill's round ends: the blur cuts along them. */
+    /**
+     * Quanti punti [outline] prende su ogni quarto delle estremità tonde di una pillola: la
+     * sfocatura taglia lungo loro.
+     */
     private const val PILL_STEPS = 18
 
     /**
-     * **[deg] on the nearest multiple of 45 degrees when it is within [SNAP_DEG] of it**, and in
-     * the range from -180 to 180 (4.70, the turn of 'Ruota'). The same 5 degrees as the lines on the
-     * horizontal and the vertical, so the two snaps feel alike under the finger.
+     * [deg] sul multiplo di 45 gradi più vicino quando è entro [SNAP_DEG], e nell'intervallo da
+     * -180 a 180 (la rotazione di 'Ruota'). Gli stessi 5 gradi delle linee sull'orizzontale e sulla
+     * verticale, così i due scatti si sentono uguali sotto il dito.
      */
     fun snapTurn(deg: Float): Float {
         var d = deg % 360f
@@ -1381,11 +1380,11 @@ internal object Draw {
         return if (out <= -180f) out + 360f else out
     }
 
-    /** The corner radius of a rectangle [box]: it follows the stroke, never past half a side. */
+    /** Il raggio degli angoli di un rettangolo [box]: segue il tratto, mai oltre metà lato. */
     private fun corner(mark: Mark, long: Float, box: RectF): Float =
         min((mark.width * long).coerceAtLeast(1f) * CORNER, min(box.width(), box.height()) / 2f)
 
-    /** The outline of [mark], opaque: [paint] lays its opacity. */
+    /** Il contorno di [mark], opaco: l'opacità la posa [paint]. */
     private fun strokeOf(canvas: Canvas, mark: Mark, pts: List<Offset>, long: Float) {
         val stroke = (mark.width * long).coerceAtLeast(1f)
         val pen = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -1394,14 +1393,15 @@ internal object Draw {
             strokeWidth = stroke
             strokeCap = Paint.Cap.ROUND
             strokeJoin = Paint.Join.ROUND
-            // ⚠️ The dashes scale with the stroke, so a thick line is not a row of dots.
+            // Il tratteggio scala col tratto, così una linea spessa non è una fila di punti.
             if (mark.dashed) pathEffect = DashPathEffect(floatArrayOf(stroke * DASH, stroke * GAP), 0f)
         }
         val a = pts.first()
         val b = pts.last()
         when (mark.pen) {
             Pen.FREE -> {
-                // ⚠️ A tap with no movement is a dot: a path of one point draws nothing.
+                // Un tocco senza movimento è un punto: un tracciato di un punto solo non disegna
+                // niente.
                 if (pts.size == 1 || pts.all { it == a }) {
                     canvas.drawPoint(a.x, a.y, pen.apply { pathEffect = null })
                     return
@@ -1410,7 +1410,7 @@ internal object Draw {
             }
             Pen.LINE -> canvas.drawLine(a.x, a.y, b.x, b.y, pen)
             Pen.ARROW -> {
-                // ⚠️ The head is never dashed: a broken head no longer reads as a head.
+                // La punta non è mai tratteggiata: spezzata non si legge più come una punta.
                 val head = Paint(pen).apply { pathEffect = null }
                 val angle = atan2((b.y - a.y).toDouble(), (b.x - a.x).toDouble())
                 val size = max(stroke * HEAD, long * HEAD_MIN)
@@ -1425,8 +1425,8 @@ internal object Draw {
                     )
                 }
             }
-            // ⚠️ A text, a pill and a panel never reach here: [paint] draws them with [paintText]
-            // and [paintPill].
+            // Testo, pillola e pannello non arrivano qui: [paint] li disegna con [paintText] e
+            // [paintPill].
             Pen.TEXT, Pen.PILL, Pen.PANEL -> Unit
             Pen.RECT, Pen.ELLIPSE -> {
                 val box = RectF(min(a.x, b.x), min(a.y, b.y), max(a.x, b.x), max(a.y, b.y))
@@ -1440,17 +1440,15 @@ internal object Draw {
     }
 
     /**
-     * The shaft of a dashed arrow, laid from the tip back to the tail (his note B on the 4.45
-     * round, with a drawing: *che non rimanesse un buco tra il tratto finale e la punta*, and *che
-     * il primo tratto fosse lungo almeno quanto basta per 'uscire' dall'angolo concavo della
-     * punta*).
+     * L'asta di una freccia tratteggiata, posata dalla punta verso la coda (nota B dell'utente sul
+     * giro della 4.45, con un disegno: nessun buco fra l'ultimo tratto e la punta, e il primo
+     * tratto abbastanza lungo da uscire dall'angolo concavo della punta).
      *
-     * ⚠️⚠️ **The dashes start from the tip, not from the tail**: counted from the tail, the pattern
-     * reached the tip wherever the length left it, often in a gap, and a short dash could sit
-     * inside the head. Now the piece against the tip is solid and as long as the head's arms reach
-     * along the shaft, plus a stroke for their round caps; the pattern goes on from there toward
-     * the tail, starting with a gap, and it is the tail's end that comes out partial.
-     * ⚠️ A shaft shorter than that piece is drawn solid, whole.
+     * ⚠️ **Il tratteggio parte dalla punta, non dalla coda**: contato dalla coda arrivava alla
+     * punta dove capitava, spesso in un vuoto. Il pezzo contro la punta è pieno e lungo quanto i
+     * bracci della punta lungo l'asta, più un tratto per i loro capi tondi; il tratteggio prosegue
+     * verso la coda cominciando con un vuoto, ed è la coda a uscire parziale. Un'asta più corta di
+     * quel pezzo si disegna piena.
      */
     private fun dashedShaft(canvas: Canvas, a: Offset, b: Offset, size: Float, stroke: Float, dashed: Paint, solid: Paint) {
         val len = hypot(a.x - b.x, a.y - b.y)
@@ -1462,17 +1460,16 @@ internal object Draw {
         val cy = b.y + uy * piena
         canvas.drawLine(b.x, b.y, cx, cy, solid)
         if (len > piena) {
-            // ⚠️ The phase skips the first dash, so the pattern opens with a gap after the solid piece.
+            // La fase salta il primo tratto, così il tratteggio comincia con un vuoto dopo il pezzo
+            // pieno.
             val gap = Paint(dashed).apply { pathEffect = DashPathEffect(floatArrayOf(stroke * DASH, stroke * GAP), stroke * DASH) }
             canvas.drawLine(cx, cy, a.x, a.y, gap)
         }
     }
 
     /**
-     * A free hand path through [pts], smoothed with quadratic curves through the midpoints.
-     *
-     * ⚠️ The finger reports a point per frame, and straight segments between them show corners on
-     * a fast curve; the midpoint curve passes near every point and has no corners.
+     * Un tracciato a mano libera per [pts], ammorbidito con curve quadratiche per i punti medi. Il
+     * dito dà un punto per fotogramma, e segmenti dritti mostrerebbero spigoli su una curva veloce.
      */
     private fun smooth(pts: List<Offset>): Path = Path().apply {
         moveTo(pts[0].x, pts[0].y)
@@ -1488,11 +1485,10 @@ internal object Draw {
     }
 
     /**
-     * [drawing] on a transparent bitmap in the posed frame of a [w] x [h] original, or `null`
-     * when there is nothing drawn: the stage lays it over the developed preview.
-     *
-     * ⚠️ **[into], when given and of the right size, is reused**: the stage redraws at every move
-     * of the finger, and a new bitmap per frame would be several megabytes of garbage.
+     * [drawing] su una bitmap trasparente nel riferimento della posa di un originale [w] x [h], o
+     * `null` quando non c'è niente di disegnato: il palco la posa sopra l'anteprima sviluppata.
+     * [into], se della misura giusta, si riusa: il palco ridisegna a ogni movimento del dito, e una
+     * bitmap nuova per fotogramma sarebbe qualche megabyte di scarto.
      */
     fun overlay(drawing: Drawing, w: Int, h: Int, spin: Spin, into: Bitmap? = null): Bitmap? {
         if (drawing.idle || w <= 0 || h <= 0) return null
@@ -1509,11 +1505,10 @@ internal object Draw {
     }
 
     /**
-     * [target], an image in the posed frame, with [drawing] laid on it: the step of the saved
-     * file between the development and the geometry.
-     *
-     * ⚠️ **It draws on [target] itself when it can**, and on a copy otherwise (a bitmap read from
-     * a file can be immutable): the caller recycles by identity, as for the other steps.
+     * [target], un'immagine nel riferimento della posa, col [drawing] posato sopra: il passo del
+     * file salvato fra lo sviluppo e la geometria. Disegna su [target] stesso quando può, e su una
+     * copia altrimenti (una bitmap letta da un file può essere immutabile): il chiamante ricicla
+     * per identità, come per gli altri passi.
      */
     fun onto(target: Bitmap, drawing: Drawing, spin: Spin): Bitmap {
         if (drawing.idle) return target
@@ -1528,41 +1523,41 @@ internal object Draw {
         return out
     }
 
-    /** The Sfocatura slider, as fractions of the longer side of the element (his figures). */
+    /**
+     * Il cursore della sfocatura, in frazioni del lato lungo dell'elemento (numeri dell'utente).
+     */
     const val BLUR_MIN = 0.005f
     const val BLUR_MAX = 0.25f
 
     /**
-     * The factory blur: 10% of the element's longer side, enough that a face or a number plate
-     * under it can no longer be read, which is the use he named (*oscuramento di parti di immagini
-     * che voglio nascondere prima della condivisione*). A choice of the session, declared in the
-     * test item.
+     * La sfocatura di fabbrica: il 10% del lato lungo dell'elemento, abbastanza che un volto o una
+     * targa sotto non si leggano, che è l'uso nominato dall'utente. Scelta della sessione,
+     * dichiarata nella voce di collaudo.
      */
     const val BLUR = 0.1f
 
     /**
-     * **[target] with the image under every blurring element of [drawing] blurred** (4.80), in the
-     * original frame of the image: [at] says which part of the original [target] holds, as
-     * fractions (the whole of it, or the piece the stage reads at full resolution).
+     * [target] con l'immagine sfocata sotto ogni elemento con vetro di [drawing], nel riferimento
+     * originale: [at] dice quale parte dell'originale [target] contiene, in frazioni (tutto, o il
+     * pezzo che il palco legge a piena risoluzione).
      *
-     * ⚠️⚠️ **Before the development and before every other element, on the stage and in the saved
-     * file alike**, like the patches of Correggi: the colour sliders then develop the blurred
-     * pixels, the geometry and the crop carry the blurred area with the image, and the other
-     * elements are drawn over it (his specification: *con l'esclusione di tutti gli altri elementi
-     * di Disegno (anzi, per definizione la sfocatura sarà sempre al livello più basso)*).
-     * ⚠️ **The radius is a fraction of the element's longer side**, measured in the pixels of
-     * [target], so the preview and the full file blur in the same proportion.
-     * ⚠️ **How**: the area around the element, grown by the radius, is halved until the radius is
-     * a few pixels (each halving averages four pixels, so nothing is skipped), blurred there with
-     * three box passes, which come close to a Gaussian, and laid back through the element's own
-     * outline, stretched with a bilinear filter. A blur of hundreds of pixels costs as much as one
-     * of a few.
-     * ⚠️ It draws on [target] when [mine] says the caller owns it and it is mutable, and on a copy
-     * otherwise: the stage's preview must never be touched.
+     * ⚠️ **Prima dello sviluppo e prima di ogni altro elemento, sul palco e nel file salvato**,
+     * come le toppe di Correggi: i cursori del colore sviluppano i pixel sfocati, geometria e
+     * ritaglio portano l'area con l'immagine, e gli altri elementi si disegnano sopra (specifica
+     * dell'utente: la sfocatura è sempre al livello più basso).
+     * ⚠️ **Il raggio è una frazione del lato lungo dell'elemento**, misurato nei pixel di [target],
+     * così anteprima e file sfocano nella stessa proporzione.
+     * ⚠️ **Come**: l'area intorno all'elemento, allargata del raggio, si dimezza finché il raggio è
+     * di pochi pixel (ogni dimezzamento fa la media di quattro pixel, quindi non salta niente), si
+     * sfoca là con tre passate a scatola, che si avvicinano a una gaussiana, e si riposa attraverso
+     * il contorno dell'elemento, stirata con un filtro bilineare. Una sfocatura di centinaia di
+     * pixel costa quanto una di pochi.
+     * ⚠️ Disegna su [target] quando [mine] dice che è del chiamante ed è mutabile, e su una copia
+     * altrimenti: l'anteprima del palco non si tocca mai.
      */
     fun blurAreas(target: Bitmap, drawing: Drawing, mine: Boolean, at: RectF = WHOLE): Bitmap {
-        // ⚠️ A pill (4.90) and a panel (4.91) lay their glass here, and are drawn over it as the
-        // other elements are.
+        // Pillola e pannello posano qui il loro vetro, e si disegnano sopra come gli altri
+        // elementi.
         val zone = drawing.marks.filter { it.glass && it.points.isNotEmpty() }
         if (zone.isEmpty() || at.width() <= 0f || at.height() <= 0f) return target
         val out = if (mine && target.isMutable && target.config != Bitmap.Config.HARDWARE) target
@@ -1578,7 +1573,8 @@ internal object Draw {
                 if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
             }
             path.close()
-            // ⚠️ A panel's blur is a part of the long side of the box its words need, as its outline is.
+            // La sfocatura di un pannello è in parte del lato lungo del riquadro che chiedono le
+            // parole, come il suo contorno.
             val radius = if (mark.pen == Pen.PILL) pillGlass(mark, ow, oh)
             else textFrame(mark, ow, oh).let { (_, hw, hh) -> (mark.blur ?: BLUR) * 2f * max(hw, hh) }
             if (radius < 0.5f) continue
@@ -1605,15 +1601,16 @@ internal object Draw {
         return out
     }
 
-    /** The whole of the original image, as fractions: what [blurAreas] reads by default. */
+    /** Tutto l'originale, in frazioni: quello che [blurAreas] legge di serie. */
     private val WHOLE = RectF(0f, 0f, 1f, 1f)
 
-    /** The radius, in pixels, that [blurAreas] blurs at after halving the area. */
+    /** Il raggio, in pixel, a cui [blurAreas] sfoca dopo aver dimezzato l'area. */
     private const val BLUR_SMALL = 4f
 
     /**
-     * The [from] part of [src] made [toW] x [toH], halving it while it is more than twice as large:
-     * a bilinear filter at half size averages two by two, and at a larger step it would skip pixels.
+     * La parte [from] di [src] portata a [toW] x [toH], dimezzandola finché è più del doppio: un
+     * filtro bilineare a metà misura fa la media due per due, e a un passo più grande salterebbe
+     * dei pixel.
      */
     private fun shrink(src: Bitmap, from: android.graphics.Rect, toW: Int, toH: Int): Bitmap {
         val filtro = Paint(Paint.FILTER_BITMAP_FLAG)
@@ -1634,7 +1631,10 @@ internal object Draw {
         return last
     }
 
-    /** Three box passes of radius [r] on [bitmap], across and down, with the edges repeated. */
+    /**
+     * Tre passate a scatola di raggio [r] su [bitmap], in orizzontale e in verticale, coi bordi
+     * ripetuti.
+     */
     private fun boxBlur(bitmap: Bitmap, r: Int) {
         val w = bitmap.width
         val h = bitmap.height
@@ -1648,7 +1648,10 @@ internal object Draw {
         bitmap.setPixels(px, 0, w, 0, 0, w, h)
     }
 
-    /** One box pass along a row or a column of [n] pixels, from [start] by [step]. */
+    /**
+     * Una passata a scatola lungo una riga o una colonna di [n] pixel, da [start] a passi di
+     * [step].
+     */
     private fun pass(px: IntArray, start: Int, step: Int, n: Int, r: Int, tmp: IntArray) {
         for (i in 0 until n) tmp[i] = px[start + i * step]
         var sa = 0; var sr = 0; var sg = 0; var sb = 0
@@ -1669,29 +1672,35 @@ internal object Draw {
         }
     }
 
-    /** The arrow head, as strokes long, at least a fraction of the long side, and its half angle. */
+    /**
+     * La punta della freccia, in tratti, almeno una frazione del lato lungo, e il suo semiangolo.
+     */
     private const val HEAD = 5f
     private const val HEAD_MIN = 0.012f
     private const val HEAD_ANGLE = Math.PI / 7
 
-    /** A dash and the gap after it, as strokes: the round caps eat half a stroke at each end. */
+    /**
+     * Un tratto del tratteggio e il vuoto dopo, in spessori: i capi tondi tolgono mezzo spessore a
+     * ogni estremo.
+     */
     private const val DASH = 2f
     private const val GAP = 2.2f
 
-    /** The corner radius of a rectangle, as strokes. */
+    /** Il raggio degli angoli di un rettangolo, in spessori. */
     private const val CORNER = 3f
 
-    /** The distance between two points of a free hand stroke worth keeping, as a fraction. */
+    /**
+     * La distanza fra due punti di un tratto a mano libera che vale la pena tenere, in frazione.
+     */
     const val STEP = 0.002f
 
-    /** Whether [b] is far enough from [a] to be kept in a free hand stroke. */
+    /** Se [b] è abbastanza lontano da [a] da tenerlo in un tratto a mano libera. */
     fun far(a: Offset, b: Offset): Boolean = hypot(b.x - a.x, b.y - a.y) >= STEP
 
     /**
-     * **How far 'Duplica' lays the copy from its original**, in fractions of a [w] x [h] original
-     * (4.70): [DUPLICATE_SHIFT] of the long side, right and down on the original image, so the copy
-     * shows beside the original instead of hiding it. A choice of the session, declared in the
-     * test item.
+     * Quanto 'Duplica' sposta la copia dall'originale, in frazioni di un originale [w] x [h]:
+     * [DUPLICATE_SHIFT] del lato lungo, a destra e in basso, così la copia si vede accanto
+     * all'originale. Scelta della sessione, dichiarata nella voce di collaudo.
      */
     fun duplicateShift(w: Int, h: Int): Offset {
         val long = max(w, h).toFloat()
@@ -1701,15 +1710,14 @@ internal object Draw {
     private const val DUPLICATE_SHIFT = 0.03f
 
     /**
-     * **[b] laid onto the horizontal or the vertical through [a]** when the line from [a] to [b] is
-     * within [SNAP_DEG] of it, with that axis; otherwise [b] itself and `null` (his note A on the
-     * 4.45 round: *all'avvicinarsi della direzione perfettamente orizzontale e perfettamente
-     * verticale fossero posizionate PRECISAMENTE sulla direttrice corrispondente*).
+     * [b] posato sull'orizzontale o sulla verticale per [a] quando la linea da [a] a [b] è entro
+     * [SNAP_DEG], con quell'asse; altrimenti [b] stesso e `null` (nota A dell'utente sul giro della
+     * 4.45: posizionate precisamente sulla direttrice).
      *
-     * ⚠️⚠️ **It works in screen pixels, not in the image's frame**: the horizontal he means is the
-     * one he sees, and on a straightened or mirrored image the two differ.
-     * ⚠️ The point is projected, not turned: only the coordinate across the axis changes, so the
-     * end stays under the finger along the axis.
+     * ⚠️ **Lavora in pixel dello schermo, non nel riferimento dell'immagine**: l'orizzontale che
+     * l'utente intende è quella che vede, e su un'immagine raddrizzata o specchiata le due
+     * differiscono. Il punto si proietta, non si ruota: cambia solo la coordinata trasversale, e
+     * l'estremo resta sotto il dito lungo l'asse.
      */
     fun snap(a: Offset, b: Offset): Pair<Offset, SnapAxis?> {
         val dx = abs(b.x - a.x)
@@ -1724,15 +1732,16 @@ internal object Draw {
     }
 
     /**
-     * **The index of the topmost mark of [drawing] under [at]**, or `null` (G2, 4.60: *un tocco
-     * singolo seleziona un oggetto*). [at] is in fractions of the original [w] x [h] image, and
-     * [reach] is how far from the line a touch still takes it, as a fraction of the long side, on
-     * top of half the line's width.
+     * L'indice dell'elemento più in alto di [drawing] sotto [at], o `null` (un tocco singolo
+     * seleziona un oggetto). [at] è in frazioni dell'originale [w] x [h], e [reach] è quanto
+     * lontano dalla linea un tocco la prende ancora, in frazione del lato lungo, oltre metà dello
+     * spessore.
      *
-     * ⚠️ The distances are measured on the long side of the image, as the width is: in fractions
-     * of each side a rectangle that is not square would take a touch further on one axis.
-     * ⚠️ A closed shape with a fill is taken anywhere inside, one without only near its line: its
-     * inside shows the image, and a touch there means the image. The arrow is taken by its shaft.
+     * ⚠️ Le distanze si misurano sul lato lungo dell'immagine, come lo spessore: in frazioni di
+     * ogni lato un rettangolo non quadrato prenderebbe un tocco più lontano su un asse.
+     * ⚠️ Una forma chiusa riempita si prende ovunque dentro, una vuota solo vicino alla linea:
+     * dentro si vede l'immagine, e un tocco là vuol dire l'immagine. La freccia si prende
+     * dall'asta.
      */
     fun hit(drawing: Drawing, at: Offset, w: Int, h: Int, reach: Float): Int? {
         if (w <= 0 || h <= 0) return null
@@ -1743,7 +1752,8 @@ internal object Draw {
         for (i in drawing.marks.indices.reversed()) {
             val mark = drawing.marks[i]
             if (mark.pen.written) {
-                // ⚠️ A text, a pill and a panel are taken anywhere in their box, as a filled shape (4.90).
+                // Testo, pillola e pannello si prendono ovunque nel riquadro, come una forma
+                // riempita.
                 if (mark.points.isEmpty()) continue
                 val (c, hw, hh) = textFrame(mark, w.toFloat(), h.toFloat())
                 val rad = Math.toRadians(mark.angle.toDouble())
@@ -1764,9 +1774,9 @@ internal object Draw {
         val a = pts.first()
         val b = pts.last()
         /*
-         * ⚠️ A turned rectangle or ellipse (4.70) is tested with the touch turned back around its
-         * centre, so the box below stays the box it was drawn in. The coordinates here are the
-         * image's pixels scaled by its long side, where a turn is still a turn.
+         * Un rettangolo o un'ellisse ruotati si provano col tocco ruotato all'indietro intorno al
+         * centro, così il riquadro sotto resta quello in cui sono disegnati. Qui le coordinate sono
+         * i pixel dell'immagine scalati sul lato lungo, dove una rotazione resta una rotazione.
          */
         val p = if (!mark.pen.closed || mark.angle == 0f) at else {
             val cx = (a.x + b.x) / 2f
@@ -1788,12 +1798,13 @@ internal object Draw {
                 if (inside) mark.fill != null || min(min(p.x - l, rt - p.x), min(p.y - t, bt - p.y)) <= r
                 else hypot(max(max(l - p.x, 0f), p.x - rt), max(max(t - p.y, 0f), p.y - bt)) <= r
             }
-            // ⚠️ A text is tested in [hit], which has the image's sides to measure it with.
+            // Testo, pillola e pannello si provano in [hit], che ha i lati dell'immagine per
+            // misurarli.
             Pen.TEXT, Pen.PILL, Pen.PANEL -> false
             Pen.ELLIPSE -> {
                 val cx = (a.x + b.x) / 2f; val cy = (a.y + b.y) / 2f
                 val rx = abs(b.x - a.x) / 2f; val ry = abs(b.y - a.y) / 2f
-                // ⚠️ A flat ellipse is a segment: the formula below would divide by zero.
+                // Un'ellisse piatta è un segmento: la formula sotto dividerebbe per zero.
                 if (min(rx, ry) < 1e-4f) segment(p, a, b) <= r
                 else {
                     val d = hypot((p.x - cx) / rx, (p.y - cy) / ry)
@@ -1803,7 +1814,7 @@ internal object Draw {
         }
     }
 
-    /** The distance from [p] to the segment from [a] to [b]. */
+    /** La distanza da [p] al segmento da [a] a [b]. */
     private fun segment(p: Offset, a: Offset, b: Offset): Float {
         val dx = b.x - a.x
         val dy = b.y - a.y
@@ -1813,16 +1824,18 @@ internal object Draw {
     }
 
     /**
-     * How close to an axis a line snaps, in degrees. ⚠️ A choice of the session, declared in the
-     * test item: at 5 degrees a line 3 cm long snaps when its end is within about 2.6 mm of the axis.
+     * Quanto vicino a un asse scatta una linea, in gradi. Scelta della sessione, dichiarata nella
+     * voce di collaudo: a 5 gradi una linea di 3 cm scatta quando il suo estremo è a circa 2,6 mm
+     * dall'asse.
      */
     const val SNAP_DEG = 5.0
 
     /**
-     * **The box on the screen that the outline of a two-point [pen] from [a] to [b] covers**
-     * (4.62), for a stroke [stroke] pixels thick on an image whose long side is [long] pixels: the
-     * shape's box with the arrow's head, grown by half the stroke, since the outline is centred on
-     * the shape and its ends are round. The same numbers as [strokeOf], read on the screen.
+     * Il riquadro sullo schermo che copre il contorno di uno strumento a due punti [pen] da [a] a
+     * [b], per un tratto spesso [stroke] pixel su un'immagine il cui lato lungo è [long] pixel: il
+     * riquadro della forma con la punta della freccia, allargato di metà tratto, perché il contorno
+     * è centrato sulla forma e i capi sono tondi. Gli stessi numeri di [strokeOf], letti sullo
+     * schermo.
      */
     fun extent(pen: Pen, a: Offset, b: Offset, stroke: Float, long: Float): Rect {
         var l = min(a.x, b.x)
@@ -1843,7 +1856,7 @@ internal object Draw {
         return Rect(l - h, t - h, r + h, bt + h)
     }
 
-    /** The box on the screen that a free hand outline through [points] covers (4.62). */
+    /** Il riquadro sullo schermo che copre un contorno a mano libera per [points]. */
     fun extent(points: List<Offset>, stroke: Float): Rect {
         val h = stroke / 2f
         return Rect(
@@ -1853,27 +1866,21 @@ internal object Draw {
     }
 
     /**
-     * **The shift that lays the sides of [box] near the edges of [frame] on them** (4.62, his
-     * request of 2026-10-08: *un piccolo scatto calamitato simile a quello delle linee
-     * orizzontali/verticali che renda semplice far sì che una linea rimanga a filo del bordo
-     * (totalmente visibile e a 0 pixel di distanza dal bordo)*), with the edges it rests on.
+     * Lo spostamento che posa sui bordi di [frame] i lati di [box] vicini a loro, coi bordi su cui
+     * poggia (richiesta dell'utente: uno scatto calamitato per tenere un elemento a filo del
+     * bordo).
      *
-     * ⚠️ A side within [reach] of an edge comes onto it, from inside or from outside; farther, it
-     * stays, so an element still goes past the edge (*dev'essere possibile ... anche OLTRE i
-     * bordi*). On each axis the nearer edge wins, and only the sides in [sides] may move.
-     * ⚠️ Screen pixels, like [snap]: the edge he means is the one he sees.
-     * ⚠️⚠️ **Since 4.90 the boxes of the [others] are there to rest on too** (his request of
-     * 2026-10-08: *Voglio che mi propongano di allineare dinamicamente gli elementi a
-     * lati/centro/estremi di altri elementi già presenti*): a moving side, or the centre when both
-     * sides move, comes onto a side or the centre of another element within the same [reach]. On
-     * each axis the nearest of all wins, and on a tie the edge of the image; [lines] says which
-     * guides to show.
-     * ⚠️⚠️ **Since 4.91 the centre of the image is there too, for the centre of a moving element**
-     * (his note A on the 4.90 round: *devono apparire anche delle guide per la centratura (che faccia
-     * fare uno scatto allo spostamento di un elemento quando è al centro verticale/orizzontale/
-     * entrambi dell'intera immagine)*): only the element's centre, since he named the centring, and
-     * a side that stopped on the middle of the image would be a snap he did not ask for; and only
-     * when [centred] says the element is being moved, so the start of a new one is not pulled there.
+     * ⚠️ Un lato entro [reach] da un bordo ci si posa, da dentro o da fuori; più lontano resta,
+     * così un elemento può ancora andare oltre il bordo, come chiesto. Su ogni asse vince il bordo
+     * più vicino, e si muovono solo i lati in [sides]. Pixel dello schermo, come [snap].
+     * ⚠️ **Ci si posa anche sui riquadri degli [others]** (richiesta dell'utente: allineare agli
+     * altri elementi): un lato che si muove, o il centro quando si muovono tutti e due, si posa su
+     * un lato o sul centro di un altro elemento entro lo stesso [reach]. Su ogni asse vince il più
+     * vicino, e a parità il bordo dell'immagine; [lines] dice quali guide mostrare.
+     * ⚠️ **E sul centro dell'immagine, per il centro di un elemento che si sposta** (nota A
+     * dell'utente sul giro della 4.90): solo il centro, perché l'utente ha chiesto la centratura, e
+     * solo quando [centred] dice che l'elemento si sta spostando, così l'inizio di un elemento
+     * nuovo non è tirato là.
      */
     fun rest(
         box: Rect, frame: Rect, reach: Float, sides: Set<ImageEdge> = ImageEdge.entries.toSet(),
@@ -1886,8 +1893,8 @@ internal object Draw {
             var best = 0f
             var edge: ImageEdge? = null
             var found = false
-            // ⚠️ The first of two equal distances wins: the low edge, then the high one, then the
-            // elements, as before 4.90.
+            // A parità di distanza vince il primo offerto: il bordo basso, poi l'alto, poi gli
+            // elementi.
             fun offer(d: Float, e: ImageEdge?) {
                 if (abs(d) <= reach && (!found || abs(d) < abs(best))) {
                     best = d
@@ -1920,12 +1927,11 @@ internal object Draw {
     }
 
     /**
-     * **The guides between [box] and the [others] it lines up with** (4.90), as segments on the
-     * screen: where a side or the centre of [box] meets a side or the centre of another box, a
-     * line along it from the farther end of one to the farther end of the other, so the guide
-     * says which element it lines up with. The same [ON] as the edges.
-     * ⚠️ Since 4.91 a [box] centred on the middle of [frame], the image on the screen, has the guide
-     * of that middle too, across the whole image (his note A on the 4.90 round).
+     * Le guide fra [box] e gli [others] con cui si allinea, come segmenti sullo schermo: dove un
+     * lato o il centro di [box] incontra un lato o il centro di un altro riquadro, una linea
+     * dall'estremo più lontano dell'uno a quello dell'altro, così la guida dice con quale elemento
+     * si allinea. Lo stesso [ON] dei bordi. Un [box] centrato sul centro di [frame], l'immagine
+     * sullo schermo, ha anche la guida di quel centro, su tutta l'immagine.
      */
     fun lines(box: Rect, others: List<Rect>, frame: Rect? = null): List<Pair<Offset, Offset>> = buildList {
         if (frame != null) {
@@ -1945,13 +1951,13 @@ internal object Draw {
     }.distinct()
 
     /**
-     * **[b], the end the finger draws, moved so the outline of a two-point [pen] from [a] rests on
-     * the edges of [frame]** (4.62), with the edges it rests on. Only the sides that [b] draws
-     * move, so the start stays where it was laid, and only along the axes in [axes]: a line laid
-     * on the horizontal keeps its height.
-     * ⚠️ Up to three passes, because the arrow's head turns with the end it sits on, and a pass
-     * that moves nothing ends early; for the other pens the first pass is exact.
-     * ⚠️ Since 4.90 the end rests on the [others] too, as in [rest].
+     * [b], l'estremo che il dito disegna, spostato perché il contorno di uno strumento a due punti
+     * [pen] da [a] si posi sui bordi di [frame], coi bordi su cui poggia. Si muovono solo i lati
+     * che [b] disegna, così l'inizio resta dov'è, e solo lungo gli assi in [axes]: una linea posata
+     * sull'orizzontale tiene la sua altezza.
+     * ⚠️ Fino a tre passate, perché la punta della freccia gira con l'estremo su cui è, e una
+     * passata che non muove niente termina prima; per gli altri strumenti la prima è esatta.
+     * L'estremo si posa anche sugli [others], come in [rest].
      */
     fun restEnd(
         pen: Pen, a: Offset, b: Offset, stroke: Float, long: Float, frame: Rect, reach: Float,
@@ -1978,7 +1984,7 @@ internal object Draw {
         return end to on(extent(pen, a, end, stroke, long), frame)
     }
 
-    /** The edges of [frame] that a side of [box] lies on, within a fraction of a pixel. */
+    /** I bordi di [frame] su cui è un lato di [box], entro una frazione di pixel. */
     fun on(box: Rect, frame: Rect): Set<ImageEdge> = buildSet {
         if (abs(box.left - frame.left) < ON) add(ImageEdge.LEFT)
         if (abs(box.top - frame.top) < ON) add(ImageEdge.TOP)
@@ -1986,15 +1992,18 @@ internal object Draw {
         if (abs(box.bottom - frame.bottom) < ON) add(ImageEdge.BOTTOM)
     }
 
-    /** How far past the start's own box a side must be to belong to the end, in pixels. */
+    /**
+     * Quanto oltre il riquadro dell'inizio deve essere un lato per appartenere all'estremo, in
+     * pixel.
+     */
     private const val OWN = 0.01f
 
-    /** How near a side must be to an edge to lie on it, in pixels. */
+    /** Quanto vicino deve essere un lato a un bordo per esserci sopra, in pixel. */
     private const val ON = 0.5f
 }
 
-/** The two directions a line or an arrow snaps to ([Draw.snap]). */
+/** Le due direzioni su cui scatta una linea o una freccia ([Draw.snap]). */
 enum class SnapAxis { HORIZONTAL, VERTICAL }
 
-/** The four edges of the visible image an element of the drawing rests on ([Draw.rest], 4.62). */
+/** I quattro bordi dell'immagine visibile su cui poggia un elemento del disegno ([Draw.rest]). */
 enum class ImageEdge { LEFT, TOP, RIGHT, BOTTOM }

@@ -437,7 +437,7 @@ class IntestazioneTest {
      * della scena finta, e ricavarla qui vorrebbe dire rifare il conto che sto verificando.
      */
     @Test
-    fun `la fascia sopra la sfumatura è piatta`() {
+    fun `la fascia sopra la sfumatura resta piatta`() {
         banco.setContent {
             Box(modifier = Modifier.size(LATO).background(Color.White)) {
                 Box(

@@ -2,14 +2,19 @@ package io.github.roccobot.aiv
 
 import android.content.Context
 import android.net.Uri
+import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
@@ -35,9 +40,10 @@ import org.robolectric.annotation.Config
  * dipende dal servizio e dalla lingua del telefono. Quello che si misura è l'albero semantico,
  * che è un dato.
  *
- * ⚠️ **Le tre scene sono quelle VERE**, come vuole la lezione di `CambioSchermataTest`: la
- * schermata iniziale, la finestra di rinomina e la riga della barra delle info. Un albero finto
- * scritto qui accanto misurerebbe l'albero finto.
+ * ⚠️ **Le scene sono quelle VERE**, come vuole la lezione di `CambioSchermataTest`: ogni prova
+ * monta il componente dell'app (la schermata iniziale, la finestra di rinomina, la riga della
+ * barra delle info, gli indici del tablet, il riordino dei tasti, i comandi dei filmati). Un
+ * albero finto scritto qui accanto misurerebbe l'albero finto.
  */
 @RunWith(AndroidJUnit4::class)
 @Config(shadows = [OmbraArchivio::class])
@@ -140,6 +146,103 @@ class SemanticheTest {
     }
 
     /**
+     * **Le date della cronologia sul tablet sono una scelta sola, e dicono quale è scelta**
+     * (rilievo C26).
+     *
+     * ⚠️ Prima erano testi toccabili: la data scelta si distingueva solo dal colore, e un lettore
+     * di schermo leggeva tre voci uguali.
+     */
+    @Test
+    fun `le date della cronologia sono una scelta sola`() {
+        val gruppi = listOf(1_000L, 2_000L, 3_000L).map { History.Batch(it, emptyList()) }
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                HistoryDateRail(groups = gruppi, selected = 2_000L, onPick = {}, width = 240.dp)
+            }
+        }
+        banco.waitForIdle()
+        unaSceltaSola(gruppi.size, "le date della cronologia")
+    }
+
+    /**
+     * **L'indice delle impostazioni sul tablet è una scelta sola, e dice quale pagina è aperta**
+     * (rilievo F25).
+     */
+    @Test
+    fun `l'indice delle impostazioni e una scelta sola`() {
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                SettingsIndexRail(selected = Page.LOOK, onPick = {}, width = 240.dp)
+            }
+        }
+        banco.waitForIdle()
+        unaSceltaSola(SETTINGS_INDEX.size, "le voci dell'indice delle impostazioni")
+    }
+
+    /**
+     * **Nel riordino dei tasti la prima cella non offre 'sposta prima', e l'ultima non offre
+     * 'sposta dopo'** (rilievo F37).
+     *
+     * ⚠️ Prima le due azioni c'erano su ogni cella: ai due capi l'azione rispondeva 'fatto',
+     * scriveva le impostazioni uguali e non spostava niente.
+     */
+    @Test
+    fun `il riordino dei tasti offre solo le azioni che spostano`() {
+        val ordine = PadKey.entries.take(3)
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                PadArrange(order = ordine, columns = 3, onOrder = {})
+            }
+        }
+        banco.waitForIdle()
+        val prima = app.getString(R.string.settings_buttons_before)
+        val dopo = app.getString(R.string.settings_buttons_after)
+        val celle = banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.CustomActions))
+            .fetchSemanticsNodes()
+        assertEquals("Le celle del riordino non sono quelle attese", ordine.size, celle.size)
+        val azioni = celle.map { nodo ->
+            nodo.config[SemanticsActions.CustomActions].map { it.label }
+        }
+        assertEquals("La prima cella offre di andare prima, che non sposta niente", listOf(dopo), azioni.first())
+        assertEquals("Una cella in mezzo deve offrire le due azioni", listOf(prima, dopo), azioni[1])
+        assertEquals("L'ultima cella offre di andare dopo, che non sposta niente", listOf(prima), azioni.last())
+    }
+
+    /**
+     * **Il tasto grande dei filmati si annuncia come pulsante** (rilievo C39).
+     */
+    @Test
+    fun `il tasto del filmato si annuncia come pulsante`() {
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                Box {
+                    ClipKeys(playing = false, onPlayPause = {}, position = 0L, duration = 10_000L, onSeek = {})
+                }
+            }
+        }
+        banco.waitForIdle()
+        val nodo = banco.onNodeWithContentDescription(app.getString(R.string.clip_play)).fetchSemanticsNode()
+        assertEquals(
+            "Il tasto di riproduzione non si annuncia come pulsante",
+            Role.Button,
+            nodo.config.getOrNull(SemanticsProperties.Role)
+        )
+    }
+
+    /** Che i nodi con il ruolo di una scelta siano [quanti], e che uno solo sia quello scelto. */
+    private fun unaSceltaSola(quanti: Int, che: String) {
+        val scelte = banco
+            .onAllNodes(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.RadioButton))
+            .fetchSemanticsNodes()
+        assertEquals("Non tutte $che si annunciano come voci di una scelta", quanti, scelte.size)
+        assertEquals(
+            "Fra $che nessuna dice di essere quella scelta, o lo dicono in più",
+            1,
+            scelte.count { it.config.getOrNull(SemanticsProperties.Selected) == true }
+        )
+    }
+
+    /**
      * Il nome di un lato, chiesto alle risorse come fa la riga vera.
      *
      * ⚠️ Le due chiavi sono quelle di `infoSideName`, che è la funzione dell'app: scrivere qui
@@ -158,9 +261,6 @@ class SemanticheTest {
     }
 
     private companion object {
-        /** Quanto si aspetta che una finestra si apra, in millisecondi. */
-        const val ATTESA = 5_000L
-
         /**
          * Il nome dell'app come lo scrive l'intestazione.
          *

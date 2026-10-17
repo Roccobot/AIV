@@ -10,6 +10,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -31,9 +32,13 @@ import org.robolectric.annotation.Config
 @Config(shadows = [OmbraArchivio::class])
 class ScorciatoieTest {
 
+    /** I modelli costruiti dalle prove, chiusi alla fine di ognuna (`ModelliChiusi`). */
+    @get:Rule
+    val modelli = ModelliChiusi()
+
     private val app = ApplicationProvider.getApplicationContext<Application>()
 
-    private fun modello(): ViewerViewModel = ViewerViewModel(app)
+    private fun modello(): ViewerViewModel = modelli.nuovo(app)
 
     private fun azione(action: String): Intent = Intent(action)
 

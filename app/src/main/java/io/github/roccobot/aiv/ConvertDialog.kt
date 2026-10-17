@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -40,32 +41,22 @@ import kotlin.math.roundToInt
 /**
  * 'Converti/Esporta': salvare l'immagine che si sta guardando in un altro formato.
  *
- * ⚠️⚠️ **DUE METÀ, E LA DIVISIONE È IMPOSTA DA ANDROID, non da una scelta di disegno**: sopra
- * ci sono i quattro formati che il sistema sa **scrivere** (vedi [Convert]), sotto i servizi
- * di fuori per tutto il resto. Un dialogo unico che elencasse dieci formati e ne facesse
- * quattro sarebbe una promessa rotta a metà elenco.
- * ⚠️ **I pixel che escono si leggono PRIMA di esportare**: la percentuale da sola non dice
- * quanto sarà grande il file, e chi riduce lo fa proprio per quello.
+ * ⚠️ **Due metà, e la divisione la impone Android**: sopra i formati che il sistema sa scrivere
+ * (vedi [Convert]), sotto i servizi esterni per tutto il resto. I pixel che escono si leggono prima
+ * di esportare, perché chi riduce lo fa per il peso.
  *
- * @param onSaved il file convertito è stato scritto. ⚠️ Serve a far rileggere la cartella
- *   aperta dietro al visualizzatore, che altrimenti resterebbe con la lista di prima: vedi
- *   `AnimatedBar`, dove il difetto si è visto per la prima volta.
+ * @param onSaved il file convertito è stato scritto: fa rileggere la cartella aperta dietro al
+ *   visualizzatore, che altrimenti resterebbe con l'elenco di prima.
  */
 @Composable
 fun ConvertDialog(
     image: LoadedImage,
     source: Uri?,
     /**
-     * Il fotogramma da esportare al posto del file, e `null` per ogni fotografia ferma.
-     *
-     * ⚠️⚠️ **DALLA 1.21 QUESTO DIALOGO È ANCHE L'ESPORTAZIONE DEL FOTOGRAMMA** (richiesta
-     * dell'utente, 2026-09-01: *si può togliere del tutto quel tasto e usare direttamente la
-     * funzionalità 'Esporta' del menu a pressione lunga, che agisce sul fotogramma
-     * corrente*). Prima era un tasto a sé nella fila dei comandi, che scriveva PNG e basta;
-     * qui si eredita la scelta del formato, la qualità e la riduzione, che quel tasto non
-     * offriva.
-     * ⚠️ **Il fotogramma lo prende chi apre il dialogo**, non questo dialogo: fra il tocco e
-     * la scelta della cartella passano secondi. Vedi `ViewerScreen`.
+     * Il fotogramma da esportare al posto del file, `null` per un'immagine ferma: questo dialogo è
+     * anche l'esportazione del fotogramma corrente, con formato, qualità e riduzione. Il fotogramma
+     * lo prende chi apre il dialogo (vedi `ViewerScreen`), perché fra il tocco e la scelta della
+     * cartella passano secondi.
      */
     frame: android.graphics.Bitmap? = null,
     /** Quale fotogramma è, per dirlo nel dialogo. Vale solo insieme a [frame]. */
@@ -74,6 +65,8 @@ fun ConvertDialog(
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
+    // Le frasi degli avvisi da `LocalResources`, come nella griglia: il perché è là.
+    val res = LocalResources.current
     val scope = rememberCoroutineScope()
 
     var target by remember { mutableStateOf(Convert.Target.JPEG) }
@@ -81,12 +74,10 @@ fun ConvertDialog(
     var quality by remember { mutableIntStateOf(92) }
 
     /*
-     * ⚠️ Lo stato della pulizia SVG: l'esito da mostrare e la bandierina che spegne il tasto
-     * mentre lavora. Vedi [SvgClean], e la nota sui due tasti più sotto.
-     * ⚠️ **Il backup si legge dalle impostazioni e non si chiede qui**: è lo stesso
-     * interruttore dell'editor ('Copia nel cestino prima di sovrascrivere'), perché la
-     * domanda è la stessa e due interruttori per una domanda sola sono due posti in cui
-     * dimenticarsene.
+     * Lo stato della pulizia SVG: l'esito da mostrare e il segnale che spegne il tasto mentre
+     * lavora (vedi [SvgClean]). La copia nel cestino si legge dalle impostazioni: è lo stesso
+     * interruttore dell'editor ('Copia nel cestino prima di sovrascrivere'), perché la domanda è la
+     * stessa.
      */
     var esito by remember { mutableStateOf<SvgClean.Result?>(null) }
     var pulendo by remember { mutableStateOf(false) }
@@ -95,17 +86,11 @@ fun ConvertDialog(
     }
 
     /*
-     * ⚠️ **Il selettore di cartella è suo e non quello di 'Scarica'**: quello scrive il file
-     * originale byte per byte e dichiara il tipo della sorgente; qui si scrive un file
-     * **nuovo**, in un formato che l'utente ha appena scelto. Due contenuti diversi vogliono
-     * due contratti diversi.
-     */
-    /*
-     * ⚠️⚠️ **IL CONTRATTO SI RICORDA PER TIPO, e senza `remember` questa riga si
-     * ri-registrerebbe a OGNI ricomposizione**: `rememberLauncherForActivityResult` tiene il
-     * contratto fra le chiavi del suo effetto, e `CreateDocument(...)` scritto qui dentro è un
-     * oggetto nuovo ogni volta. Con la chiave sul tipo, cambia solo quando cambia il formato,
-     * che è esattamente quando deve.
+     * Un selettore di cartella suo e non quello di 'Scarica', che scrive il file originale col tipo
+     * della sorgente: qui si scrive un file nuovo, nel formato scelto.
+     * ⚠️ **Il contratto si ricorda per tipo**: `rememberLauncherForActivityResult` tiene il
+     * contratto fra le chiavi del suo effetto, e un `CreateDocument(...)` nuovo a ogni
+     * ricomposizione registrerebbe il selettore ogni volta.
      */
     val contract = remember(target.mime) { ActivityResultContracts.CreateDocument(target.mime) }
     val exporter = rememberLauncherForActivityResult(contract) { destination ->
@@ -114,11 +99,9 @@ fun ConvertDialog(
             val ok = Convert.write(
                 context = context,
                 /*
-                 * ⚠️⚠️ **CON UN FOTOGRAMMA IN MANO L'INDIRIZZO SI PASSA `null`, ed è
-                 * l'inversione che fa funzionare la cosa**: `Convert.write` preferisce
-                 * sempre il file, e rileggerlo qui vorrebbe dire esportare il **primo**
-                 * fotogramma della GIF invece di quello che si sta guardando. Lasciandolo
-                 * senza indirizzo, gli resta solo il ripiego, che è appunto il fotogramma.
+                 * ⚠️ **Con un fotogramma in mano l'indirizzo è `null`**: `Convert.write` preferisce
+                 * sempre il file, e rileggerlo esporterebbe il primo fotogramma della GIF. Senza
+                 * indirizzo resta il ripiego, cioè il fotogramma.
                  */
                 source = if (frame != null) null else source,
                 fallback = frame
@@ -128,7 +111,7 @@ fun ConvertDialog(
                 size = size,
                 destination = destination
             )
-            Notices.say(context.getString(
+            Notices.say(res.getString(
                 if (ok) R.string.toast_saved else R.string.toast_save_failed
             ))
             if (ok) onSaved()
@@ -147,10 +130,8 @@ fun ConvertDialog(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 /*
-                 * ⚠️ **Il dialogo dice su CHE COSA sta lavorando quando non è ovvio**: con
-                 * un'animazione davanti, 'Converti' potrebbe significare il file intero, e
-                 * chi lo credesse si troverebbe un PNG da un fotogramma senza sapere perché.
-                 * Su una fotografia ferma la riga non c'è, perché non c'è ambiguità.
+                 * Con un'animazione davanti il dialogo dice che lavora sul fotogramma, o 'Converti'
+                 * sembrerebbe riferito al file intero. Su un'immagine ferma la riga non c'è.
                  */
                 if (frame != null) {
                     Note(stringResource(R.string.convert_this_frame, shownFrame))
@@ -170,22 +151,14 @@ fun ConvertDialog(
                     }
                 }
 
-                // ⚠️ Il cursore compare solo dove serve: sul senza perdita la qualità non ha
-                // nessun effetto, e lasciarlo in scena spento sarebbe un comando che mente.
+                // Il cursore compare solo per i formati con perdita: altrove la qualità non ha
+                // effetto.
                 if (target.lossy) {
                     /*
-                     * ⚠️⚠️ **IL TITOLO E LA PERCENTUALE ARRIVANO DALLE RISORSE, e fino alla
-                     * `1.80` si componevano in Kotlin** (censimento della UI del 2026-09-05):
-                     * erano gli unici testi dell'app fuori dalla rete di `i18n-check.py`,
-                     * quindi il segno di percentuale, la sua posizione e la spaziatura
-                     * restavano gli stessi in ventotto lingue, comprese quelle che scrivono le
-                     * cifre in un altro modo.
-                     * ⚠️ **I tre spazi vivono nella stringa** (come `\u0020`, o l'XML li
-                     * collassa in uno): erano un riempimento tipografico scritto nel codice, e
-                     * una lingua che volesse i due punti adesso può metterli.
-                     * ⚠️ **Con `%1$d` le cifre le formatta `getString` sulla locale in
-                     * vigore**, che è il guadagno vero: in arabo o in bengalese arrivano nella
-                     * numerazione di quella lingua.
+                     * Titolo e percentuale vengono dalle risorse, così il segno di percentuale e la
+                     * sua posizione seguono la lingua, e con `%1$d` `getString` scrive le cifre
+                     * nella numerazione della lingua (arabo, bengalese). I tre spazi sono nella
+                     * stringa, come ` `, perché l'XML li collassa.
                      */
                     Heading(stringResource(R.string.convert_quality_at, quality))
                     ValueSlider(
@@ -223,21 +196,12 @@ fun ConvertDialog(
                 }
 
                 /*
-                 * ⚠️⚠️ **'PULISCI' COMPARE SOLO SU UN SVG, ed è una richiesta dell'utente**
-                 * (2026-09-02: *se sto visualizzando un SVG, voglio che il menu
-                 * 'Esporta/Converti' includa anche un 'Pulisci' prima di 'Altri formati'*). Su
-                 * un'immagine a punti non avrebbe senso: qui si toglie il contorno di un
-                 * **documento vettoriale**, e in un JPEG non c'è niente di simile.
-                 * ⚠️ **Prima di 'Altri formati' e dopo l'esportazione**, come chiesto: quello
-                 * che si fa più spesso resta in cima, e questa è una via di mezzo fra il
-                 * convertire (sopra) e il mandare fuori (sotto).
-                 * ⚠️ **I tre testi sono suoi, parola per parola**, numeri compresi (*fino al
-                 * 99%*, *intatta al 100%*): il primo è la misura che ha fatto lui sul suo
-                 * strumento, e il secondo la promessa che vuole leggere prima di premere. Sono
-                 * stati ridettati nel giro della `1.41`, quando la pulizia è diventata una sola
-                 * (riscontro `pulitore-web-via`), e il testo di prima parlava ancora di due.
-                 * ⚠️ **Not in AIV Play** (`Store.files`, since 5.10): cleaning writes over the
-                 * SVG itself, which that variant may not do.
+                 * 'Pulisci' compare solo su un SVG (richiesta dell'utente): toglie il contorno di
+                 * un documento vettoriale, che in un'immagine a punti non c'è. È fra l'esportazione
+                 * e 'Altri formati', come chiesto. I tre testi sono suoi, numeri compresi (*fino al
+                 * 99%*, *intatta al 100%*).
+                 * ⚠️ **Non in AIV Play** (`Store.files`): la pulizia riscrive l'SVG stesso, e
+                 * quella variante non scrive sui file.
                  */
                 if (isVector(image) && Store.files) {
                     HorizontalDivider(modifier = Modifier.padding(top = 12.dp))
@@ -246,11 +210,9 @@ fun ConvertDialog(
                     Note(stringResource(R.string.convert_clean_keeps), strong = true)
                     Note(stringResource(R.string.convert_clean_c2pa))
                     /*
-                     * ⚠️ **L'esito sta SOPRA i tasti e resta scritto**, invece di essere un
-                     * avviso che passa: dice due pesi, e due numeri che si vogliono
-                     * confrontare non si leggono in tre secondi. È anche il solo posto in cui
-                     * si vede che non c'era niente da togliere, che è un'informazione e non un
-                     * errore.
+                     * L'esito è sopra i tasti e resta scritto: confronta due pesi, che non si
+                     * leggono in un avviso che passa, e dice anche quando non c'era niente da
+                     * togliere.
                      */
                     esito?.let { fatto ->
                         Note(
@@ -271,20 +233,11 @@ fun ConvertDialog(
                         horizontalArrangement = Arrangement.End
                     ) {
                         /*
-                         * ⚠️⚠️ **UN TASTO SOLO DALLA 1.41, e il secondo l'ha tolto l'utente**
-                         * (risposta alla domanda `dom-pulitore-web`, 2026-09-03: *lo scoglio
-                         * del selettore file è insormontabile: elimina il pulitore Web*).
-                         * 'Apri' portava a CleanSVG, che con SVGO riscrive anche i tracciati,
-                         * cioè faceva **di più**: quello che l'ha condannato non è il
-                         * risultato ma la strada, perché il selettore di file di Android non
-                         * mostra le anteprime e là dentro non si sa che cosa si sta caricando.
-                         * ⚠️⚠️ **NON ERANO DUE VIE PER LA STESSA COSA**, e chi volesse
-                         * rimetterlo lo sappia: la pulizia di casa non tocca i tracciati.
-                         * Quello che si perde è quella riscrittura, e l'utente ha deciso che
-                         * non vale il viaggio.
-                         * ⚠️ **Si spegne senza un file su cui lavorare**: la pulizia riscrive
-                         * un file del telefono, quindi su un SVG arrivato dal web non c'è
-                         * niente da riscrivere.
+                         * Un tasto solo: l'utente ha tolto il pulitore Web (`dom-pulitore-web`),
+                         * perché il selettore di file di Android non mostra le anteprime. ⚠️ Non
+                         * erano due vie per la stessa cosa: CleanSVG con SVGO riscrive anche i
+                         * tracciati, la pulizia di casa no. Il tasto si spegne senza un file su cui
+                         * lavorare: un SVG arrivato dal web non ha niente da riscrivere.
                          */
                         TextButton(
                             enabled = source != null && !pulendo,
@@ -328,9 +281,8 @@ fun ConvertDialog(
         confirmButton = {
             TextButton(
                 /*
-                 * ⚠️ **Il nome proposto porta il numero del fotogramma**, o esportandone
-                 * tre da una GIF si proporrebbe tre volte lo stesso nome, e il selettore di
-                 * sistema aggiungerebbe '(1)' e '(2)' senza dire di che si tratta.
+                 * Il nome proposto contiene il numero del fotogramma, o esportandone tre da una GIF
+                 * si proporrebbe tre volte lo stesso nome.
                  */
                 onClick = {
                     exporter.launch(
@@ -358,19 +310,12 @@ private fun Heading(text: String) {
 }
 
 /**
- * @param strong se la riga va in grassetto e col colore pieno del testo.
+ * @param strong se la riga va in grassetto e col colore pieno del testo. Serve alla sola riga che
+ *   l'utente ha marcato come la promessa del pulitore (riscontro `pulitore-web-via`).
  *
- * ⚠️⚠️ **SERVE A UNA RIGA SOLA, e il perché è la forma in cui l'utente l'ha dettata**
- * (riscontro `pulitore-web-via` della `1.41`): là dentro due frasi erano fra asterischi, cioè
- * marcate come le cose che contano (*non modifica il contenuto dell'immagine*, *l'illustrazione
- * rimane intatta al 100%*). Sono la promessa del pulitore, ed è quello che uno vuole leggere
- * prima di premere.
- * ⚠️⚠️ **IL GRASSETTO STA SULLA RIGA INTERA E NON SULLE SOLE FRASI MARCATE, e lo scostamento è
- * dichiarato**: per accenderlo a metà frase servirebbe della marcatura **dentro** la stringa, e
- * `stringResource` la butta via (le sue etichette diventano spans e la stringa arriva nuda),
- * quindi bisognerebbe scriverla schermata e ricomporla a mano, in 28 lingue. Cioè un sistema
- * ad-hoc per due parole. Le due frasi marcate sono già **tutta** quella riga tranne l'elenco
- * fra parentesi, e quell'elenco è la cosa che le due frasi promettono: in grassetto non stona.
+ * ⚠️ **Il grassetto è sulla riga intera e non sulle sole frasi marcate**: `stringResource` scarta
+ * la marcatura dentro la stringa, e accenderla a metà frase vorrebbe un sistema a mano in 28
+ * lingue. Il resto della riga è l'elenco di quello che le due frasi promettono.
  */
 @Composable
 private fun Note(text: String, strong: Boolean = false) {
@@ -384,10 +329,8 @@ private fun Note(text: String, strong: Boolean = false) {
 }
 
 /**
- * Apre un indirizzo nel browser.
- *
- * ⚠️ **Un fallimento non si racconta**: succede solo su un telefono senza nessun browser, e
- * un avviso su quel caso sarebbe un testo in 28 lingue che non leggerà nessuno.
+ * Apre un indirizzo nel browser. Un fallimento non si segnala: succede solo su un telefono senza
+ * nessun browser.
  */
 private fun open(context: android.content.Context, url: String) {
     runCatching {
@@ -402,12 +345,10 @@ private const val QUALITY_MIN = 10f
 private const val QUALITY_MAX = 100f
 
 /**
- * Se quello che si sta guardando è un documento **vettoriale**.
+ * Se quello che si sta guardando è un documento vettoriale.
  *
- * ⚠️ **Due prove e non una**: il tipo dichiarato è quello giusto quando c'è, ma un `content://`
- * può servire un SVG come `application/octet-stream` (succede coi file arrivati da fuori), e
- * allora l'unica traccia è il nome. È la stessa coppia di prove che usa il riconoscimento delle
- * miniature, dove i byte però si possono guardare e qui no: qui l'immagine è già decodificata.
+ * Due prove: il tipo dichiarato, e il nome, perché un `content://` può servire un SVG come
+ * `application/octet-stream`. I byte qui non si possono guardare: l'immagine è già decodificata.
  */
 private fun isVector(image: LoadedImage): Boolean {
     if (image.mimeType == Svg.MIME) return true

@@ -15,6 +15,8 @@ l'app nella propria lingua:
 - CATEGORIE DI PLURALE: dipendono dalla lingua, non dal numero di forme che ha l'inglese.
   Il russo ne vuole quattro, l'arabo sei, il giapponese una;
 - CARATTERI VIETATI dal repo: trattini lunghi, apici curvi, i tre punti al posto di `…`;
+- CHIAVI MAI TRADOTTE: uguali all'inglese in più di metà delle traduzioni intere (vedi la nota
+  su `UGUALI_DI_PROPOSITO`);
 - APOSTROFI NUDI, che in un file di risorse Android non sono ammessi: vanno scritti `\\'`
   (oppure la stringa intera va fra doppi apici). ⚠️⚠️ **Questo controllo nasce dalla `1.53`,
   e nasce da un difetto che è arrivato fino alla release**: due stringhe nuove con un
@@ -95,6 +97,20 @@ BANNED = {'—': 'trattino lungo', '–': 'trattino medio',
           '‘': 'apice curvo', '’': 'apice curvo',
           '“': 'virgolette curve', '”': 'virgolette curve',
           '...': 'tre punti al posto di …'}
+
+
+# ⚠️ UNA CHIAVE UGUALE ALL'INGLESE IN PIÙ DI METÀ DELLE TRADUZIONI INTERE È UNA CHIAVE MAI TRADOTTA
+# (dalla 6.30, rilievo F49 della revisione Setaccio: cinque testi della lista delle cartelle, con
+# l'intera finestra di rimozione, erano in inglese in 25 lingue su 26, e il controllo diceva 'a
+# posto' perché guardava solo che la chiave ci fosse). Una parola uguale in poche lingue è quasi
+# sempre una parola che si scrive così (Normal, Format, Pause), e non si segnala. Una sigla o un
+# nome che non è testo si dichiara `translatable="false"`; qui restano le chiavi che sono testo e
+# che tutte le lingue scrivono come l'inglese di proposito: il nome dell'app e i formati con le
+# unità di misura.
+UGUALI_DI_PROPOSITO = {
+    'app_name', 'convert_percent', 'convert_pixels', 'facts_pixels_value', 'facts_pixels_mpx',
+    'facts_focal', 'facts_exposure_fraction', 'facts_exposure_seconds', 'facts_iso',
+}
 
 
 def holders(text):
@@ -179,6 +195,7 @@ def main():
                    if d.startswith('values-') and
                    os.path.isfile(os.path.join(RES, d, 'strings.xml')))
     problems = 0
+    uguali, intere = {}, 0
 
     # ⚠️ Vedi la nota in testa: l'inglese è il metro dei confronti, quindi i suoi difetti di
     # carattere non li segnalerebbe nessuno. Non entra nel conto delle lingue.
@@ -198,6 +215,12 @@ def main():
         madre = base_lang(lang)
         parziale = madre is not None and os.path.isdir(os.path.join(RES, 'values-%s' % madre))
         cats = madre if parziale else lang
+        if not parziale:
+            intere += 1
+            for name, text in base_s.items():
+                if (name not in base_fissi and name not in UGUALI_DI_PROPOSITO
+                        and here_s.get(name) == text and any(c.isalpha() for c in text)):
+                    uguali.setdefault(name, []).append(lang)
 
         for name, text in base_s.items():
             # ⚠️ Una stringa non traducibile si controlla al ROVESCIO: qui non deve esserci,
@@ -206,7 +229,7 @@ def main():
             # vecchia non fa comparire l'inglese: fa comparire un valore sbagliato.
             if name in base_fissi:
                 if name in here_s:
-                    said.append('la stringa %s non e\' traducibile e qui c\'e\' ancora' % name)
+                    said.append("la stringa %s non è traducibile e qui c'è ancora" % name)
             elif name not in here_s:
                 if not parziale:
                     said.append('manca la stringa %s' % name)
@@ -240,6 +263,13 @@ def main():
         print('%-20s %s' % (etichetta, 'a posto' if not said else '%d PROBLEMI' % len(said)))
         for line in said[:10]:
             print('         -', line)
+
+    # Vedi la nota su UGUALI_DI_PROPOSITO.
+    mai_tradotte = sorted(n for n, ls in uguali.items() if len(ls) * 2 > intere)
+    for name in mai_tradotte:
+        print('mai tradotta: %s è uguale all\'inglese in %d traduzioni intere su %d'
+              % (name, len(uguali[name]), intere))
+    problems += len(mai_tradotte)
 
     print('%d lingue, %d problemi' % (len(langs), problems))
     sys.exit(1 if problems else 0)

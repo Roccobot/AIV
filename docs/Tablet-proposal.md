@@ -7,7 +7,10 @@ porta il pannello informazioni a lato (soglie 600 / 800 / 1024 dp del mockup; ch
 serie sotto i 1.024). Dalla `3.32` Cartelle è a due colonne da 600 dp (elenco a lato,
 contenuto a destra; esclusa la vista ad albero). Dalla `3.33` Impostazioni sono
 indice e pagina affiancati da 600 dp. Dalla `3.34` Ricerca riusa elenco e risultati da 600 dp;
-editor semplice e completo portano gli strumenti a lato da 1.024 dp (sotto restano in basso).
+editor semplice e completo portano gli strumenti a lato da 1.024 dp (sotto restano in basso);
+dalla `6.30` anche in orizzontale su uno schermo col lato minore da 600 dp (scelta D1 sulla voce
+G3 della revisione Setaccio: con Android 16 il sistema ignora il verticale che l'editor chiede
+su quegli schermi, e un tablet piccolo mostrava in orizzontale la disposizione del telefono).
 Dalla `3.35` Cestino ha dettagli a lato da 600 dp; Cronologia gruppi e percorsi; Cartelle di
 sistema cartelle a lato e file a destra; dialoghi rinomina/converti/salva a 520 dp e
 Copia/sposta a 800 dp su tablet. Dalla `3.36` Dimensioni e filigrana mettono anteprima
@@ -54,7 +57,8 @@ La selezione di cartella, pagina e modulo sopravvive ai cambi di orientamento e 
 - La doppia vista cartelle/contenuto: utile per alternare cartelle senza ritornare all'elenco.
 - La posizione delle informazioni nel visualizzatore e la soglia per richiuderle.
 - La larghezza del pannello dell'editor e l'altezza dei controlli in verticale.
-- Il riordino delle impostazioni: proposta distinta in [Settings-proposal.md](Settings-proposal.md).
+- Il riordino delle impostazioni era una proposta distinta, applicata nella 3.27: dalla 6.30 il
+  suo documento vive solo nella storia di git (`docs/Settings-proposal.md`).
 
 Usa la sezione Decisioni del [feedback](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
 Le operazioni sono dimostrative; shader, riproduzione video e file non vengono eseguiti nel browser.

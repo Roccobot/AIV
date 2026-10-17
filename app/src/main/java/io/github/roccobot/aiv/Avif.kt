@@ -9,46 +9,31 @@ import java.nio.ByteBuffer
 /**
  * La decodifica AVIF, e perché non la fa il telefono.
  *
- * ⚠️⚠️ **`ImageDecoder` DICHIARA AVIF DA API 31 MA SI APPOGGIA AL DECODIFICATORE AV1 DEL
- * TELEFONO, e quello non regge i file veri.** Misurato sul file dell'utente (24.793.385
- * byte, esportato da Lightroom) leggendone l'intestazione: marchio `MA1A`
- * cioè **profilo AVIF avanzato**, `seq_profile` **1** (AV1 High, croma **4:4:4**),
- * `seq_level_idx` **16** cioè **livello 6.0**, e **6016x4016**, cioè 24,2 megapixel.
- * Ognuna delle tre è fuori da quello che un decodificatore AV1 di telefono garantisce: la
- * CDD di Android obbliga al solo **profilo Main** (0, 4:2:0), e i decodificatori hardware
- * si fermano quasi sempre al livello 5.1, cioè al 4K. Da lì l'errore che ha visto
- * l'utente, `getPixels failed with error invalid input`, che non è un file rotto: è un
- * decodificatore che non sa leggere quel profilo.
+ * ⚠️ **`ImageDecoder` dichiara AVIF da API 31, ma si appoggia al decodificatore AV1 del
+ * telefono, che non regge i file veri.** Il file di prova dell'utente (esportato da Lightroom)
+ * è in profilo AVIF avanzato (`MA1A`), AV1 High con croma 4:4:4, livello 6.0, 6016x4016: la CDD
+ * di Android obbliga al solo profilo Main (4:2:0), e i decodificatori hardware si fermano quasi
+ * sempre al livello 5.1. Ne risulta `getPixels failed with error invalid input`, su un file
+ * sano. Quindi qui decodifica libavif con dav1d, la libreria ufficiale di AOMedia, in software.
  *
- * ⚠️ **La pista dell'utente era giusta, e la verifica è sul codice di Fossify Gallery**:
- * non si fida del decodificatore di sistema e se ne porta uno dentro (`libs.avif` e
- * `libs.avif.integration` nel suo catalogo). Qui si prende la stessa strada dalla fonte:
- * la libreria ufficiale di AOMedia, cioè **libavif con dav1d**, che decodifica in software
- * e quindi non dipende da che cosa sa fare il telefono.
+ * La libreria nativa pesa circa 870 KB per `arm64-v8a` e 660 KB per `armeabi-v7a`; le varianti
+ * `x86`, che servirebbero ai soli emulatori, sono escluse in `build.gradle.kts`. ⚠️ **Per questo
+ * esiste [ready]**: su un dispositivo x86 `System.loadLibrary` va in errore, e senza quel
+ * controllo la classe resterebbe inutilizzabile.
  *
- * **Che cosa costa, misurato sull'AAR**: la libreria nativa pesa 868.592
- * byte per `arm64-v8a` e 655.780 per `armeabi-v7a`, e nell'APK sta **non compressa**
- * perché è nativa. Le due varianti `x86` (1,1 e 1,8 MB) sono escluse nel
- * `build.gradle.kts`: servirebbero ai soli emulatori, e qui l'APK si scarica da un sito,
- * dove nessuno spacchetta per architettura. ⚠️ **Per questo [ready] esiste**: su un
- * dispositivo x86 la libreria non c'è, `System.loadLibrary` va in errore, e senza quel
- * controllo la classe resterebbe rotta per sempre invece di sfilarsi.
- *
- * ⚠️⚠️ **LA SCALA LA FA LIBAVIF, e questo è il fatto che rende la cosa possibile**: se il
- * bitmap che si passa è più piccolo dell'immagine, la decodifica ci scala dentro
- * (`avifImageScale`). Quindi una fotografia da 24 megapixel non costa mai 96 MB di heap
- * Java: si chiede la misura che il budget consente e i piani interi restano nella memoria
- * **nativa**, che non è quella contata da `Runtime.maxMemory`.
+ * ⚠️ **La scala la fa libavif**: se il bitmap passato è più piccolo dell'immagine, la decodifica
+ * ci scala dentro (`avifImageScale`). Una fotografia da 24 megapixel non costa 96 MB di heap Java:
+ * si chiede la misura che il budget consente, e i piani interi restano nella memoria nativa, che
+ * `Runtime.maxMemory` non conta.
  */
 object Avif {
 
     /**
      * Se la libreria nativa c'è.
      *
-     * ⚠️ Si tocca una funzione nativa qualunque per **forzare** l'inizializzazione statica,
-     * cioè dove vive `System.loadLibrary`: senza, il primo errore arriverebbe più tardi e
-     * come `NoClassDefFoundError`, che è quello che una classe rotta dà al secondo tentativo
-     * e che nessun `catch` sul punto d'uso si aspetta.
+     * ⚠️ Si chiama una funzione nativa qualunque per forzare l'inizializzazione statica, dove vive
+     * `System.loadLibrary`: senza, l'errore arriverebbe più tardi come `NoClassDefFoundError`,
+     * che nessun `catch` sul punto d'uso si aspetta.
      */
     val ready: Boolean = try {
         AvifDecoder.versionString()
@@ -57,42 +42,36 @@ object Avif {
         false
     }
 
-    /** Quanti byte bastano a riconoscere il formato: `ftyp` sta sempre in testa. */
+    /** Quanti byte bastano a riconoscere il formato: `ftyp` è sempre in testa. */
     const val SNIFF = 32
 
     /**
      * Fin dove si legge un AVIF per trovarne le proprietà, quando servono solo quelle.
      *
-     * ⚠️⚠️ **MILLE BYTE NON BASTANO SEMPRE**: in un AVIF `ispe` e `av1C` stanno dentro
-     * `meta`, ma accanto a loro ci può stare un **profilo ICC** o un XMP di parecchi
-     * kilobyte, e l'ordine dentro `ipco` non lo fissa nessuno. Sul file di prova
-     * dell'utente `meta` misura 13.474 byte. Centoventotto kilobyte restano una frazione
-     * di un file da decine di megabyte, e la scansione si ferma da sé a `mdat`.
+     * ⚠️ **Mille byte non bastano sempre**: `ispe` e `av1C` sono dentro `meta`, e accanto a loro ci
+     * può essere un profilo ICC o un XMP di parecchi kilobyte (sul file di prova dell'utente
+     * `meta` misura 13.474 byte). La scansione si ferma comunque a `mdat`.
      */
     const val HEAD = 128 * 1024
 
     /**
      * Con quanti fili decodificare.
      *
-     * ⚠️⚠️ **SI DICHIARA, perché la scorciatoia a tre argomenti passa ZERO e quello vuol
-     * dire UN filo solo**: `AvifDecoder.decode(buffer, len, bitmap)` chiama la versione
-     * nativa con `threads = 0`, e libavif lo porta a uno. Su questa immagine è la
-     * differenza fra usare un core e usarli tutti, e il costo è già alto di suo: la stessa
-     * libreria, misurata qui su un Xeon a 4 core, ci mette **1,6 secondi** a decodificare
-     * i 24 megapixel del file dell'utente.
-     * ⚠️ Il tetto a 8 non è prudenza generica: oltre, dav1d spartisce righe sempre più
-     * corte fra sempre più fili, e su un telefono i core in più sono quelli piccoli.
+     * ⚠️ **Si dichiara, perché la scorciatoia a tre argomenti passa zero, cioè un filo solo**:
+     * `AvifDecoder.decode(buffer, len, bitmap)` chiama la versione nativa con `threads = 0`. Su un
+     * Xeon a 4 core la decodifica dei 24 megapixel del file di prova richiede già 1,6 secondi.
+     * Il tetto a 8: oltre, dav1d divide righe sempre più corte fra più fili, e su un telefono i
+     * core in più sono quelli piccoli.
      */
     private val THREADS: Int = Runtime.getRuntime().availableProcessors().coerceIn(1, 8)
 
     /**
      * Riconosce un AVIF dai primi byte, senza chiamare la libreria nativa.
      *
-     * ⚠️ **Serve prima e non dopo**: il ripiego deve sapere se vale la pena leggere in
-     * memoria un file che può pesare decine di megabyte, e questa risposta costa
-     * trentadue byte. La forma è quella di ISO-BMFF: quattro byte di lunghezza, `ftyp`,
-     * poi il marchio principale e l'elenco di quelli compatibili, che si guardano tutti
-     * perché un file può dichiarare `mif1` come principale e `avif` fra i compatibili.
+     * Serve prima di leggere in memoria un file che può pesare decine di megabyte. La forma è
+     * quella di ISO-BMFF: quattro byte di lunghezza, `ftyp`, il marchio principale e quelli
+     * compatibili, che si guardano tutti perché un file può dichiarare `mif1` come principale e
+     * `avif` fra i compatibili.
      */
     fun looksLike(head: ByteArray): Boolean {
         if (head.size < 12) return false
@@ -111,13 +90,12 @@ object Avif {
     /**
      * Decodifica [bytes] in un bitmap grande al massimo [cap] pixel, girato secondo `irot`.
      *
-     * Torna `null` quando la libreria non c'è, il file non è leggibile, o la decodifica
-     * fallisce: chi chiama resta col proprio errore invece di riceverne uno nuovo.
+     * Restituisce `null` quando la libreria non c'è, il file non è leggibile o la decodifica
+     * fallisce: chi chiama resta col proprio errore.
      */
     fun decode(bytes: ByteArray, cap: Long): Decoded? {
-        // ⚠️ **Il buffer diretto si costruisce UNA volta e si passa in giro**: è una copia
-        // dell'intero file in memoria nativa, e su una fotografia da 25 MB farne due (una
-        // per l'intestazione e una per i pixel) vorrebbe dire cinquanta megabyte per niente.
+        // ⚠️ Il buffer diretto si costruisce una volta sola: è una copia dell'intero file in
+        // memoria nativa, e due copie su un file da 25 MB sarebbero 50 MB.
         val buffer = direct(bytes)
         val info = header(buffer) ?: return null
         val step = stepFor(info.width, info.height, cap)
@@ -136,11 +114,9 @@ object Avif {
      * Decodifica [bytes] direttamente nella misura di una miniatura: il lato lungo diventa
      * [box] e l'altro segue le proporzioni.
      *
-     * ⚠️ **Qui NON si va a potenze di due**, al contrario di [decode], e la ragione è la
-     * qualità: da 6016 pixel il passo più vicino a 512 sarebbe 16, cioè 376, e un riquadro
-     * da 512 lo mostrerebbe morbido. Libavif scala a qualunque misura, quindi chiedere
-     * quella giusta non costa niente in più. Il `sampled` che a [decode] serve, qui non
-     * serve: una miniatura è campionata per definizione.
+     * Qui, al contrario di [decode], non si va a potenze di due: da 6016 pixel il passo vicino a
+     * 512 darebbe 376, e il riquadro la mostrerebbe sfocata. Libavif scala a qualunque misura
+     * senza costi in più.
      */
     fun thumbnail(bytes: ByteArray, box: Int): Bitmap? {
         val buffer = direct(bytes)
@@ -178,8 +154,8 @@ object Avif {
         } catch (e: OutOfMemoryError) {
             return null
         }
-        // ⚠️ Si riparte da capo: `getInfo` ha già camminato questo stesso buffer, e un
-        // `ByteBuffer` porta con sé la propria posizione.
+        // ⚠️ Si riparte da capo: `getInfo` ha già letto questo buffer, e un `ByteBuffer` tiene
+        // la propria posizione.
         buffer.rewind()
         val done = try {
             AvifDecoder.decode(buffer, buffer.remaining(), bitmap, THREADS)
@@ -190,9 +166,8 @@ object Avif {
             bitmap.recycle()
             return null
         }
-        // ⚠️ **Anche le misure dichiarate si girano**, non solo i pixel: sono quelle che
-        // finiscono nella barra delle info, e una fotografia mostrata in verticale con
-        // scritto sotto '6016 x 4016' si contraddice da sola.
+        // ⚠️ Anche le misure dichiarate si girano, non solo i pixel: finiscono nella barra delle
+        // informazioni, accanto all'immagine girata.
         val quarters = quarters(bytes)
         val dritta = quarters % 2 == 0
         return Decoded(
@@ -212,12 +187,10 @@ object Avif {
     )
 
     /**
-     * Di quanto rimpicciolire per stare sotto [cap] pixel.
+     * Di quanto rimpicciolire per restare sotto [cap] pixel.
      *
-     * ⚠️ **Potenze di due come fa `ImageDecoder`, benché libavif accetti qualunque
-     * misura**, e la ragione è la coerenza di quello che si racconta: `sampled` nella
-     * barra delle info vuol dire 'questa non è la fotografia intera', e due strade che
-     * scelgono misure diverse direbbero la stessa cosa a due condizioni diverse.
+     * Potenze di due come `ImageDecoder`, anche se libavif accetta qualunque misura: `sampled`
+     * nella barra delle informazioni deve voler dire la stessa cosa per tutte e due le strade.
      */
     private fun stepFor(width: Int, height: Int, cap: Long): Int {
         var step = 1
@@ -232,10 +205,8 @@ object Avif {
     /**
      * Il buffer che la libreria nativa pretende.
      *
-     * ⚠️⚠️ **DEVE essere DIRETTO**, e non è un dettaglio di prestazione: il codice JNI
-     * chiama `GetDirectBufferAddress` e con un buffer normale **fallisce e basta**,
-     * scrivendo *encoded is not a direct ByteBuffer* in un log che nessuno legge. Un
-     * `ByteBuffer.wrap` qui darebbe una decodifica che non riesce mai, senza dire perché.
+     * ⚠️ **Deve essere diretto**: il codice JNI chiama `GetDirectBufferAddress`, e con un
+     * `ByteBuffer.wrap` la decodifica fallisce sempre, scrivendolo solo nel log.
      */
     private fun direct(bytes: ByteArray): ByteBuffer =
         ByteBuffer.allocateDirect(bytes.size).apply {
@@ -246,16 +217,11 @@ object Avif {
     /**
      * I quarti di giro dichiarati dal file, letti dalla scatola `irot`.
      *
-     * ⚠️⚠️ **SERVONO PERCHÉ LIBAVIF NON LI APPLICA**: il suo strato JNI decodifica i pixel
-     * come stanno e dichiara `ignoreExif`, quindi una fotografia scattata di traverso
-     * uscirebbe di traverso. ⚠️ **E per un AVIF l'autorità è `irot`, non l'EXIF**: la
-     * specifica dice che le trasformazioni del contenitore vincono, quindi leggere
-     * l'orientamento EXIF sarebbe la risposta sbagliata anche quando c'è.
-     * ⚠️ **`imir` (lo specchio) NON si applica, ed è una scelta**: la sua convenzione
-     * sull'asse è scritta in due modi diversi fra le edizioni della specifica, quindi
-     * indovinare vorrebbe dire mostrare l'immagine ribaltata con la stessa sicurezza con
-     * cui oggi la si mostra dritta. Se un file vero lo porterà, si aggiunge allora, con
-     * quel file davanti.
+     * ⚠️ **Servono perché libavif non li applica**: il suo strato JNI decodifica i pixel così come
+     * sono scritti e dichiara `ignoreExif`. Per un AVIF vale `irot`, non l'EXIF: la specifica dà
+     * la precedenza alle trasformazioni del contenitore.
+     * `imir` (lo specchio) non si applica: la sua convenzione sull'asse è scritta in due modi
+     * diversi fra le edizioni della specifica. Si aggiungerà con un file vero che lo contenga.
      */
     private fun quarters(bytes: ByteArray): Int {
         val at = findBox(bytes, "irot", IROT_LEN) ?: return 0
@@ -266,10 +232,8 @@ object Avif {
     /**
      * Le misure dichiarate dal file, con la rotazione già applicata.
      *
-     * ⚠️⚠️ **SERVE PERCHÉ IL DIALOGO DELLE INFO LE CHIEDE A `BitmapFactory`**, che su un
-     * AVIF passa dallo stesso decodificatore di sistema che non ce la fa: senza questa
-     * lettura la scheda direbbe '?' proprio sul formato appena aggiunto. Costa i primi
-     * kilobyte del file, come per gli altri formati, e non decodifica niente.
+     * Serve perché la scheda `Info` chiede le misure a `BitmapFactory`, che su un AVIF passa dal
+     * decodificatore di sistema che non ce la fa. Legge i primi kilobyte e non decodifica niente.
      */
     fun dimensions(head: ByteArray): Size? {
         val at = findBox(head, "ispe", ISPE_LEN) ?: return null
@@ -277,18 +241,16 @@ object Avif {
         val width = int32(head, at + 4)
         val height = int32(head, at + 8)
         if (width <= 0 || height <= 0) return null
-        // Un quarto di giro dispari scambia i lati: quello che interessa è la fotografia
-        // come si vede, non come sta scritta nel file.
+        // Un numero dispari di quarti di giro scambia i lati: contano le misure dell'immagine
+        // come si vede.
         return if (quarters(head) % 2 == 1) Size(height, width) else Size(width, height)
     }
 
     /**
      * Il metodo colore, letto dalla scatola `av1C` e dal tipo ausiliario dell'alfa.
      *
-     * ⚠️ **Il sottocampionamento della crominanza NON entra nella risposta** (4:4:4 contro
-     * 4:2:0), benché sia proprio la differenza che rende difficile questo file: [Colours]
-     * non ha un posto dove metterlo, e aggiungerlo vorrebbe dire cambiare la riga per tutti
-     * i formati. Resta scritto qui che il dato c'è ed è a due bit di distanza.
+     * Il sottocampionamento della crominanza (4:4:4 o 4:2:0) non entra nella risposta: [Colours]
+     * non ha un campo per lui. Il dato è nei due bit dopo `mono`.
      */
     fun colours(head: ByteArray): Colours? {
         val at = findBox(head, "av1C", AV1C_LEN) ?: return null
@@ -309,12 +271,11 @@ object Avif {
     }
 
     /**
-     * Se il file porta un canale alfa.
+     * Se il file ha un canale alfa.
      *
-     * ⚠️ **Si cerca il tipo ausiliario per NOME e non la scatola `auxC`**: in un AVIF
-     * l'alfa è un secondo elemento immagine marcato da questa URN, che è una stringa
-     * lunga e inconfondibile, mentre `auxC` da sola dice solo 'c'è un ausiliario' e
-     * potrebbe essere una mappa di profondità.
+     * Si cerca il tipo ausiliario per nome e non la scatola `auxC`: l'alfa è un secondo elemento
+     * immagine marcato da questa URN, mentre `auxC` da sola potrebbe essere una mappa di
+     * profondità.
      */
     private fun hasAlpha(head: ByteArray): Boolean =
         findRaw(head, ALPHA_URN, head.size) != null
@@ -330,16 +291,13 @@ object Avif {
     /**
      * Dove comincia il contenuto della prima scatola [name] lunga [length] byte.
      *
-     * ⚠️ **Una scansione lineare e non una discesa nell'albero**, ed è una semplificazione
-     * dichiarata: queste scatole vivono in `meta > iprp > ipco`, e in teoria `ipco` porta
-     * le proprietà di **tutti** gli elementi, con `ipma` a dire quale vale per quale. In un
-     * AVIF di macchina fotografica o di Lightroom l'elemento immagine è **uno**, e le
-     * proprietà del suo eventuale gemello alfa dichiarano le stesse misure e la stessa
-     * profondità: la prima che si incontra è quella giusta in tutti e due i casi.
-     * ⚠️⚠️ **La lunghezza è il controllo che rende la scansione affidabile**: quattro
-     * lettere possono capitare per caso dentro un profilo ICC o un XMP, ma non precedute
-     * dai quattro byte che dichiarano esattamente la lunghezza di quella scatola. La
-     * ricerca si ferma comunque prima di `mdat`, dove sono i byte compressi.
+     * Una scansione lineare e non una discesa nell'albero, semplificazione dichiarata: le scatole
+     * vivono in `meta > iprp > ipco`, che in teoria contiene le proprietà di tutti gli elementi.
+     * In un AVIF di macchina fotografica o di Lightroom l'elemento immagine è uno, e il suo
+     * eventuale gemello alfa dichiara le stesse misure e la stessa profondità.
+     * ⚠️ **La lunghezza rende la scansione affidabile**: quattro lettere possono capitare per caso
+     * in un profilo ICC o in un XMP, ma non precedute dalla lunghezza esatta di quella scatola.
+     * La ricerca si ferma prima di `mdat`, dove sono i byte compressi.
      */
     private fun findBox(bytes: ByteArray, name: String, length: Int): Int? {
         val tag = name.toByteArray(Charsets.ISO_8859_1)
@@ -354,7 +312,7 @@ object Avif {
 
     private val MDAT = "mdat".toByteArray(Charsets.ISO_8859_1)
 
-    /** L'intero a 32 bit senza segno che sta in [at], come vuole ISO-BMFF (big endian). */
+    /** L'intero a 32 bit senza segno in [at], come vuole ISO-BMFF (big endian). */
     private fun int32(bytes: ByteArray, at: Int): Int {
         if (at + 4 > bytes.size || at < 0) return -1
         return ((bytes[at].toInt() and 0xFF) shl 24) or

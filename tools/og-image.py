@@ -26,13 +26,16 @@ Uso, dalla radice del repository:
     python3 tools/og-image.py
 """
 import html
-import os
+import importlib.util
 import pathlib
 import re
 import sys
 import tempfile
 
 RADICE = pathlib.Path(__file__).resolve().parent.parent
+_spec = importlib.util.spec_from_file_location('browser', pathlib.Path(__file__).with_name('browser.py'))
+browser = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(browser)
 PAGINA = RADICE / 'publish' / 'index.html'
 SCHERMATA = RADICE / 'publish' / 'schermate' / 'chiara.webp'
 USCITA = RADICE / 'publish' / 'anteprima.jpg'
@@ -49,18 +52,49 @@ ACCENTO = '#43B59E'
 GLIFO = '#EBFFF7'
 
 
-def eseguibile():
-    """Il browser dell'ambiente, cercato per percorso come fa `feedback-check.py`."""
-    radice = os.environ.get('PLAYWRIGHT_BROWSERS_PATH') or '/opt/pw-browsers'
-    if not os.path.isdir(radice):
-        return None
-    for nome in sorted(os.listdir(radice), reverse=True):
-        if not nome.startswith('chromium-'):
-            continue
-        via = os.path.join(radice, nome, 'chrome-linux', 'chrome')
-        if os.path.exists(via):
-            return via
-    return None
+def avvia(p):
+    """Il browser, cercato come lo cercano tutti gli strumenti (`browser.py`)."""
+    via = browser.percorso(p)
+    if not via:
+        sys.exit('manca Chromium: né quello di Playwright, né quello del container, né uno nel PATH')
+    return p.chromium.launch(executable_path=via, args=['--no-sandbox'])
+
+
+def righe_titolo(titolo):
+    """Il titolo di tre parole va a capo dopo la prima: 'Astonishing' sopra, 'Image Viewer' sotto,
+    perché su una riga sola al corpo delle due immagini non entra."""
+    parole = titolo.split()
+    if len(parole) == 3:
+        return html.escape(parole[0]) + '<br>' + html.escape(' '.join(parole[1:]))
+    return html.escape(titolo)
+
+
+def fotografa(pg, uscita, pesi, **cattura):
+    """Scrive la cattura della scena aperta in `pg`, solo se Roboto è arrivato nei `pesi` chiesti e
+    la schermata si è caricata; altrimenti si ferma senza scrivere niente.
+
+    ⚠️⚠️ **SI CHIEDE IL CARATTERE, E SI GUARDA CHE SIA ARRIVATO** (rilievo G29 della revisione
+    Setaccio, 6.30): `document.fonts.check` risponde sì anche per un carattere mai arrivato,
+    perché su una pagina senza caratteri da caricare non c'è niente che manchi (misurato: sì anche
+    per una famiglia che non esiste). `document.fonts.load` restituisce le facce del foglio di
+    stile, e una lista vuota vuol dire che il foglio di Google Fonts non è arrivato."""
+    pg.wait_for_load_state('networkidle')
+    pronti = pg.evaluate('''async (pesi) => {
+        await document.fonts.ready;
+        const caratteri = [];
+        for (const peso of pesi) {
+            const facce = await document.fonts.load(peso + ' 40px Roboto');
+            caratteri.push(facce.length > 0 && facce.every(f => f.status === 'loaded'));
+        }
+        const img = document.querySelector('.schermata');
+        if (img && !img.complete) await new Promise(r => img.addEventListener('load', r));
+        return { caratteri: caratteri.every(Boolean), schermata: !img || img.naturalWidth > 0 };
+    }''', list(pesi))
+    if not pronti['caratteri']:
+        sys.exit('Roboto non è arrivato da Google Fonts: nessuna immagine scritta')
+    if not pronti['schermata']:
+        sys.exit('la schermata non si è caricata: nessuna immagine scritta')
+    pg.screenshot(path=str(uscita), **cattura)
 
 
 def pezzi(testo):
@@ -79,16 +113,8 @@ def pezzi(testo):
 
 
 def composizione(svg, titolo, breve):
-    """La scena, in HTML: a sinistra icona, titolo e indirizzo, a destra la schermata.
-
-    ⚠️ Il titolo va a capo prima dell'ultima parola di tre, cioè 'Astonishing' sopra e
-    'Image Viewer' sotto: su una riga sola a quel corpo non ci starebbe.
-    """
-    parole = titolo.split()
-    if len(parole) == 3:
-        righe = html.escape(parole[0]) + '<br>' + html.escape(' '.join(parole[1:]))
-    else:
-        righe = html.escape(titolo)
+    """La scena, in HTML: a sinistra icona, titolo e indirizzo, a destra la schermata."""
+    righe = righe_titolo(titolo)
     return f'''<!doctype html>
 <html lang="it"><head><meta charset="utf-8">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=block">
@@ -127,9 +153,6 @@ def main():
         from playwright.sync_api import sync_playwright
     except ImportError:
         sys.exit('manca Playwright: senza browser non si compone niente')
-    via = eseguibile()
-    if not via:
-        sys.exit('manca Chromium sotto PLAYWRIGHT_BROWSERS_PATH')
     if not SCHERMATA.exists():
         sys.exit('manca la schermata: %s' % SCHERMATA)
 
@@ -138,25 +161,10 @@ def main():
         scena = pathlib.Path(cartella) / 'scena.html'
         scena.write_text(composizione(svg, titolo, breve), encoding='utf-8')
         with sync_playwright() as p:
-            b = p.chromium.launch(executable_path=via, args=['--no-sandbox'])
+            b = avvia(p)
             pg = b.new_page(viewport={'width': LARGO, 'height': ALTO}, device_scale_factor=1)
             pg.goto(scena.as_uri())
-            pg.wait_for_load_state('networkidle')
-            pronti = pg.evaluate('''async () => {
-                await document.fonts.ready;
-                const img = document.querySelector('.schermata');
-                if (!img.complete) await new Promise(r => img.addEventListener('load', r));
-                return {
-                    medio: document.fonts.check('500 82px Roboto'),
-                    tondo: document.fonts.check('400 30px Roboto'),
-                    schermata: img.naturalWidth > 0,
-                };
-            }''')
-            if not (pronti['medio'] and pronti['tondo']):
-                sys.exit('Roboto non è arrivato da Google Fonts: nessuna immagine scritta')
-            if not pronti['schermata']:
-                sys.exit('la schermata non si è caricata: nessuna immagine scritta')
-            pg.screenshot(path=str(USCITA), type='jpeg', quality=90)
+            fotografa(pg, USCITA, ['500', '400'], type='jpeg', quality=90)
             b.close()
     print('%s: %dx%d, %d byte' % (USCITA.relative_to(RADICE), LARGO, ALTO, USCITA.stat().st_size))
 

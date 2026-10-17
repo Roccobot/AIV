@@ -1,6 +1,7 @@
 package io.github.roccobot.aiv
 
 import android.net.Uri
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.ui.geometry.Offset
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -240,5 +241,49 @@ class RotazioneTest {
         tenuto.record(0f, Offset.Zero, 0f, 0f, 0f)
         assertEquals("Il rapporto è stato sporcato", 2f, tenuto.zoom, 0.0001f)
         assertEquals("Il centro è stato sporcato", 0.1f, tenuto.centreX, 0.0001f)
+    }
+
+    /**
+     * **Caso 9: la pila delle impostazioni torna com'era, e si salva per nome** (rilievo F28).
+     *
+     * ⚠️ Fino alla `6.29` si salvava per numero d'ordine: una pagina nuova in mezzo all'elenco
+     * avrebbe riaperto un'altra pagina, e un numero fuori misura mandava in errore il ripristino.
+     */
+    @Test
+    fun `la pila delle impostazioni sopravvive per nome`() {
+        val pila = mutableStateListOf(Page.FOLDERS, Page.HIDDEN)
+        val salvata = with(PAGE_STACK) { with(ambito) { save(pila) } }
+        assertEquals("La pila non si salva per nome", listOf("FOLDERS", "HIDDEN"), salvata)
+        assertEquals("La pila non torna com'era", pila.toList(), PAGE_STACK.restore(salvata!!)!!.toList())
+    }
+
+    /**
+     * **Caso 10: un nome che questa versione non conosce si scarta, e il ripristino non va in
+     * errore** (rilievo F28).
+     *
+     * ⚠️ È lo stato salvato da una versione più nuova dopo un ritorno indietro: col numero
+     * d'ordine il ripristino andava in errore e chiudeva l'app.
+     */
+    @Test
+    fun `un nome sconosciuto non rompe la pila delle impostazioni`() {
+        val dopo = PAGE_STACK.restore(listOf("ZOOM", "UNA_PAGINA_FUTURA", 99))!!.toList()
+        assertEquals("Il ripristino non scarta quello che non conosce", listOf(Page.ZOOM), dopo)
+    }
+
+    /**
+     * **Caso 11: una pila salvata fino alla `6.29`, coi numeri d'ordine, si legge ancora**
+     * (rilievo F28).
+     *
+     * ⚠️ 1 era 'Cartelle', 17 la vecchia 'Navigazione', che oggi è il Visualizzatore, e 18 'Avvio':
+     * proprio la voce che la pagina tolta avrebbe spostato.
+     */
+    @Test
+    fun `una pila salvata coi numeri d'ordine si legge ancora`() {
+        val dopo = PAGE_STACK.restore(listOf(1, 17, 18))!!.toList()
+        assertEquals(
+            "La pila salvata coi numeri d'ordine non riapre le stesse pagine",
+            listOf(Page.FOLDERS, Page.VIEWER, Page.START),
+            dopo
+        )
     }
 }

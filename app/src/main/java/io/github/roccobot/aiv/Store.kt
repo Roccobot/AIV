@@ -19,142 +19,140 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 
 /*
- * The two variants of the app, and what each one may do with shared storage.
+ * Le due varianti dell'app, e che cosa può fare ognuna con la memoria condivisa
+ * (`Rules.md` § '🏪 Le due varianti, e che cosa manca ad AIV Play').
  *
  * Author: Rocco Casadei, a.k.a. Roccobot
  *
- * ⚠️⚠️ **This is the only place that reads `BuildConfig.FILES`** (since 5.10): a second reader
- * would be a second answer to the same question, and the two would drift at the first edit.
- * The reason for the variants lives in `build.gradle.kts`, on `productFlavors`.
+ * ⚠️ **È l'unico punto che legge `BuildConfig.FILES`**: un secondo lettore sarebbe una seconda
+ * risposta alla stessa domanda. Il perché delle varianti è in `build.gradle.kts`, su
+ * `productFlavors`.
  */
 object Store {
 
     /**
-     * Whether this variant may write on shared storage through `java.io.File`: delete, the
-     * bin, rename, copy, move, duplicate, new folders, the 'Cartelle di sistema' view, saving
-     * over the original, the lossless turn, an outside editor and 'Pulisci'.
+     * Se questa variante può scrivere sulla memoria condivisa con `java.io.File`: eliminare, il
+     * cestino, rinominare, copiare, spostare, duplicare, le cartelle nuove, la vista 'Cartelle di
+     * sistema', il salvataggio sopra l'originale, la rotazione senza perdita, un editor esterno e
+     * 'Pulisci'.
      *
-     * ⚠️⚠️ **`false` in `play`, and every one of those functions is out of it until it is
-     * rewritten for MediaStore**: without the all-files permission they fail on another app's
-     * file, and a command that fails every time is worse than no command.
+     * ⚠️ **`false` in `play`, e ognuna di quelle funzioni resta fuori finché non è riscritta per il
+     * MediaStore**: senza l'accesso a tutti i file fallirebbero sui file di un'altra app.
      */
     val files: Boolean = BuildConfig.FILES
 
     /**
-     * The keys of the two file pads (the viewer's menu and the selection sheet) that write on
-     * the files through `java.io.File`: copy, move, rename (restore, in the bin).
+     * I tasti dei due riquadri dei file (il menu del visualizzatore e la scheda della selezione)
+     * che scrivono sui file con `java.io.File`: copia, sposta, rinomina (ripristina, nel cestino).
      *
-     * ⚠️ **'Elimina' is back in AIV Play since 5.20**, through the MediaStore (`MediaDelete`): the
-     * system's trash from Android 11, a deletion for good below (his choices A1 and B1).
-     * ⚠️ **'Rinomina' is back since 5.50, from Android 11** ([renames]): [allows] lets it through.
-     * ⚠️ **Only those two pads read it**: the Disegno module has a 'Elimina' too, the same
-     * [PadKey.DELETE], and there it removes an element of the drawing, not a file.
+     * 'Elimina' in AIV Play passa dal MediaStore (`MediaDelete`): il cestino di sistema da Android
+     * 11, l'eliminazione definitiva sotto (scelte A1 e B1 dell'utente). 'Rinomina' passa da
+     * [allows] quando c'è [renames].
+     * ⚠️ **Lo leggono solo quei due riquadri**: anche il modulo Disegno ha un 'Elimina', lo stesso
+     * [PadKey.DELETE], e là toglie un elemento del disegno, non un file.
      */
     private val writers = setOf(PadKey.COPY, PadKey.MOVE, PadKey.RENAME)
 
     /**
-     * The keys AIV Play leaves out by his choice, not because they cannot work: 'Lista' of the
-     * selection sheet, which copies the names of the chosen files, since 5.30 (his note in Altro
-     * on the 5.20 round: *copia lista file*).
+     * I tasti che AIV Play lascia fuori per scelta dell'utente, anche se funzionerebbero: 'Lista'
+     * della scheda della selezione, che copia i nomi dei file scelti.
      */
     private val trimmed = setOf(PadKey.LIST)
 
     /**
-     * Whether a key of the file pads exists in this variant.
+     * Se un tasto dei riquadri dei file esiste in questa variante.
      *
-     * ⚠️⚠️ **The factory lists filter with it too** (`MENU_KEYS`, `PICK_KEYS`), not only the pads:
-     * a key missing from the pad and present in the page that reorders it would be a button
-     * that can be moved and never seen.
+     * ⚠️ **Filtra anche gli elenchi di fabbrica** (`MENU_KEYS`, `PICK_KEYS`), non solo i riquadri:
+     * un tasto assente dal riquadro e presente nella pagina che lo riordina si potrebbe spostare
+     * senza vederlo mai.
      */
     fun allows(key: PadKey): Boolean =
         files || (key !in trimmed && (key !in writers || (key == PadKey.RENAME && renames)))
 
     /*
-     * ⚠️ **In the bin the RENAME key is 'Ripristina'** (`GridScreen`, `ViewerScreen`), and AIV
-     * Play restores through the MediaStore since 5.40: the bin exists only where [renames] is
-     * true, so the same key covers both, in the place the factory order gives it.
+     * Nel cestino il tasto RENAME è 'Ripristina' (`GridScreen`, `ViewerScreen`), e AIV Play
+     * ripristina col MediaStore: il cestino esiste solo dove [renames] è vero, quindi lo stesso
+     * tasto copre i due casi, al posto che l'ordine di fabbrica gli dà.
      */
 
     /**
-     * Whether this variant renames files: AIV GitHub through `java.io.File`, AIV Play through the
-     * MediaStore from Android 11 (since 5.50, `MediaRename`), where `createWriteRequest` asks the
-     * system's window for files of other apps.
+     * Se questa variante rinomina i file: AIV GitHub con `java.io.File`, AIV Play col MediaStore
+     * da Android 11 (`MediaRename`), dove `createWriteRequest` chiede alla finestra di sistema il
+     * consenso per i file delle altre app.
      *
-     * ⚠️ **Below Android 11 AIV Play does not rename**: Android 10 asks a consent per file and
-     * Android 9 wants the write permission, and neither was measured. Folders are not renamed in
-     * AIV Play at all.
+     * ⚠️ **Sotto Android 11 AIV Play non rinomina**: Android 10 chiede un consenso per file e
+     * Android 9 vuole il permesso di scrittura, e nessuno dei due è stato misurato. Le cartelle in
+     * AIV Play non si rinominano mai.
      */
     val renames: Boolean = files || Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
 
     /**
-     * Whether this variant has a bin page: AIV GitHub its own, AIV Play the system's trash from
-     * Android 11 (since 5.40), where `MediaStore.createTrashRequest` exists. On Android 9 and 10
-     * AIV Play deletes for good (his choice B1), so there is nothing to show.
+     * Se questa variante ha la pagina del cestino: AIV GitHub il suo, AIV Play quello di sistema da
+     * Android 11, dove esiste `MediaStore.createTrashRequest`. Su Android 9 e 10 AIV Play elimina
+     * definitivamente (scelta B1 dell'utente), quindi non c'è niente da mostrare.
      */
     val hasBin: Boolean = files || Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
 
     /**
-     * Whether this variant updates itself from the GitHub releases (since 5.60, his choices C1 and
-     * D1; `Updater`).
+     * Se questa variante si aggiorna da sé dalle release di GitHub (`Updater`, scelte C1 e D1
+     * dell'utente).
      *
-     * ⚠️ **Only AIV GitHub**: AIV Play is updated by the Play Store, and Google's policy does not
-     * allow an app from the store to install packages. The permission lives in the manifest of the
-     * `github` variant only.
+     * ⚠️ **Solo AIV GitHub**: AIV Play lo aggiorna il Play Store, e le regole di Google non
+     * permettono a un'app dello store di installare pacchetti. Il permesso è nel manifesto della
+     * sola variante `github`.
      */
     val updates: Boolean = files
 
     /**
-     * The views of the home screen in this variant: AIV Play has no 'Cartelle di sistema', which
-     * reads the disk folder by folder and is where 'Nuova cartella' lives.
+     * Le viste della casa in questa variante: AIV Play non ha 'Cartelle di sistema', che legge il
+     * disco cartella per cartella ed è dove vive 'Nuova cartella'.
      *
-     * ⚠️ **The saved view is read through this list too** (`Settings.kt`), so a settings file
-     * exported from AIV GitHub with that view opens AIV Play on the grid.
+     * La vista salvata si legge anche lei attraverso questo elenco (`Settings.kt`), quindi un file
+     * di impostazioni esportato da AIV GitHub con quella vista apre AIV Play sulla griglia.
      */
     val views: List<FolderView> = FolderView.entries.filter { files || it != FolderView.TREE }
 
     /**
-     * The phone's main control as it comes from the factory: the corner menu ('Menu Start') in
-     * AIV GitHub, the pill that slides out of its round key in AIV Play.
+     * Il comando principale di fabbrica sul telefono: il Menu 'Start' in AIV GitHub, la pillola che
+     * esce dal suo tasto tondo in AIV Play.
      *
-     * ⚠️⚠️ **AIV Play's value is his choice, and a temporary one** (his note in Altro on the 5.11
-     * round: *Fino a nuovo ordine, solo per AIV Play, il pulsante predefinito sarà la pillola a
-     * scomparsa*): it goes back only when he says so. As every factory value, it counts only
-     * where the store says nothing, so whoever picked a control keeps it.
+     * ⚠️ **Il valore di AIV Play è una scelta dell'utente, provvisoria**: torna indietro solo
+     * quando lo dice lui. Come ogni valore di fabbrica conta solo dove l'archivio non dice niente,
+     * quindi chi ha scelto un comando lo tiene.
      */
     val mainControl: MainControl = if (files) MainControl.CORNER else MainControl.PILL
 
     /*
-     * ⚠️⚠️ **What follows is AIV Play made simpler, since 5.30, and every line is his** (his
-     * note in Altro on the 5.20 round, headed *solo AIV Play*): fewer settings, each one gone
-     * with its row, and the value it leaves behind fixed. AIV GitHub keeps them all.
+     * Quello che segue è AIV Play semplificata, per scelta dell'utente: meno impostazioni, ognuna
+     * tolta con la sua riga e col valore che lascia fissato. AIV GitHub le tiene tutte.
      */
 
     /**
-     * The phone's main controls this variant offers: AIV Play keeps the FAB and the pill, and
-     * drops 'Menu basso' and 'Menu Start' (*rimangono pillola e FAB*).
+     * I comandi principali che questa variante offre sul telefono: AIV Play tiene il FAB e la
+     * pillola, e toglie 'Menu basso' e il Menu 'Start'.
      */
     val mainControls: List<MainControl> =
         if (files) MainControl.entries else listOf(MainControl.FAB, MainControl.PILL)
 
-    /** Whether the last item seen is marked in a grid: AIV Play has no such mark. */
+    /** Se l'ultimo elemento visto è segnato in una griglia: AIV Play non ha quel segno. */
     val marksLast: Boolean = files
 
     /**
-     * Whether the settings that AIV Play fixes have their rows: what is behind the panels, the
-     * gradient and the serif title of the folder header, the colour of the folders, the
-     * direction of the sequence and the button that edits a file extension.
+     * Se le impostazioni che AIV Play fissa hanno la loro riga: quello che c'è dietro i pannelli,
+     * il gradiente e il titolo con le grazie dell'intestazione, il colore delle cartelle, il verso
+     * della sequenza e il tasto che modifica l'estensione di un file.
      */
     val fullSettings: Boolean = files
 
     /**
-     * The settings as this variant uses them: in AIV Play the values he fixed take the place of
-     * whatever the store says.
+     * Le impostazioni come le usa questa variante: in AIV Play i valori fissati dall'utente
+     * prendono il posto di quello che dice l'archivio.
      *
-     * ⚠️⚠️ **It runs on reading, not on saving** (`SettingsStore.read`): a store written by an
-     * earlier AIV Play, or a settings file exported from AIV GitHub, holds the old values, and
-     * only a reading that corrects them every time shows the app he asked for. Nothing is
-     * rewritten, so going back on a choice later costs no migration.
-     * ⚠️ **A main control that is gone becomes the pill**, the factory value of AIV Play.
+     * ⚠️ **Lavora alla lettura, non al salvataggio** (`SettingsStore.read`): un archivio scritto da
+     * una AIV Play precedente, o un file di impostazioni esportato da AIV GitHub, contiene i valori
+     * vecchi, e solo una lettura che li corregge ogni volta mostra l'app voluta. Niente si
+     * riscrive, quindi tornare su una scelta non chiede nessuna migrazione.
+     * Un comando principale che non c'è più diventa la pillola, il valore di fabbrica di AIV Play.
      */
     fun fit(settings: Settings): Settings = if (files) settings else settings.copy(
         mainControl = settings.mainControl.takeIf { it in mainControls } ?: mainControl,
@@ -167,16 +165,16 @@ object Store {
         extDownload = false
     )
 
-    /** How much of the photo library the app sees. */
+    /** Quanta parte della raccolta di immagini l'app vede. */
     enum class Access { FULL, PARTIAL, NONE }
 
     /**
-     * What the system granted, asked every time and never remembered: the person can change
-     * it in the system settings without closing the app.
+     * Che cosa ha concesso il sistema, chiesto ogni volta e mai ricordato: la persona può
+     * cambiarlo nelle impostazioni di sistema senza chiudere l'app.
      *
-     * ⚠️ **In `play` the partial grant is its own answer** (Android 14 and later): the person
-     * picked some photos, and the folders show those. It counts as access, because what is
-     * there is real; [Access.PARTIAL] is what lets the app say so.
+     * In `play` la concessione parziale (Android 14 e successivi) è una risposta a sé: la persona
+     * ha scelto alcune immagini, e le cartelle mostrano quelle. Conta come accesso, e
+     * [Access.PARTIAL] permette all'app di dirlo.
      */
     fun access(context: Context): Access {
         fun has(permission: String) =
@@ -185,8 +183,8 @@ object Store {
             val all = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 Environment.isExternalStorageManager()
             } else {
-                // Up to Android 10 the wide permission does not exist: the classic pair on
-                // storage shows everything and lets the file commands write (see [storagePair]).
+                // Fino ad Android 10 l'accesso a tutti i file non esiste: la coppia classica di
+                // permessi mostra tutto e fa scrivere i comandi dei file (vedi [storagePair]).
                 storagePair.all(::has)
             }
             return if (all) Access.FULL else Access.NONE
@@ -202,21 +200,19 @@ object Store {
         }
     }
 
-    /** Whether the folders can be read at all: a partial grant counts. */
+    /** Se le cartelle si possono leggere: anche una concessione parziale conta. */
     fun granted(context: Context): Boolean = access(context) != Access.NONE
 
     /**
-     * The permissions `github` asks with the system dialog on Android 9 and 10, where the wide
-     * permission does not exist: reading and writing together.
+     * I permessi che `github` chiede con la finestra di sistema su Android 9 e 10, dove l'accesso
+     * a tutti i file non esiste: lettura e scrittura insieme (scelta B1 dell'utente, 6.23).
      *
-     * ⚠️⚠️ **Writing is there since 6.23** (his choice B1, 2026-10-15): until 6.22 only reading
-     * was asked, so the folders showed and every command that writes through `java.io.File`
-     * (delete, the bin, rename, copy, move) failed on Android 9 for lack of the permission, and on
-     * Android 10 because scoped storage refused another app's files. On Android 10 the write
-     * permission works only together with `requestLegacyExternalStorage`, in the manifest of
-     * `github`. The access counts as full only with both, so an install updated from 6.22 shows
-     * the invitation to grant access once more: the two are in the same group, and Android
-     * grants the second without showing its dialog.
+     * ⚠️ **Senza la scrittura ogni comando che scrive con `java.io.File`** (eliminare, il cestino,
+     * rinominare, copiare, spostare) **fallisce**: su Android 9 per il permesso mancante, su
+     * Android 10 perché la memoria separata rifiuta i file delle altre app. Su Android 10 la
+     * scrittura funziona solo insieme a `requestLegacyExternalStorage`, nel manifesto di `github`.
+     * L'accesso conta come completo solo con tutti e due; i due permessi sono nello stesso gruppo,
+     * e Android concede il secondo senza mostrare la sua finestra.
      */
     private val storagePair = arrayOf(
         Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -224,21 +220,20 @@ object Store {
     )
 
     /**
-     * The permissions the system dialog asks in this variant: in `github` only below Android 11,
-     * because from there the access is the switch in a system page.
+     * I permessi che la finestra di sistema chiede in questa variante: in `github` solo sotto
+     * Android 11, perché da lì l'accesso è l'interruttore in una pagina di sistema.
      */
     internal fun dialogPermissions(): Array<String> = if (files) storagePair.copyOf() else mediaPermissions()
 
     /**
-     * The permissions `play` asks with the system dialog.
+     * I permessi che `play` chiede con la finestra di sistema.
      *
-     * ⚠️ **On Android 14 and later the third one goes in the same request** (Android's own
-     * guidance): it is what makes the dialog offer 'select photos' and lets the app tell a
-     * partial grant from a refusal.
-     * ⚠️ **From Android 10 the location of the photos goes in the same request too** (6.27, his
-     * choice R1): without it the system strips the coordinates from the EXIF it serves, and the
-     * 'Posizione' row of the details was missing. It is not part of [granted]: refusing it leaves
-     * the gallery working, without that row.
+     * Da Android 14 il terzo va nella stessa richiesta, come indica Android: fa offrire alla
+     * finestra la scelta di alcune immagini, e distingue una concessione parziale da un rifiuto.
+     * ⚠️ **Da Android 10 c'è anche la posizione delle immagini** (scelta R1 dell'utente, 6.27):
+     * senza, il sistema toglie le coordinate dall'EXIF che serve, e nella scheda `Info` manca la
+     * riga 'Posizione'. Non fa parte di [granted]: rifiutarla lascia la galleria funzionante,
+     * senza quella riga.
      */
     private fun mediaPermissions(): Array<String> = when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> arrayOf(
@@ -260,9 +255,9 @@ object Store {
     }
 
     /**
-     * Whether the original of a MediaStore photo, with its coordinates, can be asked: from Android
-     * 10 and with the location permission, which only `play` declares. `github` reads the file
-     * itself and does not need it. See [mediaPermissions].
+     * Se si può chiedere l'originale di un'immagine del MediaStore, con le sue coordinate: da
+     * Android 10 e col permesso della posizione, che dichiara solo `play`. `github` legge il file
+     * stesso e non ne ha bisogno. Vedi [mediaPermissions].
      */
     fun seesLocation(context: Context): Boolean =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
@@ -270,17 +265,17 @@ object Store {
             PackageManager.PERMISSION_GRANTED
 
     /**
-     * The request for the folder permission, the same for every caller: it returns the
-     * function to call, and [onAnswer] receives [granted] once the person has answered.
+     * La richiesta del permesso delle cartelle, uguale per ogni chiamante: restituisce la funzione
+     * da chiamare, e [onAnswer] riceve [granted] quando la persona ha risposto.
      *
-     * ⚠️⚠️ **Three roads, because the permissions are granted in three ways**: in `github`,
-     * from Android 11, a switch in a system page, which returns no result, so on the way back
-     * the app asks the system again; in `github` below Android 11, and in `play`, the system
-     * dialog. ⚠️ The answer is always read from the system, never from what the dialog says,
-     * because 'select photos' answers 'refused' on one permission and 'granted' on another.
+     * Le strade sono due: in `github` da Android 11 un interruttore in una pagina di sistema, che
+     * non restituisce un risultato, quindi al ritorno l'app richiede lo stato al sistema; in
+     * `github` sotto Android 11, e in `play`, la finestra di sistema.
+     * ⚠️ **La risposta si legge sempre dal sistema**, mai da quello che dice la finestra: la scelta
+     * di alcune immagini risponde 'rifiutato' su un permesso e 'concesso' su un altro.
      *
-     * @param explain whether the page of the first road comes with the sentence that says why
-     *   (`folder_why`): a page that opens by itself without a word makes people close the app.
+     * @param explain se la pagina della prima strada arriva con la frase che dice perché
+     *   (`folder_why`): una pagina che si apre da sola senza una parola fa chiudere l'app.
      */
     @Composable
     fun rememberAccessRequest(explain: Boolean, onAnswer: (Boolean) -> Unit): () -> Unit {
@@ -292,11 +287,11 @@ object Store {
             ActivityResultContracts.RequestMultiplePermissions()
         ) {
             /*
-             * ⚠️⚠️ **After the second refusal Android stops showing its dialog** (since
-             * Android 11), and every later request answers 'no' at once: without this branch
-             * the button would do nothing, for good. Android says so by no longer asking for a
-             * rationale on any of the permissions, and then the app's page in the system
-             * settings is the only place left where the person can grant them.
+             * ⚠️ **Dopo il secondo rifiuto Android non mostra più la sua finestra** (da Android
+             * 11), e ogni richiesta successiva risponde subito 'no': senza questo ramo il tasto
+             * non farebbe più niente. Android lo segnala non chiedendo più la spiegazione per
+             * nessun permesso, e allora resta solo la pagina dell'app nelle impostazioni di
+             * sistema.
              */
             val activity = generateSequence(context) { (it as? ContextWrapper)?.baseContext }
                 .filterIsInstance<Activity>().firstOrNull()
@@ -310,12 +305,11 @@ object Store {
         return remember(fromSettings, fromDialog, explain) {
             {
                 if (files && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    // ⚠️⚠️ The only system toast left in the app, since 1.84: the next line
-                    // sends the app to the background, so a notice of its own would vanish
-                    // with the screen that draws it.
+                    // ⚠️ L'unico toast di sistema dell'app: la riga dopo manda l'app in secondo
+                    // piano, e un avviso suo sparirebbe con la schermata che lo disegna.
                     if (explain) Toast.makeText(context, R.string.folder_why, Toast.LENGTH_LONG).show()
-                    // ⚠️ The fallback on the general page is not a luxury: the page aimed at
-                    // the app is missing on some systems.
+                    // Il ripiego sulla pagina generale serve: su alcuni sistemi la pagina
+                    // dell'app manca.
                     val opened = Folder.settingsIntents(context).any {
                         runCatching { fromSettings.launch(it) }.isSuccess
                     }
@@ -327,19 +321,18 @@ object Store {
         }
     }
 
-    /** The app's own page in the system settings, where its permissions are granted one by one. */
+    /** La pagina dell'app nelle impostazioni di sistema, dove i permessi si concedono uno per uno. */
     private fun appPage(context: Context) = Intent(
         android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
         "package:${context.packageName}".toUri()
     )
 
     /**
-     * Opens the app's page in the system settings, and calls [onBack] on the way back.
+     * Apre la pagina dell'app nelle impostazioni di sistema, e chiama [onBack] al ritorno.
      *
-     * ⚠️⚠️ **It is what 'Consenti tutte' does, since 5.11** (his note on `5.10-03`: *un tocco non
-     * rimanda alla vera autorizzazione: torna alla selezione 'limitata'*): with a partial grant
-     * already given, asking the permission again shows the system's choice of photos, not the
-     * full grant. On the app's page the person grants 'Foto e video' whole.
+     * ⚠️ **È quello che fa 'Consenti tutte'**: con una concessione parziale già data, richiedere il
+     * permesso mostra la scelta delle immagini del sistema, non la concessione completa. Nella
+     * pagina dell'app la persona concede 'Foto e video' per intero.
      */
     @Composable
     fun rememberAppPage(onBack: () -> Unit): () -> Unit {

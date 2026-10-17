@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material: Icons.Filled.MoreHoriz 1.7.8 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M6,10C4.9,10,4,10.9,4,12S4.9,14,6,14S8,13.1,8,12S7.1,10,6,10ZM18,10C16.9,10,16,10.9,16,12S16.9,14,18,14S20,13.1,20,12S19.1,10,18,10ZM12,10C10.9,10,10,10.9,10,12S10.9,14,12,14S14,13.1,14,12S13.1,10,12,10Z" />
+</vector>

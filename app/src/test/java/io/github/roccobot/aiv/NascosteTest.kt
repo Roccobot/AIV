@@ -17,7 +17,6 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.mutablePreferencesOf
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -45,16 +44,22 @@ import org.robolectric.annotation.Config
  * chiede di fare.
  */
 @RunWith(AndroidJUnit4::class)
-@Config(shadows = [ArchivioAperto::class])
+@Config(shadows = [OmbraArchivio::class])
 class NascosteTest {
+
+    /** Il permesso sui file concesso: vedi [OmbraArchivio.granted]. */
+    @Before
+    fun archivioAperto() {
+        OmbraArchivio.granted = true
+    }
 
     @get:Rule
     val banco = createComposeRule()
 
-    /** Come in `RientroTest`: senza, il velo dell'onboarding si mangia il primo gesto. */
+    /** I veli della casa si segnano come visti prima di montarla: vedi [onboardingGiaVisto]. */
     @Before
-    fun onboardingGiaVisto() {
-        runBlocking { Hint.COLUMNS.remember(ApplicationProvider.getApplicationContext()) }
+    fun veliVisti() {
+        onboardingGiaVisto(cestino = false)
     }
 
     /**
@@ -117,7 +122,7 @@ class NascosteTest {
      * compare niente.
      */
     @Test
-    fun `la voce dice quello che fa, e senza nascoste non c'è`() {
+    fun `la voce dice quello che fa, e senza nascoste manca`() {
         var quale by mutableStateOf(false)
         var quali by mutableStateOf(NASCOSTE)
         banco.setContent {

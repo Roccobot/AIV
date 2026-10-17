@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -57,19 +58,18 @@ import java.text.DateFormat
 import java.util.Date
 
 /**
- * Il lavoro di un backup: quello che sta facendo, e le domande che deve fare.
+ * Il lavoro di esportazione e importazione del file di impostazioni: quello che sta facendo, e le
+ * domande che deve fare.
  *
- * ⚠️⚠️ **VIVE COL PROCESSO E NON CON LA PAGINA, E LA RAGIONE È IL CESTINO**: un backup che lo porta
- * pesa quanto le immagini che contiene, cioè può durare dei minuti, e una pagina che si chiude o un
- * telefono che si gira non devono fermarlo a metà. Rientrando nella pagina si ritrova il lavoro dov'è,
- * e la notifica finale arriva dovunque ci si trovi, perché la superficie che la mostra è di casa.
- * ⚠️ **Le domande vivono qui per la stessa ragione**: fra la lettura dell'intestazione e la conferma
- * passano una finestra e forse una rotazione, e la chiave nata dalla password non può viaggiare in un
- * `Bundle`, che Android scrive su disco.
+ * ⚠️ **Vive col processo e non con la pagina**: col cestino il file pesa quanto le sue immagini e il
+ * lavoro può durare minuti, e una pagina chiusa o una rotazione non devono fermarlo. Rientrando si
+ * ritrova il lavoro dov'è, e l'avviso finale arriva dovunque ci si trovi.
+ * Le domande sono qui per la stessa ragione: la chiave ricavata dalla password non può viaggiare in
+ * un `Bundle`, che Android scrive su disco.
  *
- * ⚠️⚠️ **LA PASSWORD NON VA MAI SU DISCO**: vive in [plan] per il tempo del selettore di sistema, e il
- * campo in cui la si scrive è un `remember` e non un `rememberSaveable`. Il prezzo è dichiarato: se il
- * telefono si gira mentre la finestra è aperta, la password va riscritta.
+ * ⚠️⚠️ **La password non va mai su disco**: è in [plan] per il tempo del selettore di sistema, e il
+ * campo in cui la si scrive è un `remember`, non un `rememberSaveable`. Ruotando il telefono a
+ * finestra aperta, la password va riscritta.
  */
 internal object Backups {
 
@@ -101,9 +101,8 @@ internal object Backups {
     /**
      * Quante importazioni sono andate in porto.
      *
-     * ⚠️ **Serve al modello, che ricarica quello che non passa dal flusso delle preferenze**: il logo,
-     * le tinte e le copertine si leggono una volta e poi si aggiornano a mano, e un'importazione li
-     * cambia senza passare da quelle strade.
+     * Serve al modello, che ricarica quello che non passa dal flusso delle preferenze: il logo, le
+     * tinte e le copertine, che un'importazione cambia per un'altra strada.
      */
     val imported = MutableStateFlow(0)
 
@@ -135,21 +134,16 @@ internal object Backups {
     }
 
     /**
-     * Scrive il backup nel documento che il selettore ha appena creato.
+     * Scrive il file di impostazioni nel documento che il selettore ha appena creato.
      *
-     * ⚠️⚠️ **SE NON RIESCE, IL DOCUMENTO SI CANCELLA**: il selettore l'ha già creato vuoto, e un file che
-     * resta a metà si leggerebbe come un backup. Non si apre comunque (manca il suo ultimo segmento), ma
-     * trovarlo fra i propri file e scoprirlo solo importandolo è peggio di non trovarlo.
-     * ⚠️ **Un piano che manca vuol dire un processo ripartito mentre il selettore era aperto**, cioè
-     * una password che non c'è più: si cancella il documento invece di scrivere senza la protezione che
-     * era stata chiesta.
-     * ⚠️⚠️ **E DALLA `2.95` SI GUARDA CHE IL FILE NON SIA VUOTO, ED È SUA RICHIESTA** (voce
-     * `backup-esporta` del giro della `2.93` e della `2.94`: *aggiungi una verifica a fine esportazione
-     * per assicurarti che il file non risulti di 0 byte*). La scrittura può finire senza nessun errore
-     * e lasciare un file vuoto, quando il fornitore della cartella accetta i byte e poi non li scrive;
-     * la verifica è [landed], e un file vuoto si cancella come quello di un'esportazione andata storta.
-     * ⚠️ **Il suo testo vale anche quando il fornitore rifiuta la scrittura** (`SecurityException`),
-     * perché dice la stessa cosa: la cartella scelta non lascia scrivere.
+     * ⚠️ **Se non riesce, il documento si cancella**: il selettore l'ha già creato, e un file a metà
+     * sembrerebbe valido finché non lo si importa.
+     * Un piano che manca vuol dire un processo ripartito a selettore aperto, cioè una password persa:
+     * si cancella il documento, senza scrivere un file privo della protezione chiesta.
+     * ⚠️ **Si controlla che il file non sia vuoto** (voce `backup-esporta` dell'utente, 2.95): un
+     * fornitore può accettare i byte senza scriverli e senza errori. Il controllo è [landed], e un
+     * file vuoto si cancella come un'esportazione fallita. Il testo dell'avviso vale anche per una
+     * `SecurityException`: la cartella scelta non lascia scrivere.
      */
     fun export(context: Context, uri: Uri?) {
         val piano = plan
@@ -179,7 +173,7 @@ internal object Backups {
                 val errore = esito.exceptionOrNull()
                 if (errore != null) forgetDocument(app, uri)
                 step = null
-                // ⚠️ Un annullamento l'ha chiesto chi guarda, e non ha bisogno che glielo si dica.
+                // Un annullamento l'ha chiesto chi guarda: nessun avviso.
                 if (errore !is CancellationException) {
                     say(
                         app,
@@ -198,7 +192,7 @@ internal object Backups {
      * Apre il file scelto per importarlo: legge l'intestazione, e chiede la password o conferma.
      *
      * @param groups le caselle spuntate al momento del tocco: si importano quelle, e solo se il file
-     *   le porta.
+     *   le contiene.
      */
     fun inspect(context: Context, uri: Uri?, groups: Set<BackupGroup>) {
         if (uri == null || job?.isActive == true) return
@@ -217,10 +211,9 @@ internal object Backups {
     /**
      * Prova la password del file in scena.
      *
-     * ⚠️ **Una password sbagliata riapre la stessa domanda, col suo avviso**: chiuderla vorrebbe dire
-     * ricominciare dal selettore per una lettera sbagliata.
-     * ⚠️ **È il passo lento**, e l'annullamento si vede solo dopo: il conto della chiave non si ferma a
-     * metà, ma il suo risultato non arriva a nessuno.
+     * Una password sbagliata riapre la stessa domanda col suo avviso, senza ripartire dal selettore.
+     * È il passo lento: il calcolo della chiave non si ferma a metà, ma dopo un annullamento il suo
+     * risultato non arriva a nessuno.
      */
     fun unlock(context: Context, password: String) {
         val chiuso = step as? Step.Locked ?: return
@@ -265,8 +258,8 @@ internal object Backups {
                 when {
                     out != null -> {
                         imported.value++
-                        // ⚠️ 'A metà' vince su 'saltate': una parte che doveva entrare e non è
-                        // entrata conta di più di una voce che questa versione non poteva leggere.
+                        // 'A metà' vince su 'saltate': una parte che doveva entrare e non è entrata
+                        // conta più di una voce che questa versione non sa leggere.
                         say(
                             app,
                             when {
@@ -287,8 +280,8 @@ internal object Backups {
      * Il file aperto e il suo resoconto, pronti per la conferma, o `null` se non c'è niente da
      * confermare.
      *
-     * ⚠️ **Nessuna parte in comune si dice subito**: una finestra di conferma con un elenco vuoto
-     * chiederebbe di importare niente.
+     * Senza parti in comune lo si dice subito: una conferma con l'elenco vuoto chiederebbe di
+     * importare niente.
      */
     private suspend fun ready(
         context: Context,
@@ -317,17 +310,16 @@ internal object Backups {
         Backup.Reason.NEWER -> R.string.backup_newer
         Backup.Reason.WRONG -> R.string.backup_wrong
         Backup.Reason.BROKEN -> R.string.backup_broken
-        // ⚠️ Un errore che non è del formato viene dal disco o dal fornitore del file, e
-        // l'importazione non è arrivata a toccare niente: lo dice la frase.
+        // Un errore che non è del formato viene dal disco o dal fornitore del file, prima che
+        // l'importazione tocchi qualcosa: lo dice la frase.
         null -> R.string.backup_load_failed
     }
 
     /**
      * L'avanzamento di un lavoro, che aggiorna la barra solo quando cambia il numero.
      *
-     * ⚠️ **Un punto per cento alla volta, e non a ogni blocco**: i blocchi sono da 64 kB, e un gigabyte
-     * ne porta sedicimila, cioè sedicimila ricomposizioni della pagina per una barra che si muove di un
-     * pixel ogni cento.
+     * Un punto per cento alla volta e non a ogni blocco: i blocchi sono da 64 kB, e un gigabyte
+     * vorrebbe dire sedicimila ricomposizioni della pagina.
      */
     private fun progress(export: Boolean, total: Long?): (Long) -> Unit {
         if (total == null || total <= 0L) return {}
@@ -350,14 +342,12 @@ internal object Backups {
     private class Empty : IOException("vuoto")
 
     /**
-     * Se il documento appena scritto porta davvero qualcosa.
+     * Se il documento appena scritto contiene davvero qualcosa.
      *
-     * ⚠️⚠️ **DUE DOMANDE E NON UNA, E LA SECONDA SERVE A NON DARE UN ALLARME FALSO**: il peso che il
-     * fornitore dichiara è la risposta più rapida, ma non tutti lo dichiarano, e uno che carica i byte
-     * in rete (Drive) può dirlo in ritardo. Quando il peso non arriva o dice zero, si prova a leggere il
-     * primo byte: il file è vuoto solo se anche quello non c'è.
-     * ⚠️ **È `internal` per il banco**, che la prova con un file vuoto e con uno pieno: il caso vero è un
-     * fornitore che perde i byte, e quello su una macchina di prova non si costruisce.
+     * ⚠️ **Due domande, per non dare un allarme falso**: il peso dichiarato dal fornitore è la
+     * risposta rapida, ma non tutti lo dichiarano, e uno che carica in rete (Drive) può dirlo in
+     * ritardo. Senza peso, o con peso zero, si prova a leggere il primo byte.
+     * È `internal` per il banco, che la prova con un file vuoto e con uno pieno.
      */
     internal fun landed(context: Context, uri: Uri): Boolean {
         if (sizeOf(context, uri) != null) return true
@@ -377,7 +367,7 @@ internal object Backups {
         runCatching { DocumentsContract.deleteDocument(context.contentResolver, uri) }
     }
 
-    /** ⚠️ Sul thread principale: la notifica di casa è uno stato della composizione. */
+    /** Sul filo principale: l'avviso è uno stato della composizione. */
     private suspend fun say(context: Context, text: Int) = withContext(Dispatchers.Main) {
         Notices.say(context.getString(text), NOTICE_LONG_MS)
     }
@@ -386,46 +376,39 @@ internal object Backups {
 /**
  * La pagina 'Esporta e importa': le parti da portare, la password, e i due comandi.
  *
- * ⚠️⚠️ **NASCE NELLA `2.93`, ED È LA TERZA RICHIESTA DEL CAMPO LIBERO DEL GIRO DELLA `2.91`** (*deve
- * contenere letteralmente TUTTE le impostazioni dell'app che possono essere salvate, ma ogni cosa su
- * richiesta con apposita checkbox ... per non fare un elenco troppo lungo di checkbox, si selezionerà
- * per macro-aree*). Il formato vive in [Backup], e il perché delle aree in [BackupArea].
+ * Le impostazioni si scelgono per macro-aree con una casella ciascuna (richiesta dell'utente, giro
+ * della 2.91). Il formato è in [Backup], il perché delle aree in [BackupArea].
  *
- * ⚠️⚠️ **LE STESSE CASELLE VALGONO NEI DUE VERSI, ED È UNA SCELTA DICHIARATA**: esportando dicono che
- * cosa entra nel file, importando che cosa esce dal file. Due elenchi separati sarebbero due domande
- * sullo stesso argomento, e la seconda si leggerebbe come un doppione della prima.
- * ⚠️⚠️ **DI FABBRICA SONO ACCESE TUTTE TRANNE IL CESTINO, DALLA `2.95`, ED È LA SUA RISPOSTA
- * `senza-cestino` A `d-backup-fabbrica`** (*è la sola parte che può pesare molto: la accendi quando
- * serve*). Nella `2.93` c'era anche il cestino, perché la sua richiesta di allora diceva *tutte*.
- * ⚠️ **La pagina non si ricorda le caselle**, e la sua risposta non lo chiede: uscendo e rientrando si
- * riparte dal valore di fabbrica. Il cestino resta la sola casella che accanto dice quanto pesa.
+ * Le stesse caselle valgono nei due versi: esportando dicono che cosa entra nel file, importando
+ * che cosa esce. Due elenchi separati sarebbero due domande sullo stesso argomento.
+ * ⚠️ **Di fabbrica sono accese tutte tranne il cestino** (risposta `senza-cestino` dell'utente a
+ * `d-backup-fabbrica`, 2.95): è la sola parte che può pesare molto, e accanto dice quanto pesa. La
+ * pagina non ricorda le caselle: rientrando si riparte dal valore di fabbrica.
  *
- * ⚠️⚠️ **L'AVANZAMENTO È UNA RIGA DELLA PAGINA E NON UNA FINESTRA**: una finestra che si chiude toccando
- * fuori annullerebbe un lavoro lungo con un tocco distratto, e una che non si chiude sarebbe una modale
- * senza niente da scrivere, cioè il caso che la regola di casa esclude (§ '👆 Che cosa fa il tocco FUORI
- * da una finestra'). Come riga, si esce dalla pagina e il lavoro continua.
+ * ⚠️ **L'avanzamento è una riga della pagina e non una finestra**: una finestra che si chiude
+ * toccando fuori annullerebbe un lavoro lungo con un tocco distratto, e una che non si chiude
+ * sarebbe una modale senza input (§ '👆 Che cosa fa il tocco FUORI da una finestra'). Come riga, si
+ * esce dalla pagina e il lavoro continua.
  */
 @Composable
 internal fun ColumnScope.BackupPage() {
     val context = LocalContext.current
-    // ⚠️ Gli stili sono dell'editor completo, e dove quello non c'è la loro casella non avrebbe niente
-    // da portare: è lo stesso criterio della loro pagina.
+    // Le frasi degli avvisi da `LocalResources`, come nella griglia: il perché è là.
+    val res = LocalResources.current
+    // Gli stili sono dell'editor completo: dove quello non c'è, la loro casella non c'è.
     val offered = remember { BackupGroup.entries.filter { it != BackupGroup.STYLES || advancedEditorAvailable() } }
     var chosen by rememberSaveable(stateSaver = GROUPS) { mutableStateOf(offered.toSet() - BackupGroup.BIN) }
     var lock by rememberSaveable { mutableStateOf(false) }
     var asking by remember { mutableStateOf(false) }
-    // ⚠️ Si rimisura a ogni importazione riuscita: il cestino è la sola parte che un'importazione fa
-    // crescere, e senza questa chiave la pagina direbbe il peso di prima finché non la si riapre.
+    // Si rimisura a ogni importazione riuscita, che può far crescere il cestino.
     val importati by Backups.imported.collectAsState()
     val binBytes by produceState(0L, importati) { value = Backup.weight(context, BackupArea.BIN) }
     val step = Backups.step
     val busy = step as? Backups.Step.Busy
     val scelte = chosen intersect offered.toSet()
 
-    /*
-     * ⚠️ **I CONTRATTI SI RICORDANO**, o si registrano di nuovo a ogni ricomposizione: è la stessa
-     * trappola scritta in `ConvertDialog` e in `StyleSettings`.
-     */
+    // ⚠️ I contratti si ricordano, o si registrano di nuovo a ogni ricomposizione (come in
+    // `ConvertDialog` e in `StyleSettings`).
     val scrittura = remember { ActivityResultContracts.CreateDocument(Backup.MIME) }
     val esporta = rememberLauncherForActivityResult(scrittura) { dove ->
         Backups.export(context, dove)
@@ -440,21 +423,16 @@ internal fun ColumnScope.BackupPage() {
         val aperto = runCatching { esporta.launch(Backup.fileName(System.currentTimeMillis())) }
         if (aperto.isFailure) {
             Backups.drop()
-            Notices.say(context.getString(R.string.toast_save_failed))
+            Notices.say(res.getString(R.string.toast_save_failed))
         }
     }
 
     /*
-     * ⚠️⚠️ **LE VOCI SCORRONO E I DUE TASTI NO, DALLA `2.99`, ED È SUA RICHIESTA** (nota sulla voce
-     * `backup-caselle` del giro della `2.98`: *fa' sì che se proprio è necessario scorrere loro restino
-     * sempre posizionati in fondo in un elemento fisso*). Fino alla `2.98` la pagina scorreva tutta,
-     * quindi su un telefono basso i tasti erano sotto il bordo. Adesso il guscio non scorre
-     * (`scrolls = false`) e scorre la sola colonna delle voci, che prende quello che resta.
-     * ⚠️ **Le voci sono più strette** ([CheckRow] con `tight`), che è l'altra metà della stessa nota
-     * (*restringi LEGGERMENTE l'interlinea*): sul telefono più diffuso la pagina intera ci sta senza
-     * scorrere, e il resto lo garantisce la fila fissa.
-     * ⚠️ **From the `5.80` 'Proteggi con password' is part of the fixed band too**, his request of
-     * 2026-10-12: only the parts scroll.
+     * ⚠️ **Scorrono le sole caselle delle parti**; 'Proteggi con password' e i due tasti restano
+     * fissi in fondo (voce `backup-caselle` dell'utente, 2.99, e sua richiesta, 5.80). Il guscio non
+     * scorre (`scrolls = false`) e la colonna delle voci prende quello che resta.
+     * Le voci sono più strette ([CheckRow] con `tight`, stessa voce): sul telefono più diffuso la
+     * pagina entra intera senza scorrere.
      */
     Column(
         modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()),
@@ -478,10 +456,7 @@ internal fun ColumnScope.BackupPage() {
         onChange = { lock = it }
     )
 
-    /*
-     * ⚠️ **'Importa' a sinistra ed 'Esporta' a destra, dalla `2.99`**, ed è la stessa nota (*scambia la
-     * posizione di `Esporta` e `Importa`*).
-     */
+    // 'Importa' a sinistra ed 'Esporta' a destra (voce `backup-caselle`, 2.99).
     Row(
         modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -489,7 +464,7 @@ internal fun ColumnScope.BackupPage() {
         Button(
             onClick = {
                 val aperto = runCatching { importa.launch(arrayOf(ANY_FILE)) }
-                if (aperto.isFailure) Notices.say(context.getString(R.string.backup_load_failed))
+                if (aperto.isFailure) Notices.say(res.getString(R.string.backup_load_failed))
             },
             enabled = busy == null && scelte.isNotEmpty(),
             modifier = Modifier.weight(1f)
@@ -551,10 +526,9 @@ internal fun ColumnScope.BackupPage() {
 /**
  * La password di un'esportazione, scritta due volte.
  *
- * ⚠️ **Due volte perché nessuno la può rileggere**: una lettera sbagliata qui fa un file che non si
- * apre più, e il testo della voce lo dice (*se la dimentichi, il file non si apre più*).
- * ⚠️ **È una modale vera**, perché raccoglie un input scritto: le due righe di § '👆 Che cosa fa il
- * tocco FUORI da una finestra' vanno insieme.
+ * Due volte perché nessuno la può rileggere: una lettera sbagliata fa un file che non si apre più.
+ * È una modale vera, perché raccoglie un input scritto (§ '👆 Che cosa fa il tocco FUORI da una
+ * finestra').
  */
 @Composable
 private fun SetPasswordDialog(onDismiss: () -> Unit, onDone: (String) -> Unit) {
@@ -600,8 +574,8 @@ private fun SetPasswordDialog(onDismiss: () -> Unit, onDone: (String) -> Unit) {
 /**
  * La password di un file protetto, all'importazione.
  *
- * ⚠️ **L'avviso di una password sbagliata sparisce appena si ricomincia a scrivere**: resta finché il
- * campo è vuoto, cioè finché dice qualcosa sul tentativo appena fatto e non su quello nuovo.
+ * L'avviso di una password sbagliata sparisce appena si ricomincia a scrivere: parla del tentativo
+ * appena fatto, non di quello nuovo.
  */
 @Composable
 private fun UnlockDialog(wrong: Boolean, onDismiss: () -> Unit, onDone: (String) -> Unit) {
@@ -638,17 +612,12 @@ private fun UnlockDialog(wrong: Boolean, onDismiss: () -> Unit, onDone: (String)
 }
 
 /**
- * Che cosa entrerà, e da quale backup.
+ * Che cosa entrerà, e da quale file di impostazioni.
  *
- * ⚠️⚠️ **L'ELENCO È L'INCROCIO FRA LE CASELLE E IL FILE**: una parte spuntata che il file non porta non
- * compare, e una che il file porta ma non è spuntata nemmeno. È quello che [Backup.restore] farà, detto
- * prima.
- * ⚠️ **Non è una modale vera**: non raccoglie niente di scritto, e il tocco fuori vale 'Annulla', che è
- * l'esito sicuro.
- * ⚠️⚠️ **LA RIGA DI TESTA È SUA DALLA `2.95`** (testo `backup_import_from`: *Esportazione del [data],
- * [ora], a capo, Astonishing Image Viewer [versione]*), quindi la data e l'ora sono due argomenti e non
- * uno: nella `2.93` erano una stringa sola, e la frase non poteva metterle dove le vuole lei. ⚠️ **Le
- * scrive la lingua del telefono**, e fra le due c'è la virgola della sua riga.
+ * L'elenco è l'incrocio fra le caselle e il file: è quello che [Backup.restore] farà, detto prima.
+ * Non è una modale vera: non raccoglie niente di scritto, e il tocco fuori vale 'Annulla'.
+ * La riga di testa (`backup_import_from`, testo dell'utente, 2.95) riceve la data e l'ora come due
+ * argomenti, perché la frase le mette dove le vuole; le scrive la lingua del telefono.
  */
 @Composable
 private fun ConfirmDialog(ready: Backups.Step.Ready, onDismiss: () -> Unit, onDone: () -> Unit) {
@@ -690,8 +659,7 @@ private fun ConfirmDialog(ready: Backups.Step.Ready, onDismiss: () -> Unit, onDo
 /**
  * Un campo in cui si scrive una password.
  *
- * ⚠️ **La tastiera è quella delle password**, che non suggerisce e non impara: una password proposta
- * dai suggerimenti è una password che la tastiera ha tenuto.
+ * La tastiera è quella delle password, che non suggerisce e non impara.
  */
 @Composable
 private fun PasswordField(
@@ -721,8 +689,8 @@ private fun PasswordField(
 /**
  * Come le caselle spuntate sopravvivono a una rotazione: i token, che sono il formato.
  *
- * ⚠️ **I token e non gli ordinali**: l'ordine delle parti è quello delle caselle, e il giorno che ne
- * nasce una in mezzo un ordinale salvato indicherebbe la vicina.
+ * I token e non gli ordinali: con una parte nuova in mezzo, un ordinale salvato indicherebbe la
+ * vicina.
  */
 private val GROUPS = listSaver<Set<BackupGroup>, String>(
     save = { groups -> groups.map { it.token } },
@@ -732,8 +700,8 @@ private val GROUPS = listSaver<Set<BackupGroup>, String>(
 /**
  * Che file il selettore lascia scegliere all'importazione: tutti.
  *
- * ⚠️ **Tutti e non il tipo del backup**: un file passato da Drive, da una chat o da un'altra app arriva
- * col tipo che ha deciso chi lo serve, e filtrando per tipo il backup giusto non si vedrebbe. A dire se
- * è un backup ci pensa la sua intestazione.
+ * ⚠️ **Tutti, non il tipo del file di impostazioni**: un file passato da Drive, da una chat o da
+ * un'altra app arriva col tipo che decide chi lo serve, e un filtro lo nasconderebbe. Se è un file
+ * di impostazioni lo dice la sua intestazione.
  */
 private const val ANY_FILE = "*/*"

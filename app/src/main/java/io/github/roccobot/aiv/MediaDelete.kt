@@ -24,27 +24,28 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 
 /*
- * 'Elimina' in AIV Play, through the MediaStore (5.20).
+ * 'Elimina' in AIV Play, attraverso il MediaStore.
  *
  * Author: Rocco Casadei, a.k.a. Roccobot
  *
- * ⚠️⚠️ **His choices of 2026-10-11, A1 and B1**: from Android 11 'Elimina' moves the files into the
- * system's trash (`createTrashRequest`), where the system keeps them about 30 days
- * (`MediaColumns.DATE_EXPIRES`: *the default trashed expiration is typically 30 days*); on Android 9
- * and 10, where that trash does not exist, it deletes them for good after AIV's own confirmation.
- * ⚠️ **Android asks every time, and AIV cannot skip it**: only the phone maker's own gallery may
- * trash without the system's window. On Android 10 a file of another app asks once per file
- * (`RecoverableSecurityException`); on Android 9 the write permission is asked once.
- * ⚠️ AIV GitHub never comes here: it writes through `java.io.File`, and its bin is its own folder.
- * ⚠️⚠️ **Since 5.40 AIV Play's bin page reads the system's trash** ([MediaDelete.trashed]): 'Ripristina'
- * puts files back with the same trash request turned off, 'Elimina' and 'Svuota il cestino' delete
- * them for good with `createDeleteRequest`. Each goes through Android's window, and AIV adds none.
+ * Scelte A1 e B1 dell'utente: da Android 11 'Elimina' sposta i file nel cestino di sistema
+ * (`createTrashRequest`), che li tiene circa 30 giorni (`MediaColumns.DATE_EXPIRES`); su Android 9
+ * e 10, dove quel cestino non esiste, li elimina definitivamente dopo la conferma di AIV.
+ * ⚠️ **Android chiede ogni volta, e AIV non può evitarlo**: solo la galleria del produttore del
+ * telefono sposta nel cestino senza la finestra di sistema. Su Android 10 un file di un'altra app
+ * chiede una volta per file (`RecoverableSecurityException`); su Android 9 il permesso di scrittura
+ * si chiede una volta.
+ * AIV GitHub non passa mai di qui: scrive con `java.io.File`, e il suo cestino è una sua cartella.
+ * La pagina del cestino di AIV Play legge il cestino di sistema ([MediaDelete.trashed]): 'Ripristina'
+ * rimette i file con la stessa richiesta spenta, 'Elimina' e 'Svuota il cestino' li eliminano
+ * definitivamente con `createDeleteRequest`. Ognuna passa dalla finestra di Android, e AIV non ne
+ * aggiunge altre.
  */
 object MediaDelete {
 
     /**
-     * The MediaStore rows of [uris]: a `content://` passes as it is, a `file://` is looked up by
-     * its path. A file the MediaStore does not know has no row, and counts as failed.
+     * Le righe del MediaStore di [uris]: un `content://` passa com'è, un `file://` si cerca per
+     * percorso. Un file che il MediaStore non conosce non ha riga, e conta come non riuscito.
      */
     fun rows(context: Context, uris: List<Uri>): List<Uri> = uris.mapNotNull { uri ->
         when (uri.scheme?.lowercase()) {
@@ -54,31 +55,30 @@ object MediaDelete {
         }
     }
 
-    /** The system's window that moves [rows] into its trash. */
+    /** La finestra di sistema che sposta [rows] nel suo cestino. */
     @RequiresApi(Build.VERSION_CODES.R)
     fun trashRequest(context: Context, rows: List<Uri>): IntentSender =
         MediaStore.createTrashRequest(context.contentResolver, rows, true).intentSender
 
-    /** The system's window that takes [rows] out of its trash, back where they were (5.40). */
+    /** La finestra di sistema che toglie [rows] dal suo cestino e le rimette dov'erano. */
     @RequiresApi(Build.VERSION_CODES.R)
     fun restoreRequest(context: Context, rows: List<Uri>): IntentSender =
         MediaStore.createTrashRequest(context.contentResolver, rows, false).intentSender
 
-    /** The system's window that deletes [rows] for good, from its trash too (5.40). */
+    /** La finestra di sistema che elimina [rows] definitivamente, anche dal suo cestino. */
     @RequiresApi(Build.VERSION_CODES.R)
     fun deleteRequest(context: Context, rows: List<Uri>): IntentSender =
         MediaStore.createDeleteRequest(context.contentResolver, rows).intentSender
 
     /**
-     * The images and videos in the system's trash, the most recently trashed first: AIV Play's
-     * bin page (5.40, his choice A1).
+     * Le immagini e i video nel cestino di sistema, dall'ultimo eliminato: la pagina del cestino di
+     * AIV Play (scelta A1 dell'utente).
      *
-     * ⚠️ **The order is the expiry date, newest first**: the system sets it when a file is trashed
-     * (about 30 days later, `MediaColumns.DATE_EXPIRES`), so it is the order of trashing, the same
-     * as AIV GitHub's bin, which shows the latest deletions first.
-     * ⚠️ **One query per collection**, Images and Video, so each row has the address of its own
-     * collection, which the system's windows take; files of other kinds never go into AIV's bin.
-     * ⚠️ PSD files stay out, as everywhere in the app (`MediaFiles.ignored`).
+     * L'ordine è la data di scadenza, decrescente: il sistema la fissa quando il file entra nel
+     * cestino, quindi è l'ordine di eliminazione, lo stesso del cestino di AIV GitHub.
+     * Una domanda per raccolta, immagini e video, perché ogni riga abbia l'indirizzo della sua
+     * raccolta, che le finestre di sistema vogliono; i file di altri tipi non entrano nel cestino di
+     * AIV. I PSD restano fuori, come in tutta l'app (`MediaFiles.ignored`).
      */
     @RequiresApi(Build.VERSION_CODES.R)
     suspend fun trashed(context: Context): List<Uri> = withContext(Dispatchers.IO) {
@@ -113,11 +113,11 @@ object MediaDelete {
     }
 
     /**
-     * Deletes [uris] for good, below Android 11.
+     * Elimina definitivamente [uris], sotto Android 11.
      *
-     * ⚠️ **On Android 10 a file of another app answers with a [RecoverableSecurityException]**, whose
-     * window [ask] shows; after a yes the same deletion is tried again. On Android 9 the write
-     * permission comes first, from [grant], and without it nothing is deleted.
+     * Su Android 10 un file di un'altra app risponde con una [RecoverableSecurityException], la cui
+     * finestra mostra [ask]; dopo un sì la stessa eliminazione si riprova. Su Android 9 prima viene
+     * il permesso di scrittura, da [grant], e senza non si elimina niente.
      */
     suspend fun forGood(
         context: Context,
@@ -148,22 +148,22 @@ object MediaDelete {
     private suspend fun remove(context: Context, row: Uri): Boolean =
         withContext(Dispatchers.IO + NonCancellable) { context.contentResolver.delete(row, null, null) > 0 }
 
-    /** The permission Android 9 wants to delete a file of another app, declared up to Android 9. */
+    /** Il permesso che Android 9 vuole per eliminare un file di un'altra app, dichiarato fino ad Android 9. */
     @Suppress("DEPRECATION")
     private const val WRITE = android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 }
 
 /**
- * A system window that answers yes or no, awaited by a suspended job: the trash request, the
- * consent of Android 10, the permission of Android 9.
+ * Una finestra di sistema che risponde sì o no, attesa da un lavoro sospeso: la richiesta del
+ * cestino, il consenso di Android 10, il permesso di Android 9.
  *
- * ⚠️⚠️ **It lives at the top of `FileJobDialogs`, never in the branch of a job**: the job goes on
- * after its window closes, and a launcher removed from the composition would never deliver the
- * answer.
- * ⚠️ **If the activity is recreated while the system window is open, the answer is lost**: the
- * system window is an activity of its own, and the new launcher does not know the old question.
- * From 6.27 the old screen answers 'no' as it goes ([rememberSystemAsk]), so the job counts that
- * file as not done and ends; until 6.26 it waited, and the screen's scope ended it.
+ * ⚠️⚠️ **Vive in cima a `FileJobDialogs`, mai nel ramo di un lavoro**: il lavoro continua dopo che
+ * la sua finestra si è chiusa, e un launcher tolto dalla composizione non consegnerebbe mai la
+ * risposta.
+ * ⚠️ **Se l'attività è ricreata con la finestra di sistema aperta, la risposta si perde**: la
+ * finestra è un'attività a sé, e il launcher nuovo non conosce la domanda vecchia. Per questo la
+ * schermata che se ne va risponde 'no' ([rememberSystemAsk]), e il lavoro conta quel file come non
+ * fatto e termina.
  */
 class SystemAsk internal constructor(
     private val context: Context,
@@ -172,21 +172,21 @@ class SystemAsk internal constructor(
 ) {
     internal var pending: CompletableDeferred<Boolean>? = null
 
-    /** Shows [sender]'s window and answers whether the person said yes. */
+    /** Mostra la finestra di [sender] e risponde se la persona ha detto sì. */
     suspend fun ask(sender: IntentSender): Boolean = await {
         window(IntentSenderRequest.Builder(sender).build())
     }
 
-    /** Asks [name] when it is missing, and answers whether it is granted. */
+    /** Chiede [name] quando manca, e risponde se è concesso. */
     suspend fun grant(name: String): Boolean {
         if (ContextCompat.checkSelfPermission(context, name) == PackageManager.PERMISSION_GRANTED) return true
         return await { permission(name) }
     }
 
     /**
-     * ⚠️ **Called on the main thread**, where a launcher wants to be: the jobs run in `FileWork`
-     * and in a `LaunchedEffect`, all of them on the main thread. A hop to the main
-     * dispatcher here would wait forever under a caller that blocks that thread.
+     * ⚠️ **Si chiama sul thread principale**, dove un launcher vuole essere: i lavori girano in
+     * `FileWork` e in un `LaunchedEffect`, tutti sul thread principale. Un passaggio esplicito al
+     * dispatcher principale qui aspetterebbe per sempre sotto un chiamante che blocca quel thread.
      */
     private suspend fun await(launch: () -> Unit): Boolean {
         val answer = CompletableDeferred<Boolean>()
@@ -204,7 +204,7 @@ class SystemAsk internal constructor(
     }
 }
 
-/** The [SystemAsk] of a screen, with its two launchers. */
+/** Il [SystemAsk] di una schermata, coi suoi due launcher. */
 @Composable
 fun rememberSystemAsk(): SystemAsk {
     val context = LocalContext.current
@@ -218,9 +218,9 @@ fun rememberSystemAsk(): SystemAsk {
     val ask = remember(window, permission) {
         SystemAsk(context, { window.launch(it) }, { permission.launch(it) }).also { holder[0] = it }
     }
-    // ⚠️ When the screen goes (the activity recreated with the system window open), a question still
-    // waiting is answered 'no' (6.27): the jobs live in `FileWork` and no longer end with the
-    // screen, so without this the job would wait for an answer that never comes.
+    // ⚠️ Quando la schermata se ne va (l'attività ricreata con la finestra di sistema aperta), la
+    // domanda ancora in attesa riceve 'no': i lavori vivono in `FileWork` e non terminano con la
+    // schermata, quindi senza questo il lavoro aspetterebbe una risposta che non arriva.
     DisposableEffect(ask) { onDispose { ask.answer(false) } }
     return ask
 }

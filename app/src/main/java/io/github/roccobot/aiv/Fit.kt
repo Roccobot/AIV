@@ -5,30 +5,31 @@ import kotlin.math.max
 import kotlin.math.min
 
 /*
- * Where a picture rests in the viewer when the info bar is on screen.
+ * Dove un'immagine si posa nel visualizzatore quando la barra delle info è sullo schermo.
  *
  * Author: Rocco Casadei, a.k.a. Roccobot
  *
- * ⚠️⚠️ Since 3.60 the fit is computed on the space the bar leaves free, not on the whole
- * screen (user's request, 2026-10-04, with the `Viewer_NOPE` mockup): before, a picture
- * fitted to the full height had a strip hidden under the bar, and nothing could show it.
- * ⚠️ The rule lives here, once, because three places ask it: `ImageCanvas`, the preview
- * that stands in while the file opens (`plannedSize`), and the neighbour that slides in
- * while swiping. Two copies of a fit already diverged once in this app (the jump of 0.56).
+ * ⚠️ L'adattamento si calcola sullo spazio che la barra lascia libero, non su tutto lo schermo
+ * (richiesta dell'utente, 3.60): altrimenti un'immagine adattata all'altezza ha una striscia
+ * nascosta sotto la barra, e niente la può mostrare.
+ * ⚠️ La regola vive qui, una volta sola, perché la chiedono tre posti: `ImageCanvas`,
+ * l'anteprima che occupa il posto mentre il file si apre (`plannedSize`) e l'immagine vicina che
+ * entra durante lo scorrimento. Due copie di un adattamento in questa app hanno già divergito.
  */
 
-/** Which edge of the view the info bar is glued to. */
+/** Il bordo della vista a cui è attaccata la barra delle info. */
 enum class BarEdge { TOP, BOTTOM }
 
 /**
- * What the picture has to know about the info bar.
+ * Quello che l'immagine deve sapere della barra delle info.
  *
- * @property size the height of the bar in pixels, safe-area padding included; zero when the
- *   bar is hidden. It is animated by the caller, so a hidden bar gives the space back smoothly.
- * @property spans the horizontal stretches, in pixels of the view, where the bar draws text
- *   or the app mark. Only the tolerance reads them.
- * @property system the part of [size] that belongs to the system (the status bar over a bar at
- *   the top, the navigation bar under one at the bottom). The tolerance never reaches it.
+ * @property size l'altezza della barra in pixel, margine dell'area sicura compreso; zero quando
+ *   la barra è nascosta. La anima il chiamante, così una barra che si nasconde rende lo spazio
+ *   in modo morbido.
+ * @property spans i tratti orizzontali, in pixel della vista, dove la barra disegna testo o il
+ *   marchio dell'app. Li legge solo la tolleranza.
+ * @property system la parte di [size] che appartiene al sistema (la barra di stato sopra una
+ *   barra in alto, la barra di navigazione sotto una in basso). La tolleranza non la raggiunge mai.
  */
 data class BarSpace(
     val edge: BarEdge,
@@ -38,9 +39,9 @@ data class BarSpace(
 )
 
 /**
- * The vertical band a picture rests in: [top] and [bottom] in pixels of the view.
+ * La fascia verticale in cui un'immagine si posa: [top] e [bottom] in pixel della vista.
  *
- * @property scale the rest scale, in view pixels per picture pixel.
+ * @property scale la scala di riposo, in pixel della vista per pixel dell'immagine.
  */
 data class RestPlace(val scale: Float, val top: Float, val bottom: Float) {
     val height: Float get() = bottom - top
@@ -48,30 +49,29 @@ data class RestPlace(val scale: Float, val top: Float, val bottom: Float) {
 }
 
 /**
- * The share of the view height a picture may spend under the bar (user's rule: *al massimo
- * il 5% dell'altezza*), and only where the bar has no text over it.
+ * La quota dell'altezza della vista che un'immagine può passare sotto la barra (regola
+ * dell'utente: al massimo il 5%), e solo dove la barra non ha testo sopra.
  */
 const val BAR_TOLERANCE = 0.05f
 
 /**
- * Where a picture of [picWidth] x [picHeight] rests in a view of [viewWidth] x [viewHeight].
+ * Dove si posa un'immagine di [picWidth] x [picHeight] in una vista di [viewWidth] x [viewHeight].
  *
- * @param cap the largest rest scale allowed (one pixel of the file per pixel of the screen
- *   when 'Enlarge small images' is off), or `null` when a small picture may grow.
+ * @param cap la scala di riposo massima (un pixel del file per pixel dello schermo quando
+ *   'Ingrandisci le immagini piccole' è spento), o `null` quando un'immagine piccola può crescere.
  *
- * ⚠️⚠️ The tolerance applies only when the view is wider than tall (decision A3): there the
- * height is the scarce side, and 5% of it is worth a lot of picture. In portrait the bar
- * takes a small share of the height anyway.
- * ⚠️ The picture may go under the bar only where the bar has no text: its width, centred, has
- * to stay clear of every [BarSpace.spans]. When the full 5% would reach a span, the picture
- * grows only as far as the nearest span allows, and not at all if a span covers the centre.
- * ⚠️ The overlap is spent only when the picture needs it: one limited by the width, or by
- * [cap], rests in the free band like any other.
- * ⚠️⚠️ Since 3.71 the overlap stops at the system bar (item `3.70-01` not approved: *su tablet
- * in orizzontale le immagini alte vanno ancora a finire sotto l'overlay info*). On a tablet the
- * status bar stays on screen, and 5% of the height is more than the bar's own text row: the
- * picture crossed the whole bar and reached the clock and the icons of the system, which are
- * text too. On a phone held sideways the system bars are hidden, and nothing changes.
+ * ⚠️ La tolleranza vale solo con la vista più larga che alta (decisione A3): lì l'altezza è il
+ * lato scarso, e il 5% vale molta immagine. In verticale la barra prende comunque poca altezza.
+ * ⚠️ L'immagine va sotto la barra solo dove la barra non ha testo: la sua larghezza, centrata,
+ * deve restare lontana da ogni [BarSpace.spans]. Quando il 5% pieno raggiungerebbe un tratto,
+ * l'immagine cresce solo fin dove il tratto più vicino permette, e per niente se un tratto copre
+ * il centro.
+ * La sovrapposizione si usa solo quando all'immagine serve: una limitata dalla larghezza, o da
+ * [cap], si posa nella fascia libera come le altre.
+ * ⚠️ La sovrapposizione si ferma alla barra di sistema (voce `3.70-01`): su un tablet la barra di
+ * stato resta sullo schermo, e il 5% dell'altezza supera la riga di testo della barra delle info,
+ * quindi l'immagine arriverebbe all'orologio e alle icone del sistema. Su un telefono in
+ * orizzontale le barre di sistema sono nascoste, e non cambia niente.
  */
 fun restPlace(
     viewWidth: Float,
@@ -97,7 +97,7 @@ fun restPlace(
     }
     val scale = if (cap == null) fit else min(fit, cap)
 
-    // The overlap actually spent: zero for a picture that fits in the free band.
+    // La sovrapposizione usata davvero: zero per un'immagine che entra nella fascia libera.
     val overlap = (picHeight * scale - freeHeight).coerceIn(0f, reserve)
     return when (bar?.edge) {
         BarEdge.TOP -> RestPlace(scale, reserve - overlap, viewHeight)
@@ -107,9 +107,9 @@ fun restPlace(
 }
 
 /**
- * The widest stretch centred on [centre] that touches none of [spans].
+ * Il tratto più largo centrato su [centre] che non tocca nessuno di [spans].
  *
- * ⚠️ A span that contains the centre leaves zero: the picture cannot get under the bar at all.
+ * Un tratto che contiene il centro lascia zero: l'immagine non può andare sotto la barra.
  */
 fun clearWidth(centre: Float, spans: List<ClosedFloatingPointRange<Float>>): Float {
     var half = Float.POSITIVE_INFINITY
@@ -121,18 +121,18 @@ fun clearWidth(centre: Float, spans: List<ClosedFloatingPointRange<Float>>): Flo
 }
 
 /**
- * Where the centre of the picture may go along one axis, as an offset from the view's centre.
+ * Dove può andare il centro dell'immagine lungo un asse, come scarto dal centro della vista.
  *
- * @param extent the picture's size along the axis, at the current scale.
- * @param view the view's size along the axis.
- * @param top the start of the rest band, [bottom] its end.
+ * @param extent la misura dell'immagine lungo l'asse, alla scala corrente.
+ * @param view la misura della vista lungo l'asse.
+ * @param top l'inizio della fascia di riposo, [bottom] la sua fine.
  *
- * ⚠️⚠️ The rest band works as the window: a picture no larger than the band stays at its
- * centre, and a larger one moves only as far as it keeps covering the band. So every part of a
- * zoomed picture, the strip under the bar included, can be brought into the free space.
- * Without a bar the band is the view, and the rule is the one of every version before 3.60.
- * ⚠️ Discarded: also keeping the picture inside the view. Between the band and the view it
- * stayed pinned to the far edge, and the strip under the bar could never be seen.
+ * ⚠️ La fascia di riposo fa da finestra: un'immagine non più grande della fascia resta al suo
+ * centro, e una più grande si sposta solo finché continua a coprirla. Così ogni parte di
+ * un'immagine ingrandita, compresa la striscia sotto la barra, si può portare nello spazio
+ * libero. Senza barra la fascia è la vista.
+ * Tenere l'immagine anche dentro la vista non funziona: fra la fascia e la vista resterebbe
+ * ferma contro il bordo opposto, e la striscia sotto la barra non si vedrebbe mai.
  */
 fun clampAxis(candidate: Float, extent: Float, view: Float, top: Float, bottom: Float): Float {
     val mid = view / 2f
@@ -141,17 +141,15 @@ fun clampAxis(candidate: Float, extent: Float, view: Float, top: Float, bottom: 
 }
 
 /**
- * Where an animated zoom puts the picture's offset, for a scale that goes from one value to
- * another by [ratio] (new scale over old).
+ * Dove uno zoom animato mette lo scarto dell'immagine, per una scala che passa da un valore a un
+ * altro di [ratio] (scala nuova su scala vecchia).
  *
- * @param pivot the offset of the rest band's centre from the view's centre ([RestPlace.centre]
- *   minus half the view): the point the zoom grows around.
+ * @param pivot lo scarto del centro della fascia di riposo dal centro della vista
+ *   ([RestPlace.centre] meno metà della vista): il punto attorno a cui lo zoom cresce.
  *
- * ⚠️⚠️ Since 3.71 the zoom grows around the centre of the band the bar leaves free, and not
- * around the view's (item `3.71-01`: *al doppio tocco lo zoom fa un percorso strano e
- * l'immagine usa comunque lo spazio sotto l'overlay*). A picture at rest sits on the band's
- * centre, below the view's when the bar is at the top; scaling its offset around the view's
- * centre multiplied that gap too, and the picture slid down while it grew, then slid back.
- * Around the band's centre a picture at rest grows in place.
+ * ⚠️ Lo zoom cresce attorno al centro della fascia libera, non a quello della vista (voce
+ * `3.71-01`): un'immagine a riposo è sul centro della fascia, più in basso di quello della vista
+ * quando la barra è in alto, e scalare attorno al centro della vista moltiplicherebbe anche quello
+ * scarto, facendola scivolare mentre cresce. Attorno al centro della fascia cresce sul posto.
  */
 fun zoomOffset(offset: Float, pivot: Float, ratio: Float): Float = pivot + (offset - pivot) * ratio

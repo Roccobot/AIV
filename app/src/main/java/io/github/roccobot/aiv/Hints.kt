@@ -18,8 +18,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -50,46 +48,31 @@ import androidx.compose.ui.window.Dialog
 
 /**
  * Il velo del mini onboarding: oscura la schermata, dice la frase e mette in evidenza una
- * copia **funzionante** del FAB che sta insegnando.
+ * copia funzionante del FAB che sta insegnando (richiesta dell'utente). Serve perché un FAB non
+ * dichiara i propri gesti, e il tocco lungo non si scopre da solo. Colore, contrasto e geometria
+ * vivono qui una volta sola; cambiano la frase e il FAB.
  *
- * ⚠️⚠️ **NASCE COSÌ NELLA 0.67 E DIVENTA CONDIVISO NELLA 0.78** (richiesta dell'utente:
- * *un mini onboarding grafico, che oscura la schermata ed evidenzia in arancione il FAB*).
- * Serve perché il tocco lungo è una scorciatoia che **non si scopre da sola**: un FAB non
- * dichiara i propri gesti. I veli di questa forma vivono in due schermate diverse (il cestino
- * nella griglia, le colonne nella schermata iniziale): il colore, il contrasto misurato e la
- * geometria stanno qui una volta sola, e quello che cambia sono la frase e il FAB.
- * ⚠️ **Fino alla `1.78` la nota ne contava tre e nominava per primo quello della selezione**,
- * uscito nella `0.94` insieme alla sua chiave: quanti siano non si scrive, perché il conto
- * invecchia da sé (`Roccobot.md`, § '🪶 Come si mantiene un file di regole').
+ * ⚠️⚠️ **La copia evidenziata funziona**: chi tiene premuto sul velo fa la cosa mentre gliela si
+ * spiega. Per questo è lo stesso [TapHoldFab] del FAB vero, alla stessa misura e nello stesso
+ * angolo, e cade sopra l'originale.
  *
- * ⚠️⚠️ **LA COPIA EVIDENZIATA FUNZIONA, non è un disegno**, ed è la differenza fra insegnare
- * e raccontare: chi tiene premuto sul velo fa la cosa mentre gliela si spiega, invece di
- * doverla richiudere e rifare. È anche il motivo per cui è lo **stesso** [TapHoldFab] del
- * FAB vero, alla stessa misura e nello stesso angolo: cade **sopra** l'originale.
+ * ⚠️⚠️ **Il velo copre tutto lo schermo**, testata e margini di sistema compresi: nasce nel `Box`
+ * che avvolge la schermata, ed è un'estensione di [BoxScope] perché senza un `Box` intorno
+ * `matchParentSize` non esiste e il velo coprirebbe solo il suo pezzo.
  *
- * ⚠️⚠️ **IL VELO COPRE TUTTO LO SCHERMO dalla `0.73`**, testata e margini di sistema
- * compresi, ed è una correzione: fino alla `0.72` copriva la sola griglia, perché nasceva
- * dentro la `Column` che i margini li ha già applicati. Il rimedio non è stato spostare i
- * margini ma **avvolgere la schermata in un `Box`** e far nascere il velo là. Per questo è
- * un'estensione di [BoxScope]: senza un `Box` intorno, `matchParentSize` non esiste e il velo
- * tornerebbe a coprire solo il suo pezzo.
- *
- * ⚠️ **Chi tocca il velo per chiuderlo senza leggerlo la scorciatoia non la scopre**, e la
- * rete di sicurezza è l'etichetta che il lettore di schermo legge sul tocco lungo (vedi
- * `holdLabel` di [TapHoldFab]). È il costo della scelta, ed è dichiarato.
+ * Chi chiude il velo senza leggerlo non scopre la scorciatoia: la rete è l'etichetta che il
+ * lettore di schermo legge sul tocco lungo (`holdLabel` di [TapHoldFab]).
  */
 @Composable
 fun BoxScope.HintVeil(
     text: String,
     /**
-     * I rientri che portano la copia del FAB **esattamente** sopra l'originale.
+     * I rientri che posano la copia del FAB esattamente sopra l'originale.
      *
-     * ⚠️⚠️ **NON SONO DECORAZIONE, e sono l'unica cosa che il velo non può ricavare da sé**:
-     * il FAB vero vive dentro il rientro di sistema più i margini della sua schermata, e
-     * il velo nasce fuori da tutti perché è il suo mestiere. Chi ne dimentica uno vede la
-     * copia scivolare in un angolo.
-     * ⚠️ Arriva come `Modifier` e non come misura perché le catene sono diverse: nella griglia
-     * sono tre (sistema, margine della schermata, margine del FAB), nelle cartelle due.
+     * ⚠️ **Sono l'unica cosa che il velo non può ricavare da sé**: il FAB vero vive dentro il
+     * rientro di sistema più i margini della sua schermata, e il velo nasce fuori da tutti. Chi
+     * ne dimentica uno vede la copia spostata. È un `Modifier` perché le catene cambiano da una
+     * schermata all'altra.
      */
     inset: Modifier,
     onDone: () -> Unit,
@@ -99,9 +82,8 @@ fun BoxScope.HintVeil(
         modifier = Modifier
             .matchParentSize()
             .background(HINT_SCRIM)
-            // ⚠️ Niente increspatura e nessuna descrizione: questo non è un tasto, è il velo,
-            // e un tocco qualunque lo archivia. Un onboarding che si deve leggere due volte
-            // non è un onboarding.
+            // Niente increspatura e nessuna descrizione: non è un tasto, è il velo, e un tocco
+            // qualunque lo archivia.
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -109,8 +91,7 @@ fun BoxScope.HintVeil(
             )
     ) {
         /*
-         * ⚠️ **Anche l'onboarding segue il lato del FAB**, dalla `1.57`: quello che spiega
-         * è il FAB, e una freccia che punta dalla parte sbagliata spiegherebbe il vuoto.
+         * Il velo segue il lato del FAB, che è quello che spiega.
          */
         val destra = LocalPadLook.current.hand == Hand.RIGHT
         Column(
@@ -125,22 +106,16 @@ fun BoxScope.HintVeil(
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.White,
                 /*
-                 * ⚠️⚠️ **ANCHE LA FRASE SEGUE LA MANO, DALLA `1.81`, e fino alla `1.80` era
-                 * ferma a destra** (censimento della UI del 2026-09-05). La colonna si
-                 * specchiava (l'allineamento nel riquadro e quello dei figli), il paragrafo no,
-                 * e la differenza si vede: la frase va a capo davvero, perché a settanta
-                 * caratteri di `titleMedium` la sua larghezza intrinseca supera [HINT_WIDTH],
-                 * quindi la scatola misura quei 260dp pieni e le righe si appoggiavano al
-                 * fianco **destro** mentre la colonna viveva sul fianco sinistro.
+                 * ⚠️ **Anche il paragrafo segue la mano**, non solo la colonna: la frase supera
+                 * [HINT_WIDTH] e va a capo, quindi la scatola misura la larghezza piena e le
+                 * righe si appoggerebbero al fianco opposto a quello della colonna.
                  */
                 textAlign = if (destra) TextAlign.End else TextAlign.Start,
                 modifier = Modifier.widthIn(max = HINT_WIDTH)
             )
             /*
-             * ⚠️⚠️ **LA COPIA È SEMPRE PIENA, DALLA `4.35`** (voce `4.34-02`: *il tondo lo voglio
-             * di colore #ffda3c. Colore finto, come quello arancione del velo*): fino alla `4.34`
-             * prendeva l'aspetto scelto per i pulsanti veri, e col vetro il giallo arrivava velato.
-             * È un colore del velo, non dell'app, quindi non segue quella scelta.
+             * La copia è sempre piena (voce `4.34-02`): il suo colore è del velo e non dell'app,
+             * quindi non segue l'aspetto scelto per i pulsanti, e col vetro arriverebbe velato.
              */
             val look = LocalPillLook.current
             CompositionLocalProvider(LocalPillLook provides look.copy(fill = PillFill.SOLID)) { fab() }
@@ -149,26 +124,17 @@ fun BoxScope.HintVeil(
 }
 
 /**
- * Il velo che evidenzia **un pezzo qualunque della schermata**, dov'è, e scrive la frase sotto.
+ * Il velo che evidenzia un pezzo qualunque della schermata, dov'è, e scrive la frase sotto (per
+ * esempio l'icona dell'intestazione, che sceglie la copertina).
  *
- * ⚠️⚠️ **NASCE NELLA `1.95` PER L'ICONA DELL'INTESTAZIONE**, cioè per il gesto che sceglie la
- * copertina di una cartella. Gli altri due veli non bastavano: [HintVeil] mette una copia del FAB
- * nell'angolo in fondo, e [HintCentre] non indica niente. Qui la cosa da indicare sta **in cima**,
- * al centro, e la sua posizione dipende da quanto la fascia è aperta.
+ * ⚠️⚠️ **Il posto non si ricalcola, si misura**: rifare qui la catena dei rientri sarebbe una
+ * seconda geometria da tenere allineata, e un ritocco all'intestazione farebbe cadere
+ * l'evidenziazione sul vuoto. Chi chiama passa il riquadro dell'oggetto vero, letto con
+ * `onGloballyPositioned`. L'origine del velo si sottrae, perché il riquadro è in coordinate della
+ * radice.
  *
- * ⚠️⚠️ **IL POSTO NON SI RICALCOLA: SI MISURA**, e questa è la differenza che rende il velo
- * esatto per costruzione. Rifare qui la catena dei rientri (barra di sistema, testata, fascia, e
- * la misura che l'icona cede scorrendo) vorrebbe dire una seconda geometria da tenere allineata
- * alla prima, e basterebbe un ritocco all'intestazione per far cadere l'evidenziazione sul vuoto.
- * Chi chiama passa il riquadro che l'icona vera occupa, letto con `onGloballyPositioned`.
- * ⚠️ **L'origine si sottrae**, perché il riquadro arriva in coordinate della radice e questo velo
- * vive dentro il `Box` della schermata: senza, su una schermata che non comincia a zero la copia
- * scivolerebbe di tutto il rientro.
- *
- * ⚠️ **La copia è un disegno e non un tasto**, al contrario di quella di [HintVeil]: là il velo
- * insegna un gesto che si può fare **mentre** lo si legge, qui il gesto è già stato fatto (il velo
- * compare perché l'icona è stata toccata), quindi una copia che risponde rifarebbe l'azione.
- * ⚠️ **Un tocco qualunque lo archivia**, come tutti gli altri.
+ * ⚠️ **La copia è un disegno e non un tasto**: qui il gesto è già stato fatto (il velo compare
+ * dopo il tocco), e una copia che risponde lo rifarebbe. Un tocco qualunque lo archivia.
  */
 @Composable
 fun BoxScope.HintSpot(
@@ -192,14 +158,9 @@ fun BoxScope.HintSpot(
 }
 
 /**
- * Un gruppo di cose da evidenziare **insieme**, con la frase che le riguarda.
- *
- * ⚠️⚠️ **NASCE NELLA `2.79`, QUANDO I TASTI CHE UNA SLIDE SPIEGA SI SONO TROVATI AI DUE CAPI DELLO
- * SCHERMO** (punto C del suo campo libero: *va rifatto anche il mini-onboarding, con i due tasti
- * in basso e il tasto 'Salva' in alto evidenziati, e due paragrafi separati, uno sopra e uno
- * sotto, ciascuno vicino all'oggetto cui fa riferimento*). Fino alla `2.78` il velo scriveva una
- * frase sola sotto il riquadro più basso, che con due gruppi lontani vorrebbe dire una frase in
- * mezzo allo schermo, staccata da tutti e due.
+ * Un gruppo di cose da evidenziare insieme, con la frase che le riguarda: quando i tasti spiegati
+ * da un velo sono ai due capi dello schermo, ogni gruppo ha la sua frase vicina (richiesta
+ * dell'utente).
  */
 class HintGroup(
     val text: String,
@@ -208,33 +169,18 @@ class HintGroup(
 )
 
 /**
- * Lo stesso velo di [HintSpot] quando le cose da evidenziare sono **più di una**.
+ * Lo stesso velo di [HintSpot] quando le cose da evidenziare sono più di una, in uno o più
+ * gruppi ([HintGroup]), per esempio i tasti della testata dell'editor.
  *
- * ⚠️⚠️ **NASCE NELLA `2.73` PER I TRE TASTI DELLA TESTATA DELL'EDITOR**, cioè 'Filigrana',
- * 'Ridimensiona' e 'Salva': quei tre portano due gesti ognuno, e la sua richiesta è una slide che
- * li nomini insieme. [HintStrip] non serviva, perché quella fila non continua fuori dallo schermo
- * e il testo starebbe **sopra**, dove in testata non c'è posto.
+ * ⚠️⚠️ **Ogni cosa ha il proprio riquadro e il proprio disegno, non una cella calcolata**: i
+ * tasti non sono larghi uguali, e dividere il riquadro comune in parti uguali poserebbe le copie
+ * accanto agli originali. Il disegno lo passa chi chiama, perché non è sempre un glifo ('Salva' è
+ * una parola).
  *
- * ⚠️⚠️ **OGNI COSA PORTA IL PROPRIO RIQUADRO E IL PROPRIO DISEGNO, E NON UNA CELLA CALCOLATA**:
- * i tre tasti non sono larghi uguali (due icone e una parola), quindi dividere il riquadro che li
- * comprende in tre parti uguali poserebbe le copie **accanto** alle cose vere. Misurato ognuno, la
- * copia cade dov'è l'originale per costruzione, che è lo stesso criterio per cui [HintSpot] si fa
- * passare il riquadro invece di ricalcolarlo.
- * ⚠️ **Il disegno lo passa chi chiama**, perché non è sempre un glifo: 'Salva' è una parola, e un
- * velo che accettasse solo `ImageVector` costringerebbe a disegnarla come icona.
- *
- * ⚠️ **La frase di un gruppo si posa sotto il suo riquadro PIÙ BASSO**, o sopra una delle copie:
- * i tasti di un gruppo vivono sulla stessa riga, ma un chiamante che ne indicasse due a altezze
- * diverse coprirebbe il secondo.
- *
- * ⚠️⚠️ **DALLA `2.79` I GRUPPI SONO PIÙ D'UNO, E OGNUNO PORTA LA PROPRIA FRASE** (vedi
- * [HintGroup]): con i tasti ai due capi dello schermo una frase sola resterebbe lontana da metà
- * di quello che spiega.
- * ⚠️⚠️ **DA CHE PARTE VA LA FRASE LO DICE UNA REGOLA E NON UN PARAMETRO**: sopra la metà del velo
- * la frase cade **sotto** il gruppo, sotto la metà cade **sopra**. È la sola disposizione che
- * tenga la frase dentro lo schermo in tutti e due i casi, e scritta come parametro sarebbe una
- * cosa che un chiamante può sbagliare. ⚠️ **Per chi chiamava prima non cambia niente**: i veli
- * della `2.73` e della `1.95` indicano un comando in testata, cioè nella metà di sopra.
+ * La frase di un gruppo si posa oltre il suo riquadro più lontano, o coprirebbe una copia.
+ * ⚠️ **Da che parte va lo dice una regola e non un parametro**: un gruppo nella metà di sopra ha
+ * la frase sotto, uno nella metà di sotto la ha sopra. È la sola disposizione che tenga la frase
+ * dentro lo schermo in tutti e due i casi.
  */
 @Composable
 fun BoxScope.HintSpots(
@@ -259,9 +205,8 @@ fun BoxScope.HintSpots(
             )
     ) {
         with(LocalDensity.current) {
-            // ⚠️ Un gruppo senza riquadri si salta: il chiamante li misura, e nel fotogramma
-            // prima della misura un gruppo può essere vuoto. Senza questa riga il conto del
-            // riquadro più basso non avrebbe niente da guardare.
+            // ⚠️ Un gruppo senza riquadri si salta: nel fotogramma prima della misura può essere
+            // vuoto, e `minOf` e `maxOf` su un elenco vuoto vanno in errore.
             groups.filter { it.spots.isNotEmpty() }.forEach { gruppo ->
                 gruppo.spots.forEach { (dove, disegno) ->
                     Box(
@@ -295,10 +240,8 @@ fun BoxScope.HintSpots(
                     }
                 } else {
                     /*
-                     * ⚠️ **Sopra il gruppo la frase si appoggia a un riquadro alto fin lì**, e non
-                     * a uno scostamento: quanto sia alta una frase dipende da quanto va a capo,
-                     * cioè da una misura che qui non si ha. Col riquadro, il suo bordo di sotto
-                     * cade a `HINT_GAP` dal gruppo qualunque sia il numero di righe.
+                     * Sopra il gruppo la frase si appoggia in fondo a un riquadro alto fin lì: la
+                     * sua altezza dipende da quanto va a capo, una misura che qui non si ha.
                      */
                     Box(
                         modifier = Modifier
@@ -316,25 +259,15 @@ fun BoxScope.HintSpots(
 }
 
 /**
- * Il velo che evidenzia **una fila che continua fuori dallo schermo**: le sue icone in arancione,
- * che sfumano nel velo verso destra, una freccia che indica il verso, e la frase sopra.
+ * Il velo che evidenzia una fila che continua fuori dallo schermo (la fila dei moduli
+ * dell'editor completo): le sue icone in arancione, che sfumano nel velo verso destra, una
+ * freccia che indica il verso, e la frase sopra. Il disegno è dell'utente.
  *
- * ⚠️⚠️ **NASCE NELLA `2.50` PER LA FILA DEI MODULI DELL'EDITOR COMPLETO, ED È SUO IL DISEGNO**
- * (campo libero del giro della `2.40`: *le icone dei moduli diventano arancione-onboarding e
- * sfumano verso destra nel velo della sovrapposizione. Una freccia anch'essa arancione sopra il
- * velo indica lo scorrimento. Un testo centrato sopra le icone*). Gli altri tre veli non
- * servivano: [HintVeil] mette una copia del FAB nell'angolo, [HintSpot] illumina **una** cosa
- * sola, e [HintCentre] non indica niente. Qui la cosa da dire è che l'elenco **continua**, e a
- * dirlo sono la sfumatura e la freccia insieme.
- *
- * ⚠️⚠️ **LE ICONE SONO UNA COPIA DISEGNATA, NON LA FILA VERA**: quella vive dentro la scheda e
- * sotto il velo, quindi non si può tingere da qui. La copia cade **sopra** l'originale perché usa
- * lo stesso riquadro misurato e la stessa misura di cella ([modCell]), che è una funzione sola
- * letta da tutti e due: con due conti, il primo a divergere sarebbe questo, cioè quello che si
- * vede una volta e che nessuno rimisura.
- * ⚠️ **Non risponde al tocco**, come la copia di [HintSpot] e al contrario di quella di
- * [HintVeil]: qui il gesto da imparare è uno scorrimento, e uno scorrimento dentro un velo che si
- * chiude al primo tocco non arriverebbe da nessuna parte.
+ * ⚠️⚠️ **Le icone sono una copia disegnata**: la fila vera è dentro la scheda, sotto il velo.
+ * La copia cade sopra l'originale perché usa lo stesso riquadro misurato e la stessa misura di
+ * cella ([modCell]), una funzione sola letta da tutti e due.
+ * Non risponde al tocco: il gesto da imparare è uno scorrimento, e il velo si chiude al primo
+ * tocco.
  */
 @Composable
 fun BoxScope.HintStrip(
@@ -363,11 +296,9 @@ fun BoxScope.HintStrip(
             val larga = spot.width.toDp()
             val alta = spot.height.toDp()
             /*
-             * ⚠️⚠️ **LA SFUMATURA SI OTTIENE TOGLIENDO OPACITÀ, NON DIPINGENDO SOPRA**: un
-             * rettangolo del colore del velo steso sulle icone le spegnerebbe verso un nero che
-             * sotto non c'è (là sotto c'è la scheda, già velata). Con `DstIn` su un livello a
-             * parte è la **copia** a sbiadire, quindi quello che resta verso destra è il velo con
-             * sotto la fila vera, cioè esattamente 'le icone si perdono nel velo'.
+             * ⚠️ **La sfumatura toglie opacità, non dipinge sopra**: un rettangolo del colore del
+             * velo spegnerebbe le icone verso un nero che sotto non c'è. Con `DstIn` su un livello
+             * a parte sbiadisce la copia, e verso destra resta il velo sopra la fila vera.
              */
             Row(
                 modifier = Modifier
@@ -398,12 +329,11 @@ fun BoxScope.HintStrip(
                 }
             }
             /*
-             * ⚠️ **La freccia sta sopra il velo e fuori dalla fila**, appoggiata al bordo destro:
-             * dentro la sfumatura sarebbe il primo segno a sparire, cioè quello che indica il
-             * verso si perderebbe proprio dalla parte in cui indica.
+             * La freccia è fuori dalla fila, al bordo destro: dentro la sfumatura sparirebbe
+             * proprio dalla parte in cui indica.
              */
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                imageVector = Glyphs.Material.ArrowForward,
                 contentDescription = null,
                 tint = HINT_MARK,
                 modifier = Modifier
@@ -413,9 +343,8 @@ fun BoxScope.HintStrip(
                     .size(HINT_ARROW)
             )
             /*
-             * ⚠️ **Il testo si posa in una scatola che finisce dove comincia la fila**, allineato
-             * in fondo: così resta appena sopra le icone qualunque sia l'altezza della scheda, e
-             * non serve sapere quanto è alto per sottrarlo.
+             * Il testo si posa in fondo a una scatola che finisce dove comincia la fila: resta
+             * appena sopra le icone senza conoscere la propria altezza.
              */
             Box(
                 modifier = Modifier
@@ -438,45 +367,31 @@ fun BoxScope.HintStrip(
 }
 
 /**
- * Il velo che dice una cosa e basta: frase **in mezzo allo schermo**, nessun FAB da
- * evidenziare.
- *
- * ⚠️⚠️ **NASCE NELLA 1.25 PERCHÉ IL GESTO NON HA UN POSTO** (richiesta dell'utente,
- * 2026-09-02: *nuovo mini-onboarding, con testo centrato in mezzo allo schermo, alla
- * visualizzazione della prima immagine dopo l'installazione*). Gli altri tre veli indicano un
- * **FAB** e ne mettono in scena una copia funzionante; il doppio tocco si fa sulla
- * fotografia intera, quindi non c'è niente da indicare, e una copia evidenziata coprirebbe
- * proprio la cosa di cui si sta parlando.
- * ⚠️ **Sono la stessa macchina di [HintVeil]**, e condividono il velo e la sua misura di
- * contrasto: cambiano dov'è il testo e il fatto che qui non c'è un FAB. Chi li fondesse
- * in una funzione sola con due parametri opzionali otterrebbe una firma che nessuno dei due
- * usa per intero.
- * ⚠️ **Un tocco qualunque lo archivia**, come gli altri: un onboarding che si deve leggere due
- * volte non è un onboarding.
+ * Il velo che dice una cosa e basta: frase in mezzo allo schermo, niente da evidenziare. Serve
+ * a un gesto che non ha un posto, come il doppio tocco sull'immagine intera (richiesta
+ * dell'utente): una copia evidenziata coprirebbe proprio la cosa di cui si parla.
+ * Condivide con [HintVeil] il velo e il suo contrasto. Un tocco qualunque lo archivia.
  */
 @Composable
 fun BoxScope.HintCentre(text: String, onDone: () -> Unit) {
-    // ⚠️ `matchParentSize` e non `fillMaxSize`: dentro un `Box` questo velo prende la misura
-    // del genitore **senza** entrare nel suo conto, e il genitore qui è una schermata intera.
+    // ⚠️ `matchParentSize`: dentro un `Box` prende la misura del genitore senza entrare nel suo
+    // conto, e il genitore qui è una schermata intera.
     CentredHint(text = text, onDone = onDone, modifier = Modifier.matchParentSize())
 }
 
 /**
- * The Feed's veil, from 6.20: a sketch of the stream that says where the newest and the oldest are.
+ * Il velo del Feed: uno schizzo del flusso che dice dove sono le immagini più recenti e le meno
+ * recenti.
  *
- * ⚠️⚠️ **HIS DRAWING, TO THE LETTER** (note on `6.02-04`, giro of the 6.10): *copri del tutto le
- * cartelle reali e disegnaci sopra una griglia a 3 colonne stilizzata con dei riquadri di colore
- * giallo onboarding, ma con un'ulteriore velo nero sopra ... Solo il rettangolo arrotondato giallo in
- * alto a sinistra e quello più in basso a destra tra quelli visibili appaiono del loro colore giallo
- * pieno, sopra il velo*, with 'Più recenti' and 'Meno recenti' in them, and the text of the setting
- * 'Disposizione in vista feed' as the sentence. So four layers: the page's ground, which hides the
- * real pictures; the sketch in [HINT_KEY]; the veil; the two full cells and the sentence.
- * ⚠️ **The sketch has three columns whatever the Feed shows**: it is a picture of the order, not of
- * the grid, and the cells stop growing at [SKETCH_CELL_MAX] so that a tablet does not get two rows of
- * giant squares. The geometry is [feedSketch], a pure function, and both layers read it.
- * ⚠️ **The sentence sits between the two full cells**, where it reads after 'Più recenti' and before
- * 'Meno recenti'; with one row only (a phone on its side) it goes under it.
- * ⚠️ **A tap anywhere closes it**, as every veil.
+ * ⚠️ **Il disegno è dell'utente** (nota sulla voce `6.02-04`): quattro livelli, cioè il fondo
+ * della pagina, che copre le immagini vere; lo schizzo in [HINT_KEY]; il velo; le due celle piene
+ * con 'Più recenti' e 'Meno recenti', e la frase, che è il testo dell'impostazione 'Disposizione
+ * in vista feed'.
+ * Lo schizzo ha tre colonne qualunque cosa mostri il Feed: è un'immagine dell'ordine, non della
+ * griglia, e le celle smettono di crescere a [SKETCH_CELL_MAX]. La geometria è [feedSketch], una
+ * funzione pura letta dai due livelli.
+ * La frase è fra le due celle piene; con una riga sola (telefono in orizzontale) va sotto. Un
+ * tocco qualunque lo chiude.
  */
 @Composable
 fun BoxScope.HintFeed(text: String, newer: String, older: String, onDone: () -> Unit) {
@@ -520,7 +435,7 @@ fun BoxScope.HintFeed(text: String, newer: String, older: String, onDone: () -> 
     }
 }
 
-/** A cell of the Feed's sketch, at its place: empty, or full with a word in it. */
+/** Una cella dello schizzo del Feed, al suo posto: vuota, o piena con una parola dentro. */
 @Composable
 private fun SketchCell(cell: SketchSquare, word: String? = null) {
     Box(
@@ -542,25 +457,25 @@ private fun SketchCell(cell: SketchSquare, word: String? = null) {
     }
 }
 
-/** A square of the Feed's sketch: its corner and its side, in dp from the safe area's corner. */
+/** Un quadrato dello schizzo del Feed: l'angolo e il lato, in dp dall'angolo dell'area sicura. */
 data class SketchSquare(val x: Dp, val y: Dp, val size: Dp)
 
 /**
- * The Feed's sketch: every cell that shows, the newest one (top left) and the oldest one (on the
- * right of the last row that shows whole).
+ * Lo schizzo del Feed: tutte le celle che si vedono, la più recente (in alto a sinistra) e la
+ * meno recente (a destra nell'ultima riga intera).
  *
- * ⚠️ **A row cut by the bottom is drawn and not chosen**: the grid goes on under the edge, as a
- * stream does, but 'the lowest one on the right among those you see' is a whole cell.
+ * Una riga tagliata dal bordo si disegna ma non si sceglie: la griglia continua sotto il bordo,
+ * come un flusso, ma 'quella più in basso a destra fra le visibili' è una cella intera.
  */
 class FeedSketch(val cells: List<SketchSquare>, val newest: SketchSquare, val oldest: SketchSquare)
 
-/** The geometry of [HintFeed] in a safe area [width] by [height]: three columns, centred. */
+/** La geometria di [HintFeed] in un'area sicura [width] per [height]: tre colonne, centrate. */
 fun feedSketch(width: Dp, height: Dp): FeedSketch {
     val cell = ((width - SKETCH_SIDE * 2 - SKETCH_GAP * (SKETCH_COLUMNS - 1)) / SKETCH_COLUMNS)
         .coerceIn(0.dp, SKETCH_CELL_MAX)
     val left = (width - cell * SKETCH_COLUMNS - SKETCH_GAP * (SKETCH_COLUMNS - 1)) / 2
     val step = cell + SKETCH_GAP
-    // Rows that fit whole, at least one; plus the one the bottom edge cuts.
+    // Le righe che entrano intere, almeno una, più quella tagliata dal bordo di sotto.
     val whole = ((height - SKETCH_SIDE + SKETCH_GAP) / step).toInt().coerceAtLeast(1)
     val cells = (0..whole).flatMap { row ->
         (0 until SKETCH_COLUMNS).map { col ->
@@ -574,27 +489,23 @@ fun feedSketch(width: Dp, height: Dp): FeedSketch {
     )
 }
 
-/** The columns of the Feed's sketch: his number. */
+/** Le colonne dello schizzo del Feed: il numero è dell'utente. */
 private const val SKETCH_COLUMNS = 3
 
-/** The margin around the sketch and the air between its cells. */
+/** Il margine intorno allo schizzo, l'aria fra le celle e la stondatura. */
 private val SKETCH_SIDE = 16.dp
 private val SKETCH_GAP = 8.dp
 private val SKETCH_CORNER = 12.dp
 
-/** The largest cell of the sketch: past it, a tablet would show two rows of giant squares. */
+/** La cella più grande dello schizzo: oltre, un tablet mostrerebbe due righe di quadrati giganti. */
 private val SKETCH_CELL_MAX = 160.dp
 
 /**
  * Il corpo di un velo centrato: il velo, il testo e i suoi margini.
  *
- * ⚠️⚠️ **NASCE PERCHÉ [HintNotice] RICOPIAVA [HintCentre] MENTRE LA NOTA DICHIARAVA IL
- * CONTRARIO** (censimento della UI del 2026-09-05): là era scritto che *il velo, il corpo e il
- * margine sono gli STESSI di [HintCentre], e non una copia con altri numeri*, e le costanti
- * erano davvero condivise; il **corpo** però era ricopiato riga per riga, e di quello la nota
- * diceva il falso. Cambiava una riga sola, la misura del velo, che adesso è il parametro.
- * ⚠️ **La differenza vera fra i due chiamanti è la FINESTRA**, non il disegno: uno si stende sul
- * `Box` che lo contiene, l'altro apre una finestra propria per stare sopra un dialogo.
+ * Lo usano [HintCentre] e [HintNotice], che differiscono solo per la finestra: il primo si stende
+ * sul `Box` che lo contiene, il secondo apre una finestra propria per stare sopra un dialogo. La
+ * misura del velo è il parametro.
  */
 @Composable
 private fun CentredHint(text: String, onDone: () -> Unit, modifier: Modifier) {
@@ -619,38 +530,26 @@ private fun CentredHint(text: String, onDone: () -> Unit, modifier: Modifier) {
 }
 
 /**
- * Lo stesso velo centrato, ma **sopra un dialogo**: una finestra sua, che copre lo schermo.
+ * Lo stesso velo centrato, ma sopra un dialogo: una finestra sua, che copre lo schermo.
  *
- * ⚠️⚠️ **ESISTE PERCHÉ UN VELO DENTRO UN DIALOGO COPRE IL DIALOGO E NON LO SCHERMO** (nasce
- * nella `1.36` per l'avviso sul cambio di estensione, che parte da dentro la finestra di
- * rinomina). [HintCentre] è un'estensione di `BoxScope` e si stende sul `Box` che lo contiene:
- * là dentro sarebbe un velo largo come la finestrella, cioè un riquadro scuro in mezzo a un
- * dialogo, mentre l'utente ha chiesto un avviso **in mezzo allo schermo**. Una finestra
- * propria è l'unico modo di stare sopra un'altra finestra.
- * ⚠️ **`usePlatformDefaultWidth = false` è la riga che conta**: senza, il dialogo prende la
- * larghezza di un dialogo Material (il 90% meno i margini) e il velo si vedrebbe come una
- * scheda scura invece che come un velo.
- * ⚠️ **Il velo, il corpo e il margine sono gli STESSI di [HintCentre]**, e dalla `1.81` non è
- * più una raccomandazione: il disegno lo fa `CentredHint` per tutti e due, e questa funzione
- * gli passa soltanto la finestra in cui vive.
- * ⚠️ **Un tocco qualunque lo archivia**, come tutti gli altri.
+ * ⚠️⚠️ **Un velo dentro un dialogo coprirebbe il dialogo e non lo schermo**: [HintCentre] si
+ * stende sul `Box` che lo contiene, e dentro una finestra (per esempio l'avviso sul cambio di
+ * estensione, dalla rinomina) sarebbe un riquadro scuro largo come lei. Una finestra propria è
+ * l'unico modo di stare sopra un'altra finestra. Il disegno lo fa [CentredHint]. Un tocco
+ * qualunque lo archivia.
  */
 @Composable
 fun HintNotice(text: String, onDone: () -> Unit) {
     Dialog(
         onDismissRequest = onDone,
         /*
-         * ⚠️⚠️ **[fullWindow] E NON LA SOLA LARGHEZZA, DALLA `1.81`**: fino alla `1.80` il decoro
-         * si adattava alle barre di sistema, quindi il velo si fermava **prima** di loro e
-         * lasciava due bande col fondo della schermata sotto. Un velo che copre tutto lo schermo
-         * è la richiesta dell'utente per questo onboarding, e con la barra di sistema scoperta
-         * non era vera fino in fondo.
-         * ⚠️ **Qui non serve nessun `safeDrawingPadding()`**, che è l'eccezione dichiarata su
-         * [fullWindow]: il testo è al centro e un velo non ha niente da rientrare.
+         * ⚠️ **[fullWindow] e non la sola larghezza**: con un decoro adattato alle barre di
+         * sistema il velo si fermerebbe prima di loro e lascerebbe due bande scoperte. Niente
+         * `safeDrawingPadding()`, l'eccezione dichiarata su [fullWindow]: il testo è al centro.
          */
         properties = fullWindow()
     ) {
-        // ⚠️ Qui `fillMaxSize`, perché la finestra è sua e la deve riempire tutta.
+        // Qui `fillMaxSize`, perché la finestra è sua e la deve riempire tutta.
         CentredHint(text = text, onDone = onDone, modifier = Modifier.fillMaxSize())
     }
 }
@@ -658,70 +557,56 @@ fun HintNotice(text: String, onDone: () -> Unit) {
 /**
  * Il velo del mini onboarding.
  *
- * ⚠️ **Il 70% di nero e non il 50%**: sotto c'è una griglia di fotografie, cioè il fondo più
- * chiassoso che ci sia, e a metà velo le miniature continuano a chiamare l'occhio. Col 70% il
- * bianco del testo misura 8.45 anche sulla fotografia più chiara possibile.
+ * ⚠️ **Il 70% di nero**: sotto c'è una griglia di immagini, il fondo più chiassoso che ci sia, e
+ * a metà velo le miniature continuano a chiamare l'occhio. Col 70% il bianco del testo misura
+ * 8,45 anche sull'immagine più chiara possibile.
  */
 private val HINT_SCRIM = Color(0xB3000000)
 
 /**
- * Quanto la frase centrata sta lontana dai bordi.
- *
- * ⚠️ Serve solo a [HintCentre]: là il testo è in mezzo allo schermo e senza margine, su un
- * telefono stretto, una frase lunga toccherebbe i due bordi. Il velo con il FAB non ne ha
- * bisogno perché il suo margine glielo dà il rientro del FAB.
+ * La distanza della frase dai bordi, nei veli in cui la frase non è appoggiata al FAB: senza, su
+ * un telefono stretto una frase lunga toccherebbe i due bordi. Il velo col FAB ha il margine del
+ * rientro del FAB.
  */
 private val HINT_SIDE = 32.dp
 
 /**
- * L'arancione della copia evidenziata, e **l'unico posto in cui la tavolozza si rompe
- * apposta** (richiesta dell'utente).
- *
- * ⚠️ L'accento dell'app è verde acqua: un velo che evidenzia col colore di casa non evidenzia
- * niente, perché quel colore è già dappertutto. Misurato: 4.35 sul velo steso sulla fotografia
- * più chiara possibile, cioè sopra il 3:1 delle grafiche non testuali nel caso peggiore, e
- * 10.81 nel caso normale.
+ * L'arancione della copia evidenziata (richiesta dell'utente): l'accento dell'app è verde acqua,
+ * già dappertutto, e un velo che evidenzia con quel colore non evidenzia niente. Misurato: 4,35
+ * sul velo steso sull'immagine più chiara possibile, sopra il 3:1 delle grafiche non testuali, e
+ * 10,81 nel caso normale.
  */
 val HINT_MARK = Color(0xFFFFA726)
 
-/** Il glifo sopra l'arancione: misurato 7.29, cioè leggibile senza discussioni. */
+/** Il glifo sopra l'arancione: misurato 7,29. */
 val HINT_INK = Color(0xFF3E2600)
 
 /**
- * Il giallo della copia del tondo sul menu Start aperto del velo, e il suo glifo: i colori del suo
- * mockup (`micro_onboarding.png`, voce `4.33-05`: *riproducilo con un tondo dello stesso giallo che
- * vedi nel mio mockup*), campionati dal file.
- *
- * ⚠️ Fino alla `4.33` la copia era arancione come il pannello, quindi sul pannello non si vedeva
- * come un tasto. Misurato: il glifo sul giallo 7.15; il giallo sull'arancione 1.42, che non è un
- * contrasto da testo ma basta a staccare una forma piena.
+ * Il giallo della copia del tondo sul menu 'Start' aperto del velo, e il suo glifo: i colori del
+ * mockup dell'utente (voce `4.33-05`), campionati dal file. Arancione sul pannello arancione non
+ * si leggerebbe come un tasto. Misurato: il glifo sul giallo 7,15; il giallo sull'arancione 1,42,
+ * che basta a staccare una forma piena.
  */
 val HINT_KEY = Color(0xFFFFDA3C)
 val HINT_KEY_INK = Color(0xFF643A00)
 
-/** Quanto sta lontano il testo dal FAB che indica: abbastanza da non sembrarne parte. */
+/** La distanza fra la frase e la cosa che indica: abbastanza da non sembrarne parte. */
 private val HINT_GAP = 14.dp
 
 /**
- * Quanto è larga al massimo la frase del velo.
- *
- * ⚠️ Un limite serve perché la frase è lunga e le lingue non sono l'italiano: senza, in tedesco
- * diventerebbe una riga sola da bordo a bordo, e in un telefono stretto si spezzerebbe dove
- * capita invece che dove si legge.
+ * La larghezza massima della frase del velo: senza, in tedesco sarebbe una riga sola da bordo a
+ * bordo, e su un telefono stretto andrebbe a capo dove capita.
  */
 private val HINT_WIDTH = 260.dp
 
 /**
- * Da dove comincia a sbiadire la copia di una fila che continua fuori dallo schermo.
- *
- * ⚠️ **Poco più di metà fila, e non dal primo pixel**: la sfumatura deve dire 'di là ce n'è
- * ancora', non nascondere quello che si sta spiegando. Con una rampa che parte dal bordo
- * sinistro, il primo gettone sarebbe già mezzo spento.
+ * Da dove comincia a sbiadire la copia di una fila che continua fuori dallo schermo: poco più di
+ * metà fila, perché la sfumatura dica 'ce n'è ancora' senza spegnere le prime icone.
  */
 private const val HINT_FADE = 0.55f
 
-/** Quanto è grande la freccia che indica il verso dello scorrimento. */
+/** Il lato della freccia che indica il verso dello scorrimento. */
 private val HINT_ARROW = 28.dp
 
-/** Quanto la freccia sta lontana dal bordo dello schermo. */
+/** La distanza della freccia dal bordo dello schermo. */
 private val HINT_ARROW_SIDE = 4.dp

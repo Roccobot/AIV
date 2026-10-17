@@ -8,7 +8,6 @@ import android.view.ViewTreeObserver
 import android.view.WindowManager
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -34,119 +33,68 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
 /**
- * Che cosa vuol dire 'centrato' in AIV, dalla 1.29.
+ * Che cosa vuol dire 'centrato' in AIV: centrato in orizzontale, e centrato ma il 15% più in
+ * basso in verticale (definizione dell'utente; regola in `Rules.md` § '📍 Che cosa vuol dire
+ * centrato'). Il pollice arriva più facilmente sotto la metà dello schermo. Vale per tutto quello
+ * che si apre in mezzo: conferme, pannelli, modali, scheda delle informazioni, menu.
  *
- * ⚠️⚠️ **CENTRATO IN ORIZZONTALE, E CENTRATO MA IL 15% PIÙ IN BASSO IN VERTICALE**
- * (definizione dell'utente, 2026-09-02: *da questo momento in AIV dire 'centrato' (su
- * elementi di UI di questo tipo) significa centrato in orizzontale + centrato, ma un 15% più
- * in basso, in verticale*). Non è un gusto: il pollice arriva più facilmente sotto la metà
- * dello schermo, e un dialogo esattamente al centro fa allungare la mano su un telefono
- * grande. Vale per **tutto** quello che si apre in mezzo: i dialoghi di conferma, i pannelli,
- * i modali, la scheda delle informazioni, i menu.
+ * ⚠️ **La stretta è parte della definizione**: le cose alte si prendono lo spazio che serve, quindi
+ * lo spostamento non supera l'aria che c'è sotto, e su un dialogo alto quanto lo schermo vale zero.
+ * Il 15% si misura sull'altezza della finestra, non sullo spazio libero, dove su un dialogo alto
+ * sparirebbe proprio quando serve di più.
  *
- * ⚠️⚠️ **LA STRETTA È PARTE DELLA DEFINIZIONE, non una prudenza aggiunta**: *le cose
- * particolarmente alte si prendono lo spazio che serve*. Un dialogo alto quasi quanto lo
- * schermo, spinto giù del 15%, ne uscirebbe: qui lo spostamento si riduce da sé fino a
- * sparire, perché quello che scende non può superare l'aria che ha sotto.
+ * ⚠️ **In Compose non c'è un aggancio globale per i dialoghi**: `AlertDialog` centra la sua
+ * superficie nella propria finestra, e nessuna proprietà sposta quel centro. Quindi un
+ * modificatore solo, che ogni dialogo nuovo aggiunge.
  *
- * ⚠️ **Il 15% si misura sull'altezza della FINESTRA, non sullo spazio libero**: sullo spazio
- * libero sarebbe una frazione di una frazione, quindi su un dialogo alto il movimento
- * sparirebbe proprio dove il pollice fatica di più. La stretta interviene dopo, e solo se
- * serve.
- *
- * ⚠️⚠️ **NON ESISTE UN AGGANCIO GLOBALE PER I DIALOGHI IN COMPOSE**, e per questo il numero
- * sta qui e la riga si scrive a ogni chiamata: `AlertDialog` centra la sua superficie dentro
- * la propria finestra, e nessuna proprietà del dialogo sposta quel centro. Quello che si può
- * fare è avere **un** modificatore, che è quello che si è fatto: chi apre un dialogo nuovo lo
- * aggiunge, e il valore non è mai scritto due volte. La regola sta anche in `Rules.md`,
- * perché un modificatore da ricordare senza una regola scritta prima o poi si dimentica.
- *
- * ⚠️⚠️ **UNA FINESTRA IN CUI SI SCRIVE NON È CENTRATA AFFATTO: È IN ALTO, DALLA `1.83`**
- * (riscontro del giro della `1.82`, voce `rinomina-ferma` non approvata, dove la specifica è
- * riscritta in tre righe: *posizionamento ... il più in alto possibile senza toccare la barra
- * delle notifiche o il notch*, e *niente glitch di posizione alla digitazione*; e la nota di
- * `ext-aria`: *fai 70 punti e posiziona le finestre di rinomina, salvataggio con nome, modifica
- * estensione, download, nuova cartella ... sempre in alto appoggiate a quella misura*). Le due
- * versioni prima di lei salivano **solo** a tastiera aperta, e la salita si ricavava dallo
- * spazio che la tastiera lasciava libero: quello spazio cambia mentre si scrive, quindi il
- * pannello ballava. Adesso non dipende più dalla tastiera: è a [TEXT_AIR] dal bordo di sopra
- * della propria finestra finché ci sta, e sale solo quando la tastiera non gli lascia spazio
- * (sua scelta B1, dalla `5.51`: il conto vive su [pinTop]).
- * ⚠️⚠️ **A DIRE QUALI SONO NON SERVE UN PARAMETRO NUOVO: LO DICE GIÀ [onOutside].** Il criterio
- * dell'utente sulle modali è *solo le finestre che devono ASSOLUTAMENTE fornire un input siano
- * modali vere* (giro della `1.69`), quindi 'modale vera' e 'ha un campo di testo' sono la stessa
- * cosa, e l'elenco che lui ha scritto nella nota di `ext-aria` è **esattamente** quello delle
- * finestre che passano `null` di qui. Un secondo parametro sarebbe un secondo modo di
- * dimenticarsene, ed è la trappola che questo file descrive da cinque versioni.
- * ⚠️ **Chi aprisse una modale senza campo di testo la troverebbe in alto**, e allora la domanda
- * da farsi è perché sia una modale: il criterio dice che non lo è.
+ * ⚠️ **Una finestra in cui si scrive è in alto, non centrata** (voci `rinomina-ferma` ed
+ * `ext-aria`): a [TEXT_AIR] dal bordo di sopra della propria finestra finché ci sta, senza seguire
+ * la tastiera, che cambia lo spazio mentre si scrive e farebbe ballare il pannello; sale solo
+ * quando la tastiera non gli lascia spazio (scelta B1 dell'utente: il conto è su [pinTop]).
+ * Quali sono lo dice già [onOutside]: per l'utente sono modali vere solo le finestre che devono
+ * ricevere un input, quindi 'modale vera' e 'ha un campo di testo' coincidono, e sono quelle che
+ * passano `null`. Una modale senza campo di testo finirebbe in alto, e il criterio dice che non
+ * dovrebbe essere modale.
  */
 fun Modifier.lowered(onOutside: (() -> Unit)?): Modifier =
     lowered(onOutside = onOutside, maxWidth = Adaptive.dialogMaxWidth)
 
 /**
- * Come [lowered], con larghezza massima scelta dal chiamante (Ridimensiona a due colonne).
+ * Come [lowered], con la larghezza massima scelta dal chiamante (Ridimensiona a due colonne).
  *
- * ⚠️ **Due firme e non un default sul secondo parametro**: `lowered { ... }` deve restare
- * la forma corta per [onOutside]; un `maxWidth` posizionale dopo avrebbe preso la lambda
- * trailing, e cinque finestre in casa si sarebbero rotte in silenzio.
+ * ⚠️ **Due firme e non un default sul secondo parametro**: `lowered { ... }` deve restare la forma
+ * corta per [onOutside]; con un `maxWidth` dopo, la lambda finale finirebbe al parametro sbagliato,
+ * in silenzio.
  */
 fun Modifier.lowered(
     onOutside: (() -> Unit)?,
     maxWidth: Dp
 ): Modifier {
     /*
-     * ⚠️⚠️ **QUESTO MODIFICATORE FA UNA SECONDA COSA DALLA 1.38, E STA QUI PER UNA RAGIONE
-     * PRECISA**: ogni superficie che si apre sopra la schermata vuole anche il **velo e la
-     * sfocatura** dietro (richiesta dell'utente: *dietro qualsiasi pannello, popup, modale,
-     * menu*), e l'elenco di quelle superfici è **esattamente** l'elenco di chi chiama questa
-     * riga: la nota qui sopra lo dice già da tre versioni, parola per parola.
-     * ⚠️ **L'alternativa era un secondo modificatore da ricordare**, e sarebbe stata la
-     * trappola che questa stessa nota descrive: 'un modificatore da ricordare senza una regola
-     * scritta prima o poi si dimentica'. Averne due raddoppierebbe il modo di dimenticarsene,
-     * e la seconda dimenticanza non si vedrebbe nemmeno, perché un velo che manca non taglia
-     * niente.
-     * ⚠️⚠️ **E DEV'ESSERE UN NODO, NON UN `@Composable`: la prima versione velava la finestra
-     * SBAGLIATA.** Un `@Composable` chiamato da qui verrebbe eseguito dove la riga è
-     * **scritta**, cioè fuori dal dialogo, e leggerebbe la finestra dell'attività: nessun velo
-     * visibile e nessun errore. Un nodo si aggancia dove il modificatore **atterra**, che è
-     * dentro il dialogo. Vedi [Modifier.veiled].
-     * ⚠️⚠️ **E DALLA 1.45 ANCHE LO SPOSTAMENTO È UN NODO, per la stessa ragione rovesciata**:
-     * gli serve la finestra, e solo un nodo sa qual è. Vedi [LowerNode].
-     * ⚠️⚠️ **E DALLA 1.54 FA UNA TERZA COSA: il BORDO D'ACCENTO** (richiesta dell'utente,
-     * 2026-09-04: *via le ombre e vai con il bordino da 2px del colore di accento*). La ragione
-     * per cui sta qui è la stessa delle altre due, e vale la pena rileggerla: l'elenco delle
-     * superfici che vogliono il bordo è **esattamente** quello di chi chiama questa riga, cioè
-     * i dialoghi di Material. Un quarto modificatore da ricordare sarebbe il modo di
-     * dimenticarsene su quello nuovo.
-     * ⚠️ **Il bordo sta DENTRO lo spostamento e non fuori**: `LowerElement` gonfia l'altezza per
-     * far scendere il pannello, quindi un bordo scritto prima di lui girerebbe intorno alla
-     * scatola gonfiata, cioè sull'aria. Scritto dopo, riceve la misura della superficie vera.
-     * ⚠️⚠️ **E DALLA 1.70 FA UNA QUARTA COSA: RENDE IL TOCCO SULL'ARIA UGUALE AL TOCCO FUORI**
-     * (riscontro del giro della 1.69: *alcune finestre hanno un comportamento da modale se si
-     * tocca lo schermo SOPRA e da finestra secondaria se si tocca SOTTO*). Quell'asimmetria
-     * non era una scelta: era il prezzo del gonfiaggio qui sopra, e il perché sta su [Air].
-     * Il parametro non ha un valore di serie **di proposito**: chi apre una finestra nuova
-     * deve dire se è una modale vera, e non può farlo per omissione.
-     * ⚠️⚠️ **E DALLA 1.81 UNA QUINTA: l'OMBRA, quando è lei la scelta invece della sfocatura**
-     * (istruzione dell'utente, 2026-09-07: *facciamo che si può scegliere tra sfocatura e
-     * ombreggiatura (MAI insieme)*). Sta qui per la ragione delle altre, e questa volta la prova
-     * è ancora più netta: le due vie sono **alternative**, quindi l'elenco di chi vuole l'una è
-     * per definizione quello di chi vuole l'altra, che è l'elenco di chi scrive questa riga.
-     * ⚠️ **Sta DENTRO lo spostamento come il bordo**, e per lo stesso motivo: scritta prima di
-     * [LowerElement] l'ombra girerebbe intorno alla scatola gonfiata, cioè intorno all'aria.
-     * ⚠️ **E prima del bordo**, perché il bordo è parte della superficie che si alza: l'ombra
-     * avvolge tutto il pannello, tratto compreso.
+     * ⚠️ **Questo modificatore fa tutto quello che serve a un dialogo**, perché l'elenco delle
+     * superfici che lo vogliono è esattamente quello di chi lo chiama, e un secondo
+     * modificatore da ricordare sarebbe un modo in più di dimenticarsene:
+     * - il velo e la sfocatura dietro (richiesta dell'utente: dietro qualsiasi pannello), o
+     *   l'ombra se è lei la scelta (mai insieme), con [Modifier.veiled] e [DIALOG_LIFT];
+     * - il tocco sull'aria uguale al tocco fuori ([OutsideElement], il perché è su [Air]);
+     * - lo spostamento ([LowerElement]).
+     * ⚠️ **Velo e spostamento sono nodi, non `@Composable`**: un `@Composable` chiamato da qui
+     * girerebbe dove la riga è scritta, fuori dal dialogo, e leggerebbe la finestra
+     * dell'attività, senza errori. Un nodo si aggancia dove il modificatore arriva, dentro il
+     * dialogo.
+     * ⚠️ **L'ombra è dopo lo spostamento**: [LowerElement] gonfia l'altezza per far scendere il
+     * pannello, e prima di lui l'ombra girerebbe intorno all'aria.
+     * [onOutside] non ha un valore di serie: chi apre una finestra nuova deve dire se è una
+     * modale vera.
      */
     val aria = Air()
     /*
-     * ⚠️⚠️ **LARGHEZZA CONTENUTA DALLA `3.35`**, mockup `.dialog-preview` (520 dp di serie):
-     * su tablet una finestra a tutta fascia si legge come una pagina, non come un dialogo.
-     * Il tetto è innocuo sul telefono. Dalla `3.36` [maxWidth] puo salire (es. Ridimensiona
-     * a due colonne usa [Adaptive.dialogBesideMaxWidth]).
+     * La larghezza ha un tetto (mockup `.dialog-preview`, 520 dp di serie): su tablet una
+     * finestra a tutta fascia si legge come una pagina. [maxWidth] può salire (Ridimensiona a
+     * due colonne usa [Adaptive.dialogBesideMaxWidth]).
      */
     return veiled() then OutsideElement(onOutside, aria) then
-        LowerElement(aria, pinTop = onOutside == null) then DIALOG_LIFT then DIALOG_EDGE then
+        LowerElement(aria, pinTop = onOutside == null) then DIALOG_LIFT then
         Modifier.widthIn(max = maxWidth)
 }
 
@@ -154,20 +102,14 @@ fun Modifier.lowered(
  * Le proprietà della finestra che vanno **insieme** a [Modifier.lowered], con lo **stesso**
  * argomento.
  *
- * ⚠️⚠️ **PERCHÉ SERVONO IN DUE POSTI: IL MODIFICATORE GOVERNA L'ARIA DENTRO LA FINESTRA, QUESTE
- * GOVERNANO QUELLO CHE STA FUORI.** Sono due meccanismi diversi e nessuno dei due può fare il
- * lavoro dell'altro: la fascia trasparente sopra il pannello **appartiene** alla finestra, e a
- * chiuderla è un nodo di Compose; lo schermo sotto il pannello è fuori dalla finestra, e a
- * chiuderla è `dismissOnClickOutside`, che il gestore delle finestre legge prima che l'app veda
- * qualcosa.
- * ⚠️⚠️ **DALLA `1.70` ALLA `1.72` LE QUATTRO MODALI NON ERANO MODALI** (riscontro dell'utente,
- * giro della `1.70`, voce `modali-quattro` non approvata): `lowered(null)` **dichiarava**
- * l'intenzione e non la applicava, perché `AlertDialog` senza `properties` prende quelle di
- * serie, dove `dismissOnClickOutside` è acceso. Quindi Rinomina, Estensione, Indirizzo e Nuova
- * cartella si chiudevano toccando **sotto** il pannello, e un nome scritto a metà si perdeva.
- * ⚠️ **Si scrive lo stesso argomento delle due chiamate**, e la regola sta in `Rules.md`: un
- * dialogo nuovo che scrive `lowered(null)` e dimentica questa riga torna a non essere modale, e
- * non dà nessun errore.
+ * ⚠️ **Il modificatore governa l'aria dentro la finestra, queste quello che è fuori**: la fascia
+ * trasparente sopra il pannello appartiene alla finestra, e la chiude un nodo di Compose; lo
+ * schermo sotto il pannello è fuori dalla finestra, e lo chiude `dismissOnClickOutside`, che il
+ * gestore delle finestre legge prima dell'app.
+ * ⚠️ **Senza questa riga `lowered(null)` non è modale, e non dà errori** (voce `modali-quattro`):
+ * `AlertDialog` senza `properties` prende quelle di serie, con `dismissOnClickOutside` acceso,
+ * e un nome scritto a metà si perde toccando sotto il pannello. Regola in `Rules.md` § '👆 Che
+ * cosa fa il tocco FUORI da una finestra'.
  */
 @Composable
 fun loweredWindow(onOutside: (() -> Unit)?) =
@@ -179,42 +121,33 @@ fun loweredWindow(onOutside: (() -> Unit)?) =
 /**
  * Se la finestra è bassa, cioè il telefono in orizzontale.
  *
- * ⚠️⚠️ **DALLA `3.72` UNA FINESTRA BASSA NON USA LA LARGHEZZA DI SERIE DEI DIALOGHI** (voce
- * `3.71-08` non approvata: la conferma 'Vuoi nascondere...' aveva l'ultimo tasto tagliato). In
+ * ⚠️ **Una finestra bassa non usa la larghezza di serie dei dialoghi** (voce `3.71-08`): in
  * orizzontale Android dà al dialogo una finestra larga circa quanto il lato corto dello schermo
- * (misurato sull'allegato: 352 punti su un telefono largo 914), e in 400 punti di altezza il
- * contenuto andava su troppe righe. Senza la larghezza di serie il pannello si allarga fino a
- * [Adaptive.dialogMaxWidth], e il resto lo fa lo spostamento (`lowWindowWidth`).
- * ⚠️ **Altrove la larghezza di serie resta**: in verticale toglierla porterebbe il dialogo a filo
- * dei bordi dello schermo.
+ * (352 punti su un telefono largo 914), e in 400 punti di altezza il contenuto andrebbe su troppe
+ * righe e taglierebbe l'ultimo tasto. Senza, il pannello si allarga fino a
+ * [Adaptive.dialogMaxWidth] (`lowWindowWidth`).
+ * Altrove la larghezza di serie resta: in verticale toglierla porterebbe il dialogo a filo dei
+ * bordi.
  */
 @Composable
-fun lowWindow(): Boolean = LocalConfiguration.current.screenHeightDp < LOW_WINDOW.value
+fun lowWindow(): Boolean = windowHeightDp() < LOW_WINDOW.value
 
 /**
  * Le proprietà di una finestra che copre lo schermo **intero**, barre di sistema comprese.
  *
- * ⚠️⚠️ **NASCE PERCHÉ I TRE `Dialog` SCRITTI IN CASA TRATTAVANO LE BARRE IN TRE MODI DIVERSI, E
- * UNO SOLO DICEVA IL PERCHÉ** (censimento della UI del 2026-09-05). Le due righe vanno insieme e
- * fanno due cose distinte, che è la ragione per cui una funzione sola le tiene:
- * - `usePlatformDefaultWidth = false` toglie la larghezza di un dialogo di Material (il 90%
- *   meno i margini): senza, un elenco da scorrere diventa una fessura e un velo si legge come
- *   una scheda scura invece che come un velo.
- * - `decorFitsSystemWindows = false` è quella che porta la finestra **sotto** le barre. Senza,
- *   il decoro si adatta da sé e **consuma** i rientri, quindi un `safeDrawingPadding()` scritto
- *   dentro lavora su quello che il decoro ha già tolto e aggiunge un margine due volte.
- * ⚠️ **Chi la chiama tiene il contenuto nell'area sicura da sé**, con `safeDrawingPadding()`:
- * questa dice che i rientri li gestisce il contenuto, non che non esistono. L'eccezione è un
- * velo, che deve coprire tutto e non ha niente da rientrare.
- * ⚠️ **È la stessa coppia che `Sheet` passa alla propria finestra**, dove il perché della
- * seconda riga era scritto per esteso e valeva solo là.
+ * Le due righe vanno insieme, ed è la ragione di una funzione sola per tutti i `Dialog` scritti in
+ * casa (e per `Sheet`):
+ * - `usePlatformDefaultWidth = false` toglie la larghezza di un dialogo di Material (il 90% meno i
+ *   margini): senza, un elenco da scorrere diventa una fessura e un velo sembra una scheda scura.
+ * - `decorFitsSystemWindows = false` porta la finestra sotto le barre. Senza, il decoro consuma i
+ *   rientri, e un `safeDrawingPadding()` dentro aggiungerebbe il margine due volte.
+ * Chi la chiama tiene il contenuto nell'area sicura da sé, con `safeDrawingPadding()`, salvo un
+ * velo, che deve coprire tutto.
  *
- * ⚠️⚠️ **E UNA FINESTRA COSÌ NON CHIAMA `WindowVeil()`: È L'ESENZIONE DICHIARATA ALLA REGOLA
- * GENERALE** (*chi apre un `Popup` o un `Dialog` scritto in casa chiama `WindowVeil()` a mano*,
- * `Rules.md`). La ragione è che il velo dice 'mi apro **sopra** qualcosa', e qui non si vede
- * più niente sotto: la superficie copre lo schermo intero ed è opaca, oppure **è** essa stessa
- * un velo. Fino alla `1.80` l'assenza non era scritta da nessuna parte, cioè si leggeva come una
- * dimenticanza invece che come una scelta, ed è la forma di difetto per cui la regola esiste.
+ * ⚠️ **Una finestra così non chiama `WindowVeil()`**, ed è l'esenzione dichiarata alla regola di
+ * `Rules.md` (§ '🌫️ Sfocatura dietro i pannelli e bordo'): il velo dice 'mi apro sopra
+ * qualcosa', e qui sotto non si vede niente, perché la superficie copre lo schermo ed è opaca,
+ * oppure è essa stessa un velo.
  */
 fun fullWindow() =
     DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)
@@ -222,24 +155,15 @@ fun fullWindow() =
 /**
  * Dov'è l'aria, cioè quello che [LowerNode] **misura** e [OutsideNode] **legge**.
  *
- * ⚠️⚠️ **I DUE NODI SONO DUE PERCHÉ UNO SOLO NON RICEVEREBBE MAI UN TOCCO, e il fatto è
- * misurato sul banco di prova** (2026-09-05, la prima cosa che il banco ha trovato). Un
- * `Modifier.Node` che implementa **sia** `LayoutModifierNode` **sia** `PointerInputModifierNode`
- * non riceve nessun evento: nella stessa catena, un nodo che implementa il solo
- * `PointerInputModifierNode` prende il tocco e quello che implementa tutti e due non lo prende,
- * a parità di tutto il resto. La ragione è la hit-test, che per i tocchi scorre i nodi fino al
- * primo nodo di **layout** e si ferma là: un nodo che è anche di layout **è** quel confine, e
- * resta fuori dalla propria passata.
- * ⚠️⚠️ **QUINDI DALLA `1.70` ALLA `1.72` IL TOCCO SULL'ARIA NON HA MAI FATTO NIENTE**, e non
- * dava nessun errore: il codice era giusto, compilava, e la funzione non c'era. È lo stesso
- * genere di difetto del blocco della `1.70`, e per lo stesso motivo nessun controllo sul testo
- * del programma poteva vederlo.
- * ⚠️ **L'ordine dei due nel `then` non è indifferente**: chi ascolta i tocchi va **prima** del
- * nodo di misura, perché così il suo riquadro è la scatola gonfiata, cioè quella che comprende
- * l'aria. Scritto dopo, riceverebbe il riquadro del pannello e l'aria gli starebbe fuori.
- * ⚠️ **E l'oggetto è UNO SOLO condiviso**: nasce a ogni chiamata di [Modifier.lowered], ma i due
- * `update` non lo riassegnano mai, quindi i nodi tengono per sempre quello della prima
- * composizione, che è lo stesso per tutti e due.
+ * ⚠️ **I nodi sono due perché uno solo non riceverebbe mai un tocco** (misurato sul banco): un
+ * `Modifier.Node` che implementa sia `LayoutModifierNode` sia `PointerInputModifierNode` non
+ * riceve eventi, perché la hit-test scorre i nodi fino al primo nodo di layout e si ferma là, e
+ * un nodo che è anche di layout è quel confine. Compila, e la funzione non c'è.
+ * ⚠️ **Chi ascolta i tocchi va prima del nodo di misura** nel `then`: così il suo riquadro è la
+ * scatola gonfiata, aria compresa. Dopo, l'aria gli resterebbe fuori.
+ * ⚠️ **L'oggetto è uno solo, condiviso**: nasce a ogni chiamata di [Modifier.lowered], ma i due
+ * `update` non lo riassegnano, quindi i nodi tengono quello della prima composizione, lo stesso
+ * per tutti e due.
  */
 private class Air {
     /** L'aria dichiarata **sopra** il pannello, in pixel. */
@@ -252,9 +176,8 @@ private class Air {
 /**
  * Il tocco sull'aria vale come il tocco fuori.
  *
- * ⚠️ **Servono tutti e due gli estremi, la pressione e il rilascio**: un dito che parte dal
- * pannello e finisce sull'aria sta trascinando, non toccando fuori, e chiudere là sarebbe
- * peggio dell'asimmetria che questo nodo toglie.
+ * Servono pressione e rilascio fuori tutti e due: un dito che parte dal pannello e finisce
+ * sull'aria sta trascinando.
  */
 private class OutsideNode(
     var onOutside: (() -> Unit)?,
@@ -264,11 +187,10 @@ private class OutsideNode(
     private var pressedOutside = false
 
     /**
-     * ⚠️ **Si consuma il rilascio**, o il tocco arriverebbe anche a quello che sta sotto: è lo
-     * stesso motivo per cui il velo che chiude i menu consuma quello che prende.
-     * ⚠️ **`Main` e non `Initial`**: sull'aria non c'è nient'altro che possa volere quel tocco,
-     * quindi non serve rubarlo prima; prenderlo nella passata normale lascia intatto il
-     * comportamento di tutto quello che sta dentro il pannello.
+     * Si consuma il rilascio, o il tocco arriverebbe anche a quello che c'è sotto, come per il
+     * velo che chiude i menu.
+     * La passata `Main`: sull'aria nient'altro vuole quel tocco, e la passata normale lascia
+     * intatto quello che c'è dentro il pannello.
      */
     override fun onPointerEvent(pointerEvent: PointerEvent, pass: PointerEventPass, bounds: IntSize) {
         if (pass != PointerEventPass.Main) return
@@ -300,7 +222,7 @@ private class OutsideElement(
 ) : ModifierNodeElement<OutsideNode>() {
     override fun create() = OutsideNode(onOutside, aria)
 
-    /** ⚠️ [Air] non si riassegna: il perché sta sulla sua dichiarazione. */
+    /** [Air] non si riassegna: il perché è sulla sua dichiarazione. */
     override fun update(node: OutsideNode) {
         node.onOutside = onOutside
     }
@@ -316,22 +238,11 @@ private class OutsideElement(
 }
 
 /**
- * Il bordo dei dialoghi, con la forma che Material dà loro.
+ * L'ombra dei dialoghi, con la forma che Material dà loro.
  *
- * ⚠️ **Il raggio arriva da [PANEL_ROUND]** e non è scritto qui: un nodo non legge il tema di
- * Material, quindi la forma di un `AlertDialog` va dichiarata a mano, e la costante condivisa è
- * il posto in cui dichiararla una volta. Chi un giorno desse ai dialoghi una forma propria
- * cambia quella, o il bordo taglia gli angoli in un altro punto.
- */
-private val DIALOG_EDGE = Modifier.edged(PANEL_ROUND)
-
-/**
- * L'ombra dei dialoghi, con la stessa forma del bordo.
- *
- * ⚠️ **Lo stesso raggio di [DIALOG_EDGE] e per la stessa ragione**: un nodo non legge il tema di
- * Material, quindi la forma di un `AlertDialog` si dichiara a mano. ⚠️ E qui il raggio deve
- * combaciare con quello del bordo **senza** la correzione del rientro: l'ombra nasce dal
- * contorno della superficie, non da una linea che le corre dentro.
+ * ⚠️ **Il raggio è [PANEL_ROUND]**: un nodo non legge il tema di Material, quindi la forma di un
+ * `AlertDialog` si dichiara a mano, una volta. Chi desse ai dialoghi una forma propria cambia
+ * quella, o l'ombra gira intorno a un contorno diverso dal pannello.
  */
 private val DIALOG_LIFT = Modifier.lifted(PANEL_ROUND)
 
@@ -342,12 +253,8 @@ private class LowerElement(
     override fun create() = LowerNode(aria, pinTop)
 
     /**
-     * ⚠️ **[Air] non si riassegna**: la misura dipende dalla finestra e dalla tastiera, che si
-     * leggono quando si misura, e l'oggetto condiviso dev'essere quello della prima composizione.
-     * Il perché sta su [Air].
-     * ⚠️ **L'ancoraggio invece si aggiorna**, perché una finestra può nascere modale e non
-     * esserlo più: senza questa riga il nodo terrebbe per sempre la scelta della prima
-     * composizione, che è la stessa trappola dell'oggetto condiviso vista al rovescio.
+     * [Air] non si riassegna (il perché è su [Air]); l'ancoraggio invece si aggiorna, perché una
+     * finestra può nascere modale e non esserlo più.
      */
     override fun update(node: LowerNode) {
         node.pinTop = pinTop
@@ -366,32 +273,16 @@ private class LowerElement(
 /**
  * Lo spostamento in basso, misurato sulla **finestra vera**.
  *
- * ⚠️⚠️ **FINO ALLA 1.44 IL 15% SI CALCOLAVA SU `constraints.maxHeight`, ED È LA CAUSA DEL
- * SALTO** (segnalazione dell'utente, 2026-09-03, sul tocco di 'Rinomina' dal menu a pressione
- * lunga: *appare per una frazione di secondo più in alto, poi si sistema in basso con un
- * lampo/jitter*). Quel vincolo **non è** l'altezza della finestra: è lo spazio che il
- * genitore concede a quella passata di misurazione, e la finestra di un dialogo viene
- * misurata più di una volta (`DialogLayout.internalOnMeasure` ricalcola il tetto, e con la
- * modalità `UNSPECIFIED` lo passa perfino come infinito). Cambiando fra una passata e l'altra,
- * cambia lo spostamento: un fotogramma nel posto sbagliato, e quello è il lampo.
- * ⚠️⚠️ **E SPIEGA L'ALTRA METÀ DELLA SEGNALAZIONE** (*ho l'impressione che il menu e le
- * finestre che apre abbiano criteri di posizionamento diversi*): era vero alla lettera. I menu
- * passano da `MenuSpot`, che è un `PopupPositionProvider` e riceve `windowSize`, cioè la
- * finestra, **prima** che si disegni il primo fotogramma; i dialoghi passavano da un
- * modificatore di layout, che vede solo il vincolo della passata in corso. Due meccanismi che
- * misuravano due cose diverse, e uno dei due poteva sbagliare il primo fotogramma.
- * ⚠️⚠️ **MA 'ADESSO MISURANO LA STESSA COSA' NON ERA VERO, e questa riga lo diceva dalla
- * `1.45`**: quello che la `1.45` ha tolto è il **vincolo**, non la differenza. I menu contano
- * su `windowSize`, cioè la finestra che il `Popup` riceve, e limitano la **posizione finale**;
- * qui si conta su `currentWindowMetrics` meno i rientri di **questa** finestra, e si limita lo
- * **spostamento**. Sono due formule su due grandezze diverse, quindi su una superficie alta
- * possono dare due posti diversi, e la differenza è statica: si misura con uno screenshot solo,
- * aprendo un menu e la finestra che apre. ⚠️ **Non è stata unificata nella `1.47`**, perché
- * cambiare la formula muove ogni finestra centrata dell'app, comprese quelle che l'utente ha
- * già approvato: prima si guarda se lo scarto si vede.
- * ⚠️ **Il vincolo non si legge più affatto**, nemmeno per la stretta: la stretta ha bisogno di
- * quanta aria c'è sotto, e quell'aria è (finestra - contenuto), non (vincolo - contenuto). Con
- * la finestra, il conto è lo stesso a ogni passata.
+ * ⚠️ **Il 15% non si calcola su `constraints.maxHeight`**: quel vincolo è lo spazio che il
+ * genitore concede alla passata, e la finestra di un dialogo si misura più di una volta
+ * (`DialogLayout.internalOnMeasure` ricalcola il tetto, e con `UNSPECIFIED` lo passa come
+ * infinito). Lo spostamento cambierebbe fra una passata e l'altra, con un fotogramma nel posto
+ * sbagliato. Nemmeno la stretta legge il vincolo: l'aria sotto è finestra meno contenuto.
+ * ⚠️ **Menu e dialoghi usano due formule diverse**: i menu (`MenuSpot`) contano su `windowSize`
+ * del `Popup` e limitano la posizione finale; qui si conta su `currentWindowMetrics` meno i
+ * rientri, e si limita lo spostamento. Su una superficie alta possono dare due posti diversi.
+ * Non sono unificate: cambiare la formula muoverebbe ogni finestra centrata, comprese quelle
+ * già approvate dall'utente, quindi prima si guarda se lo scarto si vede.
  */
 private class LowerNode(
     private val aria: Air,
@@ -399,55 +290,38 @@ private class LowerNode(
 ) : Modifier.Node(), LayoutModifierNode, CompositionLocalConsumerModifierNode {
 
     /**
-     * L'aria dichiarata **sopra** il pannello, in pixel, e la quota da cui comincia quella
-     * **sotto**. Vivono in [Air] perché a leggerle è un **altro** nodo, [OutsideNode]: il perché
-     * sta là.
+     * Misura il pannello e scrive in [Air] l'aria sopra e la quota da cui comincia quella sotto,
+     * che legge [OutsideNode].
      *
-     * ⚠️⚠️ **QUESTA ARIA È LA CAUSA DELL'ASIMMETRIA CHE L'UTENTE HA SEGNALATO NELLA `1.69`**, e
-     * il meccanismo va scritto o si rifà: per far scendere il pannello, [measure] non lo sposta,
-     * **gonfia la scatola** di `2*shift` e ce lo posa in fondo. La finestra del dialogo si
-     * dimensiona su quella scatola, quindi sopra il pannello resta una fascia trasparente alta
-     * fino al 30% della finestra che **appartiene al dialogo**: un tocco là dentro è un tocco
-     * *dentro* la finestra, e `dismissOnClickOutside` non scatta. Sotto il pannello si è fuori
-     * dalla scatola, e la chiusura scatta. Da qui 'modale se tocchi sopra, secondaria se tocchi
-     * sotto', su ogni finestra centrata dell'app.
-     * ⚠️ **In una finestra ancorata in alto l'aria è da tutti e due i lati**: dalla `5.51` la
-     * scatola è alta quanto la finestra e il pannello è posato dentro (vedi [pinned]), quindi
-     * l'aria è sopra fino a `Air.top` e sotto da `Air.from`.
-     * ⚠️ **Zero e [Int.MAX_VALUE] vogliono dire 'nessuna aria da quel lato'**, ed è il caso
-     * normale di una finestra alta, dove la stretta ha già ridotto lo spostamento a zero.
+     * ⚠️ **Per far scendere il pannello la scatola si gonfia** di `2*shift`, col pannello posato
+     * in fondo. La finestra del dialogo si dimensiona sulla scatola, quindi sopra il pannello
+     * resta una fascia trasparente, fino al 30% della finestra, che appartiene al dialogo: un
+     * tocco lì è dentro la finestra, e `dismissOnClickOutside` non scatta. Per questo c'è
+     * [OutsideNode] (riscontro del giro della 1.69: modale sopra, secondaria sotto).
+     * In una finestra ancorata in alto l'aria è da tutti e due i lati: la scatola è alta quanto la
+     * finestra ([pinned]), aria sopra fino a `Air.top` e sotto da `Air.from`.
+     * Zero e [Int.MAX_VALUE] vogliono dire 'nessuna aria da quel lato'.
      */
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
         /*
-         * ⚠️⚠️ **UNA LETTURA SOLA DEI RIENTRI PER PASSATA, e fino alla `1.80` erano due**
-         * (censimento della UI del 2026-09-05): le due funzioni chiedevano due cose diverse
-         * allo stesso oggetto (i rientri sommati l'una, la visibilità della tastiera l'altra),
-         * e ognuna se lo andava a prendere da sé. Adesso lo prende chi misura e lo passa.
-         * ⚠️ **Va letto QUI e non alla costruzione del nodo**: la finestra e la tastiera
-         * cambiano fra una misurazione e l'altra, e un valore ricordato darebbe la stretta di
-         * ieri.
+         * Una lettura sola dei rientri per passata, qui e non alla costruzione del nodo: finestra
+         * e tastiera cambiano fra una misura e l'altra.
          */
         val insets = ViewCompat.getRootWindowInsets(currentValueOf(LocalView))
         val window = windowHeight(insets, hostInsets())
         val air = LOWER_AIR.roundToPx()
         if (pinTop) return pinned(measurable, constraints, window, air)
         /*
-         * ⚠️⚠️ **IL TETTO NASCE NELLA `1.62`, E TOGLIE UN TAGLIO CHE NESSUNA STRETTA POTEVA
-         * TOGLIERE** (riscontro del giro della `1.60`, con schermata: *in presenza di un nome
-         * molto lungo (ma valido) la finestra è tagliata brutalmente*). La stretta qui sotto
-         * riduce lo **spostamento** fino a zero, ma un dialogo più alto della finestra resta più
-         * alto della finestra anche fermo al centro: quello che mancava non era un movimento in
-         * meno, era un limite.
-         * ⚠️ **Con il tetto il contenuto scorre invece di sparire**: `AlertDialogContent` dà al
-         * proprio testo un peso che non riempie, quindi appena la superficie ha un massimo il
-         * testo si stringe e lo scorrimento che ha già dentro entra in funzione.
-         * ⚠️ **Si lascia [LOWER_AIR] per lato**, la stessa aria della stretta: un pannello che
-         * arriva a filo dei bordi si legge come tagliato anche quando è intero.
-         * ⚠️ **Zero vuol dire 'non lo so ancora'** (vedi [windowHeight]), e allora non si limita
-         * niente: meglio la misura di prima che un tetto costruito su una finestra inventata.
+         * ⚠️ **Il tetto**: la stretta riduce lo spostamento fino a zero, ma un dialogo più alto
+         * della finestra resta tagliato anche fermo al centro (riscontro del giro della 1.60).
+         * Col tetto il contenuto scorre: `AlertDialogContent` dà al testo un peso che non
+         * riempie, quindi con un massimo il testo si stringe e il suo scorrimento entra in
+         * funzione.
+         * Si lascia [LOWER_AIR] per lato: un pannello a filo dei bordi sembra tagliato.
+         * Zero vuol dire 'non lo so ancora' ([windowHeight]), e allora non si limita niente.
          */
         val roof = window - air * 2
         val placed = measurable.measure(
@@ -462,22 +336,14 @@ private class LowerNode(
         val wanted = (window * LOWER_BY).toInt()
         val shift = minOf(wanted, room)
         /*
-         * ⚠️⚠️ **LO SPOSTAMENTO STA DENTRO L'ALTEZZA RIPORTATA, e fino alla 1.33 NON c'era: è
-         * il difetto che TAGLIAVA I DIALOGHI ALTI.** La nota di prima diceva l'opposto (misura
-         * vera e movimento nel solo `place`, *così il genitore continua a centrare*), e la
-         * ragione sembrava buona: un genitore che centra la scatola gonfia annulla metà del
-         * movimento. Il guaio è che un figlio posato **fuori** dalla scatola dichiarata viene
-         * **ritagliato**, e la finestra di un dialogo si dimensiona proprio su quella scatola:
-         * il pannello scendeva del 15% e perdeva gli ultimi pixel, cioè la fila dei tasti.
-         * Segnalato dall'utente con tre schermate (2026-09-02, voce `centro-15`): il dialogo
-         * 'Info' senza la sua riga di comandi, e la rinomina tagliata a metà dei tasti.
-         * ⚠️ **Il RADDOPPIO è quel conto, non una compensazione a occhio**: la finestra si
-         * dimensiona sull'altezza dichiarata e la centra, quindi una scatola più alta di
-         * `2*shift` sposta il contenuto vero di `shift`, che è la misura voluta. Chi togliesse
-         * il `2` dimezzerebbe il movimento senza accorgersene, perché il difetto non si vede.
-         * ⚠️ **E la stretta resta la stessa di prima**: `shift` non supera l'aria che c'è sotto
-         * meno [LOWER_AIR], quindi su un dialogo alto quanto la finestra vale zero e la scatola
-         * non si gonfia affatto.
+         * ⚠️ **Lo spostamento è dentro l'altezza dichiarata**: un figlio posato fuori dalla
+         * scatola dichiarata è ritagliato, e la finestra del dialogo si dimensiona su quella
+         * scatola, quindi il pannello perderebbe la fila dei tasti (voce `centro-15`).
+         * ⚠️ **Il `2` è il conto**: la finestra centra la scatola, quindi una scatola più alta di
+         * `2*shift` sposta il contenuto di `shift`. Senza, il movimento si dimezza senza che
+         * niente lo mostri.
+         * `shift` non supera l'aria sotto meno [LOWER_AIR]: su un dialogo alto quanto la finestra
+         * vale zero.
          */
         aria.top = shift * 2
         aria.from = Int.MAX_VALUE
@@ -487,19 +353,13 @@ private class LowerNode(
     /**
      * In una finestra bassa il pannello si allarga, perché il testo vada su meno righe.
      *
-     * ⚠️⚠️ **DALLA `3.72`** (voce `3.71-08` non approvata, con l'allegato `pop`: sul telefono in
-     * orizzontale la conferma 'Vuoi nascondere...' lasciava l'aria sotto di sé, ma il tasto
-     * 'Applica a tutte le cartelle allo stesso livello' era tagliato a metà). Il dialogo di
-     * Material si stringe sul suo contenuto, cioè sui 280 punti del minimo, e in un'altezza di
-     * circa 400 punti un titolo su due righe e un testo su quattro non entravano: il tetto
-     * accorciava il pannello e lo spazio del testo, che in un `AlertDialog` non scorre, tagliava
-     * l'ultima riga. Largo [Adaptive.dialogMaxWidth] lo stesso contenuto entra.
-     * ⚠️⚠️ **Da solo non basta, e serve [loweredWindow]**: la finestra di un dialogo con la
-     * larghezza di serie di Android, in orizzontale, è larga circa quanto il lato corto dello
-     * schermo, quindi il minimo nuovo non supererebbe quel massimo.
-     * ⚠️ **Solo sotto [LOW_WINDOW] di altezza**, cioè sul telefono in orizzontale: altrove un
-     * dialogo stretto è quello che Material disegna, e nessuno l'ha segnalato.
-     * ⚠️ **Mai oltre la larghezza concessa**: il minimo nuovo non supera il massimo che arriva.
+     * Voce `3.71-08`: il dialogo di Material si stringe sul contenuto, fino ai 280 punti del
+     * minimo, e in circa 400 punti di altezza un titolo su due righe e un testo su quattro non
+     * entrano, e l'ultimo tasto risulta tagliato. Largo [Adaptive.dialogMaxWidth] lo stesso
+     * contenuto entra.
+     * ⚠️ **Da solo non basta, serve [loweredWindow]**: con la larghezza di serie, in orizzontale
+     * la finestra è larga circa quanto il lato corto dello schermo.
+     * Solo sotto [LOW_WINDOW] di altezza, e mai oltre la larghezza concessa.
      */
     private fun MeasureScope.lowWindowWidth(constraints: Constraints, window: Int): Constraints {
         if (window <= 0 || window >= LOW_WINDOW.roundToPx() || !constraints.hasBoundedWidth) return constraints
@@ -510,30 +370,19 @@ private class LowerNode(
     /**
      * Una finestra in cui si scrive: ancorata in alto, e ferma finché la tastiera le lascia spazio.
      *
-     * ⚠️⚠️ **IL BORDO DI SOPRA NON SEGUE LA TASTIERA, ED È LA CORREZIONE DELLA `1.83`** (riscontro
-     * del giro della `1.82`, voce `rinomina-ferma`: *secondo terzo carattere inserito o cancellato
-     * la finestra si sposta da troppo in basso a molto in alto, e poi ogni 3/4 caratteri c'è un
-     * flash della stessa finestra in posizione molto più ribassata*). Fino alla `1.82` la salita si
-     * ricavava dallo spazio libero **sopra la tastiera**, che cambia mentre si scrive (la barra dei
-     * suggerimenti, l'animazione dell'IME). Qui, finché il pannello ci sta, il suo bordo di sopra
-     * vale [TEXT_AIR] qualunque sia la tastiera: a cambiare è solo il tetto, cioè il bordo di sotto.
-     * ⚠️⚠️ **DALLA `5.51` LA SCATOLA È ALTA QUANTO LA FINESTRA, E IL PANNELLO LO POSA QUESTO CONTO**
-     * (nota del giro della `5.50`, con due schermate: *la finestra Rinomina appare incompleta anche
-     * starebbe comodamente nello spazio a disposizione*, aprendola dal visualizzatore). Fino alla
-     * `5.50` la scatola era alta `pannello + 2*salita` e si contava sul fatto che Android la
-     * centrasse, ma queste finestre non hanno una modalità per la tastiera (`DialogWrapper` le lascia
-     * a zero quando il decoro segue le barre), quindi a tastiera aperta Android non le ridimensiona:
-     * le sposta finché il bordo di sopra coincide con quello visibile. Misurato sulle sue schermate a
-     * 3,33 pixel per dp: nel visualizzatore il pannello saliva di 70dp fino al bordo dello schermo, e
-     * il tetto toglieva lo stesso i 70 punti, che finivano sotto di lui (342dp di pannello in 428dp
-     * visibili, con 418dp di contenuto).
-     * ⚠️ **Una scatola grande quanto la finestra non ha niente da spostare**: il suo bordo di sopra è
-     * già quello visibile, e il pannello sta dove lo mette `place`.
-     * ⚠️⚠️ **QUANDO LO SPAZIO NON BASTA CEDONO L'ARIA SOPRA E IL MARGINE SOTTO I TASTI, ED È LA SUA
-     * SCELTA B1** (2026-10-11): il conto vive su [pinTop] e su [pinRoof], e solo oltre quei due
-     * scorre il contenuto.
-     * ⚠️ **Il ripiego, senza una finestra ancora disposta, è il conto sullo schermo** ([window]): il
-     * nodo si rimisura appena la finestra c'è, perché [watch] vede lo spazio cambiare.
+     * ⚠️ **Il bordo di sopra non segue la tastiera** (voce `rinomina-ferma`): lo spazio sopra la
+     * tastiera cambia mentre si scrive (barra dei suggerimenti, animazione dell'IME), e il
+     * pannello ballerebbe. Finché ci sta, il bordo di sopra vale [TEXT_AIR]; cambia solo il tetto.
+     * ⚠️ **La scatola è alta quanto la finestra, e il pannello lo posa questo conto**: queste
+     * finestre non hanno una modalità per la tastiera (`DialogWrapper` la lascia a zero quando il
+     * decoro segue le barre), quindi a tastiera aperta Android non le ridimensiona, le sposta
+     * finché il bordo di sopra coincide con quello visibile. Una scatola centrata da Android
+     * perderebbe così l'aria sopra e anche il tetto (nota del giro della 5.50). Una scatola
+     * grande quanto la finestra non ha niente da spostare.
+     * Quando lo spazio non basta cedono l'aria sopra e il margine sotto i tasti (scelta B1
+     * dell'utente: [pinTop] e [pinRoof]); solo oltre scorre il contenuto.
+     * Senza una finestra ancora disposta il ripiego è il conto sullo schermo ([window]): il nodo
+     * si rimisura appena la finestra c'è, perché [watch] vede lo spazio cambiare.
      */
     private fun MeasureScope.pinned(
         measurable: Measurable,
@@ -559,7 +408,7 @@ private class LowerNode(
         aria.from = top + placed.height
         return layout(placed.width, box) {
             // ⚠️ Invisibile, e non assente, mentre aspetta una tastiera di cui non sa l'altezza:
-            // il campo deve esistere per prendere il fuoco, che è quello che la fa comparire.
+            // il campo deve esistere per prendere il fuoco, che fa comparire la tastiera.
             if (span.hidden) placed.placeWithLayer(0, top) { alpha = 0f } else placed.place(0, top)
         }
     }
@@ -568,19 +417,15 @@ private class LowerNode(
      * Dove comincia e dove finisce, rispetto a questo contenuto, lo spazio che barre e tastiera
      * lasciano libero nella finestra.
      *
-     * ⚠️⚠️ **SI MISURA DENTRO LA FINESTRA E NON SULLO SCHERMO, DALLA `5.51`**: i rientri di una
-     * finestra dicono quanto barre e tastiera la **coprono**, quindi valgono per intero solo se la
-     * finestra arriva fin là. Con la scatola alta quanto la finestra ci arriva, e la tastiera vale
-     * esattamente lo spazio che toglie. Il conto sullo schermo ([windowHeight]) resta per le
-     * superfici centrate e per il primo passaggio, quando la finestra non è ancora disposta.
-     * ⚠️ **Nullo vuol dire 'non lo so ancora'**: una finestra alta zero non ha niente da dire.
-     * ⚠️⚠️ **E PER UN ATTIMO CONTA UNA TASTIERA CHE NON C'È ANCORA, DALLA `5.60`** (sua nota prima
-     * del giro della `5.51`: *all'apparizione c'è un salto velocissimo (e fastidioso)*, sempre,
-     * dalla griglia e dal visualizzatore, nelle due varianti). Queste finestre danno il fuoco al
-     * campo appena si aprono, quindi la tastiera arriva sempre, ma un attimo dopo: il primo
-     * fotogramma si misurava senza di lei, il pannello si posava a [TEXT_AIR], e con poco spazio
-     * saliva quando lei arrivava. Per [WAIT_MS] dall'aggancio, finché la tastiera non c'è, conta
-     * quella ricordata ([Keyboard]); il conto vive su [keyboardBottom].
+     * Si misura dentro la finestra: i rientri dicono quanto barre e tastiera la coprono, e
+     * valgono per intero perché la scatola è alta quanto la finestra. Il conto sullo schermo
+     * ([windowHeight]) resta per le superfici centrate e per il primo passaggio.
+     * `null` vuol dire 'non lo so ancora'.
+     * ⚠️ **Per un attimo conta una tastiera che non c'è ancora** (nota dell'utente sul salto
+     * all'apertura): queste finestre danno il fuoco al campo appena si aprono, quindi la
+     * tastiera arriva sempre, ma un attimo dopo, e il pannello salirebbe al suo arrivo. Per
+     * [WAIT_MS] dall'aggancio, finché la tastiera non c'è, conta quella ricordata ([Keyboard]);
+     * il conto è su [keyboardBottom].
      */
     private fun visible(): Span? {
         val view = attached ?: return null
@@ -617,13 +462,11 @@ private class LowerNode(
     /**
      * Rimisura la finestra quando lo spazio visibile cambia.
      *
-     * ⚠️⚠️ **SERVE PERCHÉ LA TASTIERA NON CAMBIA IL VINCOLO**: la finestra non viene ridimensionata
-     * (vedi [pinned]), quindi Compose non ha nessuna ragione di rimisurare, e fino alla `5.50` dalla
-     * griglia il conto non vedeva mai la tastiera: il pannello intero le finiva dietro per 26dp,
-     * misurati sulla sua schermata del giro della `5.50`. Un cambio di rientri passa sempre da un
-     * giro di disegno della finestra, ed è là che questo lo guarda.
-     * ⚠️ **Il confronto ferma il giro**: la misura nuova riscrive [seen], quindi il disegno dopo
-     * trova lo stesso spazio e non rimisura più.
+     * ⚠️ **Serve perché la tastiera non cambia il vincolo**: la finestra non è ridimensionata
+     * ([pinned]), quindi Compose non rimisura, e il conto non vedrebbe la tastiera, che coprirebbe
+     * il pannello. Un cambio di rientri passa sempre da un giro di disegno, ed è lì che questo lo
+     * guarda.
+     * Il confronto ferma il giro: la misura nuova riscrive [seen], e il disegno dopo non rimisura.
      */
     private val watch = ViewTreeObserver.OnPreDrawListener {
         if (pinTop && visible() != seen) invalidateMeasurement()
@@ -648,31 +491,18 @@ private class LowerNode(
     /**
      * L'altezza della finestra **dentro le barre di sistema**, in pixel.
      *
-     * ⚠️⚠️ **SI TOLGONO LE BARRE, e non è pignoleria**: il contenuto di un dialogo è misurato
-     * dentro i rientri di sistema, quindi un'altezza che le comprendesse farebbe credere che
-     * sotto ci sia un centinaio di pixel d'aria in più di quelli veri, e su un dialogo alto la
-     * stretta lo lascerebbe scendere sotto la barra di navigazione. È esattamente il difetto
-     * che la `1.33` ha tolto, e non va rimesso da un'altra porta.
-     * ⚠️ **`currentWindowMetrics` da Android 11 e `displayMetrics` sotto**, non uno solo dei
-     * due: il primo dà la **finestra**, quindi è giusto anche a schermo diviso e sui
-     * pieghevoli; il secondo dà il **display**, che è la sola cosa disponibile su Android 9 e
-     * 10 (il `minSdk` è 28) e coincide con la finestra quando l'app è sola a schermo.
-     * ⚠️⚠️ **E DALLA `1.60` SI TOGLIE ANCHE LA TASTIERA** (riscontro dell'utente, giro della
-     * `1.59`: *la finestra di rinomina dev'essere 'pronta' a scorrere più in alto quando
-     * appaiono tastiere alte*). Fino alla `1.59` il 15% si calcolava sull'altezza intera anche
-     * a tastiera aperta, e l'aria che la stretta contava era aria che la tastiera aveva già
-     * preso: il pannello scendeva **dentro** di lei. ⚠️ **Non serviva una regola nuova**: la
-     * definizione di 'centrato' dice già che *le cose particolarmente alte si prendono lo
-     * spazio che serve*, e una tastiera alta rende alto qualunque dialogo. Bastava che la
-     * misura dicesse la verità.
-     * ⚠️ **Vale per ogni superficie centrata dell'app e non per la sola rinomina**, ed è il
-     * motivo per cui la correzione sta qui: è l'unico posto in cui quella misura si prende.
-     * ⚠️ **Lo spostamento può solo ridursi**, mai diventare negativo, quindi nel caso in cui il
-     * sistema alzasse già la finestra da sé il peggio che capita è un dialogo centrato senza il
-     * 15%, che a tastiera aperta è il posto giusto.
-     * ⚠️ **Zero vuol dire 'non lo so ancora'**, e allora non si sposta niente: succede se
-     * questo nodo misura prima che la vista sia agganciata, e uno spostamento calcolato su zero
-     * sarebbe zero comunque.
+     * ⚠️ **Si tolgono le barre**: il contenuto di un dialogo è misurato dentro i rientri di
+     * sistema, e un'altezza che le comprendesse farebbe scendere un dialogo alto sotto la barra di
+     * navigazione.
+     * `currentWindowMetrics` da Android 11, perché dà la finestra (giusto anche a schermo diviso
+     * e sui pieghevoli); sotto `displayMetrics`, il display, la sola cosa disponibile su Android 9
+     * e 10, che coincide con la finestra quando l'app è sola a schermo.
+     * ⚠️ **Si toglie anche la tastiera**: l'aria che la stretta conta non deve essere quella che
+     * la tastiera ha già preso, o il pannello scende dentro di lei. Vale per ogni superficie
+     * centrata, ed è il solo posto in cui la misura si prende. Lo spostamento può solo ridursi: se
+     * il sistema alza già la finestra, il peggio è un dialogo centrato senza il 15%.
+     * Zero vuol dire 'non lo so ancora' (il nodo misura prima che la vista sia agganciata), e
+     * allora non si sposta niente.
      */
     private fun windowHeight(insets: WindowInsetsCompat?, host: WindowInsetsCompat?): Int {
         val view = currentValueOf(LocalView)
@@ -690,12 +520,10 @@ private class LowerNode(
     /**
      * I rientri della finestra dell'attività sotto il dialogo.
      *
-     * ⚠️⚠️ **SERVONO DALLA `3.71`** (allegato `popup_phoneH` del giro della `3.70`: sul telefono in
-     * orizzontale la conferma 'Vuoi nascondere...' arrivava a filo del fondo, sopra la barra dei
-     * gesti). La finestra di un dialogo è disposta **dentro** le barre di sistema, quindi i suoi
-     * rientri non le contano, mentre [windowHeight] parte dall'altezza dello schermo intero: il
-     * conto credeva che sotto ci fosse l'aria delle barre, e la stretta lasciava scendere il
-     * pannello fin là. Le barre le conosce l'attività.
+     * ⚠️ **Servono perché la finestra di un dialogo è disposta dentro le barre di sistema**, quindi
+     * i suoi rientri non le contano, mentre [windowHeight] parte dallo schermo intero: senza, la
+     * stretta lascerebbe scendere il pannello sopra la barra dei gesti (allegato `popup_phoneH`).
+     * Le barre le conosce l'attività.
      */
     private fun hostInsets(): WindowInsetsCompat? {
         val view = currentValueOf(LocalView)
@@ -707,20 +535,19 @@ private class LowerNode(
 /**
  * Le barre di sistema e la tastiera di una finestra, sopra e sotto.
  *
- * ⚠️ `or` e non due letture: `getInsets` di un insieme di tipi restituisce il **massimo** per ogni
- * lato, quindi a tastiera chiusa il conto è identico a quello di prima e a tastiera aperta il lato
- * di sotto diventa quello della tastiera, che è più alto della barra di navigazione che copre.
+ * Una lettura sola con `or`: `getInsets` di un insieme di tipi restituisce il massimo per ogni
+ * lato, quindi a tastiera aperta il lato di sotto è quello della tastiera, più alta della barra di
+ * navigazione che copre.
  */
 internal fun barsOf(insets: WindowInsetsCompat): Insets =
     insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime())
 
 /**
  * L'altezza di [whole] dentro le barre: per ogni lato vale la più alta fra quelle della finestra
- * ([own]) e quelle dell'attività sotto di lei ([host]), il perché vive su `hostInsets`.
+ * ([own]) e quelle dell'attività sotto di lei ([host]); il perché è su `hostInsets`.
  *
- * ⚠️ **Il massimo e non la somma**: dove la finestra vede già le barre (un'attività, o un dialogo
- * a schermo intero) le due letture dicono la stessa cosa, e sommarle toglierebbe le barre due
- * volte.
+ * Il massimo, non la somma: dove la finestra vede già le barre (un'attività, un dialogo a schermo
+ * intero) le due letture coincidono, e sommarle toglierebbe le barre due volte.
  */
 internal fun insideBars(whole: Int, own: Insets?, host: Insets?): Int {
     val top = maxOf(own?.top ?: 0, host?.top ?: 0)
@@ -731,10 +558,7 @@ internal fun insideBars(whole: Int, own: Insets?, host: Insets?): Int {
 /**
  * Di quanto scende quello che è 'centrato', e quanta aria resta comunque sotto.
  *
- * ⚠️ **15% è la base scelta dall'utente**, e dalla 1.29 è **uno solo per tutta l'app**: il
- * menu contestuale della `1.28` scendeva del 17%, che era la metà di un intervallo indicato a
- * occhio. Due numeri per la stessa idea sono la stessa trappola degli angoli dei menu, e la
- * differenza fra 15 e 17 non la vede nessuno.
+ * Il 15% è la scelta dell'utente, uno solo per tutta l'app, menu compresi.
  */
 const val LOWER_BY = 0.15f
 
@@ -746,34 +570,28 @@ val LOW_WINDOW = 480.dp
 val LOWER_AIR = 16.dp
 
 /**
- * L'aria sopra una finestra in cui si scrive, che sta ancorata in alto: **settanta punti**.
+ * L'aria sopra una finestra in cui si scrive, ancorata in alto: settanta punti, numero
+ * dell'utente (voce `ext-aria`).
  *
- * ⚠️⚠️ **IL NUMERO È SUO** (nota sulla voce `ext-aria` del giro della `1.82`: *fai 70 punti e
- * posiziona le finestre di rinomina, salvataggio con nome, modifica estensione, download, nuova
- * cartella ... sempre in alto appoggiate a quella misura*), ed è il terzo in tre versioni: la
- * `1.81` lasciava [LOWER_AIR], la `1.82` era salita a 56 perché *finisce ancora molto in alto, mi
- * sembra anche troppo*, e questa è la misura con cui ha detto di fermarsi.
- * ⚠️ **Vale a tastiera aperta e chiusa**: fino alla `1.82` era l'aria di una deroga che scattava
- * con l'IME in scena, e il perché del cambio è su [Modifier.lowered]. ⚠️ **Dalla `5.51` cede
- * quando la tastiera non lascia spazio**, ed è la sua scelta B1: il conto vive su [pinTop].
+ * Vale a tastiera aperta e chiusa (il perché è su [Modifier.lowered]), e cede quando la tastiera
+ * non lascia spazio (scelta B1: il conto è su [pinTop]).
  */
 val TEXT_AIR = 70.dp
 
 /**
  * Quanto di una finestra in cui si scrive può finire dietro la tastiera: il margine sotto i tasti.
  *
- * ⚠️⚠️ **È IL MARGINE CHE `AlertDialog` DI MATERIAL LASCIA SOTTO I TASTI, 24dp**, e la sua scelta
- * B1 del 2026-10-11 dice che quando lo spazio non basta è la seconda cosa a cedere, dopo l'aria
- * sopra. Dietro la tastiera finisce aria vuota, e i tasti restano interi: è quello che lui ha visto
- * nella griglia della `5.50` e ha giudicato giusto. Chi cambiasse il margine dei dialoghi cambi
- * anche questo, o i tasti finiscono a loro volta dietro la tastiera.
+ * ⚠️ **È il margine che `AlertDialog` di Material lascia sotto i tasti, 24dp**: quando lo spazio
+ * non basta è la seconda cosa a cedere, dopo l'aria sopra (scelta B1). Dietro la tastiera finisce
+ * aria vuota, e i tasti restano interi. Chi cambia il margine dei dialoghi cambia anche questo, o
+ * i tasti finiscono dietro la tastiera.
  */
 val TEXT_TUCK = 24.dp
 
 /**
  * Lo spazio visibile di una finestra, in pixel dal bordo di sopra del suo contenuto.
  *
- * ⚠️ È una classe di dati perché il nodo confronta due misure per sapere se rimisurare.
+ * È una classe di dati perché il nodo confronta due misure per sapere se rimisurare.
  *
  * @property hidden se il pannello aspetta, invisibile, una tastiera di cui non si sa l'altezza.
  */
@@ -783,9 +601,8 @@ private data class Span(val top: Int, val bottom: Int, val hidden: Boolean = fal
  * Quanto copre il bordo di sotto della finestra: le barre, la tastiera, o la tastiera che sta per
  * arrivare.
  *
- * ⚠️⚠️ **È LA CORREZIONE DEL SALTO DELLA `5.51`, ED È UNA FUNZIONE A SÉ PERCHÉ IL BANCO LA MISURI**:
- * quello che deve reggere è che il pannello sia dove resterà già al primo fotogramma, e in
- * Robolectric nessuna tastiera arriva mai.
+ * È una funzione a sé perché il banco la provi: il pannello deve essere dove resterà già al primo
+ * fotogramma, e in Robolectric nessuna tastiera arriva mai.
  *
  * @param bars quanto coprono le barre di sistema, in pixel.
  * @param ime quanto copre la tastiera adesso; zero se non c'è.
@@ -798,20 +615,19 @@ internal fun keyboardBottom(bars: Int, ime: Int, remembered: Int, waiting: Boole
 /**
  * Per quanto, dall'apertura di una finestra in cui si scrive, si aspetta la tastiera.
  *
- * ⚠️ **Un secondo**: la tastiera compare in qualche centinaio di millisecondi, e l'attesa finisce
- * appena arriva. Il numero conta solo quando non arriva, per esempio con una tastiera fisica: là la
- * finestra si rimisura senza di lei, e la prima volta compare dopo questo tempo.
+ * Un secondo: la tastiera compare in qualche centinaio di millisecondi, e l'attesa finisce appena
+ * arriva. Il numero conta solo quando non arriva (una tastiera fisica): allora la finestra si
+ * rimisura senza di lei dopo questo tempo.
  */
 private const val WAIT_MS = 1_000L
 
 /**
  * L'altezza della tastiera, ricordata per orientamento.
  *
- * ⚠️⚠️ **SI RICORDA FRA UN AVVIO E L'ALTRO**, in un archivio a sé e non fra le impostazioni: è una
- * misura del telefono e non una scelta, quindi non va nel file di impostazioni né in un backup. Con
- * la sola memoria del processo, la prima rinomina di ogni avvio salterebbe.
- * ⚠️ **Per orientamento**, perché in orizzontale la tastiera ha un'altra altezza.
- * ⚠️ **Si scrive solo quando cambia**, perché la si legge a ogni misura della finestra.
+ * Si ricorda fra un avvio e l'altro, in un archivio a sé: è una misura del telefono, non una
+ * scelta, quindi non va nel file di impostazioni né nel backup. Con la sola memoria del processo,
+ * la prima rinomina di ogni avvio salterebbe. Per orientamento, perché in orizzontale la tastiera
+ * ha un'altra altezza; si scrive solo quando cambia, perché si legge a ogni misura.
  */
 private object Keyboard {
     private val seen = HashMap<Int, Int>()
@@ -832,11 +648,8 @@ private object Keyboard {
 /**
  * Quanto può essere alto, al massimo, il pannello di una finestra in cui si scrive.
  *
- * ⚠️⚠️ **TUTTO LO SPAZIO VISIBILE PIÙ [TEXT_TUCK], DALLA `5.51`, ED È LA SUA SCELTA B1**: quando
- * lo spazio manca, prima cede l'aria sopra (vedi [pinTop]) e poi il margine sotto i tasti, che
- * può finire dietro la tastiera. Fino alla `5.50` il tetto toglieva sempre [TEXT_AIR] e l'aria di
- * sotto, cioè 86dp: sulla sua schermata del visualizzatore l'anteprima della rinomina era tagliata
- * con 84dp vuoti fra il pannello e la tastiera.
+ * Tutto lo spazio visibile più [TEXT_TUCK] (scelta B1): quando lo spazio manca, prima cede l'aria
+ * sopra ([pinTop]) e poi il margine sotto i tasti, che può finire dietro la tastiera.
  *
  * @param avail l'altezza dello spazio visibile, in pixel.
  * @param tuck quanto del pannello può finire dietro la tastiera, in pixel.
@@ -848,14 +661,11 @@ internal fun pinRoof(avail: Int, tuck: Int): Int = if (avail > 0) avail + tuck e
  * Dove comincia il pannello di una finestra in cui si scrive, in pixel dal bordo di sopra dello
  * spazio visibile.
  *
- * ⚠️⚠️ **A [sky] FINCHÉ CI STA, POI SALE QUANTO SERVE, FINO A ZERO** (sua scelta B1, 2026-10-11):
- * con spazio a sufficienza il bordo di sopra non si muove, qualunque cosa faccia la tastiera, e
- * sotto resta almeno [air]; quando il pannello cresce o lo spazio si stringe, l'aria sopra cala
- * fino a sparire, e l'aria sotto resta [air] finché si può. Le due regole si toccano senza salti:
- * al confine i due conti danno lo stesso numero.
- * ⚠️⚠️ **È UNA FUNZIONE A SÉ PERCHÉ IL BANCO DI PROVA LA POSSA MISURARE**: in Robolectric nessuna
- * finestra vede una tastiera, quindi una prova che aprisse la rinomina passerebbe in verde senza
- * guardare niente. Come funzione, il conto si esercita coi numeri delle sue schermate.
+ * A [sky] finché il pannello entra, poi sale quanto serve, fino a zero (scelta B1): con spazio a
+ * sufficienza il bordo di sopra non si muove e sotto resta almeno [air]; quando lo spazio si
+ * stringe l'aria sopra cala fino a sparire. Al confine i due conti danno lo stesso numero, quindi
+ * non ci sono salti.
+ * È una funzione a sé perché il banco la provi: in Robolectric nessuna finestra vede una tastiera.
  *
  * @param avail l'altezza dello spazio visibile, in pixel; zero se non si conosce.
  * @param panel l'altezza del pannello già misurato, in pixel.

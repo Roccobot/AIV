@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material: Icons.Outlined.FitScreen 1.7.8 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M6,16L18,16L18,8L6,8L6,16ZM8,10L16,10L16,14L8,14L8,10ZM4,15L2,15L2,18C2,19.1,2.9,20,4,20L7,20L7,18L4,18L4,15ZM4,6L7,6L7,4L4,4C2.9,4,2,4.9,2,6L2,9L4,9L4,6ZM20,4L17,4L17,6L20,6L20,9L22,9L22,6C22,4.9,21.1,4,20,4ZM20,18L17,18L17,20L20,20C21.1,20,22,19.1,22,18L22,15L20,15L20,18Z" />
+</vector>

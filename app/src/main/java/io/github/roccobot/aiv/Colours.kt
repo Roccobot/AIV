@@ -1,29 +1,26 @@
 package io.github.roccobot.aiv
 
+import java.io.ByteArrayInputStream
 import java.io.InputStream
+import java.io.SequenceInputStream
 
-/**
+/*
  * Come un'immagine tiene i suoi colori, e quanti fotogrammi ha.
  *
- * ⚠️⚠️ **SI LEGGONO LE INTESTAZIONI E NON SI DECODIFICA NIENTE, come in [Encoding]**: dire
- * 'colore indicizzato, 256 colori' costa una manciata di byte, mentre ricavarlo dai pixel
- * vorrebbe dire ricostruire l'immagine intera per scrivere una riga. Vale anche per il
- * conteggio dei fotogrammi: si cammina di blocco in blocco saltando i dati compressi, senza
- * mai srotolarne uno.
- * ⚠️ **Cinque formati e il resto tace**: PNG, GIF, JPEG e WebP sono quelli la cui
- * intestazione si legge in poche righe e senza ambiguità, e dalla `1.26` c'è anche
- * **AVIF**, che il lettore suo adesso ce l'ha (vedi [Avif]) perché serviva comunque alla
- * decodifica. ⚠️ **HEIC no**, benché stia nello stesso contenitore: là il metodo colore va
- * cercato in scatole diverse (`hvcC` invece di `av1C`) e nessuno ha un file su cui
- * provarlo, e una risposta inventata è peggio di nessuna risposta.
+ * Si leggono le intestazioni e non si decodifica niente, come in [Encoding]: 'colore
+ * indicizzato, 256 colori' costa pochi byte, dai pixel costerebbe l'immagine intera. Anche i
+ * fotogrammi si contano saltando di blocco in blocco i dati compressi.
+ * Cinque formati: PNG, GIF, JPEG e WebP, la cui intestazione si legge in poche righe, e AVIF, che
+ * ha già un suo lettore ([Avif]). ⚠️ **HEIC no**, anche se usa lo stesso contenitore: il metodo
+ * colore è in scatole diverse (`hvcC` e non `av1C`), non c'è un file su cui provarlo, e una
+ * risposta inventata è peggio di nessuna.
  */
 
 /**
  * Il metodo colore di un'immagine.
  *
- * ⚠️ **[bitsPerChannel] è per canale e non in tutto**: il totale si ricava moltiplicando per
- * i canali del modello, e tenere il totale invece del fattore renderebbe impossibile scrivere
- * la seconda riga che l'utente ha chiesto ('8 bit/canale').
+ * [bitsPerChannel] è per canale: il totale si ricava moltiplicando per i canali del modello, e
+ * dal totale non si potrebbe scrivere la riga '8 bit/canale' chiesta dall'utente.
  */
 class Colours(
     val model: Model,
@@ -39,8 +36,8 @@ class Colours(
     /**
      * I bit di un pixel, e `null` quando non si sanno.
      *
-     * ⚠️ **Su una tavolozza non si scrive**: là un pixel è un **indice**, quindi otto bit per
-     * pixel non dicono niente sul colore, e il numero che conta è quanti colori ci sono.
+     * Su una tavolozza non si scrive: un pixel è un indice, e il numero che conta è quanti
+     * colori ci sono.
      */
     val bitsPerPixel: Int?
         get() = if (model == Model.INDEXED) null else bitsPerChannel?.times(model.channels)
@@ -52,16 +49,18 @@ class Motion(val frames: Int, val durationMs: Int)
 /**
  * Il metodo colore, dai primi byte del file.
  *
- * ⚠️ Il flusso si legge una volta sola e in avanti: chi chiama ne apre uno nuovo per ogni
- * lettore, come già fa per [encodingOf].
+ * Il flusso si legge una volta sola e in avanti: chi chiama ne apre uno nuovo per ogni lettore,
+ * come per [encodingOf].
  */
 fun coloursOf(input: InputStream): Colours? = runCatching {
     val head = ByteArray(HEAD)
     val got = input.readFully(head, HEAD)
     when {
-        got >= 8 && head.startsWith(PNG_SIGNATURE) -> pngColours(head, got, input)
+        got >= 8 && Signatures.png(head) -> pngColours(head, got, input)
         got >= 13 && head.startsWith(GIF_SIGNATURE) -> gifColours(head)
-        got >= 4 && head[0] == 0xFF.toByte() && head[1] == 0xD8.toByte() -> jpegColours(input)
+        // Il SOF si cerca dall'inizio: la testa è già letta, quindi si rimette davanti al seguito.
+        got >= 4 && head[0] == 0xFF.toByte() && head[1] == 0xD8.toByte() ->
+            jpegColours(SequenceInputStream(ByteArrayInputStream(head, 0, got), input))
         got >= 16 && head.startsWith(RIFF_SIGNATURE) &&
             String(head, 8, 4, Charsets.US_ASCII) == "WEBP" -> webpColours(head, got, input)
         got >= 12 && Avif.looksLike(head) -> Avif.colours(avifHead(head, got, input))
@@ -72,9 +71,7 @@ fun coloursOf(input: InputStream): Colours? = runCatching {
 /**
  * I byte in cui cercare le scatole di un AVIF: [HEAD] più il seguito, fino a [Avif.HEAD].
  *
- * ⚠️ **Il flusso è già avanti di [HEAD] byte**, quindi qui si legge il **seguito** e si
- * incolla: riavvolgere non si può, ed è la stessa ragione per cui ogni lettore di questo
- * file riceve un flusso suo.
+ * Il flusso è già avanti di [HEAD] byte e non si riavvolge: si legge il seguito e si incolla.
  */
 private fun avifHead(head: ByteArray, valid: Int, input: InputStream): ByteArray {
     if (valid < head.size) return head.copyOf(valid)
@@ -86,9 +83,8 @@ private fun avifHead(head: ByteArray, valid: Int, input: InputStream): ByteArray
 /**
  * Quanti fotogrammi e quanto dura, dai byte del file.
  *
- * ⚠️ **Torna `null` su un'immagine ferma**, e non un uno: 'un fotogramma' è la stessa
- * informazione di 'non è animata' detta in un modo che invita a cercare un comando che non
- * c'è. Il dialogo mostra la riga solo quando esiste un'animazione.
+ * Risponde `null` su un'immagine ferma, non un fotogramma: la finestra mostra la riga solo
+ * quando c'è un'animazione.
  */
 fun motionOf(input: InputStream): Motion? = runCatching {
     val head = ByteArray(HEAD)
@@ -105,14 +101,12 @@ fun motionOf(input: InputStream): Motion? = runCatching {
 // ── PNG ────────────────────────────────────────────────────────────────────
 
 /**
- * ⚠️⚠️ **IL TIPO DI COLORE È UN BYTE SOLO, e i suoi valori non sono progressivi**: 0 grigio,
- * 2 RGB, 3 tavolozza, 4 grigio con alfa, 6 RGBA. Il 5 e l'1 non esistono, e i bit del numero
- * hanno un senso (bit 0 tavolozza, bit 1 colore, bit 2 alfa) che qui non si sfrutta perché
- * cinque casi scritti per esteso si leggono meglio di tre maschere.
- * ⚠️ **La trasparenza NON è solo l'alfa del modello**: un `tRNS` dichiara un colore
- * trasparente anche su RGB e su grigio, e su tavolozza dà un'opacità per ogni voce. Per
- * trovarlo bisogna camminare i chunk, ed è l'unica ragione per cui questa funzione legge
- * oltre l'intestazione.
+ * Il tipo di colore è un byte e i suoi valori non sono progressivi: 0 grigio, 2 RGB, 3
+ * tavolozza, 4 grigio con alfa, 6 RGBA. Cinque casi scritti per esteso si leggono meglio delle
+ * maschere sui bit.
+ * ⚠️ **La trasparenza non è solo l'alfa del modello**: un `tRNS` dichiara un colore trasparente
+ * anche su RGB e su grigio, e su tavolozza un'opacità per voce. Per trovarlo si camminano i
+ * chunk oltre l'intestazione.
  */
 private fun pngColours(head: ByteArray, valid: Int, input: InputStream): Colours? {
     if (valid < PNG_IHDR_END) return null
@@ -137,8 +131,8 @@ private fun pngColours(head: ByteArray, valid: Int, input: InputStream): Colours
             "PLTE" -> palette = length / 3
             "tRNS" -> trns = true
         }
-        // ⚠️ Al primo IDAT si smette: da lì in poi ci sono solo i pixel compressi, e i due
-        // chunk che interessano stanno per specifica **prima** di quello.
+        // Al primo IDAT si smette: dopo ci sono solo i pixel compressi, e per specifica i due
+        // chunk che interessano vengono prima.
         if (name == "IDAT" || name == "IEND") break
         if (rest.skip(length + 4) == null) break
         seen++
@@ -150,10 +144,10 @@ private fun pngColours(head: ByteArray, valid: Int, input: InputStream): Colours
 // ── GIF ────────────────────────────────────────────────────────────────────
 
 /**
- * ⚠️ **Una GIF è SEMPRE a tavolozza**, e la sua misura sta nei tre bit bassi del byte
- * impacchettato del descrittore di schermo: la tavolozza ha `2^(n+1)` voci.
- * ⚠️ **La trasparenza qui NON si vede**: sta nell'estensione di controllo grafica di ogni
- * fotogramma, che arriva dopo. La riempie [gifMotion], che quei blocchi li cammina comunque.
+ * Una GIF è sempre a tavolozza, e la sua misura è nei tre bit bassi del byte impacchettato del
+ * descrittore di schermo: `2^(n+1)` voci.
+ * ⚠️ **La trasparenza qui non si vede**: è nell'estensione di controllo grafica di ogni
+ * fotogramma, più avanti. La legge [gifTransparencyOf].
  */
 private fun gifColours(head: ByteArray): Colours? {
     val packed = head[10].toInt() and 0xFF
@@ -165,12 +159,9 @@ private fun gifColours(head: ByteArray): Colours? {
 /**
  * Cammina i blocchi di una GIF contando i fotogrammi e sommando i ritardi.
  *
- * ⚠️⚠️ **I DATI COMPRESSI SI SALTANO SENZA LEGGERLI, ed è quello che rende questa funzione
- * economica**: dopo il descrittore di immagine i dati stanno in **sotto-blocchi**, ognuno
- * preceduto dalla sua lunghezza su un byte, e la catena finisce con uno zero. Saltare di
- * lunghezza in lunghezza costa un byte letto ogni 255.
- * ⚠️ **Il ritardo è in CENTESIMI di secondo**, non in millesimi, ed è l'errore classico su
- * questo formato: moltiplicare per dieci non è una conversione elegante, è la conversione.
+ * I dati compressi si saltano: sono in sotto-blocchi preceduti dalla loro lunghezza su un byte,
+ * e la catena finisce con uno zero. Costa un byte letto ogni 255.
+ * ⚠️ **Il ritardo è in centesimi di secondo**, non in millesimi: da qui il per dieci.
  */
 private fun gifMotion(head: ByteArray, valid: Int, input: InputStream): Motion? {
     val packed = head[10].toInt() and 0xFF
@@ -179,8 +170,8 @@ private fun gifMotion(head: ByteArray, valid: Int, input: InputStream): Motion? 
         val table = 3 * (1 shl ((packed and 0x07) + 1))
         at += table
     }
-    // ⚠️ Quello che resta di `head` si consuma prima del flusso: la tavolozza globale di una
-    // GIF a 256 colori sono 768 byte, quindi può finire oltre il buffer letto.
+    // Quello che resta di `head` si consuma prima del flusso: la tavolozza globale di una GIF a
+    // 256 colori è di 768 byte, e può finire oltre il buffer letto.
     val rest = Rest(head, valid, at, input)
     var frames = 0
     var delay = 0
@@ -199,7 +190,7 @@ private fun gifMotion(head: ByteArray, valid: Int, input: InputStream): Motion? 
                 if (label == 0xF9) {
                     val size = rest.byte() ?: break
                     if (size >= 4) {
-                        rest.byte() // i flag: la trasparenza la legge gifTransparent
+                        rest.byte() // i flag: la trasparenza la legge [gifTransparent]
                         val low = rest.byte() ?: break
                         val high = rest.byte() ?: break
                         delay += ((high shl 8) or low) * 10
@@ -224,8 +215,8 @@ private fun gifMotion(head: ByteArray, valid: Int, input: InputStream): Motion? 
 /**
  * Se una GIF dichiara un colore trasparente, in uno qualsiasi dei suoi fotogrammi.
  *
- * ⚠️ **Basta UN fotogramma**: la riga delle informazioni dice se l'immagine ha trasparenza,
- * non quanti fotogrammi ce l'hanno.
+ * Basta un fotogramma: la riga delle informazioni dice se l'immagine ha trasparenza, non quanti
+ * fotogrammi ce l'hanno.
  */
 private fun gifTransparent(head: ByteArray, valid: Int, input: InputStream): Boolean {
     val packed = head[10].toInt() and 0xFF
@@ -263,9 +254,13 @@ private fun gifTransparent(head: ByteArray, valid: Int, input: InputStream): Boo
 // ── JPEG ───────────────────────────────────────────────────────────────────
 
 /**
- * ⚠️ **Il JPEG non ha trasparenza e non ha tavolozza**: quello che resta da sapere è se è a
- * un componente (grigio) o a tre (colore), e con quanti bit. Li dice il segmento SOF, e per
- * trovarlo si salta di segmento in segmento come fa [encodingOf].
+ * Il JPEG non ha trasparenza né tavolozza: resta da sapere se ha un componente (grigio) o tre
+ * (colore), e con quanti bit. Lo dice il SOF, che si cerca di segmento in segmento come in
+ * [encodingOf].
+ * ⚠️ **Quattro componenti (CMYK o YCCK, i file pronti per la stampa) non hanno una risposta**:
+ * [Colours.Model] non ha una voce per il CMYK, e dirli RGB a 24 bit sarebbe una risposta
+ * inventata, peggio di nessuna, come per l'HEIC. Lo stesso per un numero di componenti che il
+ * formato non prevede.
  */
 private fun jpegColours(input: InputStream): Colours? {
     val two = ByteArray(2)
@@ -287,7 +282,11 @@ private fun jpegColours(input: InputStream): Colours? {
         if (input.readFully(body, length) < length) return null
         val bits = if (body.isNotEmpty()) (body[0].toInt() and 0xFF).takeIf { it > 0 } else null
         val components = if (body.size > 5) body[5].toInt() and 0xFF else 0
-        val model = if (components == 1) Colours.Model.GREY else Colours.Model.RGB
+        val model = when (components) {
+            1 -> Colours.Model.GREY
+            3 -> Colours.Model.RGB
+            else -> return null
+        }
         return Colours(model, bits, null, false)
     }
 }
@@ -295,13 +294,10 @@ private fun jpegColours(input: InputStream): Colours? {
 // ── WebP ───────────────────────────────────────────────────────────────────
 
 /**
- * ⚠️⚠️ **L'ALFA DI UNA WebP STA IN TRE POSTI DIVERSI, a seconda di com'è fatta**: nel bit
- * `0x10` dei flag di `VP8X` sulle estese, nel bit `0x10` del byte 4 di `VP8L` sulle senza
- * perdita, e in un chunk `ALPH` a parte su quelle con perdita. Guardarne uno solo darebbe
- * 'senza trasparenza' su due file su tre che ce l'hanno.
- * ⚠️ **I bit per canale sono 8 e non si leggono**: il formato non ne prevede altri, quindi
- * l'unico numero possibile è quello, e cercarlo nei byte sarebbe cercare una cosa che c'è
- * per definizione.
+ * ⚠️ **L'alfa di una WebP è in tre posti, secondo com'è fatta**: nel bit `0x10` dei flag di
+ * `VP8X` sulle estese, nel bit `0x10` del byte 4 di `VP8L` sulle senza perdita, e in un chunk
+ * `ALPH` su quelle con perdita.
+ * I bit per canale sono sempre 8, e non si leggono.
  */
 private fun webpColours(head: ByteArray, valid: Int, input: InputStream): Colours? {
     var alpha = false
@@ -328,8 +324,8 @@ private fun webpColours(head: ByteArray, valid: Int, input: InputStream): Colour
 }
 
 /**
- * ⚠️ **Il ritardo di una WebP animata è in MILLESIMI**, al contrario della GIF: sta nei tre
- * byte in little endian a partire dall'offset 12 di ogni `ANMF`.
+ * Il ritardo di una WebP animata è in millesimi, a differenza della GIF: è nei tre byte little
+ * endian dall'offset 12 di ogni `ANMF`.
  */
 private fun webpMotion(head: ByteArray, valid: Int, input: InputStream): Motion? {
     var frames = 0
@@ -349,12 +345,10 @@ private fun webpMotion(head: ByteArray, valid: Int, input: InputStream): Motion?
 /**
  * Cammina i chunk di un contenitore RIFF, dando a [onChunk] nome e corpo.
  *
- * ⚠️⚠️ **DI UN `ANMF` SI LEGGONO SOLO I PRIMI 16 BYTE, e il resto si salta**: dentro c'è il
- * fotogramma compresso, che qui non serve, e leggerlo vorrebbe dire tenere in memoria
- * l'animazione intera per contare quanti pezzi ha.
- * ⚠️ **I chunk sono allineati a due byte**: una lunghezza dispari porta un byte di riempimento
- * che non fa parte del corpo, e chi lo dimentica si disallinea al primo chunk dispari e poi
- * legge spazzatura.
+ * Di un chunk si leggono al massimo [CHUNK_PEEK] byte e il resto si salta: dentro un `ANMF` c'è
+ * il fotogramma compresso, che qui non serve.
+ * ⚠️ **I chunk sono allineati a due byte**: una lunghezza dispari ha un byte di riempimento
+ * fuori dal corpo, e senza contarlo la lettura si disallinea.
  */
 private fun walkRiff(
     head: ByteArray,
@@ -380,20 +374,18 @@ private fun walkRiff(
 /**
  * Quello che resta da leggere: prima la coda del buffer già in mano, poi il flusso.
  *
- * ⚠️⚠️ **ESISTE PERCHÉ IL PRIMO BLOCCO È GIÀ STATO LETTO, e senza di lui ogni lettore
- * dovrebbe tenere il conto di dove finisce il buffer e comincia il flusso**: è la parte in
- * cui si sbaglia, e sbagliandola si legge spazzatura senza accorgersene, perché i byte
- * arrivano lo stesso.
+ * Esiste perché il primo blocco è già letto: senza, ogni lettore dovrebbe tenere il conto di
+ * dove finisce il buffer e comincia il flusso, e sbagliando leggerebbe byte sbagliati senza
+ * accorgersene.
  */
 private class Rest(
     private val head: ByteArray,
     /**
      * Quanti byte di [head] sono veri.
      *
-     * ⚠️⚠️ **NON È `head.size`, ED È IL DIFETTO CHE QUESTO PARAMETRO TOGLIE**: il buffer si
-     * alloca sempre di [HEAD] byte, ma un file più corto ne riempie solo una parte e il resto
-     * resta a **zero**. Senza questo limite ogni lettore proseguirebbe dentro quegli zeri
-     * credendoli dati, e su un file piccolo tornerebbe risposte inventate invece di fermarsi.
+     * ⚠️ **Non è `head.size`**: il buffer è sempre di [HEAD] byte, ma un file più corto ne
+     * riempie solo una parte e il resto è a zero. Senza questo limite un lettore prenderebbe quegli
+     * zeri per dati.
      */
     private val valid: Int,
     private var at: Int,
@@ -466,8 +458,8 @@ private fun ByteArray.startsWith(other: ByteArray): Boolean {
 /**
  * Quanti byte si leggono in un colpo solo.
  *
- * ⚠️ **1 KB copre l'intestazione di tutti e quattro i formati e la tavolozza globale di una
- * GIF a 256 colori** (768 byte), che è il pezzo più lungo che serve leggere per intero.
+ * 1 KB copre l'intestazione di PNG, GIF, JPEG e WebP e la tavolozza globale di una GIF a 256
+ * colori (768 byte). Per AVIF [avifHead] legge il seguito.
  */
 private const val HEAD = 1024
 
@@ -480,7 +472,7 @@ private const val PNG_IHDR_END = 33
 /**
  * Quanti chunk PNG si guardano prima di rinunciare.
  *
- * ⚠️ Come [MAX_FRAMES]: un file malformato può descrivere una catena che non finisce.
+ * Come [MAX_FRAMES]: un file malformato può descrivere una catena che non finisce.
  */
 private const val MAX_CHUNKS = 512
 
@@ -496,24 +488,19 @@ private const val WEBP_BITS = 8
 /**
  * Oltre questo numero di fotogrammi si smette di contare.
  *
- * ⚠️ **Non è un tetto di prudenza, è una difesa**: un file malformato può descrivere una
- * catena di blocchi che non finisce mai, e senza un limite questa lettura girerebbe finché
- * il flusso non si esaurisce, che su un file grande vuol dire secondi.
+ * ⚠️ Un file malformato può descrivere una catena di blocchi che non finisce, e senza limite la
+ * lettura girerebbe fino in fondo al flusso.
  */
 private const val MAX_FRAMES = 10_000
 
-private val PNG_SIGNATURE = byteArrayOf(
-    0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A
-)
 private val GIF_SIGNATURE = "GIF8".toByteArray(Charsets.US_ASCII)
 private val RIFF_SIGNATURE = "RIFF".toByteArray(Charsets.US_ASCII)
 
 /**
  * La trasparenza di una GIF, che [gifColours] non può vedere.
  *
- * ⚠️ **È una funzione a parte e non un parametro**: la trasparenza sta nei blocchi dei
- * fotogrammi, cioè oltre l'intestazione, e leggerla insieme al metodo colore vorrebbe dire
- * far camminare tutto il file anche a chi vuole solo sapere quanti colori ha.
+ * È una funzione a parte: la trasparenza è nei blocchi dei fotogrammi, oltre l'intestazione, e
+ * chi vuole solo il metodo colore non deve camminare tutto il file.
  */
 fun gifTransparencyOf(input: InputStream): Boolean = runCatching {
     val head = ByteArray(HEAD)

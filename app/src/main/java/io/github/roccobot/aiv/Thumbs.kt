@@ -37,123 +37,75 @@ import okio.Buffer
 import java.io.File
 
 /**
- * Le miniature della griglia, e perché NON passano dal decodificatore normale.
+ * Le miniature della griglia, e perché si chiedono al sistema.
  *
- * ⚠️⚠️ **IL PUNTO È CHE UNA FOTO DA 30 MEGAPIXEL NON SI APRE PER MOSTRARLA GRANDE
- * 324 PIXEL.** Anche campionando, il decodificatore deve comunque leggere e
- * ricostruire l'immagine intera, e su una cartella di centinaia di scatti quel costo
- * si paga per ogni riquadro che scorre. Il sistema invece **ha già** una miniatura, o
- * sa farsela con molto meno, ed è quella che si chiede qui.
+ * ⚠️ **Un'immagine da 30 megapixel non si decodifica per mostrarla a 512 pixel**: anche
+ * campionando, il decodificatore legge l'immagine intera, e lo farebbe per ogni riquadro che
+ * scorre. Il sistema ha già una miniatura, o se la fa con molto meno:
+ * - `ContentResolver.loadThumbnail` chiede al provider la misura voluta (`EXTRA_SIZE`),
+ *   ridimensiona se serve e applica l'orientamento EXIF per conto suo;
+ * - `ThumbnailUtils.createImageThumbnail`, per i `file://`, prova la miniatura incorporata in
+ *   HEIF e AVIF, poi quella EXIF, e solo alla fine decodifica il file intero.
  *
- * **Che cosa fa il sistema, letto dal sorgente AOSP e non ricordato:**
- * - `ContentResolver.loadThumbnail` chiede al provider un `openTypedAssetFile` con
- *   dentro la misura voluta (`EXTRA_SIZE`), *'to help it avoid downloading or
- *   generating heavy resources'*, poi ridimensiona ancora se il provider ha risposto
- *   con qualcosa di grosso, e **applica l'orientamento EXIF** per conto suo, con un
- *   canale laterale, perché le miniature EXIF non portano i flag di rotazione.
- * - `ThumbnailUtils.createImageThumbnail`, che serve il caso `file://`, prova in
- *   ordine: la miniatura **incorporata** in HEIF e AVIF
- *   (`MediaMetadataRetriever.getThumbnailImageAtIndex`), poi la miniatura **EXIF**
- *   (`getThumbnailBytes`), e solo se non ce n'è nessuna decodifica il file intero.
+ * ⚠️ **Una miniatura sotto la metà del possibile si rifiuta** e passa alla decodifica normale:
+ * una miniatura EXIF da 160x120 su un riquadro da 512 si vede ingrandita tre volte (segnalazione
+ * dell'utente). Il metro è su `tooSmall`. Il prezzo: su una cartella di fotocamera il primo
+ * scorrimento decodifica invece di leggere la miniatura incorporata.
  *
- * ⚠️⚠️ **IL COMPROMESSO DI QUALITÀ È CADUTO NELLA 1.52, e stava tutto lì**: una miniatura
- * EXIF è spesso 160x120, e su un riquadro da 512 si vede per quello che è, cioè tre volte
- * ingrandita (segnalazione dell'utente, 2026-09-04: *di qualità bassissima, come un JPG
- * estremamente compresso*). Era stato accettato in partenza (*anche a costo di qualche
- * compromesso di qualità*), e l'esito ha smentito la previsione: adesso una miniatura sotto
- * la metà del possibile si rifiuta e la richiesta passa alla decodifica normale. Il metro e
- * il perché della soglia stanno su `tooSmall`, in fondo a questo file.
- * ⚠️ **Il prezzo è dichiarato**: su una cartella di fotografie di fotocamera la prima
- * passata decodifica invece di leggere la miniatura incorporata, quindi il primo scorrimento
- * può farsi sentire. È lo stesso baratto già preso per i PNG con alfa.
- *
- * ⚠️⚠️ **NEL VISUALIZZATORE SINGOLO NON SI USA NIENTE DI TUTTO QUESTO**: là comanda la
- * qualità, e la decodifica resta quella di `ImageSource`, a piena risoluzione e con il
- * campionamento deciso dalla memoria disponibile. L'unico punto in cui le due cose si
- * toccano è la miniatura mostrata **mentre** la fotografia vera si decodifica.
+ * Il visualizzatore non usa niente di tutto questo: decodifica con `ImageSource` a piena
+ * risoluzione. Le due cose si incontrano solo nella miniatura mostrata mentre l'immagine vera si
+ * decodifica.
  */
 object Thumbs {
 
     /**
      * Il caricatore delle miniature.
      *
-     * ⚠️ **La cache in memoria resta quella PREDEFINITA di Coil, e non è pigrizia**:
-     * è già proporzionata alla memoria dell'app e più piccola sui dispositivi a poca
-     * RAM. Gonfiarla si paga nel posto sbagliato, perché è **la stessa memoria** che
-     * `ImageSource.pixelBudget` misura per decidere se campionare la fotografia
-     * grande: più miniature tenute in caldo, meno budget al visualizzatore, cioè
-     * qualità tolta proprio dove l'utente la vuole intera.
-     * ⚠️ **Niente cache su DISCO**, e qui è una dichiarazione più che un effetto: i
-     * file sono già sul telefono, quindi copiarli in una cartella di cache sarebbe
-     * spazio speso per niente. Oggi Coil non lo farebbe comunque (scrive su disco solo
-     * il caricatore di rete), ma un domani basterebbe un componente nuovo.
+     * ⚠️ **La cache in memoria resta quella predefinita di Coil**, già proporzionata alla memoria
+     * dell'app: è la stessa memoria che `ImageSource.pixelBudget` misura per decidere se
+     * campionare l'immagine grande, quindi gonfiarla toglierebbe qualità al visualizzatore.
+     * Niente cache su disco: i file sono già sul telefono.
      */
     fun loader(context: PlatformContext): ImageLoader = build(context, warming = false)
 
     /**
-     * Il caricatore con cui 'Genera miniature' prepara la collezione, dalla `2.97`.
+     * Il caricatore con cui 'Genera miniature' prepara la collezione.
      *
-     * ⚠️⚠️ **GENERARE VUOL DIRE LASCIARE QUALCOSA CHE RESTA, E DALLA `2.99` RESTA TUTTO**: la miniatura
-     * che il sistema tiene per ogni riga del MediaStore (`loadThumbnail` la genera e la salva nella
-     * cartella `.thumbnails` del provider, letto nel sorgente AOSP di `MediaProvider`), e in
-     * [AvifCache] quella di un AVIF, il fotogramma che AIV sceglie per un video (vedi [ClipFrames]) e
-     * ogni miniatura che passa dalla decodifica normale, cioè i file con la trasparenza, i BMP, gli
-     * SVG e quelli la cui miniatura di sistema è troppo piccola (vedi `tooSmall`). Il perché
-     * dell'ultima vive su [KeepingDecoderFactory].
-     * ⚠️ **Fino alla `2.98` qui c'era un decodificatore che non decodificava**, perché l'ultima classe
-     * non restava da nessuna parte e decodificarla era lavoro buttato. Con la risposta `disco` a
-     * `d-mini-disco` quel lavoro resta, quindi i due caricatori decodificano allo stesso modo.
-     * ⚠️ **Niente cache in memoria**, perché quello che si genera non si guarda: tenerlo in caldo
-     * vorrebbe dire togliere spazio alle miniature della griglia e alla fotografia grande, che
-     * vivono nella stessa memoria (vedi [loader]).
-     * ⚠️ **Si costruisce per una generazione e si spegne alla fine** (`shutdown`): non condivide
-     * niente col caricatore della griglia, quindi una generazione in corso non gli toglie posto.
+     * Generare lascia tutto quello che resta: la miniatura che il sistema salva per ogni riga del
+     * MediaStore (nella cartella `.thumbnails` del provider), e in [AvifCache] quella di un AVIF,
+     * il fotogramma scelto per un video ([ClipFrames]) e ogni miniatura che passa dalla decodifica
+     * normale (risposta `disco` dell'utente a `d-mini-disco`; vedi [KeepingDecoderFactory]).
+     * ⚠️ **Niente cache in memoria**: quello che si genera non si guarda, e toglierebbe spazio alle
+     * miniature della griglia e all'immagine grande (vedi [loader]). Si costruisce per una
+     * generazione e si spegne alla fine (`shutdown`).
      */
     internal fun warmer(context: PlatformContext): ImageLoader = build(context, warming = true)
 
     /**
-     * I due caricatori, che differiscono soltanto per la cache in memoria.
-     *
-     * ⚠️ **Una funzione sola per tutti e due**, perché i componenti devono essere gli stessi e
-     * nello stesso ordine: la generazione serve a preparare quello che la griglia chiederà, e un
-     * elenco scritto due volte divergerebbe al primo componente nuovo.
+     * I due caricatori, che differiscono soltanto per la cache in memoria: una funzione sola,
+     * perché i componenti siano gli stessi e nello stesso ordine.
      */
     private fun build(context: PlatformContext, warming: Boolean): ImageLoader = ImageLoader.Builder(context)
         .components {
             add(SystemThumbnailFactory())
-            // ⚠️⚠️ **SUBITO DOPO IL SISTEMA, DALLA `2.98`, IL RIPIEGO DEI VIDEO**: quando la
-            // miniatura di un filmato manca o è nera il primo si tira indietro, e questo sceglie
-            // un fotogramma più avanti (vedi [ClipFrames]). ⚠️ **Prima dell'AVIF e non dopo**,
-            // perché quello per sapere se un file è un AVIF ne legge la testa: su un video sarebbe
-            // una lettura buttata, e questo lo riconosce dall'indirizzo senza aprire niente.
+            // ⚠️ Subito dopo il sistema il ripiego dei video: quando la miniatura di un video manca
+            // o è nera, sceglie un fotogramma più avanti ([ClipFrames]). È prima dell'AVIF, che per
+            // riconoscere un file ne legge la testa, mentre questo guarda solo l'indirizzo.
             add(ClipFrameFactory())
-            // ⚠️⚠️ **POI IL DISCO, DALLA `2.99`**: qui si ritrova quello che la decodifica normale ha
-            // già fatto una volta (vedi [KeepingDecoderFactory]), e quello che fa l'AVIF qui sotto.
-            // ⚠️ **Dopo il sistema e non prima**, perché per sapere dov'è il file serve una domanda
-            // al MediaStore: la maggior parte delle miniature la dà il sistema, e là quella domanda
-            // sarebbe spesa per niente.
+            // ⚠️ Poi il disco: quello che la decodifica normale e l'AVIF hanno già fatto una volta.
+            // È dopo il sistema perché trovare il file costa una domanda al MediaStore, e la
+            // maggior parte delle miniature la dà il sistema.
             add(DiskThumbnailFactory())
-            // ⚠️⚠️ **IL SECONDO SERVE PERCHÉ IL PRIMO SU UN AVIF NON HA NIENTE DA DARE**:
-            // `loadThumbnail` e `createImageThumbnail` chiedono al telefono, e il telefono su
-            // questi file si rifiuta (vedi [Avif]). Da lì la richiesta proseguirebbe verso la
-            // decodifica normale di Coil, che usa `BitmapFactory` e si rifiuta uguale: era il
-            // 'non mostra nemmeno le miniature' del riscontro. Questo la intercetta prima, e
-            // vale sia per la griglia sia per le copertine delle cartelle.
-            // ⚠️ **L'ORDINE CONTA**: al sistema si chiede per primo, e per un AVIF si tira
-            // indietro da sé tornando `null`. Invertirli vorrebbe dire decodificare in casa
-            // anche i formati per cui il telefono ha già la miniatura pronta.
+            // ⚠️ L'AVIF: su questi file il telefono si rifiuta ([Avif]), e così anche la decodifica
+            // normale di Coil. Vale per la griglia e per le copertine. È dopo il sistema, che per
+            // un AVIF si tira indietro da sé, o si decodificherebbero in casa anche i formati per
+            // cui il telefono ha la miniatura pronta.
             add(AvifThumbnailFactory())
-            // ⚠️⚠️ **E PRIMA DI TUTTI I DECODIFICATORI QUELLO CHE TIENE SU DISCO, DALLA `2.99`**: non
-            // decodifica niente da sé, chiede al registro il decodificatore che verrebbe dopo di
-            // lui e ne salva il risultato. Il perché vive su [KeepingDecoderFactory].
+            // Prima di tutti i decodificatori quello che tiene su disco ([KeepingDecoderFactory]).
             add(KeepingDecoderFactory())
-            // ⚠️⚠️ **QUELLO DEGLI SVG È UN `Decoder` E NON UN `Fetcher`, e la differenza dice a
-            // che punto della catena entra**: i fetcher sopra prendono la richiesta **prima** che il
-            // file venga letto, perché la miniatura può arrivare da un'altra parte; questo
-            // entra **dopo**, quando i byte ci sono già e resta solo da capirci un'immagine,
-            // che è esattamente il caso di un SVG. ⚠️ Fra i due elenchi non c'è ordine da
-            // rispettare, perché Coil li tiene separati: conta solo che sia dichiarato qui,
-            // e quindi prima del decodificatore predefinito che di un SVG non sa niente.
+            // ⚠️ Quello degli SVG è un `Decoder`: entra quando i byte sono già letti. Coil tiene
+            // separati i due elenchi, quindi conta solo che sia prima del decodificatore
+            // predefinito, che di un SVG non sa niente.
             add(SvgThumbnailFactory())
         }
         .apply { if (warming) memoryCache(null) }
@@ -161,55 +113,36 @@ object Thumbs {
         .build()
 
     /**
-     * La misura di OGNI miniatura, sempre la stessa, e le due ragioni sono tutte e due
-     * pratiche.
+     * La misura di ogni miniatura, sempre la stessa.
      *
-     * ⚠️⚠️ **PRIMA: la chiave della cache in memoria contiene la MISURA richiesta.**
-     * Lasciando che ogni riquadro chieda la propria (Coil misura il posto in cui
-     * l'immagine andrà), la stessa immagine avrebbe una chiave nella griglia e
-     * un'altra nel visualizzatore, e soprattutto **una nuova a ogni rotazione**, perché
-     * ruotando le colonne diventano di più e il riquadro cambia larghezza: si
-     * rigenererebbe tutto, proprio nel momento in cui l'utente ha già le miniature in mano.
-     * ⚠️⚠️ **POI: 512 è la misura che il MediaStore usa per le sue** (`MINI_KIND` è
-     * 512x384), quindi chiedere esattamente quella evita al provider un
-     * ridimensionamento in più.
-     * ⚠️ Il costo dichiarato: su un riquadro più largo di 512 px (un tablet) la
-     * miniatura si vede morbida. È il compromesso che l'utente ha accettato per la
-     * velocità, e riguarda la sola griglia.
+     * ⚠️ **La chiave della cache in memoria contiene la misura richiesta**: con la misura del
+     * riquadro, la stessa immagine avrebbe una chiave nella griglia e un'altra nel visualizzatore,
+     * e una nuova a ogni rotazione. E 512 è la misura che il MediaStore usa per le sue
+     * (`MINI_KIND` è 512x384), quindi il provider non deve ridimensionare.
+     * Su un riquadro più largo di 512 px (un tablet) la miniatura si vede morbida: compromesso
+     * accettato dall'utente per la velocità.
      */
     const val PX = 512
 
     /**
-     * Se le miniature devono vivere nella **memoria grafica**, cioè l'impostazione
-     * [Settings.gpuThumbs] portata dove un componente di Coil può leggerla.
+     * Se le miniature devono vivere nella memoria grafica: l'impostazione [Settings.gpuThumbs]
+     * resa leggibile a un componente di Coil.
      *
-     * ⚠️⚠️ **UNA VARIABILE GLOBALE, E LA RAGIONE È CHE QUI NON ARRIVA NIENT'ALTRO**: un
-     * `Fetcher` di Coil nasce dentro il caricatore, non dentro una composizione, quindi non
-     * vede né lo stato dell'app né il flusso delle preferenze. L'alternativa era passare il
-     * valore a [request] e da lì a **sei** chiamanti sparsi in cinque schermate, cioè far
-     * viaggiare un'impostazione attraverso mezza interfaccia perché la legga un componente che
-     * sta in fondo.
-     * ⚠️ **La scrive un posto solo**, `AivApp` in `ViewerActivity`, che è dove le preferenze
-     * arrivano; qui si legge e basta. ⚠️ `@Volatile` perché chi legge è un thread di I/O di
-     * Coil e chi scrive è quello dell'interfaccia.
-     * ⚠️ **Cambiarla vale per le miniature NUOVE**, e va detto invece di prometterlo: quelle
-     * già in cache restano dove sono finché la cache non le ricicla, perché una miniatura in
-     * memoria si ritrova per chiave e non si riconverte.
+     * ⚠️ **Una variabile globale perché un `Fetcher` di Coil nasce dentro il caricatore**, fuori da
+     * ogni composizione, e non vede le preferenze. La scrive solo `AivApp` in `ViewerActivity`;
+     * `@Volatile` perché la legge un thread di I/O di Coil.
+     * Cambiarla vale per le miniature nuove: quelle già in cache restano come sono.
      */
     @Volatile
     var inGpu: Boolean = false
 
     /**
-     * La richiesta di una miniatura, **una sola definizione per i due posti che la
-     * chiedono**: la griglia e l'anteprima del visualizzatore. Due costruzioni separate
-     * divergerebbero sulla misura, cioè sulla chiave, cioè sull'unica cosa che fa la
-     * differenza fra un colpo in cache e una rigenerazione.
+     * La richiesta di una miniatura, una sola definizione per la griglia e per l'anteprima del
+     * visualizzatore: due costruzioni separate divergerebbero sulla misura, cioè sulla chiave.
      *
-     * ⚠️⚠️ **`allowHardware` SI DICHIARA SEMPRE, anche da spento, e non è una ridondanza**: il
-     * valore di serie di Coil è **acceso**, quindi senza questa riga la decodifica di ripiego
-     * (i PNG con alfa, i BMP, le miniature rifiutate perché troppo piccole) darebbe bitmap in
-     * memoria grafica mentre quelle del sistema restano software. Sarebbero due comportamenti
-     * per due strade, e nessuno dei due scelto: la stessa impostazione, letta qui, li rende uno.
+     * ⚠️ **`allowHardware` si dichiara sempre, anche spento**: il valore di serie di Coil è acceso,
+     * e la decodifica di ripiego darebbe bitmap in memoria grafica mentre quelle del sistema
+     * restano software.
      */
     fun request(context: Context, uri: AndroidUri): ImageRequest =
         ImageRequest.Builder(context).data(uri).size(PX).allowHardware(inGpu)
@@ -217,36 +150,25 @@ object Thumbs {
             .build()
 
     /**
-     * L'indirizzo di una miniatura, portato dalla richiesta fino a chi la tiene su disco.
+     * L'indirizzo di una miniatura, trasmesso dalla richiesta fino a chi la tiene su disco.
      *
-     * ⚠️⚠️ **UN DECODIFICATORE NON SA DA QUALE FILE VENGONO I SUOI BYTE**, e la cache su disco ha
-     * bisogno dell'indirizzo come chiave: gli extra di una richiesta arrivano fino alle [Options],
-     * quindi sono la strada che Coil stesso offre. ⚠️ **Non entra nella chiave della cache in
-     * memoria**, perché gli extra ne restano fuori finché non li si dichiara.
-     * ⚠️ **Lo mette [request] e nessun altro**, ed è anche il cancello: una richiesta che non lo
-     * porta, cioè una che non chiede una miniatura, non legge e non scrive niente su disco.
+     * ⚠️ **Un decodificatore non sa da quale file vengono i suoi byte**, e la cache su disco ha
+     * bisogno dell'indirizzo come chiave: gli extra di una richiesta arrivano fino alle [Options].
+     * Non entrano nella chiave della cache in memoria.
+     * Lo mette solo [request], e fa da cancello: una richiesta senza, cioè che non chiede una
+     * miniatura, non legge e non scrive niente su disco.
      */
     internal val KEPT = Extras.Key<AndroidUri?>(null)
 
     /**
      * Le chiavi di cache delle miniature già viste, per indirizzo.
      *
-     * ⚠️⚠️ **ESISTE PER TOGLIERE IL FOTOGRAMMA VUOTO, che era il lampeggio rimasto**
-     * (segnalazione dell'utente, 2026-08-29: *l'immagine lampeggia ancora*, alla terza
-     * versione che ci prova). Letto sul bytecode di Coil 3.6.0 e non supposto:
-     * `AsyncImagePainter.onRemembered` chiama `launchJob`, che **lancia una coroutine**, e
-     * lo stato di partenza non disegna niente. Quindi ogni volta che un composable con una
-     * miniatura **nasce**, il suo primo fotogramma è vuoto, anche quando l'immagine è già
-     * in memoria. A tutto schermo quel fotogramma è un lampo.
-     * ⚠️⚠️ **E nasce a ogni cambio di pagina**: la vicina che scivola dentro vive in
-     * `ImageCanvas`, che al passaggio a 'sto caricando' viene smontato, e al centro nasce
-     * un'anteprima nuova con la **stessa** immagine. Un elemento esce di scena e un altro rifà il
-     * suo lavoro da capo: è la stessa lezione della riga dei dettagli nella `0.42`, questa
-     * volta sull'immagine.
-     * ⚠️ Si tiene la **chiave** e non l'immagine, e la differenza è tutta: i pixel restano
-     * quelli di Coil, che li conta nel suo budget, mentre qui c'è una stringa. Tenere i
-     * bitmap sarebbe una seconda cache in concorrenza con la prima, cioè memoria tolta
-     * alla fotografia grande.
+     * ⚠️ **Toglie il fotogramma vuoto, cioè il lampeggio**: in Coil `AsyncImagePainter.onRemembered`
+     * lancia una coroutine, e lo stato di partenza non disegna niente. Ogni composable con una
+     * miniatura che entra in scena ha quindi il primo fotogramma vuoto, anche con l'immagine già
+     * in memoria, e a ogni cambio di pagina al centro entra un'anteprima nuova.
+     * Si tiene la chiave e non l'immagine: i pixel restano nel budget di Coil, e tenere i bitmap
+     * sarebbe una seconda cache che toglie memoria all'immagine grande.
      */
     private val keys = LinkedHashMap<String, MemoryCache.Key>(16, 0.75f, true)
 
@@ -256,21 +178,12 @@ object Thumbs {
     /**
      * Gli indirizzi il cui contenuto è **cambiato** da quando l'app ne ha visto la miniatura.
      *
-     * ⚠️⚠️ **ESISTE PERCHÉ LA MINIATURA DEL SISTEMA NON HA LA DATA NELLA CHIAVE, e questa è la
-     * via che restava aperta dopo la `2.24`** (riscontro del giro, voce `mini-cestino` non
-     * approvata: *ancora sbagliata, solo nella miniatura (griglia). Era così anche prima*). Il
-     * provider tiene le proprie miniature per **riga**, quindi una fotografia riscritta sopra
-     * il proprio indirizzo tiene la riga che aveva e può farsi servire la miniatura di prima:
-     * [forget] svuota la cache che teniamo noi, e su quella del sistema non ha nessuna presa.
-     * ⚠️ **La stessa lezione era già scritta in casa**: [AvifCache] mette la data del file
-     * nella propria chiave proprio per questo, e la dichiara. Là si è potuto, qui no, perché la
-     * chiave la compone il provider.
-     * ⚠️⚠️ **QUINDI NON SI CURA LA CAUSA, SI CHIUDE LA VIA**: per un indirizzo dichiarato
-     * riscritto la strada di sistema si salta **una volta**, e la miniatura la fa la decodifica
-     * normale, che apre il file vero. Il costo è una decodifica per file riscritto, e chi non
-     * riscrive niente non paga nulla.
-     * ⚠️ Stesso tetto di [KEYS], e per la stessa ragione: sono stringhe, e il tetto serve a non
-     * crescere.
+     * ⚠️ **La miniatura del sistema non ha la data nella chiave** (voce `mini-cestino`): il
+     * provider tiene le miniature per riga, quindi un'immagine riscritta sopra il proprio
+     * indirizzo può farsi servire la miniatura di prima, e [forget] su quella cache non ha presa.
+     * [AvifCache] mette la data nella propria chiave; qui la chiave la compone il provider.
+     * Quindi per un indirizzo dichiarato riscritto la strada di sistema si salta una volta, e la
+     * miniatura la fa la decodifica normale dal file vero. Stesso tetto di [KEYS].
      */
     private val stale = LinkedHashSet<String>()
 
@@ -285,8 +198,8 @@ object Thumbs {
     /**
      * La miniatura di [uri] se è **già** in memoria, letta senza sospendere.
      *
-     * ⚠️ È la lettura sincrona che riempie il primo fotogramma. Torna `null` la prima volta
-     * che si vede un'immagine, ed è giusto così: là non c'è niente da mostrare comunque.
+     * È la lettura sincrona che riempie il primo fotogramma. Restituisce `null` la prima volta che
+     * si vede un'immagine.
      */
     @Synchronized
     fun cached(context: Context, uri: AndroidUri): coil3.Image? {
@@ -295,33 +208,18 @@ object Thumbs {
     }
 
     /**
-     * Butta la miniatura di [uri]: il file dietro quell'indirizzo è cambiato.
+     * Dimentica la miniatura di [uri]: il file dietro quell'indirizzo è cambiato.
      *
-     * ⚠️⚠️ **SERVE PERCHÉ LA CHIAVE È L'INDIRIZZO, non il contenuto**: sovrascrivendo una
-     * fotografia dall'editor interno l'indirizzo resta identico, quindi senza questa
-     * chiamata la griglia continuerebbe a mostrare la miniatura di **prima** del ritaglio,
-     * cioè un'immagine che sul telefono non esiste più.
-     * ⚠️⚠️ **NON TOCCA LA MINIATURA DEL SISTEMA, E FINO ALLA `2.24` QUESTA NOTA DICEVA CHE LA
-     * RIFACEVA IL MediaScanner: non è misurato, e il sintomo dice il contrario.** Quella cache
-     * è del provider e la sua chiave è la **riga**, non il contenuto, quindi una fotografia
-     * riscritta sopra il proprio indirizzo può farsi servire la miniatura di prima. Per questo
-     * la chiamata segna l'indirizzo in [stale], e la strada di sistema si salta una volta: il
-     * perché per esteso vive là.
-     * ⚠️⚠️ **E NON DIPENDE PIÙ DA [keys], che aveva un tetto di [KEYS] voci mentre la cache di
-     * Coil ne tiene quante la memoria le concede**: oltre quel numero la chiave era già stata
-     * sfrattata di qui, quindi non c'era niente da rimuovere e l'immagine restava là. Adesso si
-     * cercano **tutte** le chiavi che portano quell'indirizzo, e la mappa di casa serve solo a
-     * [cached].
-     * - ⚠️ **La chiave di Coil per un indirizzo è la sua stringa**, letto nel bytecode di
-     *   `UriKeyer` e non ricordato: `key(uri, options)` restituisce `uri.toString()`, e la
-     *   misura richiesta vive negli **extra**. Quindi confrontare `key` prende tutte le misure
-     *   dello stesso file, che è esattamente quello che serve.
-     * - ⚠️ **Si filtra prima e si rimuove dopo**: `keys` è un insieme che il caricatore
-     *   compone, e rimuovere mentre lo si scorre è la via all'errore di concorrenza.
-     * ⚠️⚠️ **E DIMENTICA ANCHE LA MISURA E IL PESO DEL FILE, dalla `6.26`** (rilievi B14 e C20
-     * della revisione della 6.25): [Pixels] e [sizeOf] tengono quei due numeri per indirizzo, e
-     * questo è il punto in cui l'app dichiara un file riscritto, dalla scansione, dal cestino e dai
-     * salvataggi del visualizzatore.
+     * ⚠️ **La chiave è l'indirizzo, non il contenuto**: sovrascrivendo un'immagine l'indirizzo
+     * resta identico, e senza questa chiamata la griglia mostrerebbe la miniatura di prima.
+     * La miniatura del sistema non si tocca: l'indirizzo si segna in [stale].
+     * Si cercano tutte le chiavi di Coil per quell'indirizzo, non solo quella in [keys], che ha un
+     * tetto: la chiave di Coil per un indirizzo è `uri.toString()` (`UriKeyer`), con la misura
+     * negli extra, quindi il confronto prende tutte le misure dello stesso file. Si filtra prima e
+     * si rimuove dopo, per non modificare l'insieme mentre lo si scorre.
+     * ⚠️ **Dimentica anche la misura e il peso del file** ([Pixels], [sizeOf]; rilievi B14 e C20):
+     * questo è il punto in cui l'app dichiara un file riscritto, dalla scansione, dal cestino e
+     * dai salvataggi del visualizzatore.
      */
     @Synchronized
     fun forget(context: Context, uri: AndroidUri) {
@@ -339,12 +237,8 @@ object Thumbs {
     /**
      * Se l'indirizzo è stato dichiarato **riscritto** da [forget], e in quel caso lo consuma.
      *
-     * ⚠️⚠️ **CONSUMA INVECE DI RICORDARE, ed è la differenza fra una correzione e un costo
-     * permanente**: chi risponde `true` manda quella richiesta alla decodifica normale, cioè
-     * paga una lettura del file vero; se il segno restasse, quell'indirizzo non userebbe **mai
-     * più** la miniatura già pronta del sistema, che è la ragione per cui questo file esiste.
-     * ⚠️ **Un file riscritto e poi riscritto ancora si segna di nuovo**, perché a segnarlo è
-     * chi dichiara il cambiamento: il consumo non è una rinuncia, è la fine di quel giro.
+     * ⚠️ **Consuma il segno**: se restasse, quell'indirizzo non userebbe mai più la miniatura del
+     * sistema. Una nuova riscrittura lo segna di nuovo.
      */
     @Synchronized
     fun rewritten(uri: AndroidUri): Boolean = stale.remove(uri.toString())
@@ -352,9 +246,8 @@ object Thumbs {
     /**
      * Se l'indirizzo è segnato come riscritto, **senza consumare il segno**.
      *
-     * ⚠️ **Serve alla generazione**, che non deve togliere a una griglia il giro che le spetta: il
-     * segno esiste perché la prossima miniatura mostrata di quel file venga dal file vero (vedi
-     * [stale]), e la generazione la sua non la mostra a nessuno.
+     * Serve alla generazione, che non mostra niente e non deve consumare il segno destinato alla
+     * griglia (vedi [stale]).
      */
     @Synchronized
     fun isStale(uri: AndroidUri): Boolean = uri.toString() in stale
@@ -362,14 +255,12 @@ object Thumbs {
     /**
      * Prepara la miniatura di [uri] dove resta, cioè nella cache del sistema o in quella degli AVIF.
      *
-     * ⚠️⚠️ **LA RICHIESTA È QUELLA DELLA GRIGLIA**, costruita da [request]: la stessa misura, cioè la
-     * stessa miniatura che la griglia chiederà dopo. Le differenze sono due e dichiarate: il
-     * caricatore è [warmer], e la memoria grafica è spenta, perché il risultato non si disegna.
-     * ⚠️⚠️ **UN INDIRIZZO APPENA RISCRITTO SI SALTA** ([isStale]): passando di qui il fetcher di
-     * sistema consumerebbe il segno, e la griglia tornerebbe a chiedere la miniatura vecchia che il
-     * segno esiste per evitare. Salta la sola generazione di quel file, e la griglia lo sistema da sé.
-     * ⚠️ **Un file che non si legge non ferma niente**: [ImageLoader.execute] non lancia, risponde
-     * con un errore, e l'errore di un file qui non interessa a nessuno.
+     * ⚠️ **La richiesta è quella della griglia** ([request]), quindi la stessa miniatura che la
+     * griglia chiederà dopo; cambiano il caricatore ([warmer]) e la memoria grafica, spenta perché
+     * il risultato non si disegna.
+     * ⚠️ **Un indirizzo appena riscritto si salta** ([isStale]): il fetcher di sistema consumerebbe
+     * il segno, e la griglia tornerebbe alla miniatura vecchia.
+     * Un file che non si legge non ferma niente: [ImageLoader.execute] risponde con un errore.
      */
     internal suspend fun warm(context: Context, uri: AndroidUri, loader: ImageLoader) {
         if (isStale(uri)) return
@@ -377,16 +268,11 @@ object Thumbs {
     }
 
     /**
-     * Butta **tutto** quello che Coil tiene in memoria, e le chiavi che lo indirizzavano.
+     * Svuota tutto quello che Coil tiene in memoria, e le chiavi che lo indirizzavano.
      *
-     * ⚠️⚠️ **SVUOTA LA CACHE INTERA E NON LE SOLE MINIATURE, ed è voluto**: la chiave di
-     * un'immagine grande e quella di una miniatura vivono nello stesso archivio e non si
-     * distinguono da fuori. Lasciare le prime vorrebbe dire un pulsante che promette di
-     * liberare memoria e ne libera una parte, e quello che resta si ricarica dal file in un
-     * istante, perché la fotografia a schermo è già decodificata in quella pagina.
-     * ⚠️ **Le chiavi si buttano con lei**: sono indirizzi di immagini che non ci sono più, e tenerle
-     * farebbe rispondere [cached] con `null` per ognuna, cioè un giro a vuoto per ogni
-     * miniatura già vista.
+     * La cache intera e non le sole miniature: le chiavi delle immagini grandi e delle miniature
+     * non si distinguono da fuori. Le chiavi si svuotano con lei, o [cached] le cercherebbe a
+     * vuoto.
      */
     @Synchronized
     fun forgetAll(context: Context) {
@@ -398,32 +284,22 @@ object Thumbs {
 /**
  * Il lato da chiedere quando la misura del riquadro non è ancora nota.
  *
- * ⚠️ Serve un numero vero e non zero: `Dimension.Undefined` capita quando la richiesta
- * parte prima che il riquadro sia stato misurato, e `Size(0, 0)` farebbe dividere per
- * zero dentro `loadThumbnail`. 384 è la misura tipica del lato corto delle miniature di
- * sistema, quindi non chiede niente di straordinario.
- * ⚠️ Sta a livello di FILE e non dentro l'oggetto: un membro privato di un `object` non
- * si vede da una classe del file, nemmeno accanto.
+ * ⚠️ Serve un numero vero: `Dimension.Undefined` capita quando la richiesta parte prima che il
+ * riquadro sia misurato, e `Size(0, 0)` farebbe dividere per zero dentro `loadThumbnail`. 384 è
+ * il lato corto tipico delle miniature di sistema.
+ * È a livello di file perché un membro privato di un `object` non si vede dalle classi del file.
  */
 private const val FALLBACK_PX = 384
 
 /**
- * Il bitmap portato in **memoria grafica**, se la richiesta lo chiede e se il telefono lo
- * concede.
+ * Il bitmap spostato in memoria grafica, se la richiesta lo chiede e il telefono lo concede.
  *
- * ⚠️⚠️ **SERVE PERCHÉ `allowHardware` DA SOLO NON BASTA PER NOI**: quella bandierina la legge
- * il decodificatore **di Coil**, e le miniature di questo file non passano di là: arrivano già
- * decodificate da `loadThumbnail`, da libavif o dal disegnatore SVG, e sono software per
- * costruzione. Senza questa conversione l'impostazione varrebbe per la sola strada di ripiego,
- * cioè per la minoranza dei file.
- * ⚠️ **`copy` può tornare `null`**, e non è un caso raro da ignorare: la memoria grafica ha un
- * tetto, e quando è pieno il sistema si rifiuta invece di fare spazio. Allora si tiene il
- * bitmap software, che è la cosa giusta: una miniatura in memoria normale è quello che l'app
- * fa da sempre.
- * ⚠️ **L'originale non si ricicla**: dopo la copia diventa spazzatura e il raccoglitore lo
- * prende al primo giro, mentre un `recycle()` a mano aprirebbe la classe di errori in cui
- * qualcuno disegna un bitmap già buttato. Il guadagno di memoria è lo stesso, spostato di un
- * istante.
+ * ⚠️ **`allowHardware` da solo non basta**: lo legge il decodificatore di Coil, mentre queste
+ * miniature arrivano già decodificate da `loadThumbnail`, da libavif o dal disegnatore SVG, e
+ * sono software.
+ * `copy` può restituire `null` quando la memoria grafica è piena: allora si tiene il bitmap
+ * software. L'originale non si ricicla a mano, per non rischiare di disegnare un bitmap già
+ * liberato: lo prende il raccoglitore.
  */
 private fun Bitmap.inGraphics(options: Options): Bitmap {
     if (!options.allowHardware || config == Bitmap.Config.HARDWARE) return this
@@ -431,21 +307,14 @@ private fun Bitmap.inGraphics(options: Options): Bitmap {
 }
 
 /**
- * Chiede al sistema la miniatura, e si toglie di mezzo quando non ce l'ha.
+ * Chiede al sistema la miniatura, e si tira indietro quando non ce l'ha.
  *
- * ⚠️⚠️ **RESTITUIRE `null` DA `fetch()` PASSA LA MANO AL COMPONENTE SUCCESSIVO**, ed è
- * scritto nel contratto di `Fetcher`: *'or return null to delegate to the next Factory
- * in the component registry'*. È il motivo per cui questo file non contiene nessun
- * ripiego scritto a mano: se il sistema non sa fare la miniatura, la richiesta prosegue
- * dal `ContentUriFetcher` di Coil e finisce nella decodifica normale.
- * ⚠️ E i componenti dichiarati qui vengono **prima** di quelli predefiniti: il registro
- * di Coil parte da quello dell'utente e ci accoda i suoi (`RealImageLoader`), quindi
- * l'ordine è garantito dalla costruzione e non da una convenzione.
- *
- * ⚠️ L'annotazione sulla CLASSE e non una soppressione sulla riga: le due funzioni di
- * sistema esistono da Android 10, il controllo vive nella fabbrica, e dichiararlo qui è
- * quello che permette a lint di verificare che chi costruisce questa classe l'abbia
- * fatto. Una `@SuppressLint` avrebbe spento il controllo invece di soddisfarlo.
+ * ⚠️ **Restituire `null` da `fetch()` passa la mano al componente successivo** (contratto di
+ * `Fetcher`): la richiesta prosegue nel `ContentUriFetcher` di Coil e nella decodifica normale.
+ * I componenti dichiarati qui vengono prima di quelli predefiniti (`RealImageLoader` accoda i
+ * suoi).
+ * L'annotazione è sulla classe, non una soppressione sulla riga: le funzioni di sistema esistono
+ * da Android 10, il controllo è nella fabbrica, e così lint verifica che ci sia.
  */
 @RequiresApi(Build.VERSION_CODES.Q)
 private class SystemThumbnailFetcher(
@@ -461,106 +330,44 @@ private class SystemThumbnailFetcher(
         val uri = data.toAndroidUri()
 
         /*
-         * ⚠️⚠️ **UN INDIRIZZO DICHIARATO RISCRITTO NON SI CHIEDE AL SISTEMA, DALLA `2.25`**: la
-         * cache del provider ha la **riga** per chiave e non il contenuto, quindi là la
-         * miniatura di prima è ancora buona e ce la servirebbe. Tirandosi indietro, la
-         * richiesta prosegue nella decodifica normale, che apre il file vero. Il perché per
-         * esteso, e perché non si cura la causa ma si chiude la via, vivono su [Thumbs.stale].
-         * ⚠️⚠️ **I FILMATI NO, e non è una dimenticanza**: di un `mp4` la decodifica normale di
-         * Coil non sa che farsene, quindi fino alla `2.97` tirarsi indietro là voleva dire
-         * **nessuna** miniatura invece di una vecchia. Dalla `2.98` la richiesta arriverebbe al
-         * ripiego dei video ([ClipFrames]), che la rifà dal file, ma resta un caso che questa app
-         * non produce: l'editor lavora sulle immagini.
+         * ⚠️ **Un indirizzo dichiarato riscritto non si chiede al sistema**, che servirebbe la
+         * miniatura di prima: tirandosi indietro, la richiesta arriva alla decodifica normale del
+         * file vero (vedi [Thumbs.stale]). I video no: la decodifica normale non li sa leggere, e
+         * l'editor lavora solo sulle immagini.
          */
         if (!Videos.isVideo(uri) && Thumbs.rewritten(uri)) return@withContext null
 
         /*
-         * ⚠️⚠️ **I FORMATI CON LA TRASPARENZA NON PASSANO DA QUI, dalla 1.36, e la
-         * ragione è il NERO** (riscontro dell'utente, 2026-09-02, voce `esporta-png`: *la
-         * trasparenza è sempre scacchiera nel visualizzatore, ma nelle anteprime è variabile:
-         * per gli SVG è mostrata come #EFEEEA, mentre per le PNG come nero. Voglio che ci sia
-         * coerenza fra tutte le rappresentazioni di trasparenza nelle miniature*).
-         * ⚠⚠ **La causa: le miniature del MediaStore sono JPEG**, e un JPEG non ha canale
-         * alfa: dove l'immagine era trasparente restano i byte del colore, che per un PNG
-         * appena decodificato sono zero, cioè nero. Il nero non è dipinto da noi e non si può
-         * ridipingere dopo: arriva **cotto** dentro la miniatura.
-         * ⚠️ **Quindi si sceglie DA CHE PARTE stare**: chiedendo al sistema si ha una
-         * miniatura veloce col fondo nero, decodificando in casa si ha l'alfa vera e sotto si
-         * vede il fondo del riquadro, che è `surfaceVariant`, cioè lo stesso `#EFEEEA` che lui
-         * vede sugli SVG (e la sua controparte scura, senza scriverla qui). Il ripiego di Coil
-         * fa la seconda cosa da sé: basta tirarsi indietro.
-         * ⚠️⚠️ **E DALLA 1.37 IL COSTO SI PAGA SOLO DOVE SERVE DAVVERO, chiedendo al FILE
-         * invece che al formato** (proposta accettata dall'utente, 2026-09-02, sul riscontro
-         * `mini-alfa`: la sua domanda era se costasse meno fare l'opposto, cioè annerire il
-         * fondo degli SVG, e la risposta è che costa meno ma paga in **informazione**, perché
-         * un PNG col fondo trasparente e uno col fondo nero diventerebbero indistinguibili).
-         * La terza via: **poche decine di byte di intestazione** dicono se l'alfa c'è, e la via
-         * lenta si prende solo allora. La maggior parte dei PNG non ha alfa, quindi là il costo
-         * sparisce del tutto. Vedi [seeThrough].
-         * ⚠️ **IL COSTO CHE RESTA, e va detto invece di scoprirlo**: sui file che l'alfa ce
-         * l'hanno per davvero la miniatura passa dal file intero (campionato), non dalla copia
-         * già pronta del provider. Su una cartella di PNG trasparenti da molti megapixel lo
-         * scorrimento può farsi sentire la prima volta; la cache in memoria di Coil copre le
-         * successive. È lo stesso baratto dell'AVIF, che qui accanto ha perfino una cache su
-         * disco.
-         * ⚠️ **I filmati e i JPEG non cambiano strada**: quelli non portano trasparenza, e
-         * per loro la miniatura di sistema resta la cosa giusta.
-         */
-
-        /*
-         * ⚠️⚠️ **IL BMP NON SI CHIEDE AL SISTEMA, DALLA 1.45, PERCHÉ LO RESTITUIVA A METÀ**
-         * (segnalazione dell'utente, 2026-09-03, su `blackbuck.bmp`: *l'unica con l'anteprima
-         * venuta male, c'è solo la metà inferiore*).
-         * ⚠️⚠️ **E LA METÀ INFERIORE È LA FIRMA DEL GUASTO, non un dettaglio**: in un BMP le
-         * righe stanno nel file **dal basso verso l'alto**, quindi chi ne decodifica solo la
-         * prima parte ottiene esattamente la metà di sotto dell'immagine. Non è un file rotto:
-         * misurato, quel BMP è 512x512 a 24 bit, non compresso, e porta tutte le 512 righe
-         * (786.486 byte, 54 di intestazione più 786.432 di pixel, che è il conto esatto). Chi
-         * si ferma a metà è il generatore di miniature del telefono.
-         * ⚠️ **La cura è tirarsi indietro e non correggere**: `null` manda la richiesta alla
-         * decodifica normale, che legge il file intero. Alla misura di [PX] un BMP da 512 non
-         * viene nemmeno campionato, quindi non c'è nessuna riduzione in cui perdere righe.
-         * ⚠️ **Non contraddice la scelta della `1.37`** (*il BMP è un formato morto e sepolto,
-         * potremmo anche ignorarlo*), che riguardava l'**alfa**: là il BMP è uscito
-         * dall'elenco di chi può essere trasparente, e questa è un'altra domanda. La regola
-         * nuova è sua e più recente: *dato che il supporto è gratis, cerchiamo di far sì che
-         * anche l'anteprima sia creata correttamente*.
-         */
-
-        /*
-         * ⚠️⚠️ **HEIC/HEIF NON SI CHIEDONO AL SISTEMA, DALLA `3.40`** (flash colori in
-         * sfoglio): la miniatura MediaStore spesso ignora o appiattisce il profilo ICC
-         * (`colr`/`prof`), mentre `ImageDecoder` sulla foto intera lo applica. All'apertura
-         * e a fine animazione di pagina i neutri saltavano al vivido. Tirarsi indietro manda
-         * la richiesta alla decodifica Coil (stesso percorso colore della foto piena), e
-         * [KeepingDecoderFactory] tiene il risultato su disco dalla prima volta.
-         *
-         * ⚠️ **Le tre prove qui sopra, in quest'ordine, vivono in [declines] dalla `6.28`**, che
-         * chiede il tipo al MediaStore una volta sola invece di tre (rilievo D22).
+         * Tre classi di file non si chiedono al sistema ([declines], che chiede il tipo al
+         * MediaStore una volta sola; rilievo D22, presidiato da `TipoMiniaturaTest`):
+         * - ⚠️ **i file con la trasparenza** (voci `esporta-png` e `mini-alfa`): le miniature del
+         *   MediaStore sono JPEG, senza canale alfa, e il trasparente arriva nero dentro la
+         *   miniatura. Decodificando in casa, sotto si vede il fondo del riquadro come per gli
+         *   SVG. Si decide dall'intestazione del file e non dal formato ([seeThrough]), quindi la
+         *   maggior parte dei PNG, che l'alfa non l'hanno, resta sulla via veloce;
+         * - ⚠️ **i BMP**, che il generatore del telefono restituisce a metà: le righe sono nel file
+         *   dal basso verso l'alto, e chi si ferma a metà ottiene la metà inferiore;
+         * - ⚠️ **gli HEIC e gli HEIF**: la miniatura del MediaStore spesso ignora il profilo ICC, e
+         *   i colori cambierebbero fra la miniatura e l'immagine aperta.
+         * La decodifica normale legge il file intero, e [KeepingDecoderFactory] ne tiene il
+         * risultato su disco dalla prima volta.
          */
         if (declines(options.context, uri)) return@withContext null
 
-        // ⚠️⚠️ L'ANNULLAMENTO È VERO, ed è metà della fluidità: scorrendo in fretta Coil
-        // annulla le richieste dei riquadri usciti dallo schermo, e senza questo aggancio
-        // il sistema continuerebbe a generare miniature che nessuno guarderà più,
-        // rubando I/O a quelle che si stanno per vedere.
+        // ⚠️ L'annullamento è vero: scorrendo in fretta Coil annulla le richieste dei riquadri
+        // usciti dallo schermo, e senza questo aggancio il sistema continuerebbe a generare
+        // miniature che nessuno guarderà, togliendo I/O a quelle che servono.
         val signal = CancellationSignal()
         val hook = coroutineContext[Job]?.invokeOnCompletion { signal.cancel() }
         try {
             val bitmap = try {
                 when (uri.scheme?.lowercase()) {
-                    // ⚠️ Vale anche per i FILMATI, e senza una riga in più: `loadThumbnail`
-                    // chiede al provider la miniatura di quell'indirizzo, e il MediaStore
-                    // le genera per i video come per le fotografie. È la ragione per cui
-                    // il pezzo 1 dei video (`0.83`) non ha dovuto scrivere un secondo
-                    // caricatore.
+                    // Vale anche per i video: il MediaStore genera le loro miniature come per
+                    // le immagini.
                     "content" -> options.context.contentResolver.loadThumbnail(uri, wanted, signal)
-                    // ⚠️⚠️ **Qui invece le due funzioni sono DIVERSE**, e sbagliarle non dà
-                    // una miniatura brutta: `createImageThumbnail` su un filmato va in errore, e
-                    // dalla `2.98` la richiesta finirebbe nel ripiego dei video, cioè in un
-                    // lavoro in più per ogni tessera. Il ramo `file://` è quello delle cartelle che il
-                    // MediaStore non conosce, dove non c'è nessuna tabella a dire il tipo:
-                    // lo dice l'estensione, come in `Folder.fromDisk`.
+                    // ⚠️ Per i `file://` le due funzioni sono diverse: `createImageThumbnail` su
+                    // un video va in errore, e la richiesta finirebbe nel ripiego dei video con
+                    // un lavoro in più. Il tipo lo dice l'estensione, come in `Folder.fromDisk`.
                     "file" -> uri.path?.let {
                         val file = File(it)
                         if (Videos.isVideo(uri)) {
@@ -572,51 +379,34 @@ private class SystemThumbnailFetcher(
                     else -> null
                 }
             } catch (e: Throwable) {
-                // ⚠️⚠️ UN `runCatching` QUI SAREBBE UN DIFETTO, non una scorciatoia:
-                // ingoierebbe anche l'annullamento, e allora la richiesta proseguirebbe
-                // verso la decodifica normale di una foto che nessuno sta più guardando.
-                // Quando il segnale è scattato perché la coroutine è stata annullata,
-                // `ensureActive` lo dice e si esce di qui.
+                // ⚠️ Non un `runCatching`, che ingoierebbe l'annullamento e manderebbe la
+                // richiesta alla decodifica di un'immagine che nessuno guarda più: se la
+                // coroutine è stata annullata, `ensureActive` lo dice e si esce.
                 if (e is CancellationException) throw e
                 coroutineContext.ensureActive()
                 null
             } ?: return@withContext null
 
             /*
-             * ⚠️⚠️ **UNA MINIATURA TROPPO PICCOLA SI RIFIUTA, dalla 1.52** (segnalazione
-             * dell'utente, 2026-09-04: *la sua anteprima è di qualità bassissima, come un JPG
-             * estremamente compresso*). Fino a qui si prendeva quello che il sistema dava
-             * senza confrontarlo con la misura chiesta, e la nota in testa a questo file lo
-             * dichiarava come compromesso accettato: *una miniatura EXIF è spesso 160x120,
-             * quindi su un riquadro da 324 px si vede morbida*. Il compromesso cade perché è
-             * il suo esito a essere rifiutato, e l'esito è tre volte l'ingrandimento.
-             * ⚠️⚠️ **LA CAUSA È L'ORDINE DI `createImageThumbnail`**, che prova prima la
-             * miniatura **incorporata** nell'EXIF: in un JPEG di fotocamera quella c'è quasi
-             * sempre, quindi il ramo veloce vince proprio dove l'immagine è grande e la
-             * differenza si vede di più.
-             * ⚠️ **Rifiutare vuol dire `null`, cioè passare la mano**: la richiesta prosegue
-             * nella decodifica normale di Coil, campionata alla misura chiesta. È la stessa
-             * uscita già usata per i PNG con alfa e per il BMP, e non c'è nessun ripiego
-             * scritto a mano da mantenere.
+             * ⚠️ **Una miniatura troppo piccola si rifiuta** (vedi la nota in testa al file):
+             * `createImageThumbnail` prova prima la miniatura EXIF, che in un JPEG di fotocamera
+             * c'è quasi sempre. `null` passa la mano alla decodifica normale, campionata alla
+             * misura chiesta.
              */
             if (!Videos.isVideo(uri) && tooSmall(options.context, uri, bitmap, wanted)) {
                 return@withContext null
             }
 
             /*
-             * ⚠️⚠️ **LA MINIATURA NERA DI UN VIDEO SI RIFIUTA, DALLA `2.98`**, ed è la stessa
-             * uscita della riga qui sopra: `null` passa la mano, e il componente successivo è il
-             * ripiego dei video ([ClipFrameFactory]), che sceglie un fotogramma più avanti. Il
-             * perché il sistema la dia nera, e che cosa conta come nera, vivono su [ClipFrames].
-             * ⚠️ **Il caso di una miniatura che MANCA non ha bisogno di una riga**: arriva già al
-             * ripiego dall'uscita di `loadThumbnail` qui sopra.
+             * La miniatura nera di un video si rifiuta: passa al ripiego dei video
+             * ([ClipFrameFactory]), che sceglie un fotogramma più avanti (vedi [ClipFrames]). Una
+             * miniatura che manca ci arriva già dall'uscita qui sopra.
              */
             if (Videos.isVideo(uri) && ClipFrames.isBlack(bitmap)) return@withContext null
 
             ImageFetchResult(
                 image = bitmap.inGraphics(options).asImage(),
-                // Dichiarata campionata perché lo è: non è la fotografia, è una sua
-                // riduzione, e chi legge questo esito deve saperlo.
+                // Campionata, perché è una riduzione dell'immagine.
                 isSampled = true,
                 dataSource = DataSource.DISK
             )
@@ -630,21 +420,13 @@ private class SystemThumbnailFetcher(
 /**
  * Se la miniatura che il sistema ha dato è troppo piccola per il riquadro che la chiede.
  *
- * ⚠️⚠️ **IL CONFRONTO È CONTRO IL POSSIBILE E NON CONTRO IL VOLUTO, ed è la sola forma che
- * non sbaglia sui file piccoli**: di un'icona da 96 pixel nessuno può fare una miniatura da
- * 512, quindi misurarla contro i 512 chiesti la rifiuterebbe sempre e la decodifica normale
- * ne ricaverebbe la stessa immagine, pagando due letture per lo stesso risultato. Il metro è
- * il minimo fra quello che si chiede e quello che il file ha.
- * ⚠️ **Il lato del file si legge dall'INTESTAZIONE e si ricorda**: [Pixels.longSideOf] lo
- * tiene, quindi in una griglia che scorre il costo lo paga il primo riquadro e non gli altri.
- * Non sapere la misura del file torna `false`, cioè si tiene quello che c'è: senza il metro
- * non si può dire che sia sbagliato.
- * ⚠️⚠️ **LA SOGLIA È LA METÀ, e non è un numero arbitrario**: sotto la metà l'ingrandimento
- * è di due volte o più, che è il punto in cui una riduzione smette di sembrare morbida e
- * comincia a sembrare un altro file. Sopra passano le misure che i provider servono davvero
- * (384 e 512 di lato), sotto casca la classe che fa il danno, cioè la miniatura EXIF da 160.
- * ⚠️ **Si scrive come un prodotto e non come una frazione**: `x * 2 < y` non ha né divisioni
- * né virgola mobile, quindi non ha un caso in cui arrotonda dalla parte sbagliata.
+ * ⚠️ **Il confronto è col possibile, non col voluto**: di un'icona da 96 pixel non si fa una
+ * miniatura da 512, e rifiutarla costerebbe due letture per la stessa immagine. Il metro è il
+ * minimo fra la misura chiesta e quella del file, letta dall'intestazione e ricordata da
+ * [Pixels.longSideOf]. Senza la misura del file si tiene quello che c'è.
+ * La soglia è la metà: sotto, l'ingrandimento è di due volte o più. Passano le misure che i
+ * provider servono (384 e 512 di lato), cade la miniatura EXIF da 160. Si scrive come prodotto
+ * (`x * 2 < y`), senza divisioni né virgola mobile.
  */
 private suspend fun tooSmall(
     context: Context,
@@ -660,16 +442,14 @@ private suspend fun tooSmall(
 /**
  * Chi decide se il fetcher qui sopra è utilizzabile.
  *
- * ⚠️ **Sta FUORI dalla classe annotata, e non è una questione di gusto**: annotare una
- * classe annota anche quelle innestate, quindi una fabbrica dentro il fetcher sarebbe
- * lei stessa da Android 10 in su, e costruirla per registrarla diventerebbe un errore
- * di lint su un dispositivo qualunque. Fuori, la fabbrica esiste sempre e si sfila da
- * sé dove le funzioni di sistema non ci sono.
+ * ⚠️ **È fuori dalla classe annotata**: l'annotazione vale anche per le classi innestate, e
+ * registrare una fabbrica da Android 10 in su sarebbe un errore di lint. Fuori, la fabbrica
+ * esiste sempre e si tira indietro dove le funzioni di sistema non ci sono.
  */
 private class SystemThumbnailFactory : Fetcher.Factory<Uri> {
     override fun create(data: Uri, options: Options, imageLoader: ImageLoader): Fetcher? {
-        // Le due funzioni di sistema esistono da Android 10, e `minSdk` è 28: sotto,
-        // la fabbrica si sfila e vale la decodifica normale di Coil.
+        // Le funzioni di sistema esistono da Android 10, e `minSdk` è 28: sotto vale la
+        // decodifica normale di Coil.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return null
         return when (data.scheme?.lowercase()) {
             "content", "file" -> SystemThumbnailFetcher(data, options)
@@ -679,18 +459,13 @@ private class SystemThumbnailFactory : Fetcher.Factory<Uri> {
 }
 
 /**
- * La miniatura di un video scelta da AIV, quando quella del sistema è nera o manca, dalla `2.98`.
+ * La miniatura di un video scelta da AIV, quando quella del sistema è nera o manca.
  *
- * ⚠️⚠️ **ARRIVA QUI SOLO QUELLO CHE IL SISTEMA HA RIFIUTATO**: il fetcher di sistema viene prima, e
- * si tira indietro quando la miniatura di un filmato non c'è o è nera. Quale fotogramma si scelga, e
- * perché, vive su [ClipFrames].
- * ⚠️ **Prima il disco**, come in [AvifThumbnailFetcher] e per la stessa ragione: scegliere un
- * fotogramma vuol dire aprire il contenitore e decodificarne fino a quattro, e la seconda volta non
- * serve. Il fotogramma scelto si tiene in [AvifCache], con la data del file nella chiave.
- * ⚠️ **Vale anche sotto Android 10**, dove il fetcher di sistema non esiste: là la miniatura di un
- * video mancava sempre, e `MediaMetadataRetriever` c'è da ben prima.
- * ⚠️ **Se non si trova niente passa la mano**, e la richiesta finisce come finiva fino alla `2.97`:
- * senza miniatura.
+ * Arriva qui solo quello che il fetcher di sistema ha rifiutato; quale fotogramma si sceglie lo
+ * dice [ClipFrames]. Prima si guarda il disco: scegliere un fotogramma vuol dire decodificarne
+ * fino a quattro, e il risultato si tiene in [AvifCache], con la data del file nella chiave.
+ * Vale anche sotto Android 10, dove il fetcher di sistema non esiste. Se non trova niente passa
+ * la mano, e la richiesta finisce senza miniatura.
  */
 private class ClipFrameFetcher(
     private val data: Uri,
@@ -721,10 +496,8 @@ private class ClipFrameFetcher(
 }
 
 /**
- * Chi decide se il ripiego dei video serve: per un filmato sempre, e per il resto mai.
- *
- * ⚠️ **Lo dice l'indirizzo e non i byte** ([Videos.isVideo]), quindi `create` non tocca il disco,
- * che è il patto di una fabbrica: la domanda si fa durante la composizione.
+ * Chi decide se il ripiego dei video serve: per un video sempre, per il resto mai. Lo dice
+ * l'indirizzo ([Videos.isVideo]), quindi `create` non tocca il disco.
  */
 private class ClipFrameFactory : Fetcher.Factory<Uri> {
     override fun create(data: Uri, options: Options, imageLoader: ImageLoader): Fetcher? {
@@ -735,17 +508,11 @@ private class ClipFrameFactory : Fetcher.Factory<Uri> {
 }
 
 /**
- * La miniatura già fatta una volta, ritrovata su disco, dalla `2.99`.
- *
- * ⚠️⚠️ **È LA RISPOSTA `disco` A `d-mini-disco`** (giro della `2.98`): quello che il sistema non
- * tiene (i file con la trasparenza, i BMP, gli SVG, e quelli la cui miniatura di sistema è troppo
- * piccola) passava dalla decodifica normale di Coil e si buttava, quindi a ogni apertura
- * dell'app si decodificava di nuovo. Adesso lo tiene [KeepingDecoderFactory], e lo ritrova questo.
- * ⚠️ **Legge anche le miniature degli AVIF**, che fino alla `2.98` le leggeva il loro fetcher: la
- * cartella è la stessa, e un lettore solo è una domanda sola al MediaStore per richiesta.
- * ⚠️ **I filmati no**: il loro fotogramma lo cerca e lo ritrova [ClipFrameFetcher], che viene
- * prima, e arrivare qui vorrebbe dire una domanda in più per un file che non ha niente su disco.
- * ⚠️ **Se non trova niente passa la mano**, come vuole il contratto di `Fetcher`.
+ * La miniatura già fatta una volta, ritrovata su disco (risposta `disco` dell'utente a
+ * `d-mini-disco`): quello che il sistema non tiene lo salva [KeepingDecoderFactory], e lo ritrova
+ * questo, insieme alle miniature degli AVIF. Una sola domanda al MediaStore per richiesta.
+ * I video no: il loro fotogramma lo cerca [ClipFrameFetcher], che viene prima. Se non trova
+ * niente passa la mano.
  */
 private class DiskThumbnailFetcher(
     private val data: Uri,
@@ -765,10 +532,7 @@ private class DiskThumbnailFetcher(
 
 /**
  * Chi decide se il lettore del disco serve: per una miniatura chiesta da [Thumbs.request] che non
- * sia un filmato, e per il resto mai.
- *
- * ⚠️ **Lo dice la richiesta e non i byte**, quindi `create` non tocca il disco, che è il patto di
- * una fabbrica.
+ * sia un video. Lo dice la richiesta, quindi `create` non tocca il disco.
  */
 private class DiskThumbnailFactory : Fetcher.Factory<Uri> {
     override fun create(data: Uri, options: Options, imageLoader: ImageLoader): Fetcher? {
@@ -780,21 +544,17 @@ private class DiskThumbnailFactory : Fetcher.Factory<Uri> {
 }
 
 /**
- * Il decodificatore che tiene su disco quello che la decodifica normale ha fatto, dalla `2.99`.
+ * Il decodificatore che tiene su disco quello che la decodifica normale ha fatto.
  *
- * ⚠️⚠️ **NON DECODIFICA NIENTE DA SÉ**: chiede al registro il decodificatore che verrebbe dopo di
- * lui (`newDecoder` con l'indice successivo al suo), lo fa lavorare e ne salva il risultato in
- * [AvifCache]. Così la cache vale per tutto quello che arriva alla decodifica, cioè per le classi
- * di file che il sistema non serve, e per nessun'altra: una miniatura che il sistema ha già in
- * mano non passa di qui, e non occupa spazio due volte.
- * ⚠️⚠️ **UN `Decoder` E NON UN INTERCETTORE, ed è la sola strada che dice CHI ha fatto la
- * miniatura**: un intercettore vede ogni risultato, e da fuori una miniatura del sistema, una di un
- * AVIF e una decodificata sono tutte e tre `DataSource.DISK`. Qui arriva soltanto la terza.
- * ⚠️ **L'indirizzo arriva dagli extra** ([Thumbs.KEPT]), perché un decodificatore riceve i byte e
- * non sa da quale file vengono. Senza quell'extra si tira indietro, quindi una richiesta che non
- * chiede una miniatura non scrive niente su disco.
- * ⚠️ **Se il suo posto nel registro non si trova si tira indietro**: cercare dal primo vorrebbe dire
- * ritrovare se stesso, cioè chiamarsi all'infinito.
+ * ⚠️ **Non decodifica niente da sé**: chiede al registro il decodificatore successivo al suo
+ * posto (`newDecoder`), lo fa lavorare e ne salva il risultato in [AvifCache]. Così la cache vale
+ * solo per i file che il sistema non serve.
+ * È un `Decoder` e non un intercettore perché è la sola strada che dice chi ha fatto la
+ * miniatura: da fuori una miniatura del sistema, una di un AVIF e una decodificata sono tutte
+ * `DataSource.DISK`.
+ * L'indirizzo arriva dagli extra ([Thumbs.KEPT]); senza, si tira indietro.
+ * ⚠️ **Se il suo posto nel registro non si trova si tira indietro**: cercando dal primo
+ * ritroverebbe se stesso, e si chiamerebbe all'infinito.
  */
 private class KeepingDecoderFactory : Decoder.Factory {
     override fun create(result: SourceFetchResult, options: Options, imageLoader: ImageLoader): Decoder? {
@@ -817,7 +577,7 @@ private class KeepingDecoder(
         val result = next.decode() ?: return null
         val image = result.image as? coil3.BitmapImage ?: return result
         withContext(Dispatchers.IO) {
-            // ⚠️ **Una bitmap in memoria grafica si copia prima di comprimerla**: i suoi pixel non
+            // ⚠️ Una bitmap in memoria grafica si copia prima di comprimerla: i suoi pixel non
             // sono leggibili da qui, e `compress` su di lei dipende dalla versione di Android.
             val bitmap = image.bitmap.let {
                 if (it.config == Bitmap.Config.HARDWARE) it.copy(Bitmap.Config.ARGB_8888, false) else it
@@ -829,11 +589,9 @@ private class KeepingDecoder(
 }
 
 /**
- * Il lato con cui una miniatura si ritrova su disco, uguale per chi scrive e per chi legge.
- *
- * ⚠️ **Una funzione sola per chi scrive e per chi legge** (il lettore del disco, il decodificatore
- * che tiene e l'AVIF): la chiave del disco porta questo numero, e due conti diversi farebbero
- * scrivere una miniatura che nessuno ritrova.
+ * Il lato con cui una miniatura si ritrova su disco: una funzione sola per chi scrive e per chi
+ * legge, perché il numero è nella chiave, e due conti diversi scriverebbero miniature che
+ * nessuno ritrova.
  */
 private fun boxOf(options: Options): Int = maxOf(
     options.size.width.pxOrElse { FALLBACK_PX },
@@ -843,19 +601,12 @@ private fun boxOf(options: Options): Int = maxOf(
 /**
  * La miniatura di un AVIF, fatta da libavif invece che dal telefono, e tenuta su disco.
  *
- * ⚠️ **Costa quanto aprire l'immagine intera la PRIMA volta**, e va detto invece di lasciarlo
- * scoprire: un AVIF non porta dentro una miniatura già pronta come fa un JPEG, quindi per un
- * riquadro da 512 pixel bisogna decodificare i 24 megapixel e poi ridurli. Dalla `1.31` si
- * paga **una volta sola per file**, perché il risultato finisce in [AvifCache]: prima si
- * pagava a ogni apertura della cartella, ed è la segnalazione che ha fatto nascere quella
- * cache.
- * ⚠️ I piani decodificati stanno nella memoria **nativa** di libavif, non nell'heap dell'app:
- * quello che arriva in Java è già il riquadro piccolo.
- *
- * ⚠️⚠️ **È UN `Fetcher` E NON UN `Decoder`, ed è cambiato nella 1.31**: un decodificatore
- * riceve i **byte** e non sa da quale file vengono, mentre la cache su disco ha bisogno
- * dell'indirizzo come chiave. Un `Fetcher.Factory<Uri>` lo riceve come parametro, quindi la
- * cache si può guardare **prima** di leggere venticinque megabyte, che è il punto di averla.
+ * ⚠️ **La prima volta costa quanto aprire l'immagine intera**: un AVIF non contiene una
+ * miniatura pronta, e per 512 pixel si decodificano tutti i megapixel. Si paga una volta per
+ * file, perché il risultato finisce in [AvifCache]. I piani decodificati restano nella memoria
+ * nativa di libavif: in Java arriva già il riquadro piccolo.
+ * È un `Fetcher` e non un `Decoder` perché riceve l'indirizzo, che è la chiave della cache su
+ * disco, prima di leggere il file.
  */
 @RequiresApi(Build.VERSION_CODES.Q)
 private class AvifThumbnailFetcher(
@@ -868,14 +619,12 @@ private class AvifThumbnailFetcher(
         val uri = data.toAndroidUri()
         val box = boxOf(options)
 
-        // ⚠️ **Il disco l'ha già guardato [DiskThumbnailFetcher]**, che viene prima nella catena:
-        // arrivare qui vuol dire che la miniatura non c'era. Fino alla `2.98` la lettura viveva in
-        // questo punto, e dalla `2.99` il lettore è uno solo per tutto quello che sta su disco.
+        // Il disco l'ha già guardato [DiskThumbnailFetcher], che viene prima: qui la miniatura
+        // non c'era.
         /*
-         * ⚠️ **Si legge il file INTERO e non a pezzi**, perché libavif vuole tutto il flusso
-         * in un buffer diretto: non esiste un modo di decodificare un AVIF leggendone solo la
-         * testa. ⚠️ E si legge **solo** dopo aver riconosciuto il formato dai primi byte, o
-         * questa riga porterebbe in memoria ogni JPEG della cartella.
+         * ⚠️ Si legge il file intero, perché libavif vuole tutto il flusso in un buffer diretto,
+         * ma solo dopo aver riconosciuto il formato dai primi byte, o in memoria finirebbe ogni
+         * JPEG della cartella.
          */
         val bytes = runCatching {
             options.context.contentResolver.openInputStream(uri)?.use { stream ->
@@ -899,12 +648,9 @@ private class AvifThumbnailFetcher(
 /**
  * Chi decide se il caricatore AVIF serve.
  *
- * ⚠️ **Non guarda i byte, e non potrebbe**: `create` non sospende, e aprire un file qui
- * vorrebbe dire un accesso al disco durante la composizione. Il riconoscimento sta dentro
- * `fetch`, che gira su IO e torna `null` quando il file non è un AVIF: da lì la richiesta
- * prosegue verso la decodifica normale di Coil, come vuole il contratto di `Fetcher`.
- * ⚠️ **Sta DOPO la fabbrica di sistema** nel registro, e l'ordine è la ragione per cui le due
- * convivono: al sistema si chiede per primo, e per un AVIF si tira indietro da sé.
+ * Non guarda i byte: `create` non sospende, e aprire un file qui sarebbe un accesso al disco
+ * durante la composizione. Il riconoscimento è dentro `fetch`, su IO, che restituisce `null` se il
+ * file non è un AVIF. È dopo la fabbrica di sistema nel registro.
  */
 private class AvifThumbnailFactory : Fetcher.Factory<Uri> {
     override fun create(data: Uri, options: Options, imageLoader: ImageLoader): Fetcher? {
@@ -919,12 +665,8 @@ private class AvifThumbnailFactory : Fetcher.Factory<Uri> {
 /**
  * La miniatura di un SVG, disegnata da androidsvg.
  *
- * ⚠️ **Costa poco, al contrario di quella di un AVIF, e per questo non ha una cache su
- * disco**: là bisogna decodificare ventiquattro megapixel per ricavarne 512, qui si disegna
- * un documento di qualche kilobyte **direttamente** nella misura giusta. Non c'è nessun
- * lavoro grande da buttare via, quindi non c'è niente da conservare.
- * ⚠️ **Il tetto ai pixel non si passa**, e il perché sta su [Svg.FREE]: con un lato lungo di
- * 512 non potrebbe scattare mai.
+ * Costa poco: un documento di qualche kilobyte si disegna direttamente nella misura giusta. Il
+ * tetto ai pixel non si passa (vedi [Svg.FREE]): con un lato lungo di 512 non scatterebbe mai.
  */
 private class SvgThumbnailDecoder(
     private val source: coil3.decode.ImageSource,
@@ -937,17 +679,14 @@ private class SvgThumbnailDecoder(
             options.size.height.pxOrElse { FALLBACK_PX }
         )
         coroutineContext.ensureActive()
-        // ⚠️ **Uno stream e non un array di byte**, ed è la ragione per cui qui non c'è
-        // nessun tetto di lettura: il parser legge il documento mentre scorre, quindi un
-        // file grosso non passa mai per un array grande quanto lui.
+        // Un flusso e non un array di byte, quindi nessun tetto di lettura: il parser legge il
+        // documento mentre scorre.
         val drawn = Svg.render(source.source().inputStream(), box) ?: return@withContext null
         DecodeResult(
             image = drawn.bitmap.inGraphics(options).asImage(),
-            // ⚠️ **`true` sempre, e NON il `sampled` del disegno**: quel campo dice se il
-            // raster è più piccolo del documento, mentre a Coil serve sapere se questa è
-            // l'immagine **intera**, e una miniatura non lo è mai. Dichiarandola intera,
-            // Coil la riuserebbe per una richiesta più grande, cioè un'icona da 512 pixel
-            // stirata a schermo pieno.
+            // ⚠️ Sempre `true`, non il `sampled` del disegno: a Coil serve sapere se è l'immagine
+            // intera, e una miniatura non lo è mai. Dichiarata intera, Coil la riuserebbe per
+            // una richiesta più grande, stirata a schermo pieno.
             isSampled = true
         )
     }
@@ -956,17 +695,13 @@ private class SvgThumbnailDecoder(
 /**
  * Chi decide se il disegnatore SVG serve.
  *
- * ⚠️⚠️ **SI GUARDANO I BYTE, E SI GUARDANO SENZA CONSUMARLI**: `peek()` dà un secondo
- * lettore sullo stesso buffer, quindi il decodificatore predefinito trova la sorgente intatta
- * quando questo si sfila. Senza, un JPEG resterebbe senza i suoi primi mille byte.
- * ⚠️⚠️ **MA SOLO QUANDO SI SFILA: UN SÌ CHE IL DISEGNO NON ONORA COSTA LA MINIATURA**, ed è il
- * difetto trovato il 2026-09-25 su un PNG col manifesto C2PA, che porta un'icona SVG in testa.
- * Il parser chiude la sorgente anche quando fallisce, e i decodificatori di serie la trovano
- * chiusa: quindi questa domanda può sbagliare per difetto e mai per eccesso. Il perché per
- * esteso vive su [Svg.looksLike].
- * ⚠️ **Il tipo dichiarato conta come il contenuto**, ed è la stessa coppia di prove che usa
- * Coil nel suo `SvgDecoder.Factory`: un `content://` può dichiarare `image/svg+xml` senza che
- * i byte comincino col tag, per esempio quando in testa c'è una dichiarazione XML lunga.
+ * ⚠️ **Si guardano i byte senza consumarli**: `peek()` dà un secondo lettore sullo stesso buffer,
+ * e il decodificatore predefinito trova la sorgente intatta quando questo si tira indietro.
+ * ⚠️ **Un sì sbagliato costa la miniatura**: il parser chiude la sorgente anche quando fallisce
+ * (un PNG col manifesto C2PA contiene un'icona SVG in testa), quindi la domanda può sbagliare
+ * per difetto e mai per eccesso (vedi [Svg.looksLike]).
+ * Il tipo dichiarato conta come il contenuto, come nel `SvgDecoder.Factory` di Coil: un
+ * `content://` può dichiarare `image/svg+xml` con una dichiarazione XML lunga in testa.
  */
 private class SvgThumbnailFactory : Decoder.Factory {
     override fun create(
@@ -987,18 +722,11 @@ private class SvgThumbnailFactory : Decoder.Factory {
 }
 
 /**
- * Se il file può portare **trasparenza**, e quindi la sua miniatura non si chiede al sistema.
+ * Se il file può avere trasparenza, e quindi la sua miniatura non si chiede al sistema.
  *
- * ⚠️ **Il tipo prima e il nome dopo**: su un `content://` del MediaStore il percorso non
- * porta nessuna estensione (è un numero), quindi l'unica via è chiedere il tipo al provider;
- * su un `file://` invece il tipo non lo dichiara nessuno e l'estensione c'è sempre. Nessuna
- * delle due prove basta da sola.
- * ⚠️ **Gira su IO**, dentro `fetch`, e non nella fabbrica: `create` non sospende, e
- * chiedere il tipo a un provider durante la composizione vorrebbe dire un accesso al disco nel
- * mezzo di un disegno.
- * ⚠️ **Gli SVG ci sono per completezza ma non passano da qui**: li prende il loro
- * decodificatore, che sta più avanti nel registro. Toglierli dall'elenco renderebbe la
- * risposta di questa funzione una mezza verità da tenere a mente.
+ * Il tipo prima e il nome dopo: su un `content://` del MediaStore il percorso è un numero, su un
+ * `file://` il tipo non lo dichiara nessuno. Gira su IO, dentro `fetch`, e non nella fabbrica.
+ * Gli SVG sono nell'elenco per completezza: li prende il loro decodificatore, più avanti.
  */
 private fun seeThrough(context: Context, uri: AndroidUri, mime: String?): Boolean {
     val forma = when {
@@ -1009,13 +737,9 @@ private fun seeThrough(context: Context, uri: AndroidUri, mime: String?): Boolea
         }
     } ?: return false
     /*
-     * ⚠️⚠️ **SOLO PNG E WEBP SI FANNO CHIEDERE, dalla 1.37, e le altre due forme NO**: in un
-     * GIF la trasparenza non sta in un'intestazione a posizione fissa ma in un blocco di
-     * estensione prima di ogni fotogramma, quindi per saperlo bisognerebbe scandire il file, e
-     * a quel punto tanto vale decodificarlo. Un GIF resta quindi sempre sulla via lenta.
-     * ⚠️ **Il BMP è uscito dall'elenco**, non messo sulla via lenta: parole dell'utente
-     * (2026-09-02), *il BMP è un formato morto e sepolto, potremmo anche ignorarlo*. Quindi
-     * torna alla miniatura di sistema come un JPEG, ed è una scelta sua e non una svista.
+     * Solo PNG e WebP si interrogano: in un GIF la trasparenza è in un blocco prima di ogni
+     * fotogramma, e per saperlo bisognerebbe scandire il file, quindi un GIF va sempre sulla via
+     * lenta. Il BMP non è nell'elenco: va sulla via lenta per un'altra ragione ([isBmp]).
      */
     return when (forma) {
         Alpha.SEMPRE -> true
@@ -1024,17 +748,14 @@ private fun seeThrough(context: Context, uri: AndroidUri, mime: String?): Boolea
 }
 
 /**
- * Se il file **dichiara** un canale alfa nella propria intestazione.
+ * Se il file dichiara un canale alfa nella propria intestazione.
  *
- * ⚠️⚠️ **NEL DUBBIO RISPONDE SÌ, ed è la parte che conta**: un falso sì costa una decodifica
- * in più, un falso no ridà il fondo nero che questa storia doveva togliere. Quindi ogni
- * intestazione illeggibile, troncata o inattesa vale come 'forse'.
- * ⚠️ **Legge [SNIFF] byte e basta**: in un PNG i chunk che possono dichiarare trasparenza
- * stanno **prima** di `IDAT` per specifica, quindi la finestra li contiene sempre tranne nei
- * file con profili di colore enormi in testa, dove si ricade sul 'forse'.
- * ⚠️ **Non usa `BitmapFactory` con `inJustDecodeBounds`, che sarebbe la via ovvia**: quella
- * dice `hasAlpha` solo dopo aver deciso una configurazione, e su una PNG a palette con `tRNS`
- * risponde in modo che dipende dalla versione di Android. I byte del file no.
+ * ⚠️ **Nel dubbio risponde sì**: un falso sì costa una decodifica in più, un falso no ridà il
+ * fondo nero. Ogni intestazione illeggibile, troncata o inattesa vale come 'forse'.
+ * Legge [SNIFF] byte: in un PNG i chunk della trasparenza sono prima di `IDAT` per specifica,
+ * quindi la finestra li contiene, salvo profili di colore enormi in testa ('forse').
+ * Non usa `BitmapFactory` con `inJustDecodeBounds`: su un PNG a palette con `tRNS` il suo
+ * `hasAlpha` dipende dalla versione di Android.
  */
 private fun declaresAlpha(context: Context, uri: AndroidUri): Boolean {
     val testa = runCatching {
@@ -1055,8 +776,8 @@ private fun declaresAlpha(context: Context, uri: AndroidUri): Boolean {
     }.getOrNull() ?: return true
     if (testa.size < 32) return true
 
-    // ── PNG: il tipo di colore sta a 25, e la palette può portare un `tRNS` ──
-    if (testa.size >= 26 && PNG_MAGIC.indices.all { testa[it] == PNG_MAGIC[it] }) {
+    // ── PNG: il tipo di colore è al byte 25, e la palette può avere un `tRNS` ──
+    if (testa.size >= 26 && Signatures.png(testa)) {
         return when (testa[25].toInt()) {
             // 4 = grigio più alfa, 6 = RGBA: l'alfa è nel formato stesso.
             4, 6 -> true
@@ -1076,11 +797,9 @@ private fun declaresAlpha(context: Context, uri: AndroidUri): Boolean {
             // Il bit 0x10 del byte dei flag è ALPHA, per specifica.
             "VP8X" -> testa.size > 20 && (testa[20].toInt() and 0x10) != 0
             /*
-             * ⚠️ Il senza-perdita dichiara l'alfa **nel proprio flusso di bit**, e il bit si
-             * legge: dopo la firma `0x2F` a 20 vengono 14 bit di larghezza, 14 di altezza e
-             * poi `alpha_is_used`, cioè il bit 28 dei quattro byte a partire da 21, letti
-             * little-endian. ⚠️ Misurato su file veri, non solo letto nella specifica: un
-             * lossless RGBA dà 1 e due lossless RGB dànno 0.
+             * Il senza perdita dichiara l'alfa nel proprio flusso di bit: dopo la firma `0x2F` al
+             * byte 20 vengono 14 bit di larghezza, 14 di altezza e `alpha_is_used`, cioè il bit 28
+             * dei quattro byte dal 21, letti little-endian. Misurato su file veri.
              */
             "VP8L" -> if (testa.size >= 25) {
                 val v = (testa[21].toInt() and 0xFF) or
@@ -1121,16 +840,10 @@ private fun fourcc(testa: ByteArray, cerca: String): Boolean? {
 }
 
 /**
- * Se questo file è un BMP, cioè quello che il sistema non sa ridurre. Vedi la nota in
- * [SystemThumbnailFetcher].
+ * Se questo file è un BMP, che il sistema riduce a metà (vedi [SystemThumbnailFetcher]).
  *
- * ⚠️ **Il tipo prima e il nome dopo, come [seeThrough]**, e per la stessa ragione: su un
- * `content://` del MediaStore il percorso è un numero e l'unica via è chiedere il tipo al
- * provider; su un `file://` il tipo non lo dichiara nessuno e l'estensione c'è sempre.
- * ⚠️ **Non guarda i byte, e non serve**: la domanda non è 'che formato sono questi byte' ma
- * 'a chi chiedo la miniatura'. Sbagliare nel verso del sì costa una decodifica in casa, che è
- * quello che si vuole comunque; un file chiamato `.bmp` che non lo è la decodifica normale lo
- * apre uguale.
+ * Il tipo prima e il nome dopo, come [seeThrough]. Non guarda i byte: la domanda è a chi chiedere
+ * la miniatura, e un falso sì costa solo una decodifica in casa.
  */
 private fun isBmp(uri: AndroidUri, mime: String?): Boolean {
     if (mime != null) return mime == "image/bmp"
@@ -1138,10 +851,8 @@ private fun isBmp(uri: AndroidUri, mime: String?): Boolean {
 }
 
 /**
- * HEIC/HEIF: stesso riconoscimento di [isBmp], per MIME o estensione.
- *
- * ⚠️ **Il MIME puo mancare** su `file://` e su certi provider: l'estensione copre quel caso.
- * HEIF e HEIC condividono il contenitore; entrambi passano da [ImageDecoder] con ICC.
+ * Se questo file è un HEIC o un HEIF, per tipo o per estensione come [isBmp]. Il tipo può
+ * mancare su `file://` e su certi provider: l'estensione copre quel caso.
  */
 private fun isHeic(uri: AndroidUri, mime: String?): Boolean {
     if (mime != null) {
@@ -1156,10 +867,9 @@ private fun isHeic(uri: AndroidUri, mime: String?): Boolean {
  * Se la miniatura di [uri] va fatta in casa invece di chiederla al sistema: trasparenza vera
  * ([seeThrough]), BMP ([isBmp]) o HEIC ([isHeic]), in quest'ordine.
  *
- * ⚠️ **Il tipo si chiede al provider UNA volta, dalla `6.28`** (rilievo D22 della revisione della
- * 6.25): ognuna delle tre prove lo chiedeva per conto suo, cioè tre domande al processo del
- * MediaStore per ogni riquadro che entra in vista (misurato in `TipoMiniaturaTest`). Su un
- * `file://` il tipo non lo dichiara nessuno, e le tre prove guardano il nome.
+ * ⚠️ **Il tipo si chiede al provider una volta sola** per le tre prove (rilievo D22, presidiato
+ * da `TipoMiniaturaTest`): è una domanda al processo del MediaStore per ogni riquadro che entra
+ * in vista. Su un `file://` le tre prove guardano il nome.
  */
 internal fun declines(context: Context, uri: AndroidUri): Boolean {
     val mime = if (uri.scheme?.lowercase() == "content") {
@@ -1173,18 +883,12 @@ internal fun declines(context: Context, uri: AndroidUri): Boolean {
 /** Quanto si legge in testa a un file per sapere se dichiara l'alfa. Vedi [declaresAlpha]. */
 private const val SNIFF = 4096
 
-private val PNG_MAGIC = byteArrayOf(
-    0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A
-)
-
 /** Come si sa se un formato può avere l'alfa: sempre, o solo se il file lo dichiara. */
 private enum class Alpha { SEMPRE, SE_DICHIARATA }
 
 /**
- * I tipi che possono avere un canale alfa, e come lo si accerta. Vedi [seeThrough].
- *
- * ⚠️ **`image/bmp` NON è più qui dalla 1.37**, per scelta dell'utente: formato morto, torna
- * alla miniatura di sistema come un JPEG.
+ * I tipi che possono avere un canale alfa, e come lo si accerta. Vedi [seeThrough]. Il BMP non
+ * c'è, per scelta dell'utente: lo tratta [isBmp].
  */
 private val SEE_THROUGH_MIME = mapOf(
     "image/png" to Alpha.SE_DICHIARATA,
@@ -1193,7 +897,7 @@ private val SEE_THROUGH_MIME = mapOf(
     "image/svg+xml" to Alpha.SEMPRE
 )
 
-/** Le code degli stessi formati, per quando il tipo non lo dichiara nessuno. */
+/** Le estensioni degli stessi formati, per quando il tipo non lo dichiara nessuno. */
 private val SEE_THROUGH_EXT = mapOf(
     "png" to Alpha.SE_DICHIARATA,
     "webp" to Alpha.SE_DICHIARATA,

@@ -20,36 +20,24 @@ import androidx.compose.ui.graphics.Shader as ComposeShader
  * Far girare il conto dell'editor completo **fuori schermo**, cioè sul file pieno invece che
  * sull'anteprima.
  *
- * ⚠️⚠️ **ESISTE PERCHÉ UN `RuntimeShader` NON GIRA SU UNA TELA DI MEMORIA, e la
- * documentazione di Android lo dice in una riga**: quel tipo di programma vive sulla scheda
- * grafica, quindi un `Canvas` costruito sopra un `Bitmap` lo ignora. Salvare vuol dire applicare
- * lo **stesso** conto dell'anteprima a venti megapixel, e l'unica strada che non lo riscrive una
- * seconda volta in Kotlin è disegnare davvero, su una superficie che non si vede.
- * - **I tre pezzi che servono**, e nessuno di loro è facoltativo: un [ImageReader], che è la
- *   superficie dove il disegno atterra; un [HardwareRenderer], che è il motore; un [RenderNode],
- *   che è la scena da disegnare. Quello che esce è un buffer della scheda grafica, e
- *   `Bitmap.wrapHardwareBuffer` lo rende una mappa di pixel leggibile.
+ * ⚠️⚠️ **Esiste perché un `RuntimeShader` non gira su una tela di memoria**: quel programma vive
+ * sulla scheda grafica, e un `Canvas` costruito sopra un `Bitmap` lo ignora. Salvare vuol dire
+ * applicare lo stesso conto dell'anteprima al file pieno, e l'unica strada che non lo riscrive in
+ * Kotlin è disegnare davvero, su una superficie che non si vede: un [ImageReader] (la superficie),
+ * un [HardwareRenderer] (il motore) e un [RenderNode] (la scena). Il buffer che esce diventa una
+ * mappa di pixel leggibile con `Bitmap.wrapHardwareBuffer`.
  *
- * ⚠️⚠️ **SI LAVORA A TESSERE PERCHÉ UNA TEXTURE HA UN TETTO, e non è lo stesso su ogni
- * telefono**: una fotografia da ventiquattro megapixel è larga seimila pixel, e non tutte le
- * schede grafiche accettano una texture così. Il minimo che ogni apparecchio con Android 13
- * garantisce è [TILE], quindi si lavora in quadrati di quel lato: chiedere alla scheda quanto
- * regge vorrebbe dire aprire un contesto grafico per una domanda sola.
- * - ⚠️⚠️ **DALLA `2.22` LE TESSERE SI SOVRAPPONGONO, E IL BORDO SI BUTTA VIA DOPO**: fino alla
- *   `2.21` ogni operazione guardava **un pixel per volta**, quindi due tessere accostate non
- *   avevano nessuna cucitura; il modulo Dettaglio guarda i vicini, e senza un bordo il filtro
- *   dell'ultima colonna di una tessera leggerebbe il **bordo ripetuto** invece del pixel che sta
- *   di là, cioè su ogni giunzione comparirebbe una riga. Il conto vive in [tileBox], e quanto
- *   largo debba essere quel bordo lo dicono i filtri stessi (`Detail.bleed` e, dalla `2.53`,
- *   `Effects.bleed`), di cui si prende il più largo.
- * - ⚠️ **Il passo si stringe di quanto il bordo cresce**, o una tessera col bordo supererebbe il
- *   tetto della texture, che è la ragione per cui le tessere esistono.
+ * ⚠️⚠️ **Si lavora a tessere perché una texture ha un tetto, diverso da telefono a telefono**:
+ * un'immagine da ventiquattro megapixel è larga seimila pixel. Il minimo garantito è [TILE].
+ * - ⚠️ **Le tessere si sovrappongono, e il bordo si scarta dopo**: i moduli Dettaglio ed Effetti
+ *   guardano i vicini, e senza un bordo il filtro dell'ultima colonna di una tessera leggerebbe il
+ *   bordo ripetuto, cioè su ogni giunzione comparirebbe una riga. Il conto vive in [tileBox], e la
+ *   larghezza del bordo la dicono i filtri stessi ([bleedFor]).
+ * - Il passo si stringe di quanto il bordo cresce, o una tessera col bordo supererebbe il tetto.
  *
- * ⚠️⚠️ **E PRIMA DI FIDARSI SI PROVA, con [works]**: se questo percorso non funziona su un
- * telefono (una scheda grafica che rifiuta il formato, un buffer che non arriva), quello che se
- * ne ricava è un'immagine **nera**, e scritta sul file prende il posto della fotografia. Una
- * prova su un quadrato di colore noto costa un millesimo di secondo e distingue 'non ha
- * funzionato' da 'è venuto nero davvero'.
+ * ⚠️⚠️ **Prima di fidarsi si prova, con [works]**: se il percorso non funziona su un telefono, ne
+ * esce un'immagine nera, che scritta sul file prende il posto dell'originale. Una prova su un
+ * quadrato di colore noto costa un millesimo di secondo.
  */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 internal object AdjustRender {
@@ -61,9 +49,8 @@ internal object AdjustRender {
      * mano, e qui non si sa se sia l'unica copia.
      */
     fun apply(source: Bitmap, look: Look): Bitmap? {
-        // ⚠️ **Si guarda il COLORE e non l'immagine intera, dalla `2.29`**: qui si fa girare lo
-        // shader, e con la sola geometria mossa quel programma non ha niente da applicare. La
-        // deformazione è la passata dopo, e vive in `Geometry.kt`.
+        // ⚠️ Si guarda il colore e non tutto il `Look`: con la sola geometria mossa lo shader non
+        // ha niente da applicare. La deformazione è la passata dopo, in `Geometry.kt`.
         if (look.plain) return null
         if (!works()) return null
         val w = source.width
@@ -71,10 +58,9 @@ internal object AdjustRender {
         if (w <= 0 || h <= 0) return null
 
         /*
-         * ⚠️⚠️ **LA MISURA CHE SI CONSEGNA È IL LATO LUNGO DELL'IMMAGINE INTERA, NON DELLA
-         * TESSERA**: il Dettaglio ragiona in frazioni del lato, e una tessera che dichiarasse il
-         * proprio darebbe un filtro più stretto sulle immagini grandi, cioè proprio dove le
-         * tessere sono più d'una. È anche quello che tiene il risultato uguale all'anteprima.
+         * ⚠️ **La misura è il lato lungo dell'immagine intera, non della tessera**: il Dettaglio
+         * ragiona in frazioni del lato, e il lato di una tessera darebbe un filtro più stretto
+         * proprio dove le tessere sono più d'una, diverso dall'anteprima.
          */
         val span = maxOf(w, h).toFloat()
         val bleed = bleedFor(look, span)
@@ -95,9 +81,9 @@ internal object AdjustRender {
                 val tw = minOf(step, w - x)
                 val box = tileBox(w, h, x, y, tw, th, bleed)
                 /*
-                 * ⚠️ **La tessera si ritaglia dal sorgente invece di traslare lo shader**: uno
-                 * shader che legge il bitmap intero costringerebbe comunque la scheda grafica a
-                 * caricarlo tutto, che è esattamente quello che le tessere esistono per evitare.
+                 * ⚠️ La tessera si ritaglia dal sorgente: uno shader che legge il bitmap intero
+                 * costringerebbe la scheda grafica a caricarlo tutto, che è quello che le tessere
+                 * evitano.
                  */
                 val piece = runCatching {
                     Bitmap.createBitmap(
@@ -105,12 +91,11 @@ internal object AdjustRender {
                     )
                 }.getOrNull() ?: run { out.recycle(); return null }
                 /*
-                 * ⚠️⚠️ **LA TESSERA DICHIARA DOVE SI TROVA, E DALLA `2.57` NON È UN DETTAGLIO**:
-                 * la vignettatura si misura dal centro dell'immagine INTERA e la grana nasce
-                 * dalla coordinata assoluta, quindi una tessera che dichiarasse sé stessa
-                 * porterebbe un angolo scuro per ogni giunzione e la stessa grana ripetuta a
-                 * scacchi. ⚠️ **L'origine è quella del pezzo LETTO** (`box.read`) e non di quello
-                 * tenuto: lo shader gira su quei pixel, bordo di sovrapposizione compreso.
+                 * ⚠️⚠️ **La tessera dichiara dove si trova**: la vignettatura si misura dal centro
+                 * dell'immagine intera e la grana nasce dalla coordinata assoluta, quindi una
+                 * tessera che dichiarasse sé stessa darebbe un angolo scuro a ogni giunzione e la
+                 * stessa grana ripetuta a scacchi. L'origine è quella del pezzo letto
+                 * (`box.read`), perché lo shader gira su quei pixel, bordo compreso.
                  */
                 val dove = Framed.tile(
                     box.read.left.toFloat(), box.read.top.toFloat(),
@@ -134,10 +119,8 @@ internal object AdjustRender {
     /**
      * Una tessera disegnata davvero, con lo shader dentro.
      *
-     * ⚠️⚠️ **TUTTO QUELLO CHE SI APRE QUI SI CHIUDE QUI**, e non è pignoleria: un
-     * [HardwareRenderer] non chiuso tiene in vita un contesto grafico, e su un'immagine di dodici
-     * tessere sarebbero dodici. Il `finally` copre anche la strada dell'errore, che è quella in
-     * cui una perdita non si nota.
+     * ⚠️ **Tutto quello che si apre qui si chiude qui**: un [HardwareRenderer] non chiuso tiene
+     * aperto un contesto grafico, uno per tessera. Il `finally` copre anche la strada dell'errore.
      */
     private fun draw(piece: Bitmap, look: Look, w: Int, h: Int, where: Framed): Bitmap? {
         var reader: ImageReader? = null
@@ -156,9 +139,8 @@ internal object AdjustRender {
             val image = BitmapShader(piece, TileMode.CLAMP, TileMode.CLAMP)
             /*
              * ⚠️ **Il filtro lineare serve al Dettaglio**, che legge i vicini a distanze che non
-             * cadono su un pixel intero: senza, ogni campione verrebbe arrotondato al pixel più
-             * vicino e il vicinato si accartoccerebbe su meno punti di quanti ne chiede. È la
-             * stessa riga che l'anteprima mette sul proprio shader.
+             * cadono su un pixel intero: senza, ogni campione si arrotonderebbe al pixel più vicino
+             * e il vicinato avrebbe meno punti di quanti ne chiede. L'anteprima fa lo stesso.
              */
             image.setFilterMode(BitmapShader.FILTER_MODE_LINEAR)
             val shader = lookShader(image as ComposeShader, look, where) ?: return null
@@ -170,10 +152,9 @@ internal object AdjustRender {
 
             renderer.setContentRoot(node)
             /*
-             * ⚠️ **`setWaitForPresent` è la riga che rende il disegno SINCRONO**: senza,
-             * `syncAndDraw` torna prima che la scheda grafica abbia finito, e quello che si
-             * legge dal buffer è mezzo vuoto. Il difetto sarebbe intermittente, che è il modo
-             * peggiore in cui può presentarsi.
+             * ⚠️ **`setWaitForPresent` rende il disegno sincrono**: senza, `syncAndDraw` torna
+             * prima che la scheda grafica abbia finito, e il buffer si legge mezzo vuoto, in modo
+             * intermittente.
              */
             renderer.createRenderRequest().setWaitForPresent(true).syncAndDraw()
 
@@ -184,8 +165,8 @@ internal object AdjustRender {
                     val wrapped = Bitmap.wrapHardwareBuffer(
                         buffer, ColorSpace.get(ColorSpace.Named.SRGB)
                     ) ?: return null
-                    // ⚠️ La copia serve: quello che arriva è una mappa di tipo HARDWARE, che
-                    // non si può leggere pixel per pixel né comprimere.
+                    // La copia serve: una mappa di tipo `HARDWARE` non si legge pixel per pixel
+                    // e non si comprime.
                     wrapped.copy(Bitmap.Config.ARGB_8888, false)
                 } finally {
                     buffer.close()
@@ -207,15 +188,14 @@ internal object AdjustRender {
     /**
      * Se il percorso grafico fuori schermo funziona su questo telefono.
      *
-     * ⚠️⚠️ **SI MISURA UNA VOLTA E SI RICORDA**: la risposta dipende dall'apparecchio e non
-     * dall'immagine, quindi rifarla per ogni tessera costerebbe dodici disegni in più per
-     * saperlo dodici volte. ⚠️ **Ma non si ricorda un `false` come definitivo**: la prima prova
-     * potrebbe cadere su una scheda grafica occupata, e una risposta negativa ricordata per
-     * sempre spegnerebbe l'editor completo fino al riavvio dell'app. Si ricorda il solo `true`.
+     * Si misura una volta e si ricorda, perché la risposta dipende dall'apparecchio e non
+     * dall'immagine. ⚠️ **Si ricorda il solo `true`**: la prima prova potrebbe cadere su una
+     * scheda grafica occupata, e un `false` ricordato spegnerebbe l'editor completo fino al
+     * riavvio dell'app.
      *
-     * ⚠️ **La prova è un quadrato BIANCO con il conto a riposo**, cioè con tutti i cursori a
-     * zero: là il programma deve restituire esattamente quello che ha ricevuto, quindi un
-     * risultato diverso dal bianco dice che il percorso è rotto e non che il conto sbaglia.
+     * La prova è un quadrato bianco col conto a riposo, tutti i cursori a zero: là il programma
+     * restituisce quello che riceve, quindi un risultato diverso dal bianco dice che il percorso
+     * è rotto, non che il conto sbaglia.
      */
     fun works(): Boolean {
         if (proven) return true
@@ -244,11 +224,9 @@ internal object AdjustRender {
     /**
      * Il lato di una tessera, in pixel.
      *
-     * ⚠️ **2048 è il minimo che la specifica grafica garantisce**, non una misura di comodo: da
-     * OpenGL ES 3.0 in poi ogni apparecchio deve accettare una texture di questo lato, e Android
-     * 13 non gira su niente di meno. Un numero più grande andrebbe bene quasi dappertutto, e
-     * fallirebbe proprio sui telefoni deboli, cioè quelli su cui una fotografia grande è già il
-     * caso difficile.
+     * ⚠️ **2048 è il minimo che la specifica grafica garantisce**: da OpenGL ES 3.0 ogni
+     * apparecchio accetta una texture di questo lato, e Android 13 non gira su niente di meno. Un
+     * numero più grande fallirebbe proprio sui telefoni deboli.
      */
     private const val TILE = 2048
 
@@ -258,9 +236,8 @@ internal object AdjustRender {
     /**
      * Quanto un canale deve essere vicino al pieno perché la prova sia passata.
      *
-     * ⚠️ **Non si chiede 255 esatto**: fra il buffer della scheda grafica e la mappa di pixel c'è
-     * una conversione di spazio colore, e un livello di scarto è normale. Un percorso rotto non dà
-     * 254: dà zero.
+     * Non si chiede 255 esatto: fra il buffer e la mappa di pixel c'è una conversione di spazio
+     * colore, e un livello di scarto è normale. Un percorso rotto dà zero.
      */
     private const val NEAR = 250
 }
@@ -268,16 +245,12 @@ internal object AdjustRender {
 /**
  * Quanto bordo vuole una tessera, su un'immagine il cui lato lungo vale [span].
  *
- * ⚠️⚠️ **I MODULI CHE GUARDANO I VICINI SONO DUE DALLA `2.53`, E UNA TESSERA HA UN BORDO SOLO**:
- * il Dettaglio legge a un raggio e gli Effetti a un altro, quindi si prende il **massimo**.
- * Sommarli sarebbe spazio buttato, perché i due filtri girano sulla stessa tessera e non uno
- * sull'uscita dell'altro; prenderne uno solo lascerebbe una riga su ogni giunzione appena l'altro
- * arriva più lontano.
+ * ⚠️ **Due moduli guardano i vicini, e una tessera ha un bordo solo**: il Dettaglio legge a un
+ * raggio e gli Effetti a un altro, quindi si prende il massimo. Sommarli sprecherebbe spazio,
+ * perché i due filtri girano sulla stessa tessera e non uno sull'uscita dell'altro.
  *
- * ⚠️⚠️ **È UNA FUNZIONE E NON UNA RIGA DENTRO [AdjustRender.apply], PERCHÉ IL BANCO LA POSSA
- * CHIAMARE**: là dentro disegnare vuole una scheda grafica, quindi una scelta scritta in mezzo al
- * giro delle tessere si proverebbe solo guardando una fotografia grande da vicino. È lo stesso
- * criterio di `barOrder` nella `2.52`.
+ * È una funzione a sé perché il banco la possa chiamare: dentro [AdjustRender.apply] disegnare
+ * vuole una scheda grafica.
  */
 internal fun bleedFor(look: Look, span: Float): Int =
     maxOf(look.detail.bleed(span), look.effects.bleed(span))
@@ -285,10 +258,9 @@ internal fun bleedFor(look: Look, span: Float): Int =
 /**
  * I tre riquadri di una tessera: da dove si legge, che cosa si tiene, e dove si mette.
  *
- * ⚠️ **Sono tre e non due perché il bordo si TAGLIA ai margini dell'immagine**: una tessera
- * d'angolo non ha vicini da un lato, quindi [read] è più stretto di quanto il bordo chiederebbe,
- * e [take] deve saperlo. Là il filtro legge il bordo ripetuto, che è il comportamento giusto: di
- * là dall'immagine non c'è niente.
+ * ⚠️ **Sono tre perché il bordo si taglia ai margini dell'immagine**: una tessera d'angolo non ha
+ * vicini da un lato, quindi [read] è più stretto di quanto il bordo chiederebbe, e [take] deve
+ * saperlo. Là il filtro legge il bordo ripetuto, ed è giusto: oltre l'immagine non c'è niente.
  */
 internal data class TileBox(val read: Rect, val take: Rect, val put: Rect)
 
@@ -296,15 +268,12 @@ internal data class TileBox(val read: Rect, val take: Rect, val put: Rect)
  * Dove leggere, che cosa tenere e dove mettere la tessera che comincia a ([x], [y]) ed è larga
  * [tw] per [th], su un'immagine di [w] per [h], con [bleed] pixel di bordo.
  *
- * ⚠️⚠️ **VIVE FUORI DALL'OGGETTO E NON USA NIENTE DI ANDROID 13, ED È DI PROPOSITO**: il conto
- * degli indici è la sola cosa di questo file che il banco di prova possa misurare, perché
- * disegnare vuole una scheda grafica. Un `bleed` sbagliato di un pixel darebbe una riga sulle
- * giunzioni, che è un difetto che si vede solo su una fotografia grande e solo guardandola da
- * vicino.
+ * ⚠️ **Vive fuori dall'oggetto e non usa niente di Android 13**, perché il banco di prova la
+ * possa misurare: un `bleed` sbagliato di un pixel darebbe una riga sulle giunzioni, visibile
+ * solo su un'immagine grande guardata da vicino.
  *
- * ⚠️ **Le tessere si sovrappongono in lettura e non in scrittura**: [put] sono esattamente i
- * pixel della tessera, quindi due tessere vicine non si toccano mai e quello che si copia non
- * dipende dall'ordine.
+ * Le tessere si sovrappongono in lettura e non in scrittura: [put] sono esattamente i pixel della
+ * tessera, quindi quello che si copia non dipende dall'ordine.
  */
 internal fun tileBox(w: Int, h: Int, x: Int, y: Int, tw: Int, th: Int, bleed: Int): TileBox {
     val left = maxOf(0, x - bleed)

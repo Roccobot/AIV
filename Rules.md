@@ -233,12 +233,28 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   glifi dell'allineamento restano 800x800, perché riscalarli vorrebbe dire mille arrotondamenti e
   un disegno non più confrontabile col file di partenza. `android:width` e `android:height` dicono
   la misura, il viewport le unità; il verificatore riporta il loro rapporto e non lo giudica.
+- ⚠️⚠️ **I glifi di Material vivono in `res/drawable/ic_m_<nome>.xml` dalla 6.30, e la libreria non
+  c'è più** (scelta H1a dell'utente): `material-icons-extended` era ferma alla 1.7.8 dal febbraio
+  2025 e pesava 35,7 MB. Ogni glifo che l'app usava è entrato col disegno identico, il commento
+  `<!-- Material: Icons.<stile>.<nome> 1.7.8 -->` in testa, e si chiama da `Glyphs.Material`.
+  - **Come sono stati portati**: il tracciato ricostruito dalle chiamate a `PathBuilder` della
+    libreria, in ordine, riscritto in coordinate assolute coi comandi per esteso, e reso a 240px
+    accanto alla libreria, da sinistra a destra e da destra a sinistra: zero pixel diversi su tutti.
+    Le icone `AutoMirrored` di Material dichiarano `android:autoMirrored`.
+  - ⚠️ **Il punto corrente si somma in decimale, ma si scrive il decimale solo se torna lo stesso
+    `Float`**: chi disegna i nodi relativi somma in virgola mobile a 32 bit, e la somma decimale
+    pura (19,2 al posto di 19,199999) costava 31 pixel su `ic_m_settings` e 2 su `ic_m_edit`.
+    Dove le due somme non coincidono resta il numero lungo.
+  - **Un glifo di Material nuovo entra allo stesso modo**, dalla 1.7.8 scaricata a parte e non come
+    dipendenza, con la misura a zero pixel.
 - ⚠️⚠️ **Un file che arriva si misura prima contro il glifo di Material, e a zero pixel di scarto
-  vince Material**: due copie dello stesso disegno sono vietate in testa a `Glyphs.kt`.
-  - **Come si misura**: il tracciato di `Icons.Filled.<nome>` si ricostruisce dal bytecode di
-    `material-icons` (le chiamate a `PathBuilder` in ordine), si rende accanto al file a 240px e si
-    contano i pixel diversi. ⚠️ Confrontare le due `d` non serve: assoluto contro relativo cambia
-    quasi tutti i numeri e nessun pixel.
+  vince Material**, cioè il file `ic_m_*`: due copie dello stesso disegno sono vietate in testa a
+  `Glyphs.kt`. Per questo la croce di contorno (`Icons.Outlined.Close`), uguale a zero pixel a
+  quella piena, non ha un file suo.
+  - **Come si misura**: si rende il file accanto al suo `ic_m_*` a 240px e si contano i pixel
+    diversi; se quel glifo di Material non è ancora in `res/`, il tracciato si prende dalla
+    1.7.8 come sopra. ⚠️ Confrontare le due `d` non serve: assoluto contro relativo cambia quasi
+    tutti i numeri e nessun pixel.
   - ⚠️ **Zero vuol dire zero**: un file ammorbidito da lui parte dallo 0,1% della tela.
   - ⚠️ **Il caso in mezzo si dichiara**: uno scarto sopra zero può essere una scala o una
     traslazione uniforme dello stesso disegno, che si vede dall'inchiostro (stesso centro, lati in
@@ -246,6 +262,11 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
 - ⚠️⚠️ **L'arrotondamento a 0,4 degli spigoli è una regola del progetto** (sua istruzione) per ogni
   disegno che entra in `res/`, suo o di casa. Il presidio è `tools/icon-round.py` (§ '🧰 Gli
   strumenti che questo repo si porta dietro').
+  - ⚠️⚠️ **L'eccezione sono i glifi di Material, `ic_m_*`, che non si raccordano** (scelta H1a
+    dell'utente, 6.30): sono entrati in `res/` per togliere la libreria, col patto del disegno
+    identico, e un raccordo li cambierebbe. `icon-round.py` li riconosce dal commento
+    `<!-- Material: ... -->` e li dichiara esclusi, come il logo. Un glifo di Material che si vuole
+    ammorbidito diventa un file suo, col nome di casa, come `ic_mod_crop.xml`.
   - ⚠️ **Il verificatore dice dove manca un raccordo e con che raggio, e il raccordo lo fa chi
     disegna**. Scartato un `--fix` automatico: sul segno di spunta ha raccordato il vertice in cui
     il giro si chiude al posto della punta, senza nessun errore.
@@ -270,10 +291,11 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
     angoli retti, il raggio resta 0,4.
   - ⚠️ **Il raccordo è un arco fra due rette e una quadratica col controllo nel vertice dove c'è
     una curva**: un arco è tangente ai suoi due lati solo se sono rette.
-  - ⚠️ **Il tracciato si ricostruisce dal bytecode**, si raccorda e si riscrive in coordinate
-    assolute coi comandi per esteso; gli scarti misurati vivono in testa a ogni file.
+  - ⚠️ **Il tracciato si prende dal suo file `ic_m_*`** (o, per un glifo che non c'è, dal bytecode
+    della 1.7.8, come sopra), si raccorda e si riscrive in coordinate assolute coi comandi per
+    esteso; gli scarti misurati vivono in testa a ogni file.
   - ⚠️⚠️ **Un glifo senza spigoli convessi esterni resta a zero pixel, e resta di Material**:
-    `Palette` e `Timeline` (i moduli Colore e Curve chiamano `Icons`), `CropPortrait` e
+    `Palette` e `Timeline` (i moduli Colore e Curve usano `ic_m_palette` e `ic_m_timeline`), `CropPortrait` e
     `CropLandscape`. `PhotoSizeSelectLarge` ne aveva quarantotto ed è diventato `ic_resize.xml`;
     `BrandingWatermark` ne aveva zero, ed è entrato in `res/` come `ic_watermark.xml` solo quando è
     stato specchiato su sua richiesta (`docs/Editor.md` § '🎛️ I due tasti del salvataggio, e i
@@ -400,25 +422,11 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   secondo modo con cui sbagliare. La ragione è sua: un sistema affidabile, in cui un ritocco si
   ragiona una volta per tutti. Chi apre un `Popup` o un `Dialog` scritto in casa chiama
   `WindowVeil()` a mano (lo fanno `MenuShell` e `Sheet`).
-- ⚠️⚠️ **Dalla `4.38` il bordo d'accento è spento: i pannelli sono nudi** (sua scelta del
-  2026-10-06, variante A di un mockup a tre varianti: *implementiamo subito i pannelli nudi (A)
-  spegnendo il contorno, e facendo in modo che lo si possa recuperare in seguito se cambio idea*).
-  Pannelli e schede staccano dallo sfondo col solo colore della superficie, sopra la sfocatura e il
-  velo. **Si riaccende con una riga**, `ACCENT_EDGE` in `Edge.kt`: i modificatori restano chiamati
-  da tutte le superfici e il disegno resta intatto. Il bordo non ha mai occupato spazio, quindi
-  spegnerlo non sposta nessuna misura; lo presidia `BordoTest`. Le note qui sotto descrivono il
-  bordo com'era fino alla `4.37`, e valgono di nuovo se si riaccende.
-- **Il bordo d'accento da 2dp sostituisce l'ombra, e non dipende dall'interruttore della
-  sfocatura** (sua richiesta): è il modo in cui l'app è fatta, non una funzione che si accende.
-  Spessore scartato: 3dp (sua preferenza, dopo un giro). Il come vive in testa a `Edge.kt`.
-  - ⚠️ **Il bordo ha un elenco suo**: la scheda della selezione e il pannello dei comandi
-    dell'editor hanno il bordo e non il velo. Il velo dice 'mi apro sopra qualcosa', il bordo 'sono
-    una superficie di questa app'.
-  - ⚠️ **Il raggio del bordo**: due riquadri stondati concentrici hanno raggi diversi, e
-    l'antialiasing sommato due volte lascia pixel scoperti sull'arco. Il rimedio è mezzo pixel di
-    sconfinamento in fuori, misurato in testa alla costante in `Edge.kt`.
-  - ⚠️ **Sulle schede in fondo la riga va di fuori** (sua prova): i fianchi sono sui bordi dello
-    schermo, quindi a interrompere il tratto è il bordo del vetro.
+- ⚠️⚠️ **I pannelli sono nudi, e il bordo d'accento non c'è più** (sue scelte: pannelli nudi dalla
+  `4.38`, codice tolto nella `6.30`). Pannelli e schede staccano dallo sfondo col solo colore della
+  superficie, sopra la sfocatura e il velo, o con l'ombra quando è lei la scelta. Il bordo non ha
+  mai occupato spazio, quindi toglierlo non ha spostato nessuna misura. Dove viveva e come si
+  recupera: `docs/Removed.md`.
 - ⚠️⚠️ **Il velo lo dipinge l'app** (`AppVeil`, messo in scena da `AivTheme`) e vale il massimo
   delle richieste in scena: due finestre non cambiano il proprio velo nello stesso fotogramma,
   quindi fra un menu e un dialogo c'era sempre un fotogramma con due veli o con nessuno. La
@@ -472,10 +480,11 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
     valore ereditato, e una migrazione rovescerebbe una scelta vera.
   - ⚠️ **I casi della migrazione del velo sono tre** (acceso, spento, mai toccato) e non si
     accorpano, anche se due oggi rispondono lo stesso.
-  - ⚠️ **Il valore di fabbrica vive in due posti** (il campo di `Settings` e la lettura del
-    flusso): cambiarne uno solo dà un'app accesa al primo avvio e spenta dopo il primo salvataggio.
-    Lo presidia il caso 6 di `ProfonditaTest`, che legge un archivio vuoto con
-    `SettingsStore.read` e lo confronta con `Settings()`.
+  - ⚠️ **Il valore di fabbrica vive sul campo di `Settings`, e solo lì** (dalla `6.30`, sua scelta
+    G1): `SettingsStore.read` prende ogni ripiego da un `Settings()`. Il ramo della chiave vecchia
+    del velo ha però una logica sua, e un suo valore diverso darebbe un'app accesa al primo avvio e
+    spenta dopo il primo salvataggio: lo presidia il caso 6 di `ProfonditaTest`, che legge un
+    archivio vuoto con `SettingsStore.read` e lo confronta con `Settings()`.
   - ⚠️ **La sfocatura la esegue il compositore di sistema** (`FLAG_BLUR_BEHIND` più
     `blurBehindRadius`, da Android 12): dove il sistema dice di no non si vede e non costa
     fotogrammi, e l'app lo chiede (`blurs`, in `Veil.kt`). Si paga solo a pannello aperto, e lo
@@ -814,6 +823,34 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   telefono in indonesiano vedeva l'app in inglese. La copia la fa il compito `indonesianIn` di
   `app/build.gradle.kts`, e `IndonesianoTest` legge una stringa con tutti e due i codici. La
   cartella `values-in` non si crea a mano: sarebbe una seconda copia da tenere allineata.
+- ⚠️ **Una lingua nuova entra anche in `res/xml/locales_config.xml`**, l'elenco della pagina
+  'Lingua dell'app' di Android 13 e successivi (dalla 6.30): `LingueAppTest` fallisce finché manca.
+  È scritto a mano perché quello generato dalla build (`generateLocaleConfig`) elencava
+  l'indonesiano due volte, `id` e la copia `in`.
+- **Le chiavi uguali all'inglese in più di metà delle lingue** sono segnalate da `i18n-check.py` come
+  mai tradotte (dalla 6.30); un valore che non è testo (una sigla, un formato) si dichiara
+  `translatable="false"`, e un testo che tutte le lingue scrivono come l'inglese di proposito entra
+  nel suo elenco `UGUALI_DI_PROPOSITO`.
+
+## 💬 I commenti del codice: il perché di oggi, in italiano
+
+- ⚠️⚠️ **In questo repo i commenti del codice sono in italiano** (scelta H1 dell'utente, 2026-10-16,
+  sul rilievo G7 della revisione Setaccio): è una **deroga dichiarata** alla regola universale dei
+  commenti in inglese (`rules/Roccobot.md` § '🧑‍💻 Codice e artefatti generati'). Nel codice la
+  quasi totalità era già italiana; la 6.30 traduce il resto.
+- **Un commento dice il perché di oggi**: il vincolo, la misura, la trappola, la scelta dell'utente
+  con la sua chiave (*scelta B1 dell'utente, 6.10*), la prova che presidia il punto. **Non è un
+  diario delle versioni**: come era il codice prima, in quale versione è cambiato e chi l'ha
+  chiesto con quali parole vivono nella storia git e nei messaggi di commit. Un commento che
+  racconta il passato invecchia, ed è la causa dei 24 commenti rimasti indietro trovati nella
+  revisione (rilievo D3).
+- **Un KDoc precede la dichiarazione che descrive**, e la regola che vale per più file vive qui o nei
+  `docs/`, col rimando: il commento non la ricopia.
+- **Valgono le regole dei caratteri** (accenti veri, apici dritti, niente trattini lunghi, niente
+  metafore mortuarie, niente `stare` per dire dov'è una cosa), e le stringhe restano come sono:
+  un commento dentro un programma AGSL è testo del programma, e si cambia solo col codice.
+- La 6.30 li ha sfoltiti tutti, provando con un verificatore che il codice, stringhe comprese,
+  restasse identico byte per byte.
 
 ## 🧪 Quando si scrive una prova, e quando no
 
@@ -882,8 +919,9 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
 - ⚠️ **Un oggetto di processo scritto dopo `setContent` non arriva alla composizione a clock
   fermo**: in una prova la riga (per esempio di `Notices`) si mette prima di montare la scena, col
   clock fermo (`autoAdvance = false`), o `waitForIdle` la fa scadere.
-- ⚠️⚠️ **Una prova che fa leggere una cartella al modello monta `OmbraArchivio` o
-  `ArchivioAperto`**, anche se non guarda niente della memoria: `openGrid` legge in sottofondo, la
+- ⚠️⚠️ **Una prova che fa leggere una cartella al modello monta `OmbraArchivio`**, chiuso di serie
+  o aperto con `OmbraArchivio.granted = true` prima di montare la scena (dalla `6.30` le due
+  risposte sono un'ombra sola, scelta I1), anche se non guarda niente della memoria: `openGrid` legge in sottofondo, la
   lettura chiede `Environment.isExternalStorageManager()`, che Robolectric non copre, e senza
   l'ombra fallisce sul suo filo. L'errore non cade nella prova che l'ha causato, ma nella prima
   classe successiva che usa il banco di Compose: sui banchi della `6.20` sono cadute `AggiornaTest`
@@ -1017,8 +1055,8 @@ Travasate dal brief il 2026-10-16 (`Tagliando`), dove vivevano senza una casa du
   giro della `5.40`, nel piano di una funzione per rilascio; `MediaRename.kt`, `Store.renames`):
   il tasto nei due riquadri dei file e il tocco lungo sul nome nella finestra `Info`.
   - **È la stessa rinomina di AIV GitHub**: ordine alfabetico, cancelletti del modello, due fasi
-    con un nome temporaneo (senza il punto davanti, perché un nome nascosto il MediaStore smette
-    di elencarlo), un nome libero se quello voluto è di un file estraneo. Cambia solo chi scrive:
+    con un nome temporaneo (`FileTree.parkingName`, senza il punto davanti: un nome nascosto il
+    MediaStore smette di elencarlo, e dalla `6.30` vale anche per AIV GitHub), un nome libero se quello voluto è di un file estraneo. Cambia solo chi scrive:
     il nome nuovo va nella riga del MediaStore (`DISPLAY_NAME`), e il sistema rinomina il file.
   - **La conferma è la finestra di Android** (`createWriteRequest`, una per tutti i file), come per
     `Elimina`; col no non succede niente e non si dice niente (`FileKind.speaks` tace quando non è
@@ -1188,7 +1226,8 @@ esecuzione.
 ## 🧰 Gli strumenti che questo repo si porta dietro
 
 - **`tools/feedback-check.py`**: si lancia prima di pubblicare il documento di feedback (§ '🔗 Il
-  documento vivo del progetto').
+  documento vivo del progetto'), e passa la mano a `tools/feedback-interactive-check.py`, dove
+  vivono le prove (dalla `6.30`: la metà sul formato di prima del DF non serviva più).
 - **Il registro delle dipendenze, `docs/Dependencies.json`**: lo confronta con le ultime versioni
   pubblicate lo script unico del repo del sito, lanciato dalla radice
   (`python3 ../roccobot.github.io/.memo/scripts/check-dependencies.py`), prima di ogni release
@@ -1224,10 +1263,18 @@ esecuzione.
     indulgente, e una libreria misurerebbe la propria indulgenza e non la grammatica.
   - **Le misure di resa vogliono Chromium e avvisano** (l'inchiostro, il margine, la sagoma di
     Material più vicina, la dipendenza dal verso, il costo dell'unione); se Chromium manca lo
-    dichiarano.
+    dichiarano, e dicono perché.
+  - ⚠️ **Ogni gruppo si rende come lo rende Android, annidato e nel suo ordine** (scala e
+    rotazione attorno al perno, poi traslazione), dalla `6.30`: prima i gruppi si sommavano in uno
+    solo e in ordine rovesciato, e l'inchiostro di `ic_launcher_foreground` risultava spostato del
+    6% della tela.
+- **`tools/browser.py`** trova Chromium per tutti gli strumenti che aprono una pagina (le immagini,
+  le icone, i controlli del DF), dalla `6.30`: prima ognuno lo cercava a modo suo, e ognuno
+  mancava una macchina, il Mac o GitHub. Uno strumento nuovo col browser lo usa.
 - **`tools/icon-round.py`**: dice quali spigoli esterni sono ancora vivi, con l'angolo e il raggio
   che spetta a ognuno. Avvisa e non blocca: uno spigolo vivo in un disegno suo può essere voluto.
-  - ⚠️⚠️ **Oggi risponde zero, con `ic_tian` dichiarato escluso**: un numero diverso da zero
+  - ⚠️⚠️ **Oggi risponde zero, con `ic_tian` e i glifi di Material `ic_m_*` dichiarati esclusi**
+    (questi dalla 6.30, § '🖌️ Come entra un disegno'): un numero diverso da zero
     riguarda un disegno appena entrato.
   - **Come conta, e ogni punto ha tolto un falso positivo o una lacuna**: guarda le tangenti e non
     le corde (un raccordo già fatto è un arco, e la sua corda svolta di metà arco); le curve smooth
@@ -1286,6 +1333,9 @@ esecuzione.
     che cambiano soltanto file `.md` (il banco non li legge, e l'Action `core-sync` vi committa
     `AGENTS.md`); ed è il cancello di `release.yml`, che si fida della corsa di `check.yml` sullo
     stesso commit (§ '🚀 Che cosa produce un rilascio'). Si lancia comunque a mano prima della PR.
+    I passi (traduzioni, banco col tempo massimo, rapporto) sono scritti una volta sola
+    nell'azione `.github/actions/bench`, dalla `6.30`, e le traduzioni vengono prima: falliscono in
+    pochi secondi, e il banco gira lo stesso.
   - ⚠️⚠️ **Le cache di Actions si potano da sole dalla `4.45`** (B1): il lavoro `caches` di
     `check.yml`, a ogni push su `main`, toglie per prime le meno usate di recente finché il totale
     è sotto i 6 GB, e scrive l'occupazione nel riepilogo della corsa. Prima lo svuotamento lo

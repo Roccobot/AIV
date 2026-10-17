@@ -2,10 +2,6 @@ package io.github.roccobot.aiv
 
 import android.net.Uri
 import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -15,15 +11,14 @@ import androidx.compose.ui.platform.LocalResources
 import kotlinx.coroutines.launch
 
 /**
- * The actions of the Feed's selection, from 6.03 (his request: *il feed deve avere la selezione
- * multipla*): the same sheet, keys and order as a folder's grid ([PickSheet]).
+ * Le azioni della selezione del Feed: lo stesso pannello, le stesse chiavi e lo stesso ordine della
+ * griglia di una cartella ([PickSheet]).
  *
- * ⚠️⚠️ **The addresses are the MediaStore's, as in a folder's grid**, so the operations are the
- * grid's: AIV Play keeps only what it allows ([Store.allows]), as there.
- * ⚠️ **'Lista' writes the names without a folder heading**: the pictures of the Feed come from many
- * folders, and the grid's heading is the path of the one folder it shows.
- * ⚠️ **'Tutti' and 'Inverti' work on the whole stream**, the one the screen has: the Feed is one list,
- * not a folder per month.
+ * Gli indirizzi sono quelli del MediaStore, come nella griglia, quindi le operazioni sono le sue, e
+ * AIV Play tiene solo quelle che permette ([Store.allows]).
+ * 'Lista' scrive i nomi senza l'intestazione della cartella: le immagini del Feed vengono da molte
+ * cartelle. 'Tutti' e 'Inverti' lavorano sull'intero flusso, perché il Feed è un elenco solo e non
+ * una cartella per mese.
  *
  * Author: Rocco Casadei, a.k.a. Roccobot
  */
@@ -43,7 +38,7 @@ internal fun feedPickActions(
         PadAction(PadKey.RENAME, Glyphs.TextCursor, R.string.pick_rename) {
             onJob(FileJob.Rename(list))
         },
-        PadAction(PadKey.INFO, Icons.Outlined.Info, R.string.pick_info) {
+        PadAction(PadKey.INFO, Glyphs.Material.InfoOutlined, R.string.pick_info) {
             onJob(FileJob.Facts(list))
         },
         PadAction(PadKey.MOVE, Glyphs.FolderPairDashed, R.string.pick_move) {
@@ -56,7 +51,7 @@ internal fun feedPickActions(
             onHold = { onJob(FileJob.Duplicate(list)) },
             holdLabel = R.string.pick_duplicate
         ) { onJob(FileJob.Transfer(list, move = false)) },
-        PadAction(PadKey.SHARE, Icons.Default.Share, R.string.menu_share) {
+        PadAction(PadKey.SHARE, Glyphs.Material.Share, R.string.menu_share) {
             val now = list
             scope.launch { ImageActions.shareMany(context, now) }
         },
@@ -71,7 +66,7 @@ internal fun feedPickActions(
         ) {
             onJob(FileJob.Delete(list, forGood = !binOn))
         },
-        PadAction(PadKey.LIST, Icons.AutoMirrored.Outlined.FormatListBulleted, R.string.pick_list) {
+        PadAction(PadKey.LIST, Glyphs.Material.FormatListBulletedOutlined, R.string.pick_list) {
             val now = list
             scope.launch {
                 ImageActions.copyNames(context, now, null)
@@ -99,11 +94,11 @@ internal fun feedPickActions(
 }
 
 /**
- * Which picture of the Feed is under a point, as a place in [Feed.Page.items], or `null` over a
- * month heading, a gap or nothing.
+ * L'immagine del Feed sotto un punto, come posizione in [Feed.Page.items], o `null` sopra
+ * l'intestazione di un mese, uno spazio o niente.
  *
- * ⚠️ **The grid's own index counts the month headings too**, so the picture is found by its key,
- * the address the Feed gives every cell ([at] maps it back to the stream).
+ * ⚠️ L'indice della griglia conta anche le intestazioni dei mesi, quindi l'immagine si trova per
+ * chiave, l'indirizzo che il Feed dà a ogni cella ([at] la riporta al flusso).
  */
 internal fun LazyGridState.feedIndexAt(point: Offset, at: Map<String, Int>): Int? =
     layoutInfo.visibleItemsInfo.firstOrNull {
@@ -112,8 +107,8 @@ internal fun LazyGridState.feedIndexAt(point: Offset, at: Map<String, Int>): Int
     }?.let { at[it.key as? String] }
 
 /**
- * The selection while a finger drags from [from] to [hit]: the range is added to [base], or taken
- * from it when the drag started on a chosen picture ([off]), as in a folder's grid.
+ * La selezione mentre il dito trascina da [from] a [hit]: l'intervallo si aggiunge a [base], o se ne
+ * toglie quando il trascinamento è partito da un'immagine scelta ([off]), come nella griglia.
  */
 internal fun feedSpan(items: List<Uri>, base: Set<Uri>, from: Int, hit: Int, off: Boolean): Set<Uri> {
     val span = items.subList(minOf(from, hit), maxOf(from, hit) + 1).toSet()

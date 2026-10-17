@@ -4,8 +4,6 @@ import android.content.Context
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -60,13 +58,10 @@ class MenuInferioreTest {
 
     private fun voce(id: Int) = app.getString(id)
 
-    /** As in `PillolaTest`: without it the onboarding veil takes the first gesture. */
+    /** I veli della casa si segnano come visti prima di montarla: vedi [onboardingGiaVisto]. */
     @Before
-    fun onboardingGiaVisto() {
-        runBlocking {
-            Hint.COLUMNS.remember(app)
-            Hint.BIN_EMPTY.remember(app)
-        }
+    fun veliVisti() {
+        onboardingGiaVisto()
     }
 
     /**
@@ -75,7 +70,9 @@ class MenuInferioreTest {
      */
     @Test
     fun `a sinistra l'ordine e il rovescio, viste comprese`() {
-        fun e(name: String) = PillEntry(Icons.Default.Close, name) {}
+        // Qui conta l'ordine delle etichette, non il disegno: il cursore di testo si legge senza
+        // una composizione, i glifi dei file no.
+        fun e(name: String) = PillEntry(Glyphs.TextCursor, name) {}
         val destra = listOf("Vista 1", "Vista 2", "Nascoste", "Cerca", "Indirizzo", "Cestino", "Impostazioni").map { e(it) }
         assertEquals(
             listOf("Impostazioni", "Cestino", "Indirizzo", "Cerca", "Nascoste", "Vista 2", "Vista 1"),
@@ -90,8 +87,9 @@ class MenuInferioreTest {
      * and a pill drawn right to left would read the same there.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `col lato sinistro la pillola comincia da Impostazioni`() {
+        OmbraArchivio.granted = true
         banco.setContent { Home(PillLook(PhonePill.EXTENDED), Hand.LEFT) }
         banco.waitForIdle()
         val x = { id: Int -> banco.onNodeWithContentDescription(voce(id)).fetchSemanticsNode().positionInRoot.x }
@@ -107,8 +105,9 @@ class MenuInferioreTest {
     @Test
     // ⚠️ A real phone's width: on the bench's default the row is so narrow that seven keys of 44dp
     // fill it anyway, and the test passed with the rule taken out.
-    @Config(shadows = [ArchivioAperto::class], qualifiers = "w411dp-h891dp")
+    @Config(shadows = [OmbraArchivio::class], qualifiers = "w411dp-h891dp")
     fun `con sette voci la pillola estesa mette Cerca al centro`() {
+        OmbraArchivio.granted = true
         // ⚠️ From 6.02 the views are three with the Feed, so seven entries are the home without hidden
         // folders: with them the pill has eight (his choice A1 of 2026-10-14).
         banco.setContent { Home(PillLook(PhonePill.EXTENDED), Hand.RIGHT, hidden = emptySet()) }
@@ -333,8 +332,9 @@ class MenuInferioreTest {
      * ⚠️ **From 6.02 the Feed has the switch's box** (his choice of 2026-10-14): the switch is gone.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `nella home il menu angolare e un 3x3 col Feed e le due viste`() {
+        OmbraArchivio.granted = true
         banco.setContent { Home(PillLook(PhonePill.SLIDE, corner = true), Hand.LEFT) }
         banco.waitForIdle()
         val tondo = banco.onNodeWithContentDescription(voce(R.string.hub_open)).fetchSemanticsNode().boundsInRoot
@@ -373,8 +373,9 @@ class MenuInferioreTest {
      * the top left: the switch, Lista, Cartelle; Mostra, Cerca, Impostazioni; Apri URL, Cestino, ×.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `nella home il menu Start ha Impostazioni sopra la x`() {
+        OmbraArchivio.granted = true
         banco.setContent { Home(PillLook(PhonePill.SLIDE, corner = true), Hand.RIGHT) }
         banco.waitForIdle()
         banco.onNodeWithContentDescription(voce(R.string.hub_open)).performClick()
@@ -480,8 +481,9 @@ class MenuInferioreTest {
      * box of the switch; `4.20-01`, R3: *il menu angolare deve chiudersi dopo ogni interazione*).
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `la casella del Feed apre il Feed e chiude il menu angolare`() {
+        OmbraArchivio.granted = true
         var vista: FolderView? = null
         banco.setContent { Home(PillLook(PhonePill.SLIDE, corner = true), Hand.RIGHT, onView = { vista = it }) }
         banco.waitForIdle()
@@ -527,8 +529,9 @@ class MenuInferioreTest {
      */
     @Test
     // ⚠️ A real phone's width, for the reason written on the test of 'Cerca' in the centre.
-    @Config(shadows = [ArchivioAperto::class], qualifiers = "w411dp-h891dp")
+    @Config(shadows = [OmbraArchivio::class], qualifiers = "w411dp-h891dp")
     fun `aperta la pillola a scomparsa arriva ai due margini di 24dp`() {
+        OmbraArchivio.granted = true
         banco.setContent { Home(PillLook(PhonePill.SLIDE), Hand.RIGHT) }
         banco.waitForIdle()
         val dp = app.resources.displayMetrics.density
@@ -560,8 +563,9 @@ class MenuInferioreTest {
      * is under a pixel; at 360dp they lose more than 4dp.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class], qualifiers = "w360dp-h800dp")
+    @Config(shadows = [OmbraArchivio::class], qualifiers = "w360dp-h800dp")
     fun `aperta la pillola a scomparsa ogni tasto e centrato in altezza sulla x`() {
+        OmbraArchivio.granted = true
         banco.setContent { Home(PillLook(PhonePill.SLIDE), Hand.RIGHT) }
         banco.waitForIdle()
         banco.onNodeWithContentDescription(voce(R.string.hub_open)).performClick()
@@ -609,8 +613,9 @@ class MenuInferioreTest {
      * che il menu sia sempre quadrato*). In 4.34 it was 222 by 206dp in the home.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `il menu Start aperto e quadrato`() {
+        OmbraArchivio.granted = true
         var casa by mutableStateOf(true)
         banco.setContent {
             if (casa) Home(PillLook(PhonePill.SLIDE, corner = true), Hand.RIGHT)
@@ -639,8 +644,9 @@ class MenuInferioreTest {
      * Mostra/Nascondi*). From 4.30 to 4.34 the long press only showed the label.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `il tocco lungo su Mostra apre le cartelle nascoste`() {
+        OmbraArchivio.granted = true
         banco.setContent { Home(PillLook(PhonePill.SLIDE, corner = true), Hand.RIGHT) }
         banco.waitForIdle()
         banco.onNodeWithContentDescription(voce(R.string.hub_open)).performClick()
@@ -658,8 +664,9 @@ class MenuInferioreTest {
      * grid's.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class], qualifiers = "w393dp-h873dp")
+    @Config(shadows = [OmbraArchivio::class], qualifiers = "w393dp-h873dp")
     fun `il fianco del menu Start resta fuori dal bordo delle miniature`() {
+        OmbraArchivio.granted = true
         var casa by mutableStateOf(true)
         banco.setContent {
             if (casa) Home(PillLook(PhonePill.SLIDE, corner = true), Hand.RIGHT)
@@ -785,8 +792,9 @@ class MenuInferioreTest {
 
     /** The same in the home, with enough folders to scroll. */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `nella home il trascinamento che chiude il menu Start scorre anche le cartelle`() {
+        OmbraArchivio.granted = true
         val molte = (1..40).map {
             Folder.Bucket(id = it.toLong(), name = "Cartella $it", pictures = 2, clips = 0, cover = null, path = "/storage/emulated/0/F$it")
         }
@@ -840,8 +848,9 @@ class MenuInferioreTest {
      * shrink even with the defect.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class], qualifiers = "w340dp-h740dp")
+    @Config(shadows = [OmbraArchivio::class], qualifiers = "w340dp-h740dp")
     fun `il tondo ha la stessa misura e lo stesso angolo in home e in cartella`() {
+        OmbraArchivio.granted = true
         var casa by mutableStateOf(true)
         banco.setContent { if (casa) Home(PillLook(PhonePill.SLIDE), Hand.RIGHT) else Griglia(PillLook(PhonePill.SLIDE)) }
         banco.waitForIdle()
@@ -862,8 +871,9 @@ class MenuInferioreTest {
      * the whole width of the mark's canvas, so the mark's centre is the A's.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `nel FAB quadrato il triangolo del marchio e centrato`() {
+        OmbraArchivio.granted = true
         banco.setContent { Home(PillLook(), Hand.RIGHT) }
         banco.waitForIdle()
         val fab = banco.onNodeWithContentDescription(voce(R.string.hub_open)).fetchSemanticsNode().boundsInRoot
@@ -878,8 +888,9 @@ class MenuInferioreTest {
      * kept its own corner: 16dp from the glass in the home, 16 by 20 in a grid.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `il FAB ha il centro sul centro del tondo in home e in cartella`() {
+        OmbraArchivio.granted = true
         var scena by mutableStateOf(0)
         banco.setContent {
             when (scena) {
@@ -910,8 +921,9 @@ class MenuInferioreTest {
      * magari espanso*): the home's three columns, and the copy of the key exactly over the real one.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `al primo avvio il velo mostra il menu Start aperto sul tondo`() {
+        OmbraArchivio.granted = true
         runBlocking { Hint.COLUMNS.forget(app) }
         banco.setContent { Home(PillLook(PhonePill.SLIDE, corner = true), Hand.RIGHT) }
         aspettaIlVelo(banco, app)
@@ -1001,63 +1013,6 @@ private val CARTELLE = (1..4).map {
         path = if (it == 1) "/storage/emulated/0/Segreta" else "/storage/emulated/0/Foto$it"
     )
 }
-
-/** As in `SaltiTest`: the first composition and its effects. */
-private const val NASCITA = 1_000L
-
-/** As in `SaltiTest`: shorter than the jump's quiet, so the pill does not open again. */
-private const val RESPIRO = 100L
-
-/**
- * How long a test waits for the first start's hint, read from the preferences' store.
- *
- * ⚠️ **20 s since 4.36, and it was 5**: see [aspettaIlVelo].
- */
-internal const val VELO_MS = 20_000L
-
-/**
- * Waits for the first start's hint of the Start menu, and says why when it does not come.
- *
- * ⚠️ The hint comes from the preferences' store, read on another thread that `waitForIdle` does not
- * wait for: in the full bench the veil was not there yet, and the test failed.
- * ⚠️⚠️ **WHY IT FELL NOW AND THEN, FOUND IN 4.98** (B2, after it stopped the releases of 4.96 and
- * 4.97): the old `createComposeRule` runs a composition's effects on an unconfined test dispatcher,
- * so the coroutine of `produceState` in `FolderScreen` resumes on whatever thread hands it the
- * value. When the store has to read its file again (after `DisegnoTest`, which writes other hints),
- * 'not seen' arrives on a `DefaultDispatcher` worker, the state is written there, and no recomposition
- * follows: the hint never comes, with the store saying 'not seen'. Measured on this machine on two
- * cores, `DisegnoTest` first: the value logged on a worker thread in every fall, 3 falls in 6 runs.
- * Calling `Snapshot.sendApplyNotifications` while waiting was tried and is not enough (2 falls in
- * 5 runs, in `EtichetteStartTest`).
- * ⚠️⚠️ **THE FIX IS THE NEW RULE, `junit4.v2.createComposeRule`**, in this class and in
- * `EtichetteStartTest`, the two that wait for the hint: its standard dispatcher runs every resume
- * on the test's main thread, as the app's own dispatcher does on a phone. 0 falls in 5 runs on the
- * same two cores, every value logged on the main thread. The app was never at fault.
- * ⚠️ The earlier guesses are fallen: not a slow machine, not two class loaders, not a stuck store.
- * The 20 s wait and the report on a timeout stay, as a net.
- */
-internal fun aspettaIlVelo(banco: androidx.compose.ui.test.junit4.ComposeContentTestRule, app: android.content.Context) {
-    val frase = app.getString(R.string.corner_hint)
-    val inizio = System.nanoTime()
-    try {
-        banco.waitUntil(VELO_MS) { banco.onAllNodesWithText(frase).fetchSemanticsNodes().isNotEmpty() }
-    } catch (e: androidx.compose.ui.test.ComposeTimeoutException) {
-        val p = runBlocking { storedPreferences(app) }
-        val testi = banco.onAllNodes(androidx.compose.ui.test.hasText("", substring = true), useUnmergedTree = true)
-            .fetchSemanticsNodes()
-            .mapNotNull { n -> n.config.getOrElseNullable(androidx.compose.ui.semantics.SemanticsProperties.Text) { null }?.joinToString() }
-        val flusso = runBlocking { kotlinx.coroutines.withTimeoutOrNull(2_000) { Hint.COLUMNS.flow(app).first() } }
-        throw AssertionError(
-            "Il velo non è comparso. permesso=${Folder.granted(app)} flusso=$flusso archivio=${p.asMap()} " +
-                "vista=${SettingsStore.read(p).folderView} testi=$testi", e
-        )
-    }
-    val ms = (System.nanoTime() - inizio) / 1_000_000
-    if (ms > VELO_LENTO_MS) println("VELO LENTO: $ms ms")
-}
-
-/** Beyond this, a hint that came is reported as slow: the solid variant took 0,3 s. */
-private const val VELO_LENTO_MS = 2_000L
 
 /** As in `SaltiTest`: the flick's steps. */
 private const val PASSI = 6

@@ -129,7 +129,7 @@ class ScritturaSicuraTest {
      * ⚠️ **Controprovata** ignorando l'esito di `write` in `Bin.keep`: torna la copia.
      */
     @Test
-    fun `senza archivio la copia di sicurezza non c'è`() {
+    fun `senza archivio non nasce la copia di sicurezza`() {
         runBlocking { Bin.empty(app) }
         val casa = File(app.cacheDir, "casa-copia").also { it.mkdirs() }
         val foto = File(casa, "foto.jpg").also { it.writeBytes(ByteArray(100)) }

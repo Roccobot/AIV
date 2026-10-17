@@ -62,11 +62,11 @@ android {
         // the update as a downgrade. It is not tied to versionName and nothing
         // checks it, so nothing will remind you: 0.11 went out carrying 1, so
         // from here on every published version needs its own number.
-        versionCode = 389
+        versionCode = 390
         // Single source of the version, in SlimVer. The release workflow reads
         // it from here and refuses to run when the tag disagrees, so the tag
         // confirms this number instead of being a second one.
-        versionName = "6.29"
+        versionName = "6.30"
     }
 
     // The signing material comes from the environment and never from the
@@ -214,11 +214,12 @@ android {
 
 dependencies {
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    // ⚠️ Arriva col PEZZO 2 dei video (0.86) e serve a una cosa sola: `LocalLifecycleOwner`
-    // di `androidx.lifecycle.compose`, con cui il lettore si mette in pausa quando l'app va
-    // in fondo. Quello vecchio di `compose.ui.platform` è deprecato e rimanda qui.
+    // `LocalLifecycleOwner` e `LifecycleResumeEffect` di `androidx.lifecycle.compose`: con il
+    // primo il lettore si mette in pausa quando l'app va in fondo (quello vecchio di
+    // `compose.ui.platform` è deprecato e rimanda qui). Porta con sé `lifecycle-runtime`, dove
+    // vivono `lifecycleScope` e `repeatOnLifecycle`: `lifecycle-runtime-ktx` dalla 2.8 è un
+    // pacchetto vuoto, e non serve dichiararlo.
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.exifinterface)
@@ -288,7 +289,12 @@ dependencies {
      * `debugImplementation`**: un'anteprima non serve all'APK che si pubblica.
      */
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.material.icons.extended)
+    /*
+     * ⚠️ **QUI C'ERA `material-icons-extended` FINO ALLA `6.30`**: ferma alla 1.7.8 dal febbraio
+     * 2025 e pesante 35,7 MB, per i pochi glifi che l'app usa. Quei glifi vivono in
+     * `res/drawable/ic_m_*.xml`, col disegno identico, e si chiamano da `Glyphs.Material`
+     * (scelta H1a dell'utente). Un glifo di Material nuovo entra come file, non con la libreria.
+     */
 
     debugImplementation(libs.androidx.ui.tooling)
 

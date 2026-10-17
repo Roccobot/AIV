@@ -18,27 +18,22 @@ import kotlin.math.roundToInt
 /**
  * Uno specchio facoltativo e una rotazione: le otto pose in cui si può mettere un'immagine.
  *
- * ⚠️⚠️ **SONO OTTO E NON INFINITE, ED È QUELLO CHE PERMETTE DI NON RIFARE I GESTI UNO PER
- * UNO**: riflessioni e quarti di giro si compongono sempre in *uno* specchio più *una*
- * rotazione, quindi dieci tocchi sui tasti diventano una trasformazione sola da applicare al
- * file. Sono anche le otto dell'orientamento EXIF, e non è una coincidenza: quel campo esiste
- * per dire in che posa sta una fotografia.
- * ⚠️ **L'ordine dichiarato è 'specchia, poi gira'**, lo stesso di `ImageEdit.save`: senza
- * fissarne uno, `Spin(1, true)` sarebbe due trasformazioni diverse a seconda di chi lo legge.
- * ⚠️⚠️ **VIVE QUI E NON PIÙ IN `EditorScreen.kt`, DALLA `2.31`**: da quando il modulo Ritaglio
- * esiste, le pose le leggono tutti e due gli editor e il modello dell'editor completo (`Look`),
- * che è pubblico. Accanto a [ImageEdit.Crop] è anche il posto giusto: sono i due valori che
- * dicono **come sta** un'immagine senza dire di che colore è.
+ * ⚠️⚠️ **Sono otto, e per questo i gesti non si rifanno uno per uno**: riflessioni e quarti di
+ * giro si compongono sempre in uno specchio più una rotazione, quindi dieci tocchi diventano una
+ * trasformazione sola da applicare al file. Sono anche le otto dell'orientamento EXIF.
+ * ⚠️ **L'ordine dichiarato è 'specchia, poi gira'**, lo stesso di `ImageEdit.save`: senza,
+ * `Spin(1, true)` sarebbe due trasformazioni diverse secondo chi lo legge.
+ * Le pose le leggono tutti e due gli editor e il modello dell'editor completo (`Look`); accanto a
+ * [ImageEdit.Crop], perché sono i due valori che dicono come è messa un'immagine.
  */
 data class Spin(val turns: Int, val mirror: Boolean) {
 
     /**
      * Questa posa, e **poi** [next]: cioè `next` applicata a quello che si vede adesso.
      *
-     * ⚠️⚠️ **UNO SPECCHIO DAVANTI A UNA ROTAZIONE LA ROVESCIA, e questa riga è tutto il
-     * conto**: `M ∘ R(k) = R(-k) ∘ M`, quindi con `next.mirror` i quarti di giro accumulati
-     * cambiano segno e lo specchio si alterna. Chi scrivesse una somma anche in quel ramo
-     * otterrebbe un'immagine girata dalla parte sbagliata **solo** quando c'è già una
+     * ⚠️⚠️ **Uno specchio davanti a una rotazione la rovescia**: `M ∘ R(k) = R(-k) ∘ M`, quindi
+     * con `next.mirror` i quarti di giro accumulati cambiano segno e lo specchio si alterna. Una
+     * somma anche in quel ramo girerebbe l'immagine dalla parte sbagliata solo quando c'è già una
      * rotazione, cioè un difetto che passa tutte le prove fatte a immagine dritta.
      */
     fun then(next: Spin): Spin =
@@ -54,9 +49,8 @@ data class Spin(val turns: Int, val mirror: Boolean) {
         /**
          * Il gesto 'rifletti in verticale'.
          *
-         * ⚠️ **È lo specchio orizzontale più mezzo giro**, e non un secondo meccanismo: un
-         * ribaltamento sull'asse orizzontale è esattamente questo, e tenerne uno solo vuol dire
-         * che tutto il resto (la matrice, l'EXIF, il rettangolo) ha un caso in meno da coprire.
+         * È lo specchio orizzontale più mezzo giro, non un secondo meccanismo: così la matrice,
+         * l'EXIF e il rettangolo hanno un caso in meno da coprire.
          */
         val DOWN = Spin(2, true)
     }
@@ -65,34 +59,26 @@ data class Spin(val turns: Int, val mirror: Boolean) {
 /**
  * Che cosa succede quando l'editor semplice salva: girare, ritagliare, scrivere.
  *
- * ⚠️⚠️ **LA ROTAZIONE SENZA RITAGLIO NON TOCCA UN PIXEL, e su un JPEG è la differenza fra
- * lossless e no**: un JPEG porta in testa il tag EXIF dell'orientamento, e girare una
- * fotografia vuol dire cambiare **quel numero**, non ricomprimere venti megapixel. Una
- * ricompressione a ogni rotazione degrada l'immagine ogni volta, e dopo quattro giri si
- * torna al punto di partenza con una foto peggiore. Qui invece dopo quattro giri il file è
- * **identico** a com'era.
- * ⚠️ **Vale per il solo JPEG**: PNG e WebP il tag non ce l'hanno. Il PNG però si ricomprime
- * senza perdere niente, perché è un formato senza perdita per costruzione; il WebP no.
+ * ⚠️⚠️ **Su un JPEG la rotazione senza ritaglio non tocca un pixel**: cambia il tag EXIF
+ * dell'orientamento e non ricomprime, quindi dopo quattro giri il file è identico a com'era. Vale
+ * per il solo JPEG: PNG e WebP il tag non lo hanno, e il PNG si ricomprime comunque senza perdita.
  *
- * ⚠️⚠️ **I PIXEL SI DECODIFICANO CON `ImageDecoder`, CHE APPLICA GIÀ L'ORIENTAMENTO EXIF**
- * (documentato in `ImageSource`, e la ragione per cui `RegionSource` deve convertire le
- * coordinate). Quindi la mappa di pixel che arriva qui è **già dritta**, il ritaglio e la
- * rotazione si ragionano su quella, e il file che si scrive porta orientamento **normale**:
- * scrivere i pixel girati e lasciare anche il tag vecchio vorrebbe dire una fotografia
- * ruotata due volte.
+ * ⚠️⚠️ **I pixel si decodificano con `ImageDecoder`, che applica già l'orientamento EXIF** (vedi
+ * `ImageSource`): la mappa che arriva qui è già dritta, il ritaglio e la rotazione si ragionano su
+ * quella, e il file scritto ha orientamento normale. Pixel girati col tag vecchio darebbero
+ * un'immagine ruotata due volte.
  *
- * ⚠️⚠️ **L'EXIF SI TRAVASA A MANO QUANDO SI RICOMPRIME**: `Bitmap.compress` scrive i soli
- * pixel, quindi senza questo passo una fotografia ritagliata perderebbe data, fotocamera e
- * posizione. Sono i campi che la pastiglia 'Info' mostra, quindi la perdita si vedrebbe
- * subito e non ci sarebbe modo di tornare indietro.
+ * ⚠️⚠️ **L'EXIF si travasa a mano quando si ricomprime**: `Bitmap.compress` scrive i soli pixel,
+ * e un'immagine ritagliata perderebbe data, fotocamera e posizione, cioè i campi della pastiglia
+ * 'Info'.
  */
 object ImageEdit {
 
     /**
      * Il rettangolo tenuto, in frazioni del lato, **dopo** la rotazione.
      *
-     * ⚠️ In frazioni e non in pixel: chi lo sceglie lo fa su un'anteprima rimpicciolita, e
-     * un rettangolo in pixel dell'anteprima non vorrebbe dire niente sul file vero.
+     * In frazioni e non in pixel: si sceglie su un'anteprima rimpicciolita, e i suoi pixel non
+     * dicono niente sul file vero.
      */
     data class Crop(val left: Float, val top: Float, val right: Float, val bottom: Float) {
 
@@ -116,8 +102,8 @@ object ImageEdit {
         /**
          * Fatto: dove, e se si è riusciti a non toccare i pixel.
          *
-         * @param downloads whether the file went to **Download**, AIV Play's only way out (since
-         *   5.10): there [file] is the provisional copy, already deleted.
+         * @param downloads se il file è andato in Download, l'unica uscita di AIV Play: là [file]
+         *   è la copia provvisoria, già cancellata.
          */
         data class Done(val file: File, val lossless: Boolean, val downloads: Boolean = false) : Result
 
@@ -128,29 +114,21 @@ object ImageEdit {
     /**
      * Se si può riscrivere **sopra** l'originale.
      *
-     * ⚠️⚠️ **NO QUANDO IL FORMATO CAMBIEREBBE, ed è una tutela e non un limite**: di un HEIC
-     * o di un AVIF si sanno leggere i pixel ma non si sanno riscrivere, quindi l'unica uscita
-     * è un JPEG. Sovrascrivere vorrebbe dire mettere un JPEG dentro un file che si chiama
-     * `.heic`: il sistema lo aprirebbe lo stesso, guardando il contenuto, ma il nome
-     * mentirebbe per sempre e nessuno saprebbe più che cosa c'è dentro.
+     * ⚠️ **No quando il formato cambierebbe**: un HEIC o un AVIF si leggono ma non si riscrivono,
+     * e sovrascrivere metterebbe un JPEG in un file che si chiama `.heic`.
      */
     fun canOverwrite(name: String): Boolean = format(name) != null
 
     /**
      * Con che nome esce, dato quello di partenza.
      *
-     * ⚠️ Il nome cambia **solo** se cambia il formato: chi ritaglia un JPEG si aspetta un
-     * JPEG che si chiama come prima, non una copia con l'estensione diversa.
+     * Il nome cambia solo se cambia il formato: chi ritaglia un JPEG si aspetta un JPEG col
+     * nome di prima.
      *
-     * ⚠️⚠️ **DAI FORMATI CON LA TRASPARENZA ESCE UN PNG, dalla `1.34`, e prima era sempre un
-     * JPEG**: richiesta dell'utente sugli SVG (giro della `1.31`, voce `svg-modifica`: *le
-     * modifiche agli SVG devono salvare un PNG, non un JPG*). Ritagliare un disegno col fondo
-     * tolto e riceverne un JPEG vuol dire perdere l'unica cosa per cui quel formato era stato
-     * scelto, e la perdita è irreversibile.
-     * ⚠️ **Ma dai formati FOTOGRAFICI esce ancora un JPEG** ([ALPHA_EXT] non li elenca), e non
-     * è una dimenticanza: un PNG di ventiquattro megapixel sono decine di megabyte per una
-     * fotografia che non ha niente di trasparente da salvare. Là la trasparenza, se c'è, viene
-     * appiattita su fondo **bianco**: vedi la nota dentro [redraw].
+     * ⚠️ **Dai formati con la trasparenza esce un PNG** ([ALPHA_EXT]; richiesta dell'utente, voce
+     * `svg-modifica`): un JPEG perderebbe per sempre il fondo tolto. Dai formati fotografici esce
+     * un JPEG, perché un PNG da ventiquattro megapixel pesa decine di megabyte; là la trasparenza,
+     * se c'è, va su fondo bianco (vedi [redraw]).
      */
     fun outputName(name: String): String {
         if (format(name) != null) return name
@@ -168,17 +146,12 @@ object ImageEdit {
      * @param crop che cosa tenere, in frazioni, dopo la rotazione.
      * @param backup se, sovrascrivendo, una copia della versione di prima va nel cestino.
      *
-     * ⚠️⚠️ **L'ORDINE È 'SPECCHIA, GIRA, TAGLIA', E NON È UNA CONVENZIONE FRA TANTE**: con
-     * quello, ogni catena di riflessioni e rotazioni si riscrive in **un** solo specchio più
-     * **una** sola rotazione (le otto trasformazioni del quadrato, che sono le stesse otto
-     * dell'orientamento EXIF). Tenendo invece un elenco di gesti, salvare vorrebbe dire
-     * rifarli uno per uno sui pixel, cioè decodificare e ricomprimere più volte.
-     * ⚠️ **Il conto che lo rende possibile** è che uno specchio davanti a una rotazione la
-     * rovescia: `M ∘ R(k) = R(-k) ∘ M`. Vive su `Spin.then`, in `EditorScreen.kt`, ed è quello
-     * che compone i passi prima di arrivare qui.
+     * ⚠️⚠️ **L'ordine è 'specchia, gira, taglia'**: così ogni catena di riflessioni e rotazioni
+     * si riscrive in uno specchio più una rotazione, e salvare non rifà i gesti uno per uno sui
+     * pixel. Il conto che compone i passi vive su [Spin.then], in questo file.
      *
      * ⚠️ **`NonCancellable` come le altre operazioni sui file**: a metà scrittura una
-     * cancellazione lascerebbe un file troncato dove prima c'era una fotografia.
+     * cancellazione lascerebbe un file troncato.
      */
     suspend fun save(
         context: Context,
@@ -189,72 +162,48 @@ object ImageEdit {
         way: Way,
         backup: Boolean,
         /**
-         * La **filigrana** da scrivere sull'immagine, o `null` per non scriverne nessuna.
+         * La filigrana da scrivere sull'immagine, o `null` per nessuna.
          *
-         * ⚠️⚠️ **ARRIVA COME ARGOMENTO E NON SI LEGGE QUI, come la copia di sicurezza**: questo
-         * oggetto risponde a *che cosa succede quando l'editor salva*, e quale interruttore sia
-         * acceso lo sa chi ha le impostazioni in mano. Così il banco può misurarlo passandogli
-         * quello che vuole.
-         * ⚠️⚠️ **CONTA COME LAVORO DA FARE, e senza quella riga la funzione sarebbe zoppa**: chi
-         * apre l'editor per firmare un'immagine e basta non tocca niente, e il salvataggio
-         * risponderebbe che non c'è niente da salvare.
+         * Arriva come argomento, come la copia di sicurezza: quale interruttore sia acceso lo sa
+         * chi ha le impostazioni, e così il banco la può passare. ⚠️ **Conta come lavoro da
+         * fare**: chi apre l'editor solo per firmare non tocca niente altro.
          */
         mark: Watermark.Plan? = null,
         /**
-         * A che misura scrivere, o `null` per lasciare quella dell'immagine.
-         *
-         * ⚠️ **Arriva come argomento come la filigrana, e per la stessa ragione**: quale
-         * interruttore sia acceso lo sa chi ha le impostazioni in mano, e questo oggetto risponde
-         * solo a *che cosa succede quando l'editor salva*.
-         * ⚠️ **Conta come lavoro da fare**: chi apre l'editor per rimpicciolire un'immagine e basta
-         * non tocca la posa e non taglia niente.
+         * A che misura scrivere, o `null` per lasciare quella dell'immagine. Arriva come argomento
+         * e conta come lavoro da fare, come la filigrana.
          */
         resize: Resize.Plan? = null
     ): Result = withContext(Dispatchers.IO + NonCancellable) {
         val source = FileTree.fileOf(context, uri)
             ?: return@withContext Result.Failed(R.string.edit_no_file)
         val dir = outDir(context, source) ?: return@withContext Result.Failed(R.string.edit_no_file)
-        // ⚠️⚠️ **UN PIANO CHE SU QUESTO FILE NON RIMPICCIOLISCE NIENTE NON È LAVORO, dalla `6.26`**
-        // (rilievo B16 della revisione della 6.25): l'interruttore acceso passa il piano ogni volta,
-        // e 'Lato lungo 2048' su un JPEG da 1600 toglieva lo stesso il senza perdita, cioè
-        // ricomprimeva per niente. [shrinks] lo misura sulle misure vere che si scriverebbero.
+        // ⚠️ Un piano che su questo file non rimpicciolisce niente non è lavoro: l'interruttore
+        // acceso passa il piano ogni volta, e 'Lato lungo 2048' su un JPEG da 1600 toglierebbe il
+        // senza perdita per niente. [shrinks] lo misura sulle misure vere che si scriverebbero.
         val resize = resize?.takeIf { shrinks(source, it, turns, crop) }
         if (turns == 0 && !mirror && crop.whole && mark == null && resize == null) {
             return@withContext Result.Failed(R.string.edit_nothing)
         }
-        // ⚠️ In AIV Play the original is never written over: see [outDir].
+        // ⚠️ In AIV Play l'originale non si sovrascrive mai: vedi [outDir].
         val via = if (Store.files) way else Way.COPY
 
         /*
-         * ⚠️⚠️ **LA COPIA DI SICUREZZA SI FA QUI, PRIMA DI OGNI ALTRA COSA, ed è l'unico
-         * punto che le copre tutte e due**: sia la via senza perdita sia il ridisegno
-         * riscrivono l'originale quando si sovrascrive, quindi metterla dentro una delle due
-         * vorrebbe dire dimenticarsene nell'altra il giorno che se ne aggiunge una terza.
-         * ⚠️⚠️ **UNA COPIA CHE NON RIESCE FERMA IL SALVATAGGIO, e non è eccesso di zelo**:
-         * chi ha acceso quell'interruttore ha chiesto di non poter perdere l'originale, e
-         * sovrascrivere lo stesso gli darebbe esattamente la cosa da cui si stava
-         * proteggendo, per giunta in silenzio.
-         * ⚠️ Con `Way.COPY` non serve: là l'originale non lo tocca nessuno, e una copia in
-         * più sarebbe un file nel cestino che nessuno ha chiesto.
+         * ⚠️⚠️ **La copia di sicurezza si fa qui, prima di tutto**, l'unico punto che copre le due
+         * vie, che riscrivono entrambe l'originale quando si sovrascrive.
+         * ⚠️⚠️ **Una copia che non riesce ferma il salvataggio**: chi ha acceso l'interruttore ha
+         * chiesto di non poter perdere l'originale. Con `Way.COPY` non serve, perché l'originale
+         * non si tocca.
          */
         if (via == Way.OVERWRITE && backup && Bin.keep(context, source) == null) {
             return@withContext Result.Failed(R.string.edit_no_backup)
         }
 
         val jpeg = source.extension.lowercase() in JPEG_EXT
-        // ⚠️ La via senza perdita vale solo se non c'è ritaglio: tagliare vuol dire per forza
-        // riscrivere i pixel, e allora tanto vale girarli insieme.
-        // ⚠️⚠️ **E VALE ANCHE PER UNO SPECCHIO, DALLA `2.02`**: l'orientamento EXIF ne porta
-        // quattro con lo specchio (2, 4, 5, 7), quindi riflettere un JPEG non costa una
-        // ricompressione più di quanto ne costi girarlo. Chi credesse il contrario toglierebbe
-        // qualità a un gesto che oggi non ne toglie.
-        // ⚠️⚠️ **E UNA FILIGRANA TOGLIE IL SENZA PERDITA, DALLA `2.69`**: girare un JPEG si fa con
-        // un tag EXIF senza toccare un pixel, ma un logo i pixel li scrive, quindi là si passa per
-        // forza dal ridisegno. È la stessa famiglia del ritaglio della riga qui sopra.
-        // ⚠️⚠️ **E UN RIDIMENSIONAMENTO LO TOGLIE PER LA STESSA RAGIONE, DALLA `2.70`**: un tag
-        // EXIF dice come guardare i pixel, non quanti sono, quindi scrivere meno pixel vuol dire
-        // ridisegnare. È la terza voce di questa condizione, e tutte e tre dicono la stessa cosa:
-        // il senza perdita vale finché il file non va riscritto.
+        // ⚠️ La via senza perdita vale finché i pixel non vanno riscritti: un ritaglio, una
+        // filigrana e un ridimensionamento la tolgono, perché un tag EXIF dice come guardare i
+        // pixel e non quali o quanti sono. Vale anche per uno specchio: l'orientamento EXIF ne ha
+        // quattro con lo specchio (2, 4, 5, 7).
         if (jpeg && crop.whole && mark == null && resize == null) {
             return@withContext delivered(context, turnOnly(context, source, dir, turns, mirror, via))
         }
@@ -271,12 +220,11 @@ object ImageEdit {
     /**
      * Se [plan] rimpicciolisce davvero l'immagine che il salvataggio scriverebbe da [source].
      *
-     * ⚠️ **Le misure si leggono dall'intestazione** (`inJustDecodeBounds`), quindi non si
-     * decodifica niente; si scambiano se l'EXIF o la posa girano di un quarto, perché i modi
-     * 'Larghezza' e 'Altezza' guardano un lato preciso, e si riducono col ritaglio, come in
-     * [Resize.frameSize].
-     * ⚠️ **Senza misure risponde di sì**: è la strada di prima, che ridisegna, e un file che non si
-     * legge non deve perdere il ridimensionamento chiesto.
+     * Le misure si leggono dall'intestazione (`inJustDecodeBounds`), senza decodificare; si
+     * scambiano se l'EXIF o la posa girano di un quarto, perché i modi 'Larghezza' e 'Altezza'
+     * guardano un lato preciso, e si riducono col ritaglio, come in [Resize.frameSize].
+     * ⚠️ **Senza misure risponde di sì**, cioè ridisegna: un file che non si legge non deve
+     * perdere il ridimensionamento chiesto.
      */
     internal fun shrinks(source: File, plan: Resize.Plan, turns: Int, crop: Crop): Boolean {
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
@@ -293,21 +241,20 @@ object ImageEdit {
     }
 
     /**
-     * Where a save writes: beside the original, or in AIV Play a folder of the app's own.
+     * Dove scrive un salvataggio: accanto all'originale, o in AIV Play in una cartella dell'app.
      *
-     * ⚠️⚠️ **AIV Play may not write in the original's folder** (since 5.10): without the
-     * all-files permission, a file of another app or of the camera can be read and not
-     * replaced. So there the editors always write a new file, here first and then in Download
-     * ([delivered]), and the original stays as it is: no copy in the bin is needed, and none
-     * is made, because [Way.COPY] never asks for it.
+     * ⚠️⚠️ **AIV Play non può scrivere nella cartella dell'originale**: senza il permesso su
+     * tutti i file, un file di un'altra app o della fotocamera si legge e non si sostituisce.
+     * Là gli editor scrivono sempre un file nuovo, prima qui e poi in Download ([delivered]), e
+     * l'originale resta com'è: nessuna copia nel cestino, perché [Way.COPY] non la chiede.
      */
     private fun outDir(context: Context, source: File): File? =
         if (Store.files) source.parentFile
         else File(context.cacheDir, "editor").takeIf { it.isDirectory || it.mkdirs() }
 
     /**
-     * In AIV Play, the file written in [outDir] goes to Download, and the private one is deleted
-     * either way; in AIV GitHub the result goes back as it came.
+     * In AIV Play il file scritto in [outDir] va in Download, e quello privato si cancella in ogni
+     * caso; in AIV GitHub il risultato torna com'è arrivato.
      */
     private suspend fun delivered(context: Context, result: Result): Result {
         if (Store.files || result !is Result.Done) return result
@@ -319,18 +266,13 @@ object ImageEdit {
     /**
      * Applica i valori dell'editor **completo** e scrive.
      *
-     * ⚠️⚠️ **VIVE QUI E NON IN UN FILE SUO, ED È UNA SCELTA**: questo oggetto è la casa della
-     * domanda *che cosa succede quando l'editor salva*, e le due strade (la posa e i valori)
-     * condividono la copia di sicurezza, il travaso EXIF, il file provvisorio e il rinomina
-     * finale. Scritte in due posti, la prima a cambiare sarebbe quella che nessuno guarda.
+     * Vive qui perché le due strade (la posa e i valori) condividono la copia di sicurezza, il
+     * travaso EXIF, il file provvisorio e la rinomina finale.
      *
-     * ⚠️⚠️ **LA QUALITÀ DECIDE ANCHE IL FORMATO, e chi sceglie 'senza perdita' riceve un file
-     * NUOVO**: un JPEG non puo essere senza perdita, quindi là esce un PNG, che ha un altro
-     * nome e quindi si mette accanto invece di prendere il posto. Non è un ripiego: è l'unica
-     * lettura onesta di quella scelta, e il nome diverso lo dice a chi guarda la cartella.
+     * ⚠️⚠️ **La qualità decide anche il formato**: un JPEG non può essere senza perdita, quindi
+     * con 'Senza perdita' esce un PNG, che ha un altro nome e si mette accanto all'originale.
      *
-     * ⚠️ **`NonCancellable` come tutto il resto**: una scrittura interrotta a metà lascerebbe un
-     * file troncato al posto di una fotografia.
+     * `NonCancellable` come tutto il resto.
      */
     suspend fun saveLook(
         context: Context,
@@ -339,55 +281,38 @@ object ImageEdit {
         quality: Quality,
         backup: Boolean,
         /**
-         * La **filigrana**, come in [save]: arriva da chi ha le impostazioni in mano.
-         *
-         * ⚠️ **Non vive in [Look]**, e non è una dimenticanza: un `Look` è un aspetto, cioè una
-         * cosa che uno stile si porta da un'immagine all'altra, e una firma vale per tutti gli
-         * editing. Il perché per esteso vive in testa a [Watermark].
+         * La filigrana, come in [save]. Non vive in [Look], che è un aspetto che uno stile porta
+         * da un'immagine all'altra: vedi la testa di [Watermark].
          */
         mark: Watermark.Plan? = null,
         /**
-         * A che misura scrivere, come in [save].
-         *
-         * ⚠️ **Non vive in [Look]** per la stessa ragione della filigrana: un `Look` è un aspetto
-         * che uno stile si porta da un'immagine all'altra, e questo dice come scrivere il file. Il
-         * perché per esteso vive in testa a [Resize].
+         * A che misura scrivere, come in [save]. Non vive in [Look], per la ragione scritta in
+         * testa a [Resize].
          */
         resize: Resize.Plan? = null,
         /**
-         * Se il file nuovo va **accanto** all'originale invece di prenderne il posto.
-         *
-         * ⚠️⚠️ **È IL TOCCO LUNGO SU 'SALVA', DALLA `2.58`, ED È SUA RICHIESTA** (campo libero del
-         * giro della `2.55`: *tocco lungo su 'Salva' (in alto a destra) nell'editor: salva un nuovo
-         * file accanto all'originale*). Non apre una strada nuova: è la stessa che questo oggetto
-         * percorre già quando il formato non si sa riscrivere (un HEIC, un AVIF) e quando la
-         * qualità è 'Senza perdita', cioè [Way.COPY] e [lookTarget] con un nome libero.
-         * ⚠️ **Con lui la copia di sicurezza non serve, e si salta da sé**: l'originale non lo tocca
-         * nessuno, quindi la condizione che la chiede (il bersaglio è la sorgente) è falsa per
-         * costruzione. È la stessa nota che [save] porta su [Way.COPY].
+         * Se il file nuovo va accanto all'originale: il tocco lungo su 'Salva' (richiesta
+         * dell'utente). È la stessa strada di un formato che non si riscrive, cioè [Way.COPY] e
+         * [lookTarget] con un nome libero; la copia di sicurezza si salta da sé, perché il
+         * bersaglio non è la sorgente.
          */
         beside: Boolean = false
     ): Result = withContext(Dispatchers.IO + NonCancellable) {
         val source = FileTree.fileOf(context, uri)
             ?: return@withContext Result.Failed(R.string.edit_no_file)
         val dir = outDir(context, source) ?: return@withContext Result.Failed(R.string.edit_no_file)
-        // ⚠️ In AIV Play the file is always a new one: see [outDir].
+        // ⚠️ In AIV Play il file è sempre nuovo: vedi [outDir].
         val accanto = beside || !Store.files
-        // ⚠️ La filigrana e il ridimensionamento sono lavoro da fare anche a cursori fermi, e per
-        // questo la guardia non guarda soltanto il [Look]: senza, chi apre l'editor per firmare o
-        // per rimpicciolire si vedrebbe rispondere che non c'è niente da salvare.
+        // ⚠️ Filigrana e ridimensionamento sono lavoro anche a cursori fermi: la guardia non
+        // guarda soltanto il [Look].
         if (look.idle && mark == null && resize == null) {
             return@withContext Result.Failed(R.string.edit_nothing)
         }
         /*
-         * ⚠️⚠️ **COL SOLO MODULO RITAGLIO SI PASSA DA [save], DALLA `2.31`**: posa e taglio sono
-         * quello che quella strada sa fare da sempre, compreso il **senza perdita** di un JPEG
-         * girato con un tag EXIF, che è la clausola dell'utente. Riscrivere qui quel ramo vorrebbe
-         * dire due strade per lo stesso lavoro, e la seconda a divergere sarebbe quella che nessuno
-         * guarda.
-         * ⚠️ **La via si sceglie sul nome e non sulla qualità**: quando il formato non si può
-         * riscrivere il file esce accanto, che è quello che questa funzione fa da sé con
-         * [lookTarget].
+         * ⚠️⚠️ **Col solo modulo Ritaglio si passa da [save]**: posa e taglio sono il suo lavoro,
+         * compreso il senza perdita di un JPEG girato con un tag EXIF, che è la clausola
+         * dell'utente. La via si sceglie sul nome e non sulla qualità: un formato che non si
+         * riscrive esce accanto, come fa [lookTarget].
          */
         if (look.plain && look.geo.idle && look.healing.idle && look.drawing.idle) {
             val way = if (!accanto && canOverwrite(source.name)) Way.OVERWRITE else Way.COPY
@@ -402,9 +327,8 @@ object ImageEdit {
 
         val kind = lookFormat(source.name, quality)
         val target = lookTarget(source, dir, kind, accanto)
-        // ⚠️ La copia di sicurezza si fa **solo** quando si sovrascrive, e prima di tutto: è la
-        // stessa regola di [save], e la stessa ragione (chi l'ha accesa ha chiesto di non poter
-        // perdere l'originale, quindi un fallimento ferma il salvataggio invece di procedere).
+        // ⚠️ La copia di sicurezza si fa solo quando si sovrascrive, e prima di tutto, con la
+        // regola di [save]: un fallimento ferma il salvataggio.
         if (target == source && backup && Bin.keep(context, source) == null) {
             return@withContext Result.Failed(R.string.edit_no_backup)
         }
@@ -423,55 +347,46 @@ object ImageEdit {
                 ?: return@withContext Result.Failed(R.string.edit_too_big)
             val healed = Healing.render(full, look.healing)
             if (healed !== full) { full.recycle(); full = healed }
-            // ⚠️ The blurring elements of the Disegno module change the image before the
-            // development, as on the stage (4.80): the reason lives on `Draw.blurAreas`.
+            // ⚠️ Gli elementi sfocanti del modulo Disegno cambiano l'immagine prima dello
+            // sviluppo, come sul palco: la ragione vive su `Draw.blurAreas`.
             val blurred = Draw.blurAreas(full, look.drawing, mine = true)
             if (blurred !== full) { full.recycle(); full = blurred }
             /*
-             * ⚠️⚠️ **LA POSA VIENE PER PRIMA E IL TAGLIO PER ULTIMO, DALLA `2.31`, E I DUE POSTI
-             * SONO LA SPECIFICA**: mettere in posa è una permutazione di pixel, quindi il Dettaglio
-             * continua a leggere i pixel del file, e i due keystone lavorano sugli assi che si
-             * vedono invece che su quelli dell'originale. Tagliare per ultimo è l'inquadratura, cioè
-             * la cosa che si decide guardando il risultato.
+             * ⚠️⚠️ **La posa per prima e il taglio per ultimo**: la posa è una permutazione di
+             * pixel, quindi il Dettaglio legge ancora i pixel del file, e i due keystone lavorano
+             * sugli assi che si vedono. Il taglio è l'inquadratura, che si decide guardando il
+             * risultato.
              */
             posed = if (look.spin == Spin.STILL) full
             else full.spunBy(look.spin.turns, look.spin.mirror, strict = true)
             /*
-             * ⚠️⚠️ **DUE PASSATE E NON UNA, DALLA `2.29`, E L'ORDINE È LA SPECIFICA**: prima il
-             * colore, che gira sulla scheda grafica a tessere, e poi la geometria, che è una maglia
-             * di triangoli su una tela normale. Il Dettaglio guarda i pixel vicini, quindi deve
-             * leggerli **come sono nel file**: deformando prima, misurerebbe una nitidezza che il
-             * ricampionamento ha appena ammorbidito.
-             * ⚠️ **Ognuna delle due si salta quando non ha niente da fare**, ed è il caso comune:
-             * chi raddrizza soltanto non paga una passata di shader su venti megapixel, e chi
-             * sviluppa soltanto non paga il ricampionamento.
+             * ⚠️⚠️ **Due passate, prima il colore e poi la geometria**: il colore gira sulla scheda
+             * grafica a tessere, la geometria è una maglia di triangoli su una tela normale. Il
+             * Dettaglio deve leggere i pixel come sono nel file: deformando prima, misurerebbe una
+             * nitidezza ammorbidita dal ricampionamento. Ognuna si salta quando non ha niente da
+             * fare.
              */
             shaded = if (look.plain) posed else AdjustRender.apply(posed, look)
                 ?: return@withContext Result.Failed(R.string.look_failed)
             /*
-             * ⚠️⚠️ **The drawing comes after the colour and before the geometry, from 4.40**: the
-             * sliders must not repaint the ink, and straightening and the crop must move it with
-             * the image (his answer D2a). The why lives at the top of `Drawing.kt`.
+             * ⚠️⚠️ **Il disegno viene dopo il colore e prima della geometria** (risposta D2a): i
+             * cursori non devono ritingere l'inchiostro, e raddrizzare e tagliare lo devono spostare
+             * con l'immagine. Il perché vive in testa a `Drawing.kt`.
              */
-            // ⚠️ The faces of the text (4.90) are loaded here too: the save may run with no editor open.
+            // ⚠️ I caratteri del testo si caricano anche qui: il salvataggio può girare senza un editor aperto.
             Faces.load(context)
             drawn = Draw.onto(shaded, look.drawing, look.spin)
             warped = if (look.geo.idle) drawn else Warp.render(drawn, look.geo)
                 ?: return@withContext Result.Failed(R.string.look_failed)
             done = if (look.crop.whole) warped else warped.cutTo(look.crop, strict = true)
-            // ⚠️ Il ridimensionamento viene prima della firma, e il perché vive nell'altra via
-            // (la filigrana è larga una frazione del lato di quello che si scrive, quindi
-            // disegnarla prima vorrebbe dire ridisegnarla due volte).
+            // ⚠️ Il ridimensionamento viene prima della firma, come in [redraw].
             small = resize?.let { Resize.apply(done, it) }
             val ridotta = small ?: done
-            // ⚠️ La filigrana è l'ultima cosa che si disegna: è una firma sul risultato, quindi
-            // va sopra lo sviluppo, la geometria e il taglio. Il perché per esteso, e che cosa
-            // succede quando il file non si disegna, vivono in testa a [Watermark].
+            // ⚠️ La filigrana è l'ultima cosa che si disegna, sopra sviluppo, geometria e taglio:
+            // vedi la testa di [Watermark].
             signed = mark?.let { Watermark.stamp(context, ridotta, it) }
             val finita = signed ?: ridotta
-            // ⚠️ La trasparenza va su fondo bianco come nell'altra strada, e con la stessa
-            // funzione: il JPEG butta via il canale alfa, e i pixel trasparenti resterebbero
-            // col loro colore, che quasi sempre è il nero.
+            // ⚠️ La trasparenza va su fondo bianco come in [redraw], con la stessa funzione.
             val piatta =
                 if (kind == Bitmap.CompressFormat.JPEG) Convert.flatten(finita) else finita
             val written = runCatching {
@@ -487,8 +402,7 @@ object ImageEdit {
             return@withContext Result.Failed(R.string.edit_too_big)
         } finally {
             // ⚠️ Le mappe possono essere la stessa: una passata saltata consegna quella che ha
-            // ricevuto, e riciclare due volte lo stesso bitmap è un errore che non si vede finché
-            // qualcuno non lo legge dopo.
+            // ricevuto, e riciclare due volte lo stesso bitmap è un errore che non si vede subito.
             if (signed !== small && signed !== done) signed?.recycle()
             if (small !== done) small?.recycle()
             if (done !== warped) done?.recycle()
@@ -516,18 +430,12 @@ object ImageEdit {
     /**
      * Dove si scrive: sopra l'originale se il formato resta quello, accanto se cambia.
      *
-     * ⚠️ **Il confronto è sul FORMATO e non sull'estensione**: `.jpg` e `.jpeg` sono lo stesso
-     * formato, e un file che si chiama in un modo non deve cambiare nome solo perché l'altra
-     * grafia era più comune.
-     *
-     * ⚠️⚠️ **E [beside] LO DICE DA FUORI, DALLA `2.58`**: è il tocco lungo su 'Salva', che chiede
-     * un file nuovo anche dove il formato coincide. Il nome lo sceglie [FileTree.freeName], che è
-     * la stessa funzione di ogni copia dell'app: cambiare il conto qui vorrebbe dire due modi di
-     * numerare un doppione nella stessa cartella.
-     *
-     * ⚠️ **Non è `internal` per comodità della prova**: è quello che il banco può misurare senza
-     * decodificare niente, cioè che il tocco lungo scriva davvero un file nuovo invece di
-     * riscrivere quello di partenza.
+     * ⚠️ **Il confronto è sul formato e non sull'estensione**: `.jpg` e `.jpeg` sono lo stesso
+     * formato, e il nome non deve cambiare per la grafia.
+     * [beside] chiede un file nuovo anche dove il formato coincide (il tocco lungo su 'Salva').
+     * Il nome lo sceglie [FileTree.freeName], la stessa funzione di ogni copia dell'app.
+     * È `internal` perché il banco misuri, senza decodificare, che il tocco lungo scriva davvero
+     * un file nuovo.
      */
     internal fun lookTarget(
         source: File,
@@ -544,9 +452,8 @@ object ImageEdit {
     /**
      * Quanto si comprime, dato quello che l'utente ha scelto.
      *
-     * ⚠️ **Su PNG il numero non conta**, ed è giusto così: quel formato non perde niente,
-     * quindi 'Massima' e 'Senza perdita' non sono la stessa cosa detta due volte. La prima è un
-     * JPEG spinto al limite, la seconda un file che non butta via un bit.
+     * Su PNG il numero non conta, perché il formato non perde niente: 'Massima' è un JPEG
+     * spinto al limite, 'Senza perdita' un PNG.
      */
     private fun lookQuality(quality: Quality): Int = when (quality) {
         Quality.HIGH -> QUALITY
@@ -557,9 +464,8 @@ object ImageEdit {
     /**
      * La via senza perdita: si cambia il numero dell'orientamento e basta.
      *
-     * ⚠️ **La copia si fa PRIMA di toccare il tag**: cambiando prima il tag sull'originale e
-     * copiando dopo si sarebbe modificato un file che l'utente aveva chiesto di lasciare
-     * stare.
+     * ⚠️ **La copia si fa prima di toccare il tag**, o si modificherebbe un originale che si è
+     * chiesto di lasciare com'è.
      */
     private suspend fun turnOnly(
         context: Context,
@@ -603,13 +509,11 @@ object ImageEdit {
     /**
      * La via che ridisegna: decodifica, gira, taglia, ricomprime.
      *
-     * ⚠️⚠️ **SI SCRIVE IN UN FILE PROVVISORIO E SI RINOMINA ALLA FINE**, come lo scaricamento
-     * dei modelli: sovrascrivendo direttamente, una compressione che fallisce a metà lascia
-     * al posto della fotografia un file troncato, e l'originale non c'è più da nessuna parte.
-     * Col nome provvisorio, il file buono esiste solo quando è finito.
-     * ⚠️ **L'`OutOfMemoryError` si cattura e si racconta**: una fotografia da cinquanta
-     * megapixel sono duecento megabyte di mappa, e su un telefono stretto la decodifica può
-     * non farcela. Meglio una frase che dice 'troppo grande' di un'app che sparisce.
+     * ⚠️⚠️ **Si scrive in un file provvisorio e si rinomina alla fine**: sovrascrivendo
+     * direttamente, una compressione che fallisce a metà lascerebbe un file troncato al posto
+     * dell'originale.
+     * L'`OutOfMemoryError` si cattura e diventa 'troppo grande': un'immagine da cinquanta
+     * megapixel è una mappa da duecento megabyte.
      */
     private suspend fun redraw(
         context: Context,
@@ -629,10 +533,9 @@ object ImageEdit {
         var small: Bitmap? = null
         var signed: Bitmap? = null
         try {
-            // ⚠️ **Il secondo tentativo serve ai formati che il sistema non apre**, AVIF e
-            // SVG: senza, un ritaglio su quei file rispondeva 'troppo grande', che è un
-            // messaggio sbagliato su un file di venti kilobyte. Lo zero vuol dire 'grande
-            // quanto viene', perché qui si sta per riscrivere e non si mostra niente.
+            // ⚠️ `ImageSource.pixels` apre anche i formati che il sistema non apre (AVIF, SVG):
+            // senza, un ritaglio su quei file risponderebbe 'troppo grande'. Lo zero vuol dire
+            // 'grande quanto viene', perché qui si riscrive e non si mostra niente.
             full = ImageSource.pixels(context, uri, 0)
                 ?: return Result.Failed(R.string.edit_too_big)
 
@@ -644,39 +547,28 @@ object ImageEdit {
 
             cut = turned.cutTo(crop, strict = true)
             /*
-             * ⚠️⚠️ **SI RIDIMENSIONA PRIMA DI FIRMARE, DALLA `2.70`, E L'ORDINE È MISURATO**:
-             * la filigrana è larga una frazione del lato **dell'immagine che si scrive**, quindi
-             * firmando prima e rimpicciolendo dopo la firma resterebbe in proporzione ma
-             * ridisegnata due volte, cioè più sgranata di quella che si vedrebbe nell'anteprima
-             * delle impostazioni. Rimpicciolire prima la fa disegnare una volta sola, alla misura
-             * giusta.
+             * ⚠️⚠️ **Si ridimensiona prima di firmare**: la filigrana è larga una frazione del
+             * lato dell'immagine che si scrive, e firmando prima sarebbe ricampionata, più
+             * sgranata dell'anteprima delle impostazioni. Così si disegna una volta sola, alla
+             * misura giusta.
              */
             small = resize?.let { Resize.apply(cut, it) }
             val ridotta = small ?: cut
             /*
-             * ⚠️⚠️ **LA FILIGRANA È L'ULTIMA COSA CHE SI DISEGNA SULL'IMMAGINE, DALLA `2.69`**:
-             * è una firma sul risultato, quindi va sopra la posa e sopra il taglio. Se non c'è
-             * niente da scrivere (nessun file scelto, o un file che non si disegna) risponde
-             * `null` e si salva l'immagine e basta, invece di fallire per un logo.
+             * ⚠️ **La filigrana è l'ultima cosa che si disegna**: è una firma sul risultato. Se
+             * non c'è niente da scrivere (nessun file scelto, o un file che non si disegna)
+             * risponde `null` e si salva l'immagine e basta, senza fallire per un logo.
              */
             signed = mark?.let { Watermark.stamp(context, ridotta, it) }
             val finita = signed ?: ridotta
 
             val kind = format(target.name) ?: Bitmap.CompressFormat.JPEG
             /*
-             * ⚠️⚠️ **LA TRASPARENZA VA SU FONDO BIANCO, e fino alla 1.33 QUI diventava
-             * NERA**: il JPEG butta via il canale alfa e basta, quindi un pixel trasparente
-             * resta coi suoi valori di colore, che in un PNG o in un SVG sono quasi sempre
-             * zero, cioè nero. Non lo decideva il JPEG, lo decideva la sorte. 'Converti /
-             * Esporta' dipingeva la tela di bianco **dalla `1.16`**, ma questa è un'altra
-             * strada e la correzione non l'aveva mai vista: segnalato dall'utente sugli SVG
-             * (giro della `1.31`, voce `svg-modifica`: *voglio che sia SEMPRE bianco*), e non
-             * riguardava solo loro.
-             * ⚠️ **La funzione è quella di [Convert] e non una seconda copia**: un secondo
-             * `drawColor` scritto qui sarebbe la stessa scelta in due posti, cioè due posti
-             * da cambiare il giorno che il colore diventa un'opzione.
-             * ⚠️ **Si salta dove non serve**: `flatten` torna la stessa immagine se non ha
-             * canale alfa, e per PNG e WebP non la si chiama nemmeno.
+             * ⚠️⚠️ **La trasparenza va su fondo bianco** (richiesta dell'utente, voce
+             * `svg-modifica`): il JPEG scarta il canale alfa, e un pixel trasparente resterebbe
+             * coi suoi valori di colore, in un PNG o in un SVG quasi sempre zero, cioè nero.
+             * La funzione è quella di [Convert], non una seconda copia. `flatten` torna la stessa
+             * immagine se non ha canale alfa, e per PNG e WebP non si chiama.
              */
             val piatta =
                 if (kind == Bitmap.CompressFormat.JPEG) Convert.flatten(finita) else finita
@@ -692,9 +584,8 @@ object ImageEdit {
             temp.delete()
             return Result.Failed(R.string.edit_too_big)
         } finally {
-            // ⚠️ La firma può essere lo STESSO bitmap su cui si è disegnato, quando si è potuto
-            // scrivere sopra: riciclarlo due volte è un errore che non si vede finché qualcuno non
-            // lo legge dopo, ed è la stessa nota che porta la via dell'editor completo.
+            // ⚠️ La firma può essere lo stesso bitmap su cui si è disegnato: come in [saveLook],
+            // non si ricicla due volte.
             if (signed !== small && signed !== cut) signed?.recycle()
             if (small !== cut) small?.recycle()
             if (cut !== turned) cut?.recycle()
@@ -703,8 +594,8 @@ object ImageEdit {
         }
 
         carryExif(source, temp)
-        // ⚠️ Il rinomina è l'ultimo passo, e su Android sovrascrive: da qui in poi il file
-        // buono c'è, e quello provvisorio non esiste più.
+        // ⚠️ La rinomina è l'ultimo passo, e su Android sovrascrive: da qui il file buono c'è, e
+        // quello provvisorio non esiste più.
         if (!temp.renameTo(target)) {
             temp.delete()
             return Result.Failed(R.string.edit_failed)
@@ -716,14 +607,11 @@ object ImageEdit {
     /**
      * Travasa i dati EXIF che vale la pena non perdere.
      *
-     * ⚠️⚠️ **L'ORIENTAMENTO NON SI TRAVASA, ed è il punto**: i pixel scritti sono già dritti e
-     * già girati come l'utente ha chiesto. Portandosi dietro il tag vecchio, la fotografia
-     * verrebbe ruotata una seconda volta a ogni apertura.
-     * ⚠️ **Nemmeno le misure**: dopo un ritaglio i lati sono altri, e un tag che dichiara i
-     * lati di prima è peggio di un tag assente.
-     * ⚠️ **Il travaso può non riuscire e non è un errore da fermare tutto**: `ExifInterface`
-     * scrive JPEG, PNG e WebP e non gli altri, e una fotografia ritagliata senza la data resta
-     * una fotografia ritagliata. Si prova e si tira avanti.
+     * ⚠️⚠️ **L'orientamento non si travasa**: i pixel scritti sono già girati, e il tag vecchio
+     * ruoterebbe l'immagine una seconda volta. Nemmeno le misure: dopo un ritaglio i lati sono
+     * altri.
+     * Il travaso può non riuscire senza fermare niente: `ExifInterface` scrive solo JPEG, PNG e
+     * WebP.
      */
     private fun carryExif(from: File, to: File) {
         runCatching {
@@ -743,16 +631,14 @@ object ImageEdit {
      * L'orientamento EXIF dopo uno specchio facoltativo e [turns] quarti di giro in senso
      * orario.
      *
-     * ⚠️⚠️ **LA TABELLA È DERIVATA, non ricordata**: un orientamento EXIF è uno specchio
-     * facoltativo seguito da una rotazione (1 e 6 e 3 e 8 senza specchio, 2 e 7 e 4 e 5 con),
-     * e girare la vista di 90 gradi aggiunge 90 alla rotazione lasciando lo specchio dov'è.
-     * Da lì escono i due cicli qui sotto. Chi la copia da un forum prende quella di 'ruota il
-     * file', che è un'altra cosa e sbaglia sulle quattro con lo specchio.
-     * ⚠️⚠️ **E LO SPECCHIO PASSA ALL'ALTRO CICLO ROVESCIANDO L'INDICE, dalla `2.02`**: con
-     * l'orientamento scritto come `R(i) ∘ M^s`, mettere uno specchio davanti dà
-     * `M ∘ R(i) ∘ M^s = R(-i) ∘ M^(1-s)`, cioè l'altro ciclo alla posizione **meno** i. È lo
-     * stesso conto di `Spin.then`, e chi lo scrivesse come 'stessa posizione, altro ciclo'
-     * sbaglierebbe su tutti gli orientamenti tranne i due dritti, senza che niente dia errore.
+     * ⚠️⚠️ **La tabella è derivata**: un orientamento EXIF è uno specchio facoltativo seguito da
+     * una rotazione (1, 6, 3 e 8 senza specchio, 2, 7, 4 e 5 con), e girare la vista di 90 gradi
+     * aggiunge 90 alla rotazione lasciando lo specchio. Da lì i due cicli qui sotto; la tabella di
+     * 'ruota il file' che circola è un'altra cosa, e sbaglia sulle quattro con lo specchio.
+     * ⚠️⚠️ **Lo specchio passa all'altro ciclo rovesciando l'indice**: con l'orientamento scritto
+     * `R(i) ∘ M^s`, uno specchio davanti dà `M ∘ R(i) ∘ M^s = R(-i) ∘ M^(1-s)`, cioè l'altro ciclo
+     * alla posizione meno i. È lo stesso conto di [Spin.then]; 'stessa posizione, altro ciclo'
+     * sbaglierebbe su tutti gli orientamenti tranne i due dritti, senza dare errore.
      */
     internal fun spun(now: Int, turns: Int, mirror: Boolean): Int {
         val cycle = when (now) {
@@ -802,31 +688,25 @@ object ImageEdit {
     /**
      * I formati di partenza da cui esce un PNG invece di un JPEG.
      *
-     * ⚠️ **Sono quelli in cui la trasparenza è normale e il contenuto è grafica**: un SVG, un
-     * `.svgz`, una GIF, un BMP. Il criterio non è 'può avere il canale alfa' (ce l'hanno anche
-     * l'AVIF e l'HEIF), è **quanto costa sbagliare**: là il fondo tolto è il senso del file,
-     * qui sarebbe un PNG enorme al posto di una fotografia.
-     * ⚠️ **Non è l'elenco di [Folder]**: quello dice che cosa si mostra in una cartella,
-     * questo che cosa si scrive uscendo. Metterli insieme farebbe uscire un PNG anche da un
-     * HEIC.
+     * ⚠️ **Quelli in cui la trasparenza è normale e il contenuto è grafica**. Il criterio non è
+     * 'può avere il canale alfa' (lo hanno anche AVIF e HEIF), ma quanto costa sbagliare: là il
+     * fondo tolto è il senso del file, qui sarebbe un PNG enorme al posto di una fotografia.
+     * Non è l'elenco di [Folder], che dice che cosa si mostra: unirli farebbe uscire un PNG
+     * anche da un HEIC.
      */
     private val ALPHA_EXT = setOf("svg", "svgz", "gif", "bmp")
 
     /**
      * Quanto si comprime quando si deve ricomprimere.
      *
-     * ⚠️ **95 e non 100**: fra i due la differenza a occhio non c'è e il file quasi
-     * raddoppia, perché a 100 la quantizzazione JPEG smette di fare il suo mestiere. Sul PNG
-     * il numero non ha effetto, ed è giusto così: quel formato non perde niente.
+     * ⚠️ **95 e non 100**: a occhio non c'è differenza, e a 100 il file quasi raddoppia. Sul PNG
+     * il numero non ha effetto.
      */
     private const val QUALITY = 95
 
     /**
-     * I campi che seguono la fotografia.
-     *
-     * ⚠️ Sono quelli che la pastiglia 'Info' mostra (vedi `Facts`), più i satelliti: la prova
-     * che il travaso serve è che senza di lui quella pastiglia si svuoterebbe dopo un
-     * ritaglio, e l'utente lo vedrebbe subito.
+     * I campi che seguono l'immagine: quelli che la pastiglia 'Info' mostra (vedi `Facts`), più
+     * i satelliti.
      */
     private val KEEP = listOf(
         ExifInterface.TAG_DATETIME,
@@ -860,23 +740,14 @@ object ImageEdit {
 /**
  * Questa mappa di pixel specchiata e girata di [turns] quarti di giro, oppure lei stessa.
  *
- * ⚠️⚠️ **NASCE PERCHÉ ERA SCRITTA TRE VOLTE** (censimento della UI del 2026-09-05):
- * nell'anteprima mostrata, nell'anteprima da salvare e nel salvataggio vero. E le tre copie
- * **non erano identiche**, che è il danno peggiore di una duplicazione: una proteggeva il conto
- * con un `runCatching` e le altre due no, quindi un errore di memoria su un'immagine grossa
- * arrivava dentro la composizione. La condizione di uscita era scritta in due modi (`turns == 0`
- * e `turns.mod(4) == 0`), oggi equivalenti solo perché lo stato è tenuto fra 0 e 3 da chi lo
- * cambia.
- * - **Quindi la rete c'è per tutti e tre**: se la rotazione fallisce torna l'originale, che è
- *   quello che l'unica copia protetta già faceva.
- * - ⚠️ **Torna `this` quando non c'è niente da girare**, e chi ricicla la copia se ne accorge
- *   confrontando l'identità (`!==`), come fa il salvataggio: senza quel confronto si
- *   riciclerebbe la mappa che si sta ancora usando.
- * - ⚠️⚠️ **[strict] TOGLIE LA RETE, E I DUE SALVATAGGI LO ACCENDONO** (rilievo B15 della
- *   revisione della 6.25): con la rete, un errore di memoria nel salvataggio scriveva il file
- *   **dritto**, anche sopra l'originale, e l'avviso diceva 'salvato'. Senza, l'errore arriva al
- *   `catch` del salvataggio, che risponde 'troppo grande' e non tocca il file. La rete resta per
- *   le anteprime, dove l'alternativa è un'app che si chiude.
+ * La usano l'anteprima mostrata, l'anteprima da salvare e il salvataggio, così fanno lo stesso
+ * conto. Se la rotazione fallisce torna l'originale.
+ * - ⚠️ **Torna `this` quando non c'è niente da girare**, e chi ricicla la copia confronta
+ *   l'identità (`!==`), come il salvataggio: senza, riciclerebbe la mappa ancora in uso.
+ * - ⚠️⚠️ **[strict] toglie la rete, e i due salvataggi lo accendono**: con la rete, un errore di
+ *   memoria nel salvataggio scriverebbe il file dritto, anche sopra l'originale, e l'avviso
+ *   direbbe 'salvato'. Senza, l'errore arriva al `catch` del salvataggio, che risponde 'troppo
+ *   grande' e non tocca il file. La rete resta per le anteprime.
  */
 internal fun Bitmap.spunBy(turns: Int, mirror: Boolean, strict: Boolean = false): Bitmap =
     if (turns.mod(4) == 0 && !mirror) this
@@ -884,13 +755,11 @@ internal fun Bitmap.spunBy(turns: Int, mirror: Boolean, strict: Boolean = false)
         Bitmap.createBitmap(
             this, 0, 0, width, height,
             /*
-             * ⚠️⚠️ **L'ORDINE DELLE DUE RIGHE È LA TRASFORMAZIONE, e scambiarle dà un'altra
-             * cosa**: `postScale` prima e `postRotate` dopo vuol dire 'specchia, poi gira',
-             * che è l'ordine dichiarato in [save] e quello con cui i passi si compongono.
-             * Al contrario, uno specchio dopo un quarto di giro ribalta l'altro asse.
-             * ⚠️ **Lo specchio è sull'asse VERTICALE** (la x cambia segno), cioè quello che
-             * scambia destra e sinistra: il verticale si ottiene da lui più mezzo giro, e a
-             * comporlo è chi chiama.
+             * ⚠️⚠️ **L'ordine delle due righe è la trasformazione**: `postScale` prima e
+             * `postRotate` dopo vuol dire 'specchia, poi gira', l'ordine dichiarato in [save].
+             * Al contrario, uno specchio dopo un quarto di giro ribalterebbe l'altro asse.
+             * Lo specchio è sull'asse verticale (la x cambia segno); il ribaltamento in verticale
+             * si ottiene da lui più mezzo giro, e lo compone chi chiama.
              */
             Matrix().apply {
                 if (mirror) postScale(-1f, 1f)
@@ -910,17 +779,12 @@ private inline fun netted(strict: Boolean, make: () -> Bitmap): Bitmap? =
 /**
  * Questa mappa di pixel ritagliata sulle frazioni di [crop], oppure lei stessa.
  *
- * ⚠️⚠️ **NASCE PERCHÉ ERA SCRITTA DUE VOLTE, e il commento chiedeva di tenerle uguali A MANO**
- * (censimento della UI del 2026-09-05): il KDoc dell'anteprima dichiarava *gli arrotondamenti
- * sono gli STESSI di `ImageEdit.redraw`, e non per caso*, cioè affidava un vincolo a chi legge,
- * che è la definizione del difetto. Il danno sarebbe stato futuro e silenzioso: un ritaglio
- * diverso di un pixel fra anteprima e file salvato non dà nessun errore, e si vede solo sul
- * risultato.
- * - ⚠️ **Il conto è quello di prima, carattere per carattere**: si tronca (`toInt`) e si stringe
- *   dentro i bordi, il minimo di larghezza e altezza è **uno** perché un ritaglio di zero pixel
- *   non è un'immagine, e l'origine può arrivare al più all'ultimo pixel.
- * - ⚠️ **[strict] come in [spunBy]**: con la rete, un salvataggio senza memoria scriveva
- *   l'immagine intera al posto del ritaglio.
+ * ⚠️ **Una funzione sola per l'anteprima e per il file salvato**: un ritaglio diverso di un pixel
+ * fra i due non darebbe nessun errore, e si vedrebbe solo sul risultato.
+ * - Si tronca (`toInt`) e si stringe dentro i bordi; il minimo di larghezza e altezza è uno,
+ *   perché un ritaglio di zero pixel non è un'immagine, e l'origine arriva al più all'ultimo pixel.
+ * - [strict] come in [spunBy]: con la rete, un salvataggio senza memoria scriverebbe l'immagine
+ *   intera al posto del ritaglio.
  */
 internal fun Bitmap.cutTo(crop: ImageEdit.Crop, strict: Boolean = false): Bitmap {
     if (crop.whole) return this

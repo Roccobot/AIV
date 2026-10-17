@@ -7,22 +7,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 
 /**
- * The one slider of the app: a Material 3 [Slider] whose value lives outside it, in the screen
- * that draws it. From 6.22, when Material 3 1.5.0-beta01 deprecates the `Slider(value, ...)` form
- * that the sixteen sliders of the app used.
+ * L'unico cursore dell'app: uno [Slider] di Material 3 il cui valore vive fuori, nella schermata
+ * che lo disegna (`Rules.md` § '🎛️ Ogni cursore è `ValueSlider`').
  *
- * ⚠️⚠️ **It repeats the body of that deprecated form**, read in the beta01 sources (`Slider.kt`):
- * a [SliderState] made again when [steps] or [valueRange] change, and its value written from
- * [value] at every recomposition. So the thumb follows the value when something else moves it
- * (the video that plays, a style loaded, a reset), and the track follows a range that arrives
- * later (the length of a video, which is 0 until the player knows it).
- * ⚠️⚠️ **The replacement the deprecation suggests is not the same thing**:
- * `rememberSliderState(value, steps, trackRange = valueRange)` keeps the state across
- * recompositions with no key, so [value] and [valueRange] only set the start, and the thumb and
- * the track stay where they began. `ValueSliderTest` fails with it.
- *
- * The parameters are the ones the app passes; colours and interaction source keep the defaults
- * of [Slider], as they did before.
+ * Ripete il corpo della forma `Slider(value, ...)`, deprecata da Material 3 1.5.0-beta01: uno
+ * [SliderState] rifatto quando cambiano [steps] o [valueRange], col valore riscritto da [value] a
+ * ogni ricomposizione. Così la manopola segue il valore quando lo muove altro (il video che
+ * scorre, uno stile caricato, un azzeramento), e la traccia segue un intervallo che arriva dopo
+ * (la durata di un video, che è 0 finché il lettore non la conosce).
+ * ⚠️ **Il sostituto che la deprecazione suggerisce non è equivalente**: `rememberSliderState`
+ * tiene lo stato senza chiave, quindi valore e intervallo fissano solo la partenza. Presidiato da
+ * `ValueSliderTest`, che con quel sostituto fallisce.
  */
 @Composable
 fun ValueSlider(

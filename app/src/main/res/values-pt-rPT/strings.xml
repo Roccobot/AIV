@@ -44,7 +44,6 @@
     <string name="settings_bin_sweep_desc">Com a reciclagem ativa, cada ficheiro lá dentro é apagado assim que alcança o tempo que escolheu. Não é um esvaziamento, que apagaria tudo de uma vez: cada ficheiro sai por conta própria, no seu prazo. As cópias de segurança guardadas antes de uma alteração ficam de fora.</string>
     <string name="settings_clipboard_desc">Ao abrir a aplicação pelo ícone, um endereço na área de transferência que aponte diretamente para uma imagem abre essa imagem. O Android mostra um aviso de cada vez que uma aplicação lê a área de transferência: deixar isto desligado é nunca o ver.</string>
     <string name="settings_start_folder_desc">Ao abrir a aplicação aparece diretamente o conteúdo da pasta escolhida, em vez da lista de pastas.</string>
-    <string name="settings_hidden_desc">Um toque longo numa pasta oculta-a. Estas não aparecem mais na lista, mas estão intactas no telemóvel.</string>
     <string name="settings_facts">Informações de um ficheiro</string>
     <string name="settings_facts_desc">Que dados vê ao abrir Info num ficheiro, e em que ordem. Nome, pixels e tamanho estão sempre lá; um dado que o ficheiro não tem não ocupa nenhuma linha.</string>
 
@@ -125,7 +124,7 @@
     <string name="toast_name_copied">Nome do ficheiro copiado</string>
     <!-- arquivo -> ficheiro, come nel resto di questo file. Le altre due
          stringhe del pulitore non nominano il file e restano quelle di values-pt. -->
-    <string name="convert_clean_why">Remove cabeçalhos, metadados, comentários, scripts, C2PA e restos dos editores, que são os dados mais pesados (até 99% do ficheiro) e raramente servem.</string>
+    <string name="convert_clean_why" formatted="false">Remove cabeçalhos, metadados, comentários, scripts, C2PA e restos dos editores, que são os dados mais pesados (até 99% do ficheiro) e raramente servem.</string>
     <string name="settings_buttons_menu">Menu de um ficheiro</string>
     <!-- pressionado -> premido, lixeira -> reciclagem, arquivo -> ficheiro: as tres
          palavras que ja mudam no resto deste ficheiro. As duas cadeias das setas
@@ -228,4 +227,6 @@
     <string name="hint_feed_newer">Mais recentes</string>
     <string name="hint_feed_older">Menos recentes</string>
     <string name="settings_group_browse">Ficheiros e pastas</string>
+    <string name="folders_rail_search">Procurar nas pastas</string>
+    <string name="folders_rail_search_in">Procurar em %1$s</string>
 </resources>

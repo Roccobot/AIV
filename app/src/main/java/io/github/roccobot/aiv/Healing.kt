@@ -21,15 +21,15 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-/** Local corrections belong to an image, never to a reusable style. */
+/** Le correzioni locali appartengono a un'immagine, mai a uno stile riutilizzabile. */
 object Healing {
     const val MIN_RADIUS = 0.001f
     const val MAX_RADIUS = 0.06f
     const val START_RADIUS = 0.006f
     const val MAX_POLYGONS = 4096
-    // ⚠️ Since `3.52` the pyramid in [Inpaint] keeps a large hole affordable: the brush at its
-    // largest on a 12 MP photo was refused under the old 24,576 px cap. The work area bounds
-    // the memory of one Apply (estimated peak near 90 MB, not measured on a phone).
+    // La piramide di [Inpaint] rende sostenibile anche un buco grande, quindi la selezione
+    // accetta il pennello al massimo su un'immagine da 12 MP. L'area di lavoro limita la memoria
+    // di un'applicazione (picco stimato vicino a 90 MB, non misurato su un telefono).
     const val MAX_SELECTION = 196_608
     const val MAX_WORK = 1_048_576
     const val MAX_HISTORY_BYTES = 16 * 1024 * 1024
@@ -44,7 +44,8 @@ object Healing {
         }
     }
 
-    // No caller can mutate patch pixels. History shares the same immutable payload.
+    // Nessun chiamante può modificare i pixel della toppa: la cronologia condivide lo stesso
+    // contenuto immutabile.
     class Patch internal constructor(
         internal val left: Int,
         internal val top: Int,
@@ -60,7 +61,7 @@ object Healing {
         internal fun bitmap(): Bitmap = Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
     }
 
-    /** Polygons are normalized in the EXIF-oriented original, before user geometry. */
+    /** I poligoni sono normalizzati sull'originale orientato secondo l'EXIF, prima della geometria dell'utente. */
     data class Selection(
         val polygons: List<List<Offset>> = emptyList(),
     ) {
@@ -128,7 +129,7 @@ object Healing {
         }
     }
 
-    /** Reuses exactly the pixels computed by Apply, including their original alpha. */
+    /** Riusa esattamente i pixel calcolati dall'applicazione, compresa la loro trasparenza originale. */
     internal fun render(
         bitmap: Bitmap,
         plan: Plan,
@@ -183,7 +184,7 @@ object Healing {
         return result
     }
 
-    /** Decode only a local full-resolution crop when the format supports region reading. */
+    /** Decodifica solo un ritaglio locale a piena risoluzione, quando il formato permette la lettura per regioni. */
     internal suspend fun prepare(
         context: Context,
         uri: Uri,
@@ -207,9 +208,9 @@ object Healing {
                 val right = ceil(points.maxOf { it.x } * width).toInt().coerceIn(0, width)
                 val bottom = ceil(points.maxOf { it.y } * height).toInt().coerceIn(0, height)
                 if (right <= left || bottom <= top || (right - left).toLong() * (bottom - top) > MAX_WORK) return@withContext null
-                // ⚠️⚠️ **Search area doubled in `3.52`** (the user's request: more evidence even
-                // around a small defect). When the margin does not fit the work area it narrows
-                // instead of refusing the selection.
+                // Il margine di ricerca è ampio anche attorno a un difetto piccolo (richiesta
+                // dell'utente, 3.52). Se non entra nell'area di lavoro si restringe, e la
+                // selezione resta valida.
                 var padding = max(64, min(352, max(right - left, bottom - top) * 7 / 2))
                 var area = Rect(max(0, left - padding), max(0, top - padding), min(width, right + padding), min(height, bottom + padding))
                 while (padding > 0 && area.width().toLong() * area.height() > MAX_WORK) {
@@ -244,7 +245,7 @@ object Healing {
                 if (mask.count { it } !in 1..MAX_SELECTION) return@withContext null
                 val pixels = IntArray(mask.size)
                 corrected.getPixels(pixels, 0, area.width(), 0, 0, area.width(), area.height())
-                // ⚠️ Since `3.53` the edge fades outwards, so the patch grows by the same band.
+                // Il bordo sfuma verso l'esterno, quindi la toppa cresce della stessa fascia.
                 val edge = Inpaint.feather(max(right - left, bottom - top))
                 val healed =
                     Inpaint.repair(pixels, area.width(), area.height(), mask, edge) { job.ensureActive() }

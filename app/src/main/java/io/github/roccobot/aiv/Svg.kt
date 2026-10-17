@@ -13,57 +13,33 @@ import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 /**
- * Gli SVG, e perché qui non c'era niente da provare prima.
+ * Gli SVG.
  *
- * ⚠️⚠️ **ANDROID NON SA DISEGNARE UN SVG, e non l'ha mai saputo.** Non è il caso dell'AVIF,
- * dove il sistema dichiara il formato e poi si rifiuta: qui `ImageDecoder` non lo dichiara
- * affatto, perché conosce i formati **a pixel**. La grafica vettoriale del sistema è
- * un'altra cosa, cioè `VectorDrawable`, che è un XML di Android e **non** un SVG: non ha il
- * CSS, non ha `<text>`, non ha i filtri, e vive dentro le risorse dell'app invece che in un
- * file che si apre. Quindi la scelta non era 'sistema o libreria', era 'libreria o niente'.
+ * ⚠️⚠️ **Android non sa disegnare un SVG**: `ImageDecoder` conosce i soli formati a pixel, e
+ * `VectorDrawable` è un XML di Android, non un SVG (niente CSS, `<text>` né filtri). Quindi
+ * serve una libreria: `com.caverock:androidsvg-aar:1.4`, quella che `coil-svg-android` dichiara
+ * come dipendenza, tutta Java (nessuna libreria nativa da escludere per architettura).
  *
- * ⚠️ **La libreria è quella che Coil si porta dietro**, letto nel POM di `coil-svg-android`
- * 3.6.0 e non ricordato: `com.caverock:androidsvg-aar:1.4`, dichiarata là come dipendenza a
- * runtime. Ferma dal 2019, ma è la scelta di chi fa il caricatore che questo progetto già
- * usa, e pesa 202.395 byte di AAR **tutti Java**: nessuna libreria nativa, quindi nessun
- * byte per architettura e nessuna esclusione da fare come per libavif.
+ * ⚠️⚠️ **Un vettore non ha pixel, e il visualizzatore lavora su un `ImageBitmap`** (scheda delle
+ * informazioni, copia, condivisione, editor, esportazione): l'SVG si rasterizza una volta col lato
+ * lungo a [BOX], e oltre circa due ingrandimenti si sgrana come un PNG. Ridisegnare a ogni livello
+ * di zoom vorrebbe un secondo tipo di immagine in tutto il visualizzatore.
  *
- * ⚠️⚠️ **UN VETTORE NON HA PIXEL, e questo è il compromesso da sapere prima di provare lo
- * zoom.** Tutto il visualizzatore lavora su un `ImageBitmap`: la scheda delle info, la
- * copia, la condivisione, l'editor, l'esportazione. Quindi l'SVG si **rasterizza** una
- * volta, con il lato lungo a [BOX] pixel, e da lì in poi è un'immagine come le altre. Su
- * uno schermo da 1080 punti quello basta a ingrandire quasi due volte senza vedere
- * sgranare; oltre, si sgrana come un PNG. ⚠️ **La strada giusta sarebbe ridisegnare a ogni
- * livello di zoom**, e non si è fatta: vorrebbe dire un secondo tipo di immagine dentro il
- * visualizzatore e in tutto quello che ci passa. Sta scritto qui perché è il primo posto in
- * cui guardare se l'utente chiederà gli SVG nitidi a 40 ingrandimenti.
- *
- * ⚠️⚠️ **IL `.svgz` C'È DALLA `1.34`, e la decodifica non è costata NIENTE**: il parser legge
- * i primi due byte e, se sono la firma gzip, si avvolge da sé in un `GZIPInputStream` (letto
- * nel bytecode di `SVGParser.parse`). L'ha chiesto l'utente (giro della `1.31`, voce
- * `svg-elenchi`). Quello che è costato qualcosa è **riconoscerlo**: vedi [looksLike], perché
- * un file compresso non contiene la stringa `<svg` da nessuna parte.
+ * Il `.svgz` (richiesto dall'utente, voce `svg-elenchi`) il parser lo decomprime da sé quando
+ * legge la firma gzip; riconoscerlo è compito di [looksLike].
  */
 object Svg {
 
     /**
-     * Se la libreria c'è, **e insieme la sua unica impostazione di sicurezza**.
+     * Se la libreria c'è, insieme alla sua unica impostazione di sicurezza.
      *
-     * ⚠️⚠️ **`setInternalEntitiesEnabled(false)` CHIUDE LA BOMBA DI ESPANSIONE**, e la
-     * misura sta nel bytecode del parser, non nella documentazione. Che cosa fa androidsvg
-     * quando legge un SVG:
-     * - la strada normale (`XmlPullParser`) mette `process-docdecl` a **false**, cioè non
-     *   guarda nemmeno il `DOCTYPE`;
-     * - ma se nel testo compare `<!ENTITY` **cambia parser** e passa a SAX apposta per
-     *   espandere le entità, scrivendo *'Switching to SAX parser to process entities'*.
-     * Da lì un file di poche righe può chiedere gigabyte di memoria, che è l'attacco noto
-     * come 'billion laughs'. Con questo interruttore quel cambio di parser non avviene.
-     * ⚠️ **L'XXE invece era già impossibile**, e non per merito nostro: lo stesso ramo SAX
-     * mette a **false** `external-general-entities` e `external-parameter-entities`, e
-     * questo progetto non registra nessun `SVGExternalFileResolver`, quindi un SVG non può
-     * leggere un file del telefono né aprire una connessione.
-     * ⚠️ **Il prezzo, dichiarato**: un SVG che definisce entità proprie perde quei pezzi.
-     * Sono rarissimi (nessun editor li produce) e il baratto è a favore della sicurezza.
+     * ⚠️⚠️ **`setInternalEntitiesEnabled(false)` chiude la bomba di espansione**: androidsvg
+     * legge col `XmlPullParser` senza guardare il `DOCTYPE`, ma se nel testo compare `<!ENTITY`
+     * passa a SAX per espandere le entità, e da lì un file di poche righe può chiedere gigabyte
+     * di memoria ('billion laughs'). Con l'interruttore spento il cambio di parser non avviene.
+     * L'XXE è già impossibile: il ramo SAX spegne le entità esterne, e il progetto non registra
+     * nessun `SVGExternalFileResolver`. Il prezzo: un SVG che definisce entità proprie perde quei
+     * pezzi, e nessun editor ne produce.
      */
     val ready: Boolean = try {
         SVG.setInternalEntitiesEnabled(false)
@@ -78,68 +54,50 @@ object Svg {
     /**
      * Quanti byte bastano a riconoscere il formato.
      *
-     * ⚠️ Non è una firma di due byte come negli altri formati: un SVG è **testo**, e
-     * `<svg` può stare dopo la dichiarazione XML, un `DOCTYPE`, un commento di licenza e
-     * qualche riga di intestazione. Mille byte li coprono tutti, ed è la stessa misura che
-     * Coil usa nel suo `DecodeUtils.isSvg` (letto nel bytecode, dove il limite è `1024l`).
+     * Un SVG è testo, e `<svg` può trovarsi dopo la dichiarazione XML, un `DOCTYPE` e un
+     * commento di licenza: 1024 byte li coprono, ed è la stessa misura di `DecodeUtils.isSvg` di
+     * Coil.
      */
     const val SNIFF = 1024
 
     /**
      * Il byte zero, quello che separa le lettere di un testo in UTF-16.
      *
-     * ⚠️ Scritto per **codepoint** e non incollato, come vuole la regola del repo sui
-     * caratteri invisibili: incollato, questo file conterrebbe un byte che nessun editor
-     * mostra e che `grep` chiamerebbe binario, e infatti è successo scrivendolo.
+     * ⚠️ Scritto per codepoint, come vuole la regola del repo sui caratteri invisibili:
+     * incollato, il file conterrebbe un byte che nessun editor mostra e che `grep` chiamerebbe
+     * binario.
      */
     private const val NUL = '\u0000'
 
     /**
      * Il lato lungo a cui si rasterizza per il visualizzatore.
      *
-     * ⚠️ **Il numero è un baratto fra nitidezza e memoria, e questi sono i due lati**: un
-     * quadrato di 2048 pixel costa 16,8 MB di heap come ARGB_8888, che su un budget da
-     * quattro megapixel è già il tetto; il doppio costerebbe quattro volte tanto per
-     * guadagnare un solo raddoppio di zoom. Su uno schermo da 1080 punti di lato corto
-     * questo dà circa 1,9 ingrandimenti prima di vedere il pixel.
-     * ⚠️ **Il budget lo può ridurre, e non lo alza mai**: chi ha poca memoria libera riceve
-     * meno pixel, come per ogni altro formato.
+     * ⚠️ **Un compromesso fra nitidezza e memoria**: un quadrato di 2048 pixel costa 16,8 MB di
+     * heap come ARGB_8888, e il doppio costerebbe quattro volte tanto per un solo raddoppio di
+     * zoom. Su uno schermo da 1080 punti di lato corto dà circa 1,9 ingrandimenti prima di vedere
+     * il pixel. Il budget di memoria lo può ridurre, mai alzare.
      */
     const val BOX = 2048
 
     /**
      * Riconosce un SVG dai primi byte, senza costruire niente.
      *
-     * ⚠️ **I byte NUL si buttano prima di guardare**, e serve a un caso vero: un SVG salvato
-     * in UTF-16 mette un NUL fra ogni lettera, quindi il tag di apertura non somiglierebbe a
-     * niente. Costa un filtro su mille byte e copre le due codifiche più diffuse con una
-     * sola ricerca. ⚠️ Il carattere è scritto per **codepoint** e non incollato, come vuole la
-     * regola del repo sui caratteri invisibili.
-     * ⚠️⚠️ **UN FALSO POSITIVO NELLA GRIGLIA COSTA LA MINIATURA, e fino alla `2.83` questa nota
-     * diceva il contrario** (*nella griglia il decodificatore torna `null` e la richiesta
-     * prosegue*). Prosegue davvero, letto nel bytecode di Coil 3.6.0: un `null` da `decode`
-     * rimanda al decodificatore successivo, con la **stessa sorgente**. Ma il tentativo SVG
-     * l'ha già **chiusa**, perché `SVGParser.parse` chiude lo stream anche quando fallisce, e
-     * su un `content://` con lo stream si chiude il descrittore del file. Da lì falliscono
-     * tutti e due i decodificatori di serie: il primo prova a riavvolgere il descrittore e lo
-     * trova chiuso, il secondo legge una sorgente da cui non esce più niente. Nel
-     * visualizzatore invece la domanda si fa **dopo** che `ImageDecoder` ha già fallito, e là
-     * un falso positivo resta innocuo: è l'asimmetria per cui un file si apriva e non aveva la
-     * miniatura.
-     * ⚠️⚠️ **QUINDI IL TAG NON BASTA: UN SVG È UN DOCUMENTO XML, E IL SUO PRIMO SEGNO È `<`**,
-     * dopo un eventuale BOM e gli spazi che XML ammette. Il caso vero è del 2026-09-25: un PNG
-     * di ChatGPT porta in testa il manifesto C2PA, e dentro il manifesto un'icona **SVG**
-     * (l'asserzione `c2pa.icon`), col tag al byte 305. Un PNG comincia col byte `0x89`, un
-     * JPEG con `0xFF`, un GIF con `G`: nessun formato a pixel comincia con `<`, quindi la
-     * condizione li esclude tutti senza doverli elencare.
-     * ⚠️ **Il BOM si toglie per firma e non per insieme di caratteri**: letto in ISO-8859-1,
-     * quello di UTF-8 sono tre lettere accentate e quello di UTF-16 due, e un insieme
+     * I byte NUL si scartano prima di guardare: un SVG in UTF-16 mette un NUL fra ogni lettera,
+     * e così una ricerca sola copre le due codifiche.
+     * ⚠️⚠️ **Un falso positivo nella griglia costa la miniatura**: un `null` da `decode` di Coil
+     * rimanda al decodificatore successivo con la stessa sorgente, ma `SVGParser.parse` chiude lo
+     * stream anche quando fallisce, e su un `content://` con lui si chiude il descrittore, quindi
+     * falliscono anche i decodificatori di serie. Nel visualizzatore la domanda si fa dopo che
+     * `ImageDecoder` ha fallito, e là un falso positivo è innocuo.
+     * ⚠️⚠️ **Per questo il tag non basta: il primo segno di un SVG è `<`**, dopo un eventuale BOM
+     * e gli spazi che XML ammette. Un PNG di ChatGPT contiene nel manifesto C2PA un'icona SVG,
+     * col tag al byte 305; nessun formato a pixel comincia con `<`, quindi la condizione li
+     * esclude tutti.
+     * Il BOM si toglie per firma e non per insieme di caratteri: letto in ISO-8859-1, un insieme
      * toglierebbe anche il byte `0xFF` con cui comincia un JPEG.
-     * ⚠️ **La sorgente chiusa resta, ed è una scelta**: un `peek()` nel decodificatore la
-     * terrebbe aperta e intatta, ma porterebbe in memoria il documento intero, che è quello che
-     * `SvgThumbnailDecoder` (in `Thumbs.kt`) esiste per non fare. Con questa condizione non
-     * serve: un falso positivo vuol dire un file che comincia con `<`, cioè un documento di
-     * testo, e nessun decodificatore a pixel lo saprebbe leggere comunque.
+     * La sorgente chiusa resta: un `peek()` la terrebbe aperta ma porterebbe in memoria il
+     * documento intero, che `SvgThumbnailDecoder` (in `Thumbs.kt`) esiste per evitare; e un file
+     * che comincia con `<` è testo, che nessun decodificatore a pixel legge comunque.
      */
     fun looksLike(head: ByteArray): Boolean {
         if (head.isEmpty()) return false
@@ -152,10 +110,8 @@ object Svg {
     }
 
     /**
-     * I tre BOM che un SVG può portare, letti come li legge [looksLike], cioè in ISO-8859-1
-     * e dopo aver tolto i NUL: UTF-8, UTF-16 little-endian e big-endian.
-     *
-     * ⚠️ Scritti per **codepoint**, per la regola del repo sui caratteri invisibili.
+     * I tre BOM che un SVG può avere, letti come li legge [looksLike], in ISO-8859-1 e senza i
+     * NUL: UTF-8, UTF-16 little-endian e big-endian. Scritti per codepoint, come [NUL].
      */
     private val BOMS = listOf("\u00EF\u00BB\u00BF", "\u00FF\u00FE", "\u00FE\u00FF")
 
@@ -165,28 +121,18 @@ object Svg {
     /**
      * La firma gzip, cioè un `.svgz`.
      *
-     * ⚠️⚠️ **SENZA QUESTO, DICHIARARE `.svgz` SAREBBE STATO IL DIFETTO DEL TIFF**: la
-     * `1.34` mette quell'estensione nei filtri del manifest e nei due elenchi, e il parser
-     * sa decomprimerla da sé, **ma il riconoscimento del contenuto no**. Un file compresso
-     * non contiene la stringa `<svg` da nessuna parte, quindi [looksLike] rispondeva no e la
-     * miniatura non si faceva: un formato dichiarato e non aperto, che è esattamente
-     * l'errore che i `.tif` sono usciti per non commettere più.
-     * ⚠️ **Due byte e non l'estensione**: qui non c'è nessun nome di file (un decodificatore
-     * riceve i byte), ed è la stessa ragione per cui `Avif.looksLike` guarda la scatola
-     * `ftyp` e non la coda del nome.
+     * ⚠️ **Senza, il `.svgz` sarebbe dichiarato nel manifest e non riconosciuto**: un file
+     * compresso non contiene `<svg`, e [looksLike] risponderebbe no. Due byte e non
+     * l'estensione, perché un decodificatore riceve i byte e non il nome (come `Avif.looksLike`).
      */
-    private fun gzipped(head: ByteArray): Boolean =
-        head.size >= 2 && head[0] == GZIP_1 && head[1] == GZIP_2
+    private fun gzipped(head: ByteArray): Boolean = Signatures.gzip(head)
 
     /**
      * I primi [SNIFF] byte di un `.svgz`, scompattati.
      *
-     * ⚠️ **Si legge SOLO quel tanto e si butta il resto**: qui la domanda è 'somiglia a un
-     * SVG', non 'disegnalo', e un `.svgz` di dieci megabyte scompattato per intero per
-     * guardarne il primo tag sarebbe memoria buttata a ogni riquadro della griglia.
-     * ⚠️ **Il troncamento non fa male**: `GZIPInputStream` legge a blocchi e chiudere prima
-     * della fine è legittimo. ⚠️ E un archivio rotto torna `null` e non un errore, come
-     * ogni altro riconoscimento di questo file.
+     * Si legge solo quel tanto: scompattare per intero un `.svgz` grande per guardarne il primo
+     * tag sprecherebbe memoria a ogni riquadro della griglia. `GZIPInputStream` legge a blocchi,
+     * e chiudere prima della fine è legittimo. Un archivio rotto torna `null`.
      */
     private fun unzip(head: ByteArray): ByteArray? = try {
         GZIPInputStream(ByteArrayInputStream(head)).use { zip ->
@@ -203,10 +149,6 @@ object Svg {
         null
     }
 
-    /** I due byte della firma gzip, scritti per valore: `1f 8b`. */
-    private const val GZIP_1: Byte = 0x1f
-    private const val GZIP_2: Byte = 0x8b.toByte()
-
     /** Come [render], per chi ha già i byte in mano. */
     fun render(bytes: ByteArray, box: Int, cap: Long = FREE): Rendered? =
         render(ByteArrayInputStream(bytes), box, cap)
@@ -214,9 +156,7 @@ object Svg {
     /**
      * Nessun tetto ai pixel.
      *
-     * ⚠️ **Chi chiede un riquadro piccolo non ha bisogno di un budget**, ed è il caso delle
-     * miniature: il lato lungo è già 512, quindi il tetto non potrebbe scattare mai e
-     * passarlo sarebbe un numero da tenere d'accordo con un altro per niente. Serve invece
+     * Le miniature chiedono un lato di 512, quindi un tetto non scatterebbe mai; il budget serve
      * al visualizzatore, che chiede [BOX].
      */
     const val FREE = Long.MAX_VALUE
@@ -224,13 +164,11 @@ object Svg {
     /**
      * Disegna il documento in un bitmap col lato lungo a [box], mai oltre [cap] pixel.
      *
-     * Torna `null` quando il documento non si legge, non dichiara nessuna misura, o il
-     * disegno fallisce: chi chiama conserva **il proprio** errore invece di riceverne uno
-     * nuovo.
+     * Torna `null` quando il documento non si legge, non dichiara nessuna misura, o il disegno
+     * fallisce: chi chiama conserva il proprio errore.
      *
-     * ⚠️ **Lo stream si chiude da sé**, e non è una dimenticanza del chiamante: `SVGParser`
-     * lo chiude in fondo alla propria `parse` (letto nel bytecode). Chiuderlo due volte non
-     * fa niente, quindi un `use` di chi chiama resta legittimo.
+     * Lo stream lo chiude `SVGParser` in fondo alla sua `parse`; chiuderlo due volte non fa
+     * niente, quindi un `use` di chi chiama resta legittimo.
      */
     fun render(input: InputStream, box: Int, cap: Long = FREE): Rendered? {
         val svg = parse(input) ?: return null
@@ -243,12 +181,10 @@ object Svg {
         }
         val done = try {
             /*
-             * ⚠️⚠️ **LE DUE RIGHE DEL `viewBox` SONO QUELLO CHE FA SCALARE IL DISEGNO**, e
-             * senza di esse un SVG con `width="24"` uscirebbe grande 24 pixel in un angolo di
-             * un bitmap da 2048. La tecnica è letta dal wrapper di `coil-svg` 3.6.0, non
-             * inventata: se il documento non ha un `viewBox` gliene si dà uno pari alla sua
-             * misura dichiarata, poi si mettono larghezza e altezza al **100%**, e da quel
-             * momento il documento riempie qualunque riquadro gli si passi.
+             * ⚠️⚠️ **Il `viewBox` e il 100% fanno scalare il disegno**: senza, un SVG con
+             * `width="24"` risulterebbe di 24 pixel in un angolo del bitmap. È la tecnica di
+             * `coil-svg`: un documento senza `viewBox` ne riceve uno pari alla sua misura, poi
+             * larghezza e altezza al 100% gli fanno riempire qualunque riquadro.
              */
             if (svg.documentViewBox == null) {
                 svg.setDocumentViewBox(0f, 0f, full.width.toFloat(), full.height.toFloat())
@@ -262,15 +198,11 @@ object Svg {
             true
         } catch (t: Throwable) {
             /*
-             * ⚠️⚠️ **`Throwable` E NON `Exception`, e qui c'è un motivo MISURATO**: per
-             * disegnare un `clip-path` androidsvg passa da `CanvasLegacy`, che raggiunge per
-             * **riflessione** `Canvas.MATRIX_SAVE_FLAG` e `Canvas.save(int)`. Quei due membri
-             * **non esistono più nell'SDK** (verificato con `javap` sull'`android.jar` di API
-             * 37: la costante non c'è e `save` ha solo la forma senza argomenti), e vivono nel
-             * runtime come API rimosse. È il motivo per cui la libreria usa la riflessione, ma
-             * se un domani cadessero anche da là il fallimento arriverebbe come un `Error` e
-             * non come un'eccezione. Con questa riga diventa 'formato non supportato' invece
-             * di un arresto dell'app.
+             * ⚠️⚠️ **`Throwable` e non `Exception`**: per un `clip-path` androidsvg raggiunge per
+             * riflessione `Canvas.MATRIX_SAVE_FLAG` e `Canvas.save(int)`, che nell'SDK non
+             * esistono più e vivono nel runtime come API rimosse. Se sparissero anche da là il
+             * fallimento arriverebbe come un `Error`: così diventa 'formato non supportato' e
+             * non un arresto dell'app.
              */
             false
         }
@@ -282,8 +214,8 @@ object Svg {
             bitmap = bitmap,
             fullWidth = full.width,
             fullHeight = full.height,
-            // ⚠️ Qui 'ridotta' vuol dire davvero ridotta: un SVG di 24 unità disegnato a
-            // 2048 pixel è **ingrandito**, e dirlo campionato sarebbe il contrario del vero.
+            // 'Ridotta' vuol dire davvero ridotta: un SVG di 24 unità disegnato a 2048 pixel è
+            // ingrandito.
             sampled = target.width < full.width || target.height < full.height
         )
     }
@@ -297,16 +229,12 @@ object Svg {
     )
 
     /**
-     * Le misure **dichiarate dal documento**, per la scheda delle informazioni.
+     * Le misure dichiarate dal documento, per la scheda delle informazioni: `BitmapFactory` di un
+     * SVG non dice niente.
      *
-     * ⚠️⚠️ **SERVE PERCHÉ `BitmapFactory` DI UN SVG NON DICE NIENTE**, ed è lo stesso buco
-     * dell'AVIF con una causa diversa: là il decodificatore si rifiuta, qui il formato non
-     * lo conosce nessuno. Senza questa lettura la scheda scriverebbe '?' sulle misure.
-     * ⚠️⚠️ **E le misure sono quelle del DOCUMENTO, non quelle del bitmap che si vede**, che
-     * è la scelta da capire per non leggerla come un difetto: un vettore non ha pixel, e
-     * l'unico numero che appartiene al **file** è quello che il file dichiara. I 2048 pixel
-     * del disegno li ha scelti [BOX], cioè noi, e annunciarli come misura dell'immagine
-     * vorrebbe dire far dire al file una cosa che non c'è scritta.
+     * ⚠️ Sono le misure del documento e non del bitmap che si vede: un vettore non ha pixel, e
+     * l'unico numero che appartiene al file è quello che il file dichiara; quello del disegno lo
+     * sceglie [BOX].
      */
     fun dimensions(input: InputStream): Size? = parse(input)?.let { sizeOf(it) }
 
@@ -323,11 +251,9 @@ object Svg {
     /**
      * La misura dichiarata: prima larghezza e altezza, poi il `viewBox`.
      *
-     * ⚠️ **In quest'ordine e non al contrario**: `width` e `height` sono la misura a cui il
-     * documento chiede di essere disegnato, il `viewBox` è il sistema di coordinate del
-     * contenuto, e i due possono differire (`width="100"` con `viewBox="0 0 24 24"` è
-     * normalissimo). ⚠️ E il primo **manca spesso**: quando la misura è in percentuale
-     * androidsvg torna **-1**, ed è là che il `viewBox` diventa l'unica risposta.
+     * In quest'ordine: `width` e `height` sono la misura a cui il documento chiede di essere
+     * disegnato, il `viewBox` è il sistema di coordinate del contenuto, e possono differire. Con
+     * una misura in percentuale androidsvg torna -1, e allora resta il `viewBox`.
      */
     private fun sizeOf(svg: SVG): Size? {
         val width = svg.documentWidth
@@ -344,8 +270,8 @@ object Svg {
      * Il riquadro in cui disegnare: lato lungo [box], proporzioni del documento, mai oltre
      * [cap] pixel in tutto.
      *
-     * ⚠️ **Si ingrandisce anche quando il documento è più piccolo**, ed è tutto il punto di
-     * un vettore: un'icona di 24 unità a 24 pixel sarebbe illeggibile a schermo pieno.
+     * Si ingrandisce anche quando il documento è più piccolo: un'icona di 24 unità a 24 pixel
+     * sarebbe illeggibile a schermo pieno.
      */
     private fun fit(full: Size, box: Int, cap: Long): Size {
         val long = maxOf(full.width, full.height).toFloat()

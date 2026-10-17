@@ -16,7 +16,6 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -45,26 +44,22 @@ import org.robolectric.annotation.Config
  * è una misura di struttura.
  */
 @RunWith(AndroidJUnit4::class)
-@Config(shadows = [ArchivioAperto::class])
+@Config(shadows = [OmbraArchivio::class])
 class RientroTest {
+
+    /** Il permesso sui file concesso: vedi [OmbraArchivio.granted]. */
+    @Before
+    fun archivioAperto() {
+        OmbraArchivio.granted = true
+    }
 
     @get:Rule
     val banco = createComposeRule()
 
-    /**
-     * La casa parte **come dopo il primo avvio**, cioè con l'onboarding delle colonne già visto.
-     *
-     * ⚠️⚠️ **SENZA QUESTA RIGA LA PROVA NON MISURA NIENTE, ed è costato un giro scoprirlo**: al
-     * primo avvio la schermata iniziale mette in scena [HintVeil], che copre tutto e **consuma
-     * il primo gesto** per archiviarsi. Misurato: lo stesso trascinamento non muoveva un pixel
-     * la prima volta e chiudeva la fascia la seconda.
-     * ⚠️ **Si scrive la preferenza vera invece di toccare il velo per congedarlo**: un tocco a
-     * caso è un gesto che fa qualcosa, e quello che serve qui è la casa nello stato in cui la
-     * trova chi usa l'app da più di un minuto.
-     */
+    /** I veli della casa si segnano come visti prima di montarla: vedi [onboardingGiaVisto]. */
     @Before
-    fun onboardingGiaVisto() {
-        runBlocking { Hint.COLUMNS.remember(ApplicationProvider.getApplicationContext()) }
+    fun veliVisti() {
+        onboardingGiaVisto(cestino = false)
     }
 
     /**

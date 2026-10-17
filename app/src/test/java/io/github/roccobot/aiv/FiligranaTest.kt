@@ -4,12 +4,9 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -354,7 +351,7 @@ class FiligranaTest {
     fun `una filigrana accende Salva a immagine intonsa`() {
         val firmata = mutableStateOf(false)
         banco.setContent { Scena(marked = firmata.value) }
-        pronta()
+        banco.pronta()
         banco.onNodeWithText(testo(R.string.editor_save)).assertIsNotEnabled()
 
         firmata.value = true
@@ -388,7 +385,7 @@ class FiligranaTest {
                 onMarkSetup = { aperte++ }
             )
         }
-        pronta()
+        banco.pronta()
 
         banco.onNodeWithContentDescription(testo(R.string.settings_mark)).performClick()
         banco.waitForIdle()
@@ -417,7 +414,7 @@ class FiligranaTest {
     @Test
     fun `senza un logo scelto il tasto non c'e`() {
         banco.setContent { Scena(marked = false, hasMark = false) }
-        pronta()
+        banco.pronta()
         assertTrue(
             "Il tasto della filigrana c'è senza un logo scelto",
             banco.onAllNodesWithContentDescription(testo(R.string.settings_mark))
@@ -556,7 +553,7 @@ class FiligranaTest {
     fun `i due tasti vivono nella barra e seguono il lato del FAB`() {
         val lato = mutableStateOf(Hand.RIGHT)
         banco.setContent { Scena(marked = false, hasMark = true, hand = lato.value) }
-        pronta()
+        banco.pronta()
 
         val largo = banco.onRoot().fetchSemanticsNode().size.width
         val aria = with(banco.density) { 24.dp.toPx() }
@@ -614,7 +611,7 @@ class FiligranaTest {
 
     // ── Gli arnesi ──
 
-    /** L'editor completo montato con gli argomenti minimi, come in [LuceTest]. */
+    /** L'editor completo coi soli argomenti della filigrana, su un foglio di [LATO] pixel. */
     @Composable
     private fun Scena(
         marked: Boolean,
@@ -628,26 +625,14 @@ class FiligranaTest {
     ) {
         AivTheme(darkTheme = false) {
             CompositionLocalProvider(LocalPadLook provides PadLook(hand = hand)) {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    AdvancedEditorScreen(
-                        uri = quadrato(),
-                        busy = false,
-                        marked = marked,
-                        marking = marking,
-                        hasMark = hasMark,
-                        onMark = onMark,
-                        onMarkSetup = onMarkSetup,
-                        resize = Resize.Plan(Resize.Mode.LONG, Resize.DEFAULT_PX),
-                        // ⚠️ Spento: un ridimensionamento che rimpicciolisce accenderebbe 'Salva' a
-                        // immagine intonsa, e il caso suo vive in `RidimensionaTest`.
-                        saved = Resize.NONE,
-                        resizing = false,
-                        onResize = {},
-                        onResizeDefault = {},
-                        onSave = { _, _ -> },
-                        onBack = {}
-                    )
-                }
+                Editore(
+                    uri = quadrato(LATO),
+                    marked = marked,
+                    marking = marking,
+                    hasMark = hasMark,
+                    onMark = onMark,
+                    onMarkSetup = onMarkSetup
+                )
             }
         }
     }
@@ -655,15 +640,6 @@ class FiligranaTest {
     /** Dove cade il bersaglio di un comando della barra, in coordinate della radice. */
     private fun tasto(nome: Int): Rect =
         banco.onNodeWithContentDescription(testo(nome)).fetchSemanticsNode().boundsInRoot
-
-    /** Aspetta che l'anteprima sia decodificata: prima i comandi sono spenti comunque. */
-    private fun pronta() {
-        banco.waitUntil(ATTESA) {
-            banco.onAllNodesWithContentDescription(testo(R.string.look_compare))
-                .fetchSemanticsNodes().isNotEmpty()
-        }
-        banco.waitForIdle()
-    }
 
     /**
      * Un indirizzo che il resolver sa aprire, coi byte dati.
@@ -744,17 +720,6 @@ class FiligranaTest {
 
     private val app: Context get() = ApplicationProvider.getApplicationContext()
 
-    /** Un PNG vero su disco, che l'editor possa aprire. */
-    private fun quadrato(): Uri {
-        val file = File(app.cacheDir, "filigrana.png")
-        if (!file.exists()) {
-            val mappa = Bitmap.createBitmap(LATO, LATO, Bitmap.Config.ARGB_8888)
-            mappa.eraseColor(Color.WHITE)
-            file.outputStream().use { mappa.compress(Bitmap.CompressFormat.PNG, 100, it) }
-            mappa.recycle()
-        }
-        return Uri.fromFile(file)
-    }
 }
 
 /** Il lato dei fogli su cui questo banco firma. */
@@ -765,6 +730,3 @@ private const val SOGLIA = 200
 
 /** Dove cade la firma quando il posto non è quello che si sta misurando. */
 private val SPOT = Watermark.Spot.BOTTOM_RIGHT
-
-/** Quanto si aspetta che l'anteprima dell'editor arrivi. */
-private const val ATTESA = 10_000L

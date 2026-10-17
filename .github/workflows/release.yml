@@ -307,31 +307,11 @@ jobs:
         if: steps.ask.outputs.green != 'true'
         uses: ./.github/actions/toolchain
 
-      - name: Run the bench
-        timeout-minutes: 30
+      # ⚠️ The translations are a release check too (`28 lingue, 0 problemi`: a lower number
+      # means a folder was not seen). Same steps as `check.yml`, written once in the action.
+      - name: Run the translation check and the bench
         if: steps.ask.outputs.green != 'true'
-        # The same command as `check.yml`, and the reason for its two halves is there.
-        run: ./gradlew --no-daemon :app:testGithubDebugUnitTest :app:testPlayDebugUnitTest --tests '*PlayTest'
-
-      # ⚠️ The translations are a release check too, and the repo has said so for
-      # versions: `28 lingue, 0 problemi`, and a lower number means a folder was
-      # not seen. It was a step somebody had to remember, like the bench.
-      - name: Check the translations
-        if: steps.ask.outputs.green != 'true'
-        run: python3 tools/i18n-check.py
-
-      # ⚠️ Without this, a failure gives a name and nothing else: the report says
-      # WHICH assertion fell and with what message, which is the only thing that
-      # tells a red bench from a broken toolchain.
-      - name: Keep the bench report when it fails
-        if: failure()
-        uses: actions/upload-artifact@v7
-        with:
-          name: bench-report
-          path: |
-            app/build/reports/tests/
-            app/build/test-results/
-          if-no-files-found: ignore
+        uses: ./.github/actions/bench
 
 
   publish:

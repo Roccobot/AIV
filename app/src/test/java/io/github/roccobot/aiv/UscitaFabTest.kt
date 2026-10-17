@@ -110,7 +110,7 @@ class UscitaFabTest {
      * toglierebbe), e andare da una griglia a un'altra lascia il FAB dov'è.
      */
     @Test
-    fun `l'uscita parte solo andando dove il FAB non c'è`() {
+    fun `l'uscita parte solo andando fuori dal FAB`() {
         val casa = Screen.Folders(forStart = false)
         val cartella = Screen.Grid(bucket = 1L, name = "prova")
 

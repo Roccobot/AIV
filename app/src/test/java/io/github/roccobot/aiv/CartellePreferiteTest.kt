@@ -139,8 +139,9 @@ class CartellePreferiteTest {
      * and the test fails on its first line.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(shadows = [OmbraArchivio::class])
     fun `senza disposizione la casa la chiede una volta`() {
+        OmbraArchivio.granted = true
         runBlocking { Hint.COLUMNS.remember(app) }
         var scelta: FolderSelection? = null
         scene.setContent {

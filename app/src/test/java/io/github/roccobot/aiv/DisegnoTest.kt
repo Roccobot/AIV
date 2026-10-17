@@ -4,10 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
@@ -90,14 +87,10 @@ class DisegnoTest {
     @get:Rule
     val banco = createComposeRule()
 
-    /** I veli d'aiuto si spengono prima: consumano il primo tocco (vedi `SviluppoTest`). */
+    /** I veli d'aiuto dell'editor si segnano come visti prima di montarlo: vedi [senzaOnboarding]. */
     @Before
-    fun senzaOnboarding() {
-        runBlocking {
-            Hint.MODULES.remember(ApplicationProvider.getApplicationContext())
-            Hint.EDITOR_TOOLS.remember(ApplicationProvider.getApplicationContext())
-            Hint.DRAW.remember(ApplicationProvider.getApplicationContext())
-        }
+    fun veliVisti() {
+        senzaOnboarding(Hint.DRAW)
     }
 
     /**
@@ -179,7 +172,7 @@ class DisegnoTest {
                 altri + PadKey.MOD_DRAW + PadKey.MOD_PRESET, letto)
         }
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         val disegno = banco.onNodeWithContentDescription(testo(R.string.look_draw)).getUnclippedBoundsInRoot()
         val stili = banco.onNodeWithContentDescription(testo(R.string.look_presets)).getUnclippedBoundsInRoot()
         assertTrue("gli Stili dovevano venire dopo il Disegno", stili.left > disegno.left)
@@ -196,7 +189,7 @@ class DisegnoTest {
     fun `un trascinamento disegna un rettangolo coi parametri scelti`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
         banco.onNodeWithContentDescription(testo(R.string.ink_blue)).performClick()
@@ -238,7 +231,7 @@ class DisegnoTest {
     @Test
     fun `dopo un cambio di strumento il dito sui tondi va allo strumento nuovo`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         val sfondo = testo(R.string.draw_ground)
         banco.onNodeWithContentDescription(testo(R.string.draw_pill)).performClick()
@@ -265,7 +258,7 @@ class DisegnoTest {
     fun `bordo rosso e riempimento bianco al 50 per cento, la freccia senza`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
         banco.onNodeWithContentDescription(testo(R.string.ink_red)).performClick()
@@ -310,7 +303,7 @@ class DisegnoTest {
     fun `i valori di fabbrica sono i suoi`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_rect)).assertIsSelected()
         banco.onNodeWithContentDescription(testo(R.string.draw_dashed)).assertIsOn()
@@ -373,7 +366,7 @@ class DisegnoTest {
     fun `Annulla toglie l'ultimo elemento`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         trascina()
         trascina(dy = -PASSO)
@@ -400,7 +393,7 @@ class DisegnoTest {
     fun `Annulla subito dopo un cambio di stile disfa solo quel cambio`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
         trascinaDa(Offset(40f, 40f), Offset(100f, 100f))
@@ -433,7 +426,7 @@ class DisegnoTest {
     @Test
     fun `Riempimento vale solo per rettangolo ed ellisse`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_rect)).assertIsSelected()
         banco.onNodeWithContentDescription(testo(R.string.draw_filled)).assertIsEnabled()
@@ -464,7 +457,7 @@ class DisegnoTest {
     @Config(qualifiers = "w411dp-h891dp")
     fun `tenendo Spessore si vede una lineetta curva del colore della linea`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.ink_red)).performClick()
         opacitaPiena()
@@ -503,7 +496,7 @@ class DisegnoTest {
     @Test
     fun `la lente compare sulle forme piccole e non su quelle grandi`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
         banco.waitForIdle()
@@ -521,7 +514,7 @@ class DisegnoTest {
     @Test
     fun `i quattro tasti sono disegni con la loro descrizione`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         for (id in listOf(R.string.draw_outline, R.string.draw_filled, R.string.draw_dashed, R.string.draw_width)) {
             assertEquals("il tasto '${testo(id)}' doveva esserci, descritto", 1,
@@ -542,7 +535,7 @@ class DisegnoTest {
     @Test
     fun `il Tratteggio acceso ha il colore della traccia, spento e sbiadito`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.ink_red)).performClick()
         opacitaPiena()
@@ -571,7 +564,7 @@ class DisegnoTest {
     @Test
     fun `il tasto Traccia ha il colore della linea, da bordo a bordo`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         // ⚠️ The pure red at full opacity: since 4.50 the factory stroke is darker and at 55%.
         banco.onNodeWithContentDescription(testo(R.string.ink_red)).performClick()
@@ -603,7 +596,7 @@ class DisegnoTest {
         assertEquals(1f, keyAlpha(1f), 1e-6f)
         assertTrue("l'accentuazione deve crescere con l'opacità", keyAlpha(0.3f) > keyAlpha(0.2f))
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
         banco.waitForIdle()
@@ -626,7 +619,7 @@ class DisegnoTest {
     @Test
     fun `i tasti sono Tratteggio, Traccia, Spessore e Riempimento da sinistra`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         val (tratteggio, traccia, spessore, riempimento) = listOf(
             R.string.draw_dashed, R.string.draw_outline, R.string.draw_width, R.string.draw_filled
@@ -652,7 +645,7 @@ class DisegnoTest {
     @Test
     fun `il cursore della luminosita copre la fila dei tondi`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         val rosso = banco.onNodeWithContentDescription(testo(R.string.ink_red))
         rosso.performTouchInput { longClick() }
@@ -686,7 +679,7 @@ class DisegnoTest {
     @Test
     fun `il pollice della luminosita va sotto il dito`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         val rosso = banco.onNodeWithContentDescription(testo(R.string.ink_red))
         val da = rosso.fetchSemanticsNode().positionOnScreen
@@ -725,7 +718,7 @@ class DisegnoTest {
     @Test
     fun `i tondi svaniscono sotto una superficie aperta`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         val tondo = banco.onNodeWithContentDescription(testo(R.string.ink_blue))
         fun pieno(): Boolean {
@@ -756,7 +749,7 @@ class DisegnoTest {
     @Test
     fun `all'apertura i tondi di fabbrica sono scelti`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.ink_red)).assertIsSelected()
         banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
@@ -800,7 +793,7 @@ class DisegnoTest {
     fun `Traccia regola l'opacita della linea, Spessore lo spessore`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_line)).performClick()
         banco.waitForIdle()
@@ -856,7 +849,7 @@ class DisegnoTest {
     @Config(qualifiers = "w411dp-h891dp")
     fun `il tasto Spessore e spesso quanto il tratto`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.ink_red)).performClick()
         opacitaPiena()
@@ -894,7 +887,7 @@ class DisegnoTest {
     @Config(qualifiers = "w411dp-h891dp-xxhdpi")
     fun `il segmento del tasto Spessore arriva vicino ai lati senza toccarli`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.ink_red)).performClick()
         opacitaPiena()
@@ -928,7 +921,7 @@ class DisegnoTest {
     fun `tenendo un tondo e scorrendo si schiarisce la linea in un gesto`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_line)).performClick()
         banco.waitForIdle()
@@ -976,7 +969,7 @@ class DisegnoTest {
     @Test
     fun `tenendo un tondo fermo il cursore resta e il tocco fuori non disegna`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_line)).performClick()
         banco.waitForIdle()
@@ -1022,7 +1015,7 @@ class DisegnoTest {
         assertEquals("a 30 gradi la linea resta dov'è", Offset(110f, 68f) to null, Draw.snap(a, Offset(110f, 68f)))
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         for (pen in listOf(R.string.draw_line, R.string.draw_arrow)) {
             banco.onNodeWithContentDescription(testo(pen)).performClick()
@@ -1049,7 +1042,7 @@ class DisegnoTest {
     @Config(qualifiers = "w411dp-h891dp")
     fun `la guida compare mentre la linea e agganciata`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_line)).performClick()
         banco.waitForIdle()
@@ -1067,7 +1060,7 @@ class DisegnoTest {
     @Test
     fun `il grigio e fra bianco e nero e la fila entra nello schermo`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         val (bianco, grigio, nero) = listOf(R.string.ink_white, R.string.ink_grey, R.string.ink_black)
             .map { banco.onNodeWithContentDescription(testo(it)).fetchSemanticsNode().boundsInRoot }
@@ -1113,7 +1106,7 @@ class DisegnoTest {
     fun `un tocco sceglie l'elemento e il vuoto toglie la scelta`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
         // ⚠️ Until 4.70 the 'Elimina' key said whether an element was chosen; since 4.80 its column
@@ -1146,7 +1139,7 @@ class DisegnoTest {
     fun `Elimina tutto svuota il disegno e toglie la scelta`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_free)).performClick()
         banco.waitForIdle()
@@ -1191,7 +1184,7 @@ class DisegnoTest {
     fun `tenere il gettone del Disegno toglie anche la scelta`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_free)).performClick()
         banco.waitForIdle()
@@ -1218,7 +1211,7 @@ class DisegnoTest {
     fun `i parametri cambiano l'elemento scelto`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
         trascinaDa(Offset(40f, 40f), Offset(100f, 100f))
@@ -1246,7 +1239,7 @@ class DisegnoTest {
     @Config(qualifiers = "w411dp-h891dp")
     fun `la luminosita si vede sull'elemento scelto mentre il dito scorre`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
         tocca(Offset(-70f, -70f))
@@ -1287,7 +1280,7 @@ class DisegnoTest {
     fun `l'elemento scelto si sposta e si elimina`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
         trascinaDa(Offset(40f, 40f), Offset(100f, 100f))
@@ -1330,7 +1323,7 @@ class DisegnoTest {
     fun `il tasto acceso ha un bordo pieno`() {
         var accento = androidx.compose.ui.graphics.Color.Unspecified
         banco.setContent { Scena(onAccent = { accento = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         fun bordo(id: Int) =
             inchiostro(banco.onNodeWithContentDescription(testo(id)).captureToImage().toPixelMap(), accento)
@@ -1364,7 +1357,7 @@ class DisegnoTest {
             assertEquals("a $w il ritmo resta il suo", 10f / 6f, t / v, 1e-4f)
         }
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         val tasto = banco.onNodeWithContentDescription(testo(R.string.draw_dashed))
         tasto.performClick()
@@ -1392,7 +1385,7 @@ class DisegnoTest {
     @Test
     fun `il cursore della luminosita non vela il palco`() {
         banco.setContent { CompositionLocalProvider(LocalAivDepth provides PanelDepth.BLUR) { Scena() } }
-        pronta()
+        banco.pronta()
         apriDisegno()
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
         val prima = palco.captureToImage().toPixelMap()
@@ -1414,7 +1407,7 @@ class DisegnoTest {
     fun `alla prima apertura del Disegno compare il suo velo d'aiuto`() {
         runBlocking { Hint.DRAW.forget(app) }
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         assertEquals("prima del Disegno il velo non doveva esserci", 0,
             banco.onAllNodesWithText(testo(R.string.hint_draw)).fetchSemanticsNodes().size)
         apriDisegno()
@@ -1534,7 +1527,7 @@ class DisegnoTest {
     fun `un elemento disegnato o spostato vicino a un altro si allinea a lui`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
         trascinaDa(Offset(-97f, 20f), Offset(-10f, 60f))
@@ -1575,7 +1568,7 @@ class DisegnoTest {
     fun `il lato tirato da una maniglia si ferma sul lato di un altro elemento`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
         trascinaDa(Offset(-160f, 20f), Offset(0f, 60f))
@@ -1606,7 +1599,7 @@ class DisegnoTest {
     fun `un rettangolo vicino a un angolo si appoggia ai due bordi`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         val img = immagine()
         trascinaDa(Offset(img.left + 4f, img.top + 4f), Offset(-20f, -20f))
@@ -1635,7 +1628,7 @@ class DisegnoTest {
     fun `un elemento spostato vicino al bordo vi si appoggia, e oltre esce`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         val img = immagine()
         trascinaDa(Offset(-40f, -40f), Offset(40f, 40f))
@@ -1667,7 +1660,7 @@ class DisegnoTest {
     fun `mentre l'elemento tocca un bordo la guida corre lungo il bordo`() {
         var accento = androidx.compose.ui.graphics.Color.Unspecified
         banco.setContent { Scena(onAccent = { accento = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         val img = immagine()
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
@@ -1783,7 +1776,7 @@ class DisegnoTest {
     fun `tenendo fermo un elemento si apre il suo menu`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
@@ -1872,7 +1865,7 @@ class DisegnoTest {
     fun `le maniglie ridimensionano e in Ruota girano`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
         fun salva(): List<Mark> {
@@ -1920,7 +1913,7 @@ class DisegnoTest {
     fun `un tocco sull'elemento scelto alterna Trasforma e Ruota`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
         tocca(Offset(-70f, -70f))
@@ -2070,7 +2063,7 @@ class DisegnoTest {
     fun `il Pannello sfoca l'area sul palco`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }, uri = righe()) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         fun salva(): List<Mark> {
             banco.onNodeWithText(testo(R.string.editor_save)).performClick()
@@ -2119,7 +2112,7 @@ class DisegnoTest {
     fun `Elimina toglie l'elemento scelto`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         val elimina = tastoElimina()
         elimina.assertIsNotEnabled()
@@ -2186,14 +2179,14 @@ class DisegnoTest {
         val h = 200
         val corpo = 0.05f * w
         val testo = Mark(Pen.TEXT, listOf(Offset(0.5f, 0.5f)), Color.WHITE, 0.05f, false, null, words = Words("Ciao mondo"))
-        val (hw, hh) = Draw.textHalf(testo, w.toFloat(), h.toFloat())
+        val (_, hw, hh) = Draw.textFrame(testo, w.toFloat(), h.toFloat())
         assertEquals("una riga è alta un passo, 1,3 volte il corpo", corpo * 1.3f / 2f, hh, 1e-3f)
         assertTrue("la riga doveva avere la sua larghezza", hw > corpo)
-        val due = Draw.textHalf(testo.copy(words = Words("Ciao mondo\nCiao")), w.toFloat(), h.toFloat())
-        assertEquals("due righe sono alte due passi", 2f * hh, due.second, 1e-3f)
-        assertEquals("e larghe come la più larga", hw, due.first, 1e-3f)
-        val etichetta = Draw.textHalf(testo.copy(words = Words("Ciao mondo", label = true)), w.toFloat(), h.toFloat())
-        assertEquals("il fondo aggiunge il suo margine ai due capi", hw + 0.35f * corpo, etichetta.first, 1e-3f)
+        val due = Draw.textFrame(testo.copy(words = Words("Ciao mondo\nCiao")), w.toFloat(), h.toFloat())
+        assertEquals("due righe sono alte due passi", 2f * hh, due.third, 1e-3f)
+        assertEquals("e larghe come la più larga", hw, due.second, 1e-3f)
+        val etichetta = Draw.textFrame(testo.copy(words = Words("Ciao mondo", label = true)), w.toFloat(), h.toFloat())
+        assertEquals("il fondo aggiunge il suo margine ai due capi", hw + 0.35f * corpo, etichetta.second, 1e-3f)
         // ⚠️ Il banco non disegna le variazioni di un carattere (misurato: il grassetto vi risulta largo
         // quanto il normale), quindi qui si guarda il peso che il carattere dichiara.
         assertEquals("il grassetto doveva avere il suo peso nel carattere", Faces.BOLD, Faces.of(Face.ROBOTO, false, true).weight)
@@ -2269,15 +2262,15 @@ class DisegnoTest {
         val f = lato.toFloat()
         val testo = Mark(Pen.TEXT, listOf(Offset(0.5f, 0.5f)), Color.WHITE, 0.05f, false, null,
             words = Words("Ciao mondo, come stai oggi"))
-        val (hw, hh) = Draw.textHalf(testo, f, f)
+        val (_, hw, hh) = Draw.textFrame(testo, f, f)
         val stretto = testo.reshaped(5, Offset(0.5f, 0.5f), lato, lato)
-        val (shw, shh) = Draw.textHalf(stretto, f, f)
+        val (_, shw, shh) = Draw.textFrame(stretto, f, f)
         assertTrue("stretto, il testo doveva andare a capo", shh > 1.5f * hh)
         assertEquals("largo quanto la maniglia tirata", hw / 2f, shw, 0.5f)
         assertEquals("col lato sinistro fermo", 0.5f * f - hw, stretto.points.single().x * f - shw, 0.5f)
         val doppio = stretto.reshaped(2, Offset(stretto.points.single().x + 2f * shw / f, 0.5f + 2f * shh / f), lato, lato)
         assertEquals("l'angolo doveva ingrandire anche la larghezza", 2f * stretto.words!!.wrap, doppio.words!!.wrap, 1e-3f)
-        assertEquals("e le righe restare quelle", 2f * shh, Draw.textHalf(doppio, f, f).second, 1f)
+        assertEquals("e le righe restare quelle", 2f * shh, Draw.textFrame(doppio, f, f).third, 1f)
 
         fun righe(align: Align): Pair<IntRange, IntRange> {
             val segno = Mark(Pen.TEXT, listOf(Offset(0.5f, 0.5f)), Color.WHITE, 0.08f, false, null,
@@ -2450,7 +2443,7 @@ class DisegnoTest {
     fun `con Testo un tocco apre la finestra e il testo nasce dove si tocca`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         fun salva(): List<Mark> {
             banco.onNodeWithText(testo(R.string.editor_save)).performClick()
@@ -2508,7 +2501,7 @@ class DisegnoTest {
     fun `i tasti del Testo cambiano il testo scelto`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         fun salva(): Mark {
             banco.onNodeWithText(testo(R.string.editor_save)).performClick()
@@ -2584,7 +2577,7 @@ class DisegnoTest {
     fun `con Pillola un trascinamento disegna la pillola e chiede le parole`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         fun salva(): List<Mark> {
             banco.onNodeWithText(testo(R.string.editor_save)).performClick()
@@ -2626,7 +2619,7 @@ class DisegnoTest {
     fun `con Pillola un tocco posa la pillola attorno alle parole`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_pill)).performClick()
         banco.waitForIdle()
@@ -2662,7 +2655,7 @@ class DisegnoTest {
             val parole = Words("Ciao mondo\nCiao")
             val corpo = Draw.fitSize(parole, w.toFloat(), h.toFloat())
             val testo = Mark(Pen.TEXT, listOf(Offset(0.5f, 0.5f)), Color.WHITE, corpo, false, null, words = parole)
-            val (hw, _) = Draw.textHalf(testo, w.toFloat(), h.toFloat())
+            val (_, hw, _) = Draw.textFrame(testo, w.toFloat(), h.toFloat())
             // ⚠️ Il banco arrotonda il corpo al pixel intero (misurato: a 20 e a 20,75 px la riga è
             // larga uguale), quindi lo scarto ammesso è quello di un pixel di corpo.
             val pixel = w / 2f / (corpo * maxOf(w, h)) + 1f
@@ -2765,7 +2758,7 @@ class DisegnoTest {
     fun `il colore non riporta il testo al corpo di prima`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         fun salva(): Mark {
             banco.onNodeWithText(testo(R.string.editor_save)).performClick()
@@ -2815,7 +2808,7 @@ class DisegnoTest {
     @Config(qualifiers = "w320dp-h891dp")
     fun `il cursore e le file dei tasti restano dove sono con ogni strumento`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         fun cursore() = banco.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress)).getUnclippedBoundsInRoot()
         banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
@@ -2870,7 +2863,7 @@ class DisegnoTest {
     fun `pillola e pannello si applicano senza parole ed Elimina vale per loro`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        pronta()
+        banco.pronta()
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_panel)).performClick()
         banco.waitForIdle()
@@ -2901,7 +2894,7 @@ class DisegnoTest {
     @Config(qualifiers = "w320dp-h891dp")
     fun `un doppio tocco su un testo apre le sue parole`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_text)).performClick()
         banco.waitForIdle()
@@ -2941,7 +2934,7 @@ class DisegnoTest {
     @Config(qualifiers = "w320dp-h891dp")
     fun `le file del Disegno hanno la stessa aria fra loro`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_text)).performClick()
         banco.waitForIdle()
@@ -2971,7 +2964,7 @@ class DisegnoTest {
     @Config(qualifiers = "w320dp-h891dp-xxhdpi")
     fun `la striscia scelta ha il filo stondato`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_text)).performClick()
         banco.waitForIdle()
@@ -3024,7 +3017,7 @@ class DisegnoTest {
     @Config(qualifiers = "w320dp-h891dp")
     fun `Elimina e l'ultimo tasto a destra di ogni fila`() {
         banco.setContent { Scena() }
-        pronta()
+        banco.pronta()
         apriDisegno()
         fun dove(id: Int) = banco.onNodeWithContentDescription(testo(id)).getUnclippedBoundsInRoot()
         banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
@@ -3152,54 +3145,16 @@ class DisegnoTest {
         banco.waitForIdle()
     }
 
-    /** Vedi la nota su `pronta()` in `LuceTest`: il palco compare quando l'immagine esiste. */
-    private fun pronta() {
-        banco.waitUntil(5_000) {
-            banco.onAllNodesWithContentDescription(testo(R.string.look_compare))
-                .fetchSemanticsNodes().isNotEmpty()
-        }
-        banco.waitForIdle()
-    }
-
     @Composable
     private fun Scena(
         onSave: (Look) -> Unit = {},
         onAccent: (androidx.compose.ui.graphics.Color) -> Unit = {},
-        uri: Uri = quadrato()
+        uri: Uri = quadrato(LATO)
     ) {
         AivTheme(darkTheme = false) {
             onAccent(MaterialTheme.colorScheme.primary)
-            Box(modifier = Modifier.fillMaxSize()) {
-                AdvancedEditorScreen(
-                    uri = uri,
-                    busy = false,
-                    marked = false,
-                    marking = false,
-                    hasMark = false,
-                    onMark = {},
-                    onMarkSetup = {},
-                    resize = Resize.Plan(Resize.Mode.LONG, Resize.DEFAULT_PX),
-                    // ⚠️ Spento, come in `LuceTest`: un ridimensionamento accenderebbe 'Salva' a
-                    // immagine intonsa.
-                    saved = Resize.NONE,
-                    resizing = false,
-                    onResize = {},
-                    onResizeDefault = {},
-                    onSave = { look, _ -> onSave(look) },
-                    onBack = {}
-                )
-            }
+            Editore(uri = uri, onSave = { look, _ -> onSave(look) })
         }
-    }
-
-    private fun quadrato(): Uri {
-        val file = File(app.cacheDir, "disegno.png")
-        if (!file.exists()) {
-            val mappa = Bitmap.createBitmap(LATO, LATO, Bitmap.Config.ARGB_8888)
-            mappa.eraseColor(Color.WHITE)
-            file.outputStream().use { mappa.compress(Bitmap.CompressFormat.PNG, 100, it) }
-        }
-        return Uri.fromFile(file)
     }
 
     /** A [LATO] square of black and white columns two pixels wide: a blur turns it grey. */

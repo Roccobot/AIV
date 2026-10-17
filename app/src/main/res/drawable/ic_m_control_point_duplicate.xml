@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material: Icons.Filled.ControlPointDuplicate 1.7.8 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M16,8L14,8L14,11L11,11L11,13L14,13L14,16L16,16L16,13L19,13L19,11L16,11ZM2,12C2,9.21,3.6399999,6.8,6.01,5.68L6.01,3.52C2.52,4.76,0,8.09,0,12S2.52,19.24,6.01,20.48L6.01,18.32C3.64,17.2,2,14.79,2,12ZM15,3C10.04,3,6,7.04,6,12S10.04,21,15,21S24,16.96,24,12S19.96,3,15,3ZM15,19C11.14,19,8,15.86,8,12S11.14,5,15,5S22,8.14,22,12S18.86,19,15,19Z" />
+</vector>

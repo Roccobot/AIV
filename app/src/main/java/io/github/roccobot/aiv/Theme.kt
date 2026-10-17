@@ -30,50 +30,26 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
 /**
- * Material 3 Expressive, and how it got here: in material3 1.4.0, the stable
- * release, MaterialExpressiveTheme and MotionScheme are declared INTERNAL and
- * the compiler refuses them outright. They are public only on the 1.5.0 line,
- * which is alpha, so material3 is pinned outside the Compose BOM.
- * The owner chose the alpha deliberately, this being an experimental project.
- * The cost is written down rather than forgotten: alpha APIs change between
- * releases, so a library bump can break this file. It is one file on purpose.
+ * Material 3 Expressive: `MaterialExpressiveTheme` e `MotionScheme` sono pubbliche solo sulla
+ * linea 1.5.0 di material3, che arriva dal BOM di prova di Compose (scelta dell'utente, 6.24;
+ * il perché è in `gradle/libs.versions.toml`). Una versione di prova può cambiare queste API da
+ * un aggiornamento all'altro, ed è per questo che il tema vive in un file solo.
  *
- * ⚠️⚠️ **IL COLORE DINAMICO È USCITO NELLA 0.44, e non è una semplificazione: è la
- * conseguenza necessaria di aver scelto una tavolozza.** Fino a lì, su Android 12 e
- * successivi, l'app prendeva i colori dallo sfondo del telefono, quindi qualunque tinta
- * scritta qui era invisibile a quasi tutti. L'utente ha chiesto un fondo, un accento e
- * un colore del FAB precisi: o si tengono quelli, o si tiene il colore dinamico.
- * Chi volesse rimetterlo cancellerebbe la scelta, non aggiungerebbe un'opzione.
+ * ⚠️ **Niente colore dinamico**: con lui, da Android 12, l'app prenderebbe i colori dallo sfondo
+ * del telefono, e la tavolozza chiesta dall'utente (fondo, accento e FAB) non si vedrebbe.
  */
 
 /**
- * ⚠️ **IL FONDO CHIARO È QUASI BIANCO E LEGGERMENTE GIALLO** (richiesta dell'utente):
- * `#FCFBF8` sta un soffio sotto il bianco e ha il rosso e il verde più alti del blu, che
- * è quello che si legge come calore. ⚠️ Non è un beige: serve a togliere il taglio del
- * bianco puro senza che il fondo diventi un colore.
- * ⚠️⚠️ **LA SATURAZIONE È SCESA DUE VOLTE, e ogni volta è una misura e non un
- * aggiustamento a occhio**: si conta la distanza fra il canale più alto e il più basso,
- * su 255.
- *
- * | quando | fondo | punti | saturazione |
- * |---|---|---|---|
- * | fino alla `0.44` | `#FAF8EF` | 11 | 4.4% |
- * | `0.45` | `#FCFBF5` | 7 | 2.8% |
- * | `1.13` | `#FCFBF8` | 4 | 1.6% |
- *
- * Le due richieste sono la stessa richiesta fatta due volte (`0.44`: *solo leggermente meno
- * saturo, dev'essere solo un accenno di giallo/crema*; `1.13`: *ancora leggermente meno
- * saturazione del giallo*), ed è il motivo per cui i valori scartati restano scritti qui:
- * chi ritocca la terza volta deve sapere da dove si scende, o rifarà il primo passo.
- * ⚠️ **Su un fondo quasi bianco la differenza fra 'accenno' e 'crema' sta in tre punti**, e
- * il passo di questa scala è appunto tre.
- * ⚠️ **Tutta la famiglia chiara scende insieme**, superfici e contenitori compresi, e il
- * fattore è lo stesso per tutti (i punti di ciascuno moltiplicati per 4/7, cioè il rapporto
- * fra il fondo nuovo e quello di prima): abbassare il solo fondo lascerebbe le schede più
- * gialle della pagina, che è il modo in cui una tavolozza smette di sembrare una tavolozza.
- * ⚠️⚠️ **E scende con loro `window_background` di `colors.xml`, che è l'unico valore fuori
- * da questo file**: lo dipinge il sistema prima che la composizione esista, quindi se resta
- * indietro l'app si apre con un lampo del fondo vecchio.
+ * Il fondo chiaro: quasi bianco e appena giallo (richiesta dell'utente). `#FCFBF8` ha il rosso e
+ * il verde più alti del blu, che si legge come calore, senza diventare un beige.
+ * La saturazione si misura come distanza fra il canale più alto e il più basso, su 255: qui 4
+ * punti, cioè 1,6%. L'utente l'ha chiesta più bassa due volte (da 11 a 7, poi a 4): un nuovo
+ * ritocco riparte da qui.
+ * ⚠️ **Tutta la famiglia chiara si muove insieme**, superfici e contenitori compresi, con lo
+ * stesso fattore: abbassare il solo fondo lascerebbe le schede più gialle della pagina.
+ * ⚠️ **Con loro si muove `window_background` di `colors.xml`**, l'unico valore fuori da questo
+ * file: lo dipinge il sistema prima che la composizione esista, e se resta indietro l'app si apre
+ * con un lampo del fondo vecchio.
  */
 private val LIGHT_BACK = Color(0xFFFCFBF8)
 
@@ -81,10 +57,8 @@ private val LIGHT_BACK = Color(0xFFFCFBF8)
 private val LIGHT_SURFACE = Color(0xFFFFFEFC)
 
 /**
- * ⚠️ **IL FONDO SCURO È GRIGIO, NON VERDE** (richiesta dell'utente: grigio scuro
- * leggermente blu/verde): `#151B1A` ha il verde e il blu appena sopra il rosso, cioè la
- * quantità di tinta che si sente e non si nomina. Un verde scuro vero avrebbe il verde
- * molto più alto degli altri due, e sotto una fotografia si vedrebbe.
+ * Il fondo scuro: un grigio appena blu e verde, non un verde (richiesta dell'utente). `#151B1A`
+ * ha il verde e il blu appena sopra il rosso; un verde scuro vero si vedrebbe sotto un'immagine.
  */
 private val DARK_BACK = Color(0xFF151B1A)
 
@@ -94,17 +68,11 @@ private val DARK_SURFACE = Color(0xFF1E2523)
 /**
  * L'accento, cioè il colore del FAB e di tutto quello che l'app evidenzia.
  *
- * ⚠️⚠️ **È ESATTAMENTE IL COLORE DELL'ICONA** (`launcher_background` chiaro), per volontà
- * dell'utente: l'app e la sua icona devono essere la stessa cosa. Chi lo cambia deve
- * cambiare anche l'icona, o si separano.
- * ⚠️ **Contrasto MISURATO contro il fondo chiaro: 2.43** (era 2.37 sul fondo della
- * `0.44`, più saturo), cioè sotto il 3:1 che si chiede a una grafica non testuale. Non è
- * un difetto da correggere di nascosto: il colore lo ha scelto l'utente, che ha visto il
- * numero e ha risposto *accento OK*. È scritto qui perché nessuno debba rimisurarlo, ed è
- * lo stesso baratto già accettato per l'icona, che misura 2.42. Chi un giorno volesse
- * rientrare nella soglia deve **scurire l'accento**, non schiarire il fondo.
- * ⚠️ Quello che va SOPRA il FAB invece si legge benissimo: `#00382F` sull'accento
- * misura 5.19.
+ * ⚠️ **È esattamente il colore dell'icona** (`launcher_background` chiaro), per volontà
+ * dell'utente: chi lo cambia cambia anche l'icona.
+ * ⚠️ **Contrasto col fondo chiaro: 2,43**, sotto il 3:1 di una grafica non testuale. L'utente
+ * ha visto il numero e ha confermato l'accento; per rientrare nella soglia si scurisce l'accento,
+ * non si schiarisce il fondo. Sopra il FAB `#00382F` misura 5,19.
  */
 private val ACCENT_LIGHT = Color(0xFF43B59E)
 private val ON_ACCENT_LIGHT = Color(0xFF00382F)
@@ -112,45 +80,33 @@ private val ON_ACCENT_LIGHT = Color(0xFF00382F)
 /**
  * L'accento scurito, per il tema scuro.
  *
- * ⚠️ **È la stessa tinta dell'icona scura** (`launcher_background` di `values-night`),
- * quindi anche qui l'app e la sua icona restano la stessa cosa, ed è la lettura letterale
- * della richiesta ('scurito su scuro'). ⚠️ **Misure**: 3.07 contro il fondo scuro, cioè
- * appena sopra la soglia delle grafiche non testuali, e 5.69 per il bianco sopra di lui.
- * A differenza del chiaro, qui il conto torna.
+ * È la stessa tinta dell'icona scura (`launcher_background` di `values-night`). Misura 3,07 col
+ * fondo scuro, appena sopra la soglia delle grafiche non testuali, e 5,69 col bianco sopra.
  */
 private val ACCENT_DARK = Color(0xFF00727B)
 
 /**
  * L'accento quando deve essere **letto**, cioè scritto come testo.
  *
- * ⚠️⚠️ **ESISTE PERCHÉ L'ACCENTO VERO, COME TESTO, NON SI LEGGE**: `#43B59E` su fondo
- * chiaro misura 2.43, e per un testo la soglia è 4.5. L'accento è quello che l'utente ha
- * chiesto e non si tocca; quello che si tocca è l'unico posto in cui l'accento finiva
- * sotto forma di parole, cioè il collegamento a `roccobot.me` in fondo alle impostazioni.
- * ⚠️ **Restano i colori dell'icona**, che è il punto della richiesta: il chiaro è la
- * stessa tinta scurita (**6.21** sul fondo), lo scuro è **esattamente** il glifo
- * dell'icona scura, `launcher_foreground` di `values-night` (**9.97** sul fondo).
- * ⚠️ Chi volesse un accento leggibile dappertutto deve scurire `ACCENT_LIGHT`, e allora
- * questa coppia sparisce da sé: è nata da una deroga, non da una preferenza.
+ * ⚠️ **Esiste perché l'accento, come testo, non si legge**: `#43B59E` sul fondo chiaro misura
+ * 2,43, e per un testo la soglia è 4,5. Restano i colori dell'icona: il chiaro è la stessa tinta
+ * scurita (6,21 sul fondo), lo scuro è il glifo dell'icona scura, `launcher_foreground` di
+ * `values-night` (9,97). Se un giorno `ACCENT_LIGHT` si scurisse, questa coppia non servirebbe
+ * più.
  */
 private val LINK_LIGHT = Color(0xFF0B6B5B)
 private val LINK_DARK = Color(0xFF4FD9BE)
 
 /**
- * ⚠️⚠️ **IL FAB NON PRENDE `primary`, PRENDE `primaryContainer`**, e saperlo è la
- * differenza fra una tavolozza applicata e una tavolozza scritta. Verificato sul bytecode
- * di material3 1.5.0-alpha26, e invariato nei sorgenti della beta01 (6.22):
- * `FloatingActionButtonDefaults.containerColor` risolve il token `PrimaryContainer`. Lasciando quel ruolo al suo valore di serie, il
- * FAB sarebbe rimasto **viola** in mezzo a tutto il resto.
- * ⚠️ Qui `primaryContainer` vale **quanto** `primary`, e non è una svista: la richiesta
- * dice un accento solo, e un contenitore più tenue sarebbe un secondo accento.
+ * ⚠️ **Il FAB non prende `primary`, prende `primaryContainer`**: lo dicono i sorgenti di
+ * material3 1.5.0-beta01 (`FloatingActionButtonDefaults.containerColor`). Col valore di serie il
+ * FAB sarebbe viola. Qui `primaryContainer` vale quanto `primary`: l'accento è uno solo.
  *
- * ⚠️ **Gli altri ruoli si dichiarano per la stessa ragione**: quelli che restano
- * impostati portano la tavolozza di serie, che è viola. `secondaryContainer` lo
- * consumano il tasto tondeggiante e la pastiglia selezionata, `outline` il bordo
- * dell'interruttore e del campo di testo, la famiglia `surfaceContainer` i menu a
- * tendina. `error` invece resta quello di serie apposta: il rosso di un errore non è un
- * colore del marchio, e il suo `#BA1A1A` misura 5.2 su questo fondo.
+ * Gli altri ruoli si dichiarano per la stessa ragione, o resterebbero viola: `secondaryContainer`
+ * per il tasto arrotondato e la pastiglia scelta, `outline` per il bordo dell'interruttore e del
+ * campo di testo, la famiglia `surfaceContainer` per i menu a tendina. `error` resta quello di
+ * serie: il rosso di un errore non è un colore del marchio, e `#BA1A1A` misura 5,2 su questo
+ * fondo.
  */
 private val LightScheme: ColorScheme = lightColorScheme(
     primary = ACCENT_LIGHT,
@@ -203,9 +159,8 @@ private val DarkScheme: ColorScheme = darkColorScheme(
 /**
  * Il colore di un collegamento, cioè dell'accento quando è fatto di parole.
  *
- * ⚠️ Si sceglie guardando il **fondo del tema in vigore** e non `isSystemInDarkTheme()`:
- * la domanda a cui deve rispondere è 'su che cosa sto scrivendo', e l'unica risposta che
- * resta vera se un domani il tema si potesse forzare è quella che guarda la tavolozza.
+ * ⚠️ Si sceglie guardando il fondo del tema in vigore, non `isSystemInDarkTheme()`: il tema
+ * scelto dentro l'app può essere diverso da quello di sistema.
  */
 @Composable
 fun accentInk(): Color =
@@ -215,25 +170,14 @@ fun accentInk(): Color =
  * Il filo di una superficie **contornata**: quella che esiste per il suo bordo e non per il
  * suo riempimento.
  *
- * ⚠️⚠️ **NASCE PERCHÉ `outlineVariant` SI VEDEVA SOLO SUL TEMA CHIARO, e il numero da solo
- * diceva il contrario** (domanda dell'utente, 2026-09-03, sulla pastiglia del nome nella
- * rinomina: *sbaglio o ha un filetto di contorno solo nel tema chiaro?*). Non sbagliava, e la
- * misura che sembrava smentirlo è la trappola da tenere: `outlineVariant` contro l'interno
- * della pastiglia stacca **1,86 sullo scuro** e **1,41 sul chiaro**, cioè sullo scuro di più.
- * ⚠️⚠️ **A DECIDERE NON È QUEL RAPPORTO, È QUANTO LAVORO FA GIÀ IL RIEMPIMENTO**: sul chiaro
- * l'interno della pastiglia sta a 1,13 dalla superficie del dialogo, cioè non si vede, e il
- * filo è la sola cosa che disegna la forma; sullo scuro l'interno sta a 1,39, cioè legge già
- * come un incavo, e un filo a 1,33 dalla superficie non aggiunge niente all'occhio. Provato
- * **guardandolo**, reso a tre volte la densità, e non contando: la pastiglia scura col filo e
- * quella senza sono indistinguibili.
- * ⚠️ **La via scartata era `outline` in tutti e due i temi**, che è una tinta sola invece di
- * due: sullo scuro va benissimo (4,27 dalla superficie) ma sul chiaro salta a 3,55, cioè
- * diventa una cornice, e sul chiaro il filo l'utente lo aveva già approvato com'era. Questi
- * due sono il **punto medio** fra `outlineVariant` e `outline`, calcolato e non scelto a
- * occhio: portano il chiaro da 1,25 a **2,01** e lo scuro da 1,33 a **2,47**, cioè un filo
- * che si vede in tutti e due i temi e in nessuno dei due pesa.
- * ⚠️ **Si sceglie guardando il fondo del tema in vigore**, come [accentInk] e per la stessa
- * ragione: la domanda è 'su che cosa sto disegnando'.
+ * ⚠️ **`outlineVariant` si vede solo sul tema chiaro, anche se il rapporto di contrasto dice il
+ * contrario**: a decidere è quanto lavoro fa già il riempimento. Sul chiaro l'interno di una
+ * pastiglia è a 1,13 dalla superficie del dialogo e il filo è la sola cosa che disegna la forma;
+ * sullo scuro l'interno è a 1,39 e si legge già come un incavo, quindi un filo a 1,33 non si vede.
+ * Questi due colori sono il punto medio fra `outlineVariant` e `outline`: 2,01 dalla superficie
+ * sul chiaro e 2,47 sullo scuro, un filo che si vede in tutti e due i temi senza diventare una
+ * cornice (`outline` sul chiaro arriverebbe a 3,55).
+ * Si sceglie guardando il fondo del tema in vigore, come [accentInk].
  */
 @Composable
 fun hairline(): Color =
@@ -245,24 +189,13 @@ private val HAIRLINE_DARK = Color(0xFF636C69)
 /**
  * Il fondo del palco dell'editor: il grigio su cui galleggia l'immagine da ritagliare.
  *
- * ⚠️⚠️ **NON È IL FONDO DELLA PAGINA, e la ragione è di lavoro e non di gusto** (istruzione
- * dell'utente, 2026-09-04: *il bianco non va bene comunque, perché se si ha a che fare con
- * numerosi screenshot (che hanno molto bianco) non si capisce a colpo d'occhio dove
- * finiscono*). Il palco è la sola superficie dell'app su cui appoggia un'immagine di cui non
- * si sa niente: un fondo quasi bianco confina con una schermata bianca senza che si veda il
- * confine, cioè non si sa più dove finisce il file e dove comincia l'app.
- * ⚠️ **I due numeri sono suoi**, un grigio al 40% sul chiaro e al 70% sullo scuro, letti come
- * quantità di nero. **Misure**: sul chiaro `#999999` stacca **2,53** dalla scheda dei comandi
- * e **2,85** dal bianco puro, dove il quasi-bianco di prima stava a **1,09** e **1,03**, cioè
- * non staccava affatto.
- * ⚠️⚠️ **SULLO SCURO IL GUADAGNO CONTRO LA SCHEDA È PICCOLO, e va detto invece di lasciarlo
- * scoprire**: `#4D4D4D` stacca **1,58** dalla scheda contro l'**1,31** di prima, perché la
- * scheda scura è anche lei un grigio. Contro un'immagine bianca invece stacca **8,45**, che è
- * il problema che questo colore deve risolvere. Chi volesse più stacco dalla scheda sullo
- * scuro deve **schiarire** questo grigio, non scurirlo.
- * ⚠️ **È un grigio NEUTRO e non tinto come gli altri neutri dell'app**: dietro un'immagine una
- * tinta si somma ai suoi colori e li fa leggere sbagliati. È la stessa ragione per cui il
- * fondo sotto la lente è nero pieno.
+ * ⚠️ **Non è il fondo della pagina** (istruzione dell'utente): su un fondo quasi bianco una
+ * schermata bianca non mostra dove finisce. I due grigi sono suoi, al 40% di nero sul chiaro e
+ * al 70% sullo scuro: `#999999` stacca 2,53 dalla scheda dei comandi e 2,85 dal bianco puro;
+ * `#4D4D4D` stacca solo 1,58 dalla scheda scura, che è anche lei grigia, ma 8,45 da un'immagine
+ * bianca, che è il caso da risolvere. Per più stacco dalla scheda si schiarisce, non si scurisce.
+ * ⚠️ **È un grigio neutro**: dietro un'immagine una tinta si somma ai suoi colori e li falsa.
+ * Per la stessa ragione il fondo sotto la lente è nero pieno.
  */
 @Composable
 fun stageBack(): Color =
@@ -274,46 +207,31 @@ private val STAGE_BACK_DARK = Color(0xFF4D4D4D)
 /**
  * Il colore delle maniglie del ritaglio nell'editor: l'accento dell'app.
  *
- * ⚠️⚠️ **UGUALE NEI DUE TEMI, e non è una dimenticanza**: a differenza di [accentInk] e di
- * [hairline], qui la domanda 'su che cosa sto disegnando' ha una risposta che **non dipende
- * dal tema**, perché sotto le maniglie non c'è il fondo dell'app ma l'immagine velata, cioè
- * un colore qualunque scurito del 55%. Un accento scuro per il tema scuro sparirebbe proprio
- * là ([ACCENT_DARK] misura 1,20 sul velo di un'immagine bianca).
- * ⚠️ **Da solo non basta, e la misura lo dice**: 1,88 su quel velo, cioè sotto il 3:1. È la
- * ragione per cui la maniglia porta anche un filo bianco intorno, e il perché per esteso sta
- * su `bracket` in `EditorScreen.kt`, dove il disegno vive.
+ * ⚠️ **Uguale nei due temi**: sotto le maniglie non c'è il fondo dell'app ma l'immagine scurita
+ * del 55%, e [ACCENT_DARK] sparirebbe (1,20 sopra un'immagine bianca scurita).
+ * Da solo misura 1,88, sotto il 3:1: per questo la maniglia ha anche un filo bianco intorno
+ * (vedi `bracket` in `EditorScreen.kt`).
  */
 val CROP_GRIP = ACCENT_LIGHT
 
 /**
  * La stondatura di un riquadro dentro una finestra: un campo da riempire o una pastiglia.
  *
- * ⚠️⚠️ **STA QUI PERCHÉ PRIMA NON STAVA DA NESSUNA PARTE, ed è la ragione per cui i riquadri
- * di una stessa finestra divergevano** (riscontro della `1.45` sulla rinomina: *le stondature
- * devono essere tutte uguali*). Le pastiglie la prendevano da `shapes.small`, cioè 8, e i
- * campi da Material, che per un campo contornato usa `shapes.extraSmall`, cioè 4: nessuno dei
- * due numeri era scritto nel file che li disegnava, quindi non c'era un posto in cui
- * accorgersi che erano due.
- * ⚠️ **Vince la misura delle pastiglie e non quella dei campi**: è la direzione che indica il
- * riscontro (*il primo riquadro, solo contorno, è troppo poco arrotondato*), ed è la
- * stondatura che le pastiglie hanno già, quindi cambia solo ciò che è stato segnalato.
- * ⚠️ **Non è una regola generale dell'app** ma la forma dei riquadri delle finestre, ed è
- * quello che il riscontro chiedeva: *non regola generale, ma almeno in questo contesto*.
+ * Un valore solo perché i riquadri di una stessa finestra abbiano la stessa stondatura (riscontro
+ * dell'utente sulla rinomina): Material darebbe 4 a un campo contornato (`shapes.extraSmall`) e 8
+ * a una pastiglia (`shapes.small`). Vale la misura delle pastiglie. Non è una regola generale
+ * dell'app: è la forma dei riquadri delle finestre.
  */
 val BOX_SHAPE = RoundedCornerShape(8.dp)
 
 /**
  * Lo spessore del filo di un riquadro.
  *
- * ⚠️ **È quello che Material disegna intorno a un campo a riposo**, quindi i riquadri scritti
- * in casa e i campi portano la stessa linea senza che nessuno debba pareggiarli.
- * ⚠️⚠️ **UN CAMPO COL FUOCO DENTRO SALE A 2, E QUESTO NUMERO NON LO GOVERNA**: quel valore
- * vive in `OutlinedTextFieldDefaults.FocusedBorderThickness` e nessuna firma di
- * `OutlinedTextField` lo espone al chiamante. Per pareggiare anche quello bisognerebbe
- * smettere di usare quel componente e ricostruirlo con `BasicTextField` più la sua
- * `DecorationBox`, che gli spessori li prende come parametri: una trentina di righe per
- * campo. È dichiarato invece che nascosto, perché è l'unico caso in cui i quattro riquadri
- * non portano la stessa linea.
+ * È quello che Material disegna intorno a un campo a riposo, quindi i riquadri dell'app e i
+ * campi hanno la stessa linea.
+ * ⚠️ **Un campo col cursore dentro sale a 2, e questo numero non lo governa**: il valore è in
+ * `OutlinedTextFieldDefaults.FocusedBorderThickness`, che `OutlinedTextField` non espone. Per
+ * pareggiarlo servirebbe ricostruire il campo con `BasicTextField` e la sua `DecorationBox`.
  */
 val BOX_EDGE = 1.dp
 
@@ -321,20 +239,11 @@ val BOX_EDGE = 1.dp
  * Il separatore sfumato dell'app: un filo di `outlineVariant` pieno a metà e sfumato in linea
  * retta fino ai due capi.
  *
- * ⚠️⚠️ **È UNO SOLO DALLA `2.92`, ED È LA SUA NOTA SU `d-filo-uno`** (giro della `2.91`, senza
- * casella: *tutti e due come quello dell'editor*). Fino alla `2.91` erano due: quello del
- * Ritaglio, nato con la `2.80`, e quello che la `2.91` aveva preso dal suo mockup della rinomina,
- * più tenue e pieno nella metà di mezzo. La domanda offriva di portare il Ritaglio sul filo della
- * rinomina o di lasciarli diversi, e lui ha scelto la terza strada, cioè il rovescio della prima:
- * resta la forma del Ritaglio, e la rinomina la prende.
- * ⚠️ **Il pezzo è uno e lo chiamano in due** (`CropRule` nell'editor completo e l'anteprima di
- * `RenameDialog`): due copie dello stesso disegno divergono al primo ritocco. **L'aria intorno
- * resta del chiamante**, perché le due finestre la vogliono diversa.
- * ⚠️ **Lo spessore è [BOX_EDGE]**, cioè il filo di un riquadro: un numero nuovo per un filo che
- * somiglia a quello sarebbe un secondo modo di dire la stessa cosa.
- * ⚠️ **Sfuma ai due capi e non arriva ai bordi**: una linea piena da bordo a bordo dividerebbe
- * la superficie in due, mentre quello che serve è uno stacco, cioè un segno che c'è in mezzo e
- * non si sa dove finisce.
+ * È uno solo per tutta l'app (nota dell'utente su `d-filo-uno`): lo usano `CropRule` nell'editor
+ * completo e l'anteprima di `RenameDialog`, e l'aria intorno resta del chiamante. Lo spessore è
+ * [BOX_EDGE], il filo di un riquadro.
+ * Sfuma ai due capi: una linea piena da bordo a bordo dividerebbe la superficie in due, mentre
+ * serve uno stacco.
  */
 @Composable
 fun FadedRule(modifier: Modifier = Modifier) {
@@ -356,10 +265,8 @@ fun FadedRule(modifier: Modifier = Modifier) {
 /**
  * Se questo colore è chiaro, cioè se sopra ci si scrive in scuro.
  *
- * ⚠️ **Non è più privato dalla 1.38**: la stessa domanda se la fa il velo delle finestre
- * (`WindowVeil`), che deve sapere di che tema è vestita l'app **in quel momento** e non che
- * cosa dice il sistema. Due luminanze scritte in due file divergerebbero al primo ritocco
- * della formula.
+ * Pubblico perché la stessa domanda se la fa la Sfocatura dietro i pannelli, che deve sapere di
+ * che tema è vestita l'app in quel momento: la formula della luminanza resta in un posto solo.
  */
 fun Color.isLight(): Boolean = (0.2126f * red + 0.7152f * green + 0.0722f * blue) > 0.5f
 
@@ -367,25 +274,17 @@ fun Color.isLight(): Boolean = (0.2126f * red + 0.7152f * green + 0.0722f * blue
  * Quanto resta visibile un comando **spento**: il valore con cui Material segna il contenuto
  * inattivo.
  *
- * ⚠️⚠️ **NASCE PERCHÉ ERA SCRITTO QUATTRO VOLTE CON QUATTRO NOMI** (`OFF_INK`, `SIDE_OFF`,
- * `QUIET_OFF`, `RESET_OFF`, censimento della UI del 2026-09-05), e la prova più forte a favore
- * dell'accorpamento veniva dal codice stesso: tre dei quattro KDoc dichiaravano che il numero è
- * quello di Material, e il quarto dichiarava di **dover essere uguale** al primo. Un vincolo
- * scritto e affidato a chi legge è la definizione del difetto.
- * - ⚠️ **Il conto di quanti sono non si scrive qui**: si contano i chiamanti. Quello che conta è
- *   che il numero viva in un posto solo, e questo è il posto in cui vivono i valori del tema.
- * - ⚠️ **A un `Text` nudo nessuno lo applica**, che è la ragione per cui esiste come costante e
- *   non come colore già sbiadito: i componenti di Material lo mettono da sé, un testo o un
- *   glifo scritti a mano no.
+ * Un valore solo per tutta l'app, accanto agli altri valori del tema. Esiste come costante perché
+ * i componenti di Material lo applicano da sé, mentre un `Text` o un glifo scritti a mano no.
  */
 const val OFF_INK = 0.38f
 
 /**
  * Se l'app va vestita di scuro, secondo la scelta dell'utente.
  *
- * ⚠️ Sta qui e non in `AivTheme` perché la scelta arriva **prima** del tema, dal
- * salvataggio: chi la legge deve poterla tradurre in un `Boolean` da passare al tema, e
- * quella traduzione ha bisogno di `isSystemInDarkTheme()`, che è componibile.
+ * La scelta arriva dall'archivio prima del tema: chi la legge la traduce qui nel `Boolean` da
+ * passare ad [AivTheme], e per la scelta 'di sistema' serve `isSystemInDarkTheme()`, che è
+ * composabile.
  */
 @Composable
 fun UiTheme.isDark(): Boolean = when (this) {
@@ -394,83 +293,54 @@ fun UiTheme.isDark(): Boolean = when (this) {
     UiTheme.DARK -> true
 }
 
-/**
- * ⚠️ **Il parametro `darkTheme` NON è più solo il sistema, dalla 0.45**: chi chiama gli
- * passa la scelta dell'utente già risolta (vedi [isDark]). Il valore di serie resta il
- * sistema, così un'anteprima o una chiamata senza impostazioni si comporta come prima.
- * ⚠️⚠️ **Quello che il tema NON può governare è il primo fotogramma**: lo sfondo della
- * finestra lo dipinge il sistema prima che Compose esista, e lo prende da
- * `window_background`, che ha una sola versione chiara e una scura scelte dal **tema del
- * dispositivo**. Chi forza il chiaro su un telefono scuro vedrà quindi un lampo scuro
- * all'apertura. Non è rimediabile da qui, e per rimediarlo servirebbe leggere la scelta
- * prima di `setContentView`, cioè fuori da Compose: dichiarato invece di nascosto.
- */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 /**
- * Se l'app in questo momento è vestita di **chiaro**.
+ * Se l'app in questo momento è vestita di chiaro.
  *
- * ⚠️⚠️ **SERVE AL VELO DELLE FINESTRE, e non si poteva ricavare da `MaterialTheme`**: il velo
- * si applica da un **nodo di modificatore** (vedi `Modifier.veiled`), e un nodo legge solo i
- * `CompositionLocal` pubblici, mentre la tavolozza di Material vive dietro uno interno alla
- * libreria. Questo è nostro, quindi si legge da dove serve.
- * ⚠️ **Dice il tema IN VIGORE e non quello di sistema**: chi ha forzato il chiaro con l'app
- * di sistema in scuro deve avere il velo del chiaro. Per questo lo fornisce [AivTheme], che è
- * il posto in cui quella scelta è già stata fatta.
- * ⚠️ **Arriva anche dentro i dialoghi**: un `Dialog` eredita i `CompositionLocal` da dove è
- * scritto, non dalla finestra in cui finisce.
+ * ⚠️ **Serve a chi disegna da un nodo di modificatore** (la Sfocatura dietro i pannelli,
+ * `Modifier.veiled`): un nodo legge solo i `CompositionLocal` pubblici, e la tavolozza di Material
+ * è dietro uno interno alla libreria.
+ * Dice il tema in vigore, non quello di sistema, e per questo lo fornisce [AivTheme]. Arriva anche
+ * dentro le finestre di dialogo: un `Dialog` eredita i `CompositionLocal` dal punto in cui è
+ * scritto.
  */
 val LocalAivLight = staticCompositionLocalOf { true }
 
 /**
- * L'accento del tema in vigore, per chi lo deve leggere **da un nodo**.
+ * L'accento del tema chiesto, per chi non lo può leggere dalla tavolozza in vigore.
  *
- * ⚠️ **Esiste per la stessa ragione di [LocalAivLight], e insieme a lui**: il bordo d'accento
- * (`Modifier.edged`) si disegna da un nodo di modificatore, dove la tavolozza di Material non
- * si raggiunge. Qui non c'è nessun colore nuovo: sono le due costanti che la tavolozza già usa
- * per `primary`, quindi il bordo e il FAB non possono divergere.
+ * La pillola, per esempio, vuole quello del tema opposto, che la tavolozza non contiene. Sono le
+ * due costanti che la tavolozza usa per `primary`, quindi quei colori e il FAB non possono
+ * divergere.
  */
 fun aivAccent(light: Boolean): Color = if (light) ACCENT_LIGHT else ACCENT_DARK
 
 /**
- * L'inchiostro che sta **sopra** l'accento, per il tema chiesto.
+ * L'inchiostro sopra l'accento, per il tema chiesto.
  *
- * ⚠️⚠️ **VA INSIEME A [aivAccent] E NON SI PUÒ SCEGLIERE A PARTE**: dalla `1.68` il FAB premuto
- * prende l'accento dell'altro tema, e con quello deve prendere anche il suo inchiostro. Le due
- * coppie sono quelle della tavolozza (`primaryContainer` e `onPrimaryContainer`), quindi qui non
- * nasce nessun colore nuovo.
- * ⚠️ **Il perché è una misura**: l'inchiostro del tema chiaro (`#00382F`) sull'accento scuro
- * (`#00727B`) dà un contrasto di 2,05, cioè illeggibile. Chi prendesse l'accento dell'altro tema
- * tenendo l'inchiostro di questo si troverebbe un glifo che sparisce, e non darebbe nessun
- * errore.
+ * ⚠️ **Va insieme ad [aivAccent], mai scelto a parte**: il FAB premuto prende l'accento
+ * dell'altro tema, e con lui il suo inchiostro. L'inchiostro chiaro (`#00382F`) sull'accento
+ * scuro (`#00727B`) misura 2,05, cioè illeggibile, senza nessun errore. Le coppie sono quelle della
+ * tavolozza (`primaryContainer` e `onPrimaryContainer`).
  */
 fun aivOnAccent(light: Boolean): Color = if (light) ON_ACCENT_LIGHT else Color.White
 
 /**
  * Il fondo dell'app per il tema chiesto.
  *
- * ⚠️⚠️ **ESISTE PER CHI VUOLE IL FONDO DELL'ALTRO TEMA, ed è la `1.95`**: i due tasti dello
- * scorrimento hanno il fondo scuro sul tema chiaro e chiaro sul tema scuro (istruzione
- * dell'utente), quindi uno dei due colori non è quello della tavolozza in vigore e da
- * `MaterialTheme` non si raggiunge. ⚠️ **Non nasce nessun colore nuovo**: sono le due costanti
- * che le tavolozze usano per `background`, come [aivAccent] fa con `primary`.
+ * Serve a chi vuole il fondo dell'altro tema, che da `MaterialTheme` non si raggiunge: i due
+ * tasti dello scorrimento hanno il fondo scuro sul tema chiaro e chiaro sullo scuro (istruzione
+ * dell'utente). Sono le due costanti che le tavolozze usano per `background`.
  */
 fun aivGround(light: Boolean): Color = if (light) LIGHT_BACK else DARK_BACK
 
 /**
- * La coppia dell'**icona dell'app** (fondo e glifo) per il tema chiesto.
+ * La coppia dell'icona dell'app (fondo e glifo) per il tema chiesto.
  *
- * ⚠️⚠️ **NASCE NELLA `1.86` DA UN DIFETTO CHE LUI HA VISTO** (riscontro del giro della `1.85`,
- * campo libero punto A: *l'icona della testata della schermata home non passa più ai colori del
- * tema scuro quando si passa al tema scuro; nemmeno il FAB lo fa*). La causa è una sola e non
- * si vede leggendo il codice: `colorResource` legge la configurazione **di sistema**, mentre il
- * tema dell'app è una **sua impostazione**. Chi tiene Android in chiaro e sceglie il tema scuro
- * dentro AIV continua a ricevere `values/colors.xml`, cioè la coppia chiara, dentro un'app scura.
- * ⚠️⚠️ **LE RISORSE RESTANO LA FONTE, e non si copiano quattro numeri qui**: quello che cambia
- * è **con che configurazione** si leggono. Un contesto con `uiMode` forzato dà la variante
- * giusta, quindi il giorno che l'utente ritocca la coppia dell'icona il FAB la segue ancora
- * per costruzione, che era la ragione scritta in `FolderScreen.kt` e resta valida.
- * ⚠️ **Il conto si fa una volta per tema**, e non a ogni ricomposizione: creare un contesto
- * costa, e i due valori possibili sono due.
+ * ⚠️ **`colorResource` legge la configurazione di sistema**, mentre il tema dell'app è una sua
+ * impostazione (`Rules.md` § '🌗 Il tema scelto DENTRO l'app non è quello di sistema'). Le
+ * risorse restano la fonte: si leggono da un contesto con `uiMode` forzato, così il FAB segue
+ * l'icona anche se la coppia cambia. Il contesto si crea una volta per tema.
  */
 @Composable
 fun aivLauncher(light: Boolean): Pair<Color, Color> {
@@ -487,11 +357,11 @@ fun aivLauncher(light: Boolean): Pair<Color, Color> {
 }
 
 /**
- * The palette of one theme for a piece of a screen, inside an app that may be in the other one.
+ * La tavolozza di un tema per un pezzo di schermata, dentro un'app che può essere nell'altro.
  *
- * ⚠️⚠️ **Born in 4.03 for the info shown with the image** (the user's note on the 4.02 round: with
- * 'Tema dello sfondo' on `Scuro` the info must sit on a dark background too). Only the palette and
- * [LocalAivLight] change: typography, shapes and motion are the app's, inherited.
+ * Serve alle informazioni mostrate con l'immagine: con 'Tema dello sfondo' su `Scuro` anche loro
+ * vanno su un fondo scuro (nota dell'utente). Cambiano solo la tavolozza e [LocalAivLight]:
+ * caratteri, forme e movimento sono quelli dell'app.
  */
 @Composable
 fun AivPalette(light: Boolean, content: @Composable () -> Unit) {
@@ -500,7 +370,7 @@ fun AivPalette(light: Boolean, content: @Composable () -> Unit) {
     }
 }
 
-/** Reports every press to [OutsideTouch], in the first pass and without consuming it. */
+/** Segnala ogni pressione a [OutsideTouch], nel primo passaggio e senza consumarla. */
 private fun Modifier.watchPresses(): Modifier = pointerInput(Unit) {
     awaitPointerEventScope {
         while (true) {
@@ -510,66 +380,59 @@ private fun Modifier.watchPresses(): Modifier = pointerInput(Unit) {
     }
 }
 
+/**
+ * Il tema dell'app.
+ *
+ * Il parametro `darkTheme` riceve la scelta dell'utente già risolta (vedi [isDark]); il valore di
+ * serie è il sistema, per un'anteprima o una chiamata senza impostazioni.
+ * ⚠️ **Il primo fotogramma il tema non lo governa**: lo sfondo della finestra lo dipinge il
+ * sistema prima che Compose esista, da `window_background`, scelto dal tema del dispositivo. Chi
+ * forza il chiaro su un telefono scuro vede un lampo scuro all'apertura; per evitarlo bisognerebbe
+ * leggere la scelta prima di `setContentView`, fuori da Compose.
+ */
 @Composable
 fun AivTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
     val scheme = if (darkTheme) DarkScheme else LightScheme
-    // ⚠️ Il tema in vigore, dichiarato per chi non può leggere la tavolozza di Material. Il
-    // perché sta su [LocalAivLight].
+    // Il tema in vigore, per chi non può leggere la tavolozza di Material (vedi [LocalAivLight]).
     CompositionLocalProvider(LocalAivLight provides !darkTheme) {
         MaterialExpressiveTheme(
             colorScheme = scheme,
             motionScheme = MotionScheme.expressive()
         ) {
-            // ⚠️⚠️ QUESTA `Surface` NON È DECORAZIONE, ED È LA SOLA COSA CHE DÀ UN
-            // COLORE AL TESTO. Il tema porta la tavolozza ma NON tocca
-            // `LocalContentColor`: quello lo imposta `Surface`, e senza di lei resta
-            // al suo default, che è il NERO FISSO. Quindi ogni `Text` e ogni `Icon`
-            // senza colore dichiarato usciva nero: in tema chiaro non si vede, in
-            // tema scuro il testo spariva nel fondo. Segnalato dall'utente sul nome
-            // dell'app nella schermata iniziale, ma il difetto era di tutta l'app, e
-            // per questo il rimedio sta QUI e non su quella riga: rimediare al punto
-            // dove si è visto avrebbe lasciato gli altri, uno per volta.
-            // ⚠️ Sotto al visualizzatore non si vede, e va bene così: quello dipinge
-            // già il proprio fondo a tutta schermata, quindi questa gli sta dietro
-            // senza cambiargli niente.
+            // ⚠️ Questa `Surface` è la sola cosa che dà un colore al testo: il tema non tocca
+            // `LocalContentColor`, che senza di lei resta nero fisso, e ogni `Text` e `Icon`
+            // senza colore dichiarato sparirebbe nel tema scuro. Il rimedio è qui, per tutta
+            // l'app. Il visualizzatore dipinge il proprio fondo sopra, quindi non cambia.
             Surface(modifier = Modifier.fillMaxSize(), color = scheme.background) {
                 /*
-                 * ⚠️⚠️ **IL VELO DELLE SUPERFICI CHE SI APRONO SI DIPINGE QUI, DALLA `1.54`, ED
-                 * È UNO SOLO PER TUTTA L'APP** (riscontro dell'utente bocciato tre volte, voce
-                 * `flash-menu-dialogo`). Il perché sta su `VeilStage`: finché il velo era un
-                 * attributo delle finestre, passando da un menu a un dialogo si vedeva un lampo,
-                 * perché due finestre non cambiano il loro velo nello stesso fotogramma. Dipinto
-                 * qui, il velo non nasce e non muore durante la transizione: cambia solo la sua
-                 * opacità.
-                 * ⚠️ **Sta DENTRO la `Surface` e dopo il contenuto**: dentro per prendere il
-                 * colore del testo come tutto il resto, dopo perché in un `Box` l'ultimo figlio
-                 * sta sopra. Quello che deve restare sopra di lui è la superficie che si è
-                 * aperta, e quella vive in un'altra finestra.
+                 * ⚠️ **La Sfocatura dietro i pannelli si dipinge qui, una sola per tutta l'app**
+                 * (voce `flash-menu-dialogo`; il perché è su `VeilStage`): passando da un menu a
+                 * una finestra di dialogo cambia solo la sua opacità, senza il lampo di due
+                 * finestre che cambiano velo in fotogrammi diversi.
+                 * È dentro la `Surface`, per il colore del testo, e dopo il contenuto, perché in
+                 * un `Box` l'ultimo figlio è sopra. La superficie che si è aperta vive in
+                 * un'altra finestra, sopra di lei.
                  */
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        // ⚠️ Every press, for whoever listens (the open Start menu); never consumed.
-                        // Always in the tree since 4.33: why on [OutsideTouch].
+                        // Ogni pressione, per chi ascolta (il Menu 'Start' aperto), mai consumata:
+                        // sempre nell'albero, il perché è su [OutsideTouch].
                         .watchPresses()
                 ) {
                     content()
                     AppVeil(modifier = Modifier.matchParentSize())
                     /*
-                     * ⚠️⚠️ **DOPO IL VELO, quindi sopra a tutto**: mentre un menu è aperto,
-                     * questo impedisce al tocco di arrivare **anche** all'app, che da Android 12
-                     * è quello che succede (la finestra di un popup non è modale al tocco). Il
-                     * perché per esteso, col fatto misurato sul bytecode, sta in testa a
-                     * [MenuGuard]. ⚠️ Non dipinge niente, e a differenza del velo, che è una
-                     * funzione dietro un interruttore, questa è una correzione e vale sempre.
-                     * ⚠️⚠️ **A MENU CHIUSO NON È NELL'ALBERO**, e questa riga non è una
-                     * rifinitura: nella `1.70` il nodo c'era sempre e **bloccava l'intera app**,
-                     * perché la hit-test si ferma sul primo ramo che colpisce e la griglia sotto
-                     * non veniva più interpellata. Il perché, e perché non consumare non
-                     * bastava, stanno in testa a [MenuGuard].
+                     * ⚠️ **Dopo la sfocatura, quindi sopra tutto**: mentre un menu è aperto,
+                     * impedisce al tocco di arrivare anche all'app, perché da Android 12 la
+                     * finestra di un popup non è modale al tocco. Non dipinge niente e vale
+                     * sempre.
+                     * ⚠️ **A menu chiuso non è nell'albero**: un nodo sempre presente bloccherebbe
+                     * l'intera app, perché la ricerca del tocco si ferma sul primo ramo che
+                     * colpisce. Il perché per esteso è in testa a [MenuGuard].
                      */
                     MenuGuard(modifier = Modifier.matchParentSize())
                 }

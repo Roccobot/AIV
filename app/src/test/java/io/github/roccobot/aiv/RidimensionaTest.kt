@@ -3,12 +3,8 @@ package io.github.roccobot.aiv
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.net.Uri
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
@@ -20,7 +16,6 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.longClick
-import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -44,7 +39,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import java.io.File
 
 /**
  * Il banco di prova del **ridimensionamento al salvataggio**, nato nella `2.70`.
@@ -305,7 +299,7 @@ class RidimensionaTest {
     fun `un ridimensionamento che rimpicciolisce accende Salva`() {
         val acceso = mutableStateOf(false)
         banco.setContent { Scena(resizing = acceso.value) }
-        pronta()
+        banco.pronta()
         banco.onNodeWithText(testo(R.string.editor_save)).assertIsNotEnabled()
         acceso.value = true
         banco.waitForIdle()
@@ -325,7 +319,7 @@ class RidimensionaTest {
         banco.setContent {
             Scena(resizing = true, piano = Resize.Plan(Resize.Mode.LONG, LATO * 10))
         }
-        pronta()
+        banco.pronta()
         banco.onNodeWithText(testo(R.string.editor_save)).assertIsNotEnabled()
     }
 
@@ -352,7 +346,7 @@ class RidimensionaTest {
                 onResize = { scritto = it; chiamate++ }
             )
         }
-        pronta()
+        banco.pronta()
 
         // Spento: il tocco lo accende col piano che c'è.
         banco.onNodeWithContentDescription(testo(R.string.look_resize)).performClick()
@@ -396,7 +390,7 @@ class RidimensionaTest {
         banco.setContent {
             Scena(resizing = true, piano = Resize.Plan(Resize.Mode.SHARE, 25))
         }
-        pronta()
+        banco.pronta()
         banco.onNodeWithContentDescription(testo(R.string.look_resize))
             .performTouchInput { longClick() }
         banco.waitForIdle()
@@ -497,7 +491,7 @@ class RidimensionaTest {
     @Test
     fun `il libero scrive in due campi e un gettone ne chiude uno`() {
         banco.setContent { Scena(resizing = true, piano = Resize.NONE) }
-        pronta()
+        banco.pronta()
         banco.onNodeWithContentDescription(testo(R.string.look_resize))
             .performTouchInput { longClick() }
         banco.waitForIdle()
@@ -541,7 +535,7 @@ class RidimensionaTest {
     @Test
     fun `scrivendo in un campo l'altro segue`() {
         banco.setContent { Scena(resizing = true, piano = Resize.NONE) }
-        pronta()
+        banco.pronta()
         banco.onNodeWithContentDescription(testo(R.string.look_resize))
             .performTouchInput { longClick() }
         banco.waitForIdle()
@@ -563,7 +557,7 @@ class RidimensionaTest {
      * misura quello che resta, cioè che la riga sia i soli numeri col segno e l'unità.
      */
     @Test
-    fun `la misura di partenza è il solo numero`() {
+    fun `la misura di partenza resta il solo numero`() {
         assertEquals(
             "La riga sotto il titolo non è la sola misura",
             "1800 × 1200 px",
@@ -610,7 +604,7 @@ class RidimensionaTest {
                 onDefault = { scritto = it; salvato.value = it }
             )
         }
-        pronta()
+        banco.pronta()
         banco.onNodeWithContentDescription(testo(R.string.look_resize))
             .performTouchInput { longClick() }
         banco.waitForIdle()
@@ -651,7 +645,7 @@ class RidimensionaTest {
     @Test
     fun `il segno fra i campi scende sulle cifre`() {
         banco.setContent { Scena(resizing = true, piano = Resize.NONE) }
-        pronta()
+        banco.pronta()
         banco.onNodeWithContentDescription(testo(R.string.look_resize))
             .performTouchInput { longClick() }
         banco.waitForIdle()
@@ -688,7 +682,7 @@ class RidimensionaTest {
     @Config(qualifiers = "w600dp-h900dp")
     fun `i sei gettoni stanno tre e tre`() {
         banco.setContent { Scena(resizing = true, piano = Resize.NONE) }
-        pronta()
+        banco.pronta()
         banco.onNodeWithContentDescription(testo(R.string.look_resize))
             .performTouchInput { longClick() }
         banco.waitForIdle()
@@ -735,54 +729,15 @@ class RidimensionaTest {
         onDefault: (Resize.Plan) -> Unit = {}
     ) {
         AivTheme(darkTheme = false) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                AdvancedEditorScreen(
-                    uri = foglio(),
-                    busy = false,
-                    // ⚠️ Nessuna filigrana: quella accenderebbe 'Salva' da sola, e il caso suo
-                    // vive in `FiligranaTest`, dove vive anche il suo tasto in testata.
-                    marked = false,
-                    marking = false,
-                    hasMark = false,
-                    onMark = {},
-                    onMarkSetup = {},
-                    resize = piano,
-                    saved = salvato,
-                    resizing = resizing,
-                    onResize = onResize,
-                    onResizeDefault = onDefault,
-                    onSave = { _, _ -> },
-                    onBack = {}
-                )
-            }
+            Editore(
+                uri = quadrato(LATO),
+                resize = piano,
+                saved = salvato,
+                resizing = resizing,
+                onResize = onResize,
+                onResizeDefault = onDefault
+            )
         }
-    }
-
-    /** Aspetta che l'anteprima sia decodificata: prima i comandi sono spenti comunque. */
-    private fun pronta() {
-        banco.waitUntil(ATTESA) {
-            banco.onAllNodesWithContentDescription(testo(R.string.look_compare))
-                .fetchSemanticsNodes().isNotEmpty()
-        }
-        banco.waitForIdle()
-    }
-
-    /**
-     * Un foglio bianco su disco.
-     *
-     * ⚠️ **Un file vero e non uno stream registrato**: qui l'indirizzo si apre **due** volte, una
-     * per l'anteprima e una per il lato lungo, e uno stream registrato sullo shadow del resolver
-     * si consuma alla prima.
-     */
-    private fun foglio(): Uri {
-        val file = File(app.cacheDir, "ridimensiona.png")
-        if (!file.exists()) {
-            val mappa = Bitmap.createBitmap(LATO, LATO, Bitmap.Config.ARGB_8888)
-            mappa.eraseColor(Color.WHITE)
-            file.outputStream().use { mappa.compress(Bitmap.CompressFormat.PNG, 100, it) }
-            mappa.recycle()
-        }
-        return Uri.fromFile(file)
     }
 
     private fun testo(id: Int): String = app.getString(id)
@@ -792,6 +747,3 @@ class RidimensionaTest {
 
 /** Il lato del foglio su cui questo banco lavora. */
 private const val LATO = 240
-
-/** Quanto si aspetta che l'anteprima arrivi, come negli altri banchi dell'editor. */
-private const val ATTESA = 10_000L

@@ -11,7 +11,6 @@ import org.w3c.dom.Element
 import org.w3c.dom.Node
 import org.xml.sax.InputSource
 import java.io.ByteArrayInputStream
-import java.io.File
 import java.io.StringReader
 import java.io.StringWriter
 import java.util.zip.GZIPInputStream
@@ -26,46 +25,31 @@ import javax.xml.transform.stream.StreamResult
 /**
  * La pulizia di un SVG **dentro l'app**, senza rete e senza browser.
  *
- * ⚠️⚠️ **È LA VARIANTE B, scelta dall'utente fra tre** (2026-09-02, dopo l'analisi che gli era
- * stata presentata: *la mia raccomandazione: B, con l'interfaccia che dice la verità e il
- * collegamento a CleanSVG che resta per il lavoro completo*), e le altre due erano: **A**, una
- * WebView con la pagina CleanSVG e SVGO dentro l'APK, e **C**, come prima, cioè il solo
- * collegamento.
- * ⚠️⚠️ **QUINDI QUESTA NON RISCRIVE I TRACCIATI, e l'interfaccia lo dice invece di lasciarlo
- * capire**: quello lo fa SVGO, che è la libreria vera di CleanSVG, pesa 805.016 byte non
- * compressi e pubblica **una versione al mese**. Dentro l'APK sarebbe finita una copia
- * congelata di quella libreria e della pagina, da riallineare a mano a ogni rilascio: due
- * fonti di verità, che è la trappola che le nostre regole vietano da mesi.
- * ⚠️⚠️ **E SUI FILE DELL'UTENTE IL GRASSO NON SONO I TRACCIATI, ED È MISURATO**: nel suo
- * `imageCopyNew1.svg`, 90.964 byte, il **disegno** sta in 693 e il 99,2% è il manifest C2PA.
- * Il '99%' che CleanSVG promette lo porta la rifinitura, non SVGO, che aggiunge qualche punto
- * percentuale su quello che resta.
+ * Variante B, scelta dall'utente fra tre (le altre: una WebView con CleanSVG e SVGO dentro
+ * l'APK, o il solo collegamento a CleanSVG).
+ * ⚠️ **Non riscrive i tracciati, e l'interfaccia lo dice**: quello lo fa SVGO, che pubblica una
+ * versione al mese, e una sua copia nell'APK sarebbe una seconda fonte di verità da riallineare a
+ * mano. Sui file dell'utente il peso è nei metadati: in un SVG di 90.964 byte il disegno ne
+ * occupava 693, e il resto era il manifest C2PA.
  *
- * ⚠️⚠️ **IL CUORE È IL PORTO DI `rifinisci()` DELLA PAGINA, riga per riga** (vive in
- * `roccobot.github.io/CleanSVG/index.html`), e i due si devono poter confrontare: stessi 25
- * URI di namespace, stessi tre elementi, stesso ordine dei passi (commenti, elementi,
- * attributi, dichiarazioni `xmlns` rimaste appese), stesse sette famiglie del conto. Chi
- * cambia una delle due liste cambi anche l'altra, o i due strumenti cominciano a dare due
- * risultati diversi sullo stesso file.
+ * ⚠️⚠️ **È il porto di `rifinisci()` della pagina CleanSVG** (`CleanSVG/index.html`), e i due si
+ * devono poter confrontare: stessi 25 URI di namespace, stessi tre elementi, stesso ordine dei
+ * passi (commenti, elementi, attributi, dichiarazioni `xmlns` rimaste appese), stesse sette
+ * famiglie del conto. Chi cambia una delle due liste cambi anche l'altra.
  *
- * ⚠️⚠️ **UN SVG È INPUT NON FIDATO, e il parser va disarmato**: un file può dichiarare
- * un'entità esterna e farsi leggere un file del telefono o aprire una connessione (XXE). Qui
- * la lettura del DTD esterno e le entità esterne sono **spente** e la lavorazione è in modo
- * sicuro. ⚠️ **Il DOCTYPE interno resta ammesso** e non è una dimenticanza: i file vecchi di
- * Illustrator e Inkscape ne portano uno, e rifiutarli vorrebbe dire non pulire proprio quelli
- * che ne hanno più bisogno.
+ * ⚠️⚠️ **Un SVG è input non fidato, e il parser va disarmato**: un'entità esterna può far leggere
+ * un file del telefono o aprire una connessione (XXE); vedi [parse]. Il DOCTYPE interno resta
+ * ammesso, perché i file vecchi di Illustrator e Inkscape ne hanno uno.
  */
 object SvgClean {
 
     /**
      * Che cosa è stato tolto, per famiglia.
      *
-     * ⚠️ **Le sette famiglie sono quelle della pagina, e restano sette**: gli attributi degli
-     * editor si contano a parte dai gestori `on...` perché fusi in una voce sola un file di
-     * Inkscape senza una riga di codice dichiarava 'sei script', cioè un allarme al posto di
-     * un'informazione. La nota sta anche là, su `contoNuovo`.
-     * ⚠️ **`foreignObject` si conta fra gli script**, come nella pagina: è la porta con cui un
-     * SVG ospita HTML, quindi sta con quello che esegue e non coi metadati.
+     * Le sette famiglie della pagina. Gli attributi degli editor si contano a parte dai gestori
+     * `on...`: fusi, un file di Inkscape senza codice dichiarerebbe 'sei script' (la stessa nota
+     * è sulla pagina, su `contoNuovo`). `foreignObject` si conta fra gli script, come nella
+     * pagina: è la via con cui un SVG ospita HTML.
      */
     data class Count(
         var metadati: Int = 0,
@@ -92,15 +76,11 @@ object SvgClean {
     /**
      * Legge, ripulisce e **sovrascrive**, con la copia di prima nel cestino.
      *
-     * ⚠️⚠️ **NIENTE SOVRASCRITTURA SILENZIOSA, ed è la regola del backup dell'editor**: se
-     * l'interruttore è acceso (di fabbrica lo è) la versione di prima finisce nel cestino
-     * **prima** che l'originale venga toccato, e una copia che non riesce **ferma** la
-     * pulizia. Chi ha acceso quell'interruttore ha chiesto di non poter perdere l'originale.
-     * ⚠️ **Se non c'è niente da togliere non si scrive**: riscrivere un file identico gli
-     * cambierebbe la data e, con l'interruttore acceso, gli metterebbe una copia nel cestino
-     * per niente.
-     * ⚠️ **`NonCancellable` come le altre operazioni sui file**: a metà scrittura una
-     * cancellazione lascerebbe un SVG troncato dove prima c'era un disegno.
+     * ⚠️⚠️ **Niente sovrascrittura silenziosa**, come il backup dell'editor: con l'interruttore
+     * acceso (lo è di fabbrica) la versione di prima va nel cestino prima che l'originale sia
+     * toccato, e una copia che non riesce ferma la pulizia.
+     * Se non c'è niente da togliere non si scrive: cambierebbe la data e metterebbe una copia nel
+     * cestino senza ragione. `NonCancellable` come le altre operazioni sui file.
      */
     suspend fun clean(context: Context, uri: Uri, backup: Boolean): Result =
         withContext(Dispatchers.IO + NonCancellable) {
@@ -110,14 +90,11 @@ object SvgClean {
             val grezzo = runCatching { file.readBytes() }.getOrNull()
                 ?: return@withContext Result.Failed(R.string.clean_failed)
             /*
-             * ⚠️⚠️ **UN `.svgz` È UN SVG IN UN INVOLUCRO GZIP, e l'app li apre**: senza questo
-             * ramo la pulizia di uno di loro leggerebbe byte compressi come testo e
-             * risponderebbe 'non è un SVG leggibile', che è vero della lettura e falso del
-             * file. ⚠️ **Si riconosce dai due byte di firma e non dall'estensione**: un `.svg`
-             * servito gzippato esiste, e un `.svgz` con dentro testo in chiaro pure.
+             * ⚠️ **Un `.svgz` è un SVG in un involucro gzip**: senza questo ramo si leggerebbero
+             * byte compressi come testo. Si riconosce dai due byte di firma e non
+             * dall'estensione: esistono `.svg` gzippati e `.svgz` in chiaro.
              */
-            val zippato = grezzo.size >= 2 &&
-                grezzo[0] == 0x1F.toByte() && grezzo[1] == 0x8B.toByte()
+            val zippato = Signatures.gzip(grezzo)
             val testo = runCatching {
                 if (zippato) {
                     GZIPInputStream(ByteArrayInputStream(grezzo)).use { it.readBytes() }
@@ -135,11 +112,10 @@ object SvgClean {
             if (backup && Bin.keep(context, file) == null) {
                 return@withContext Result.Failed(R.string.edit_no_backup)
             }
-            // ⚠️ Rientra come è uscito: un `.svgz` ripulito e scritto in chiaro resterebbe un
-            // file col nome sbagliato, e chi lo apre altrove si aspetta il gzip.
-            // ⚠️ Con [AtomicWrite] (rilievo B36): scritto sul posto e interrotto, il documento
-            // dell'utente restava troncato. Il gzip si chiude qui, prima: [AtomicWrite] vuole
-            // il flusso aperto per il suo `sync`.
+            // ⚠️ Si riscrive nella forma in cui è stato letto: un `.svgz` in chiaro avrebbe il
+            // nome sbagliato. Con [AtomicWrite], perché un'interruzione non lasci il documento
+            // troncato; il gzip si chiude qui, prima, perché [AtomicWrite] vuole il flusso aperto
+            // per il suo `sync`.
             val scritto = AtomicWrite.write(file) { fuori ->
                 if (zippato) {
                     val zip = GZIPOutputStream(fuori)
@@ -150,8 +126,8 @@ object SvgClean {
                 }
             }
             if (!scritto) return@withContext Result.Failed(R.string.clean_failed)
-            // ⚠️ La scansione come dopo ogni scrittura dell'editor: senza, il MediaStore
-            // continua a dichiarare il peso di prima e la miniatura vecchia resta in cache.
+            // La scansione come dopo ogni scrittura dell'editor: senza, il MediaStore dichiara
+            // il peso di prima e la miniatura vecchia resta in cache.
             FileTree.scan(context, listOf(file.absolutePath))
             Result.Done(count, before, file.length())
         }
@@ -159,19 +135,18 @@ object SvgClean {
     /**
      * Il cuore: il documento ripulito, e [count] riempito con quello che è uscito.
      *
-     * ⚠️ **Separata da [clean] perché è PURA**: entra un testo, esce un testo, e si può
-     * provare senza un file, senza un contesto e senza un telefono.
+     * Separata da [clean] perché è pura: si prova senza file, contesto e telefono.
      */
     fun refine(testo: String, count: Count): String {
         val doc = parse(testo)
 
-        // I commenti, dovunque stiano, anche fuori dall'elemento radice.
+        // I commenti, dovunque siano, anche fuori dall'elemento radice.
         for (c in collect(doc) { it.nodeType == Node.COMMENT_NODE }) {
             count.commenti++
             c.parentNode?.removeChild(c)
         }
 
-        // Gli elementi: quelli di un namespace da buttare, più metadati, script e foreignObject.
+        // Gli elementi: quelli di un namespace da togliere, più metadati, script e foreignObject.
         val morituri = ArrayList<Pair<Element, String>>()
         for (n in doc.getElementsByTagName("*").list()) {
             val el = n as? Element ?: continue
@@ -192,8 +167,8 @@ object SvgClean {
             padre.removeChild(el)
         }
 
-        // Gli attributi: quelli di un namespace da buttare e i gestori `on...`, che in un file
-        // di disegno non hanno niente da fare.
+        // Gli attributi: quelli di un namespace da togliere e i gestori `on...`, che in un file
+        // di disegno non servono.
         for (n in doc.getElementsByTagName("*").list()) {
             val el = n as? Element ?: continue
             for (a in el.attributes.list()) {
@@ -211,10 +186,9 @@ object SvgClean {
         }
 
         /*
-         * ⚠️⚠️ **SI TOLGONO SOLO LE DICHIARAZIONI CHE NESSUNO USA PIÙ**: toglierne una ancora
-         * in uso spezzerebbe il documento, e un file che non si apre più è il danno peggiore
-         * che un pulitore possa fare. Il conto degli usi si rifà DOPO le due potature, perché
-         * è proprio quello che le rende inutili.
+         * ⚠️⚠️ **Si tolgono solo le dichiarazioni che nessuno usa più**: toglierne una in uso
+         * renderebbe il documento illeggibile. Il conto degli usi si rifà dopo le due potature,
+         * che sono quelle che le rendono inutili.
          */
         val usati = HashSet<String>()
         for (n in doc.getElementsByTagName("*").list()) {
@@ -234,10 +208,10 @@ object SvgClean {
     }
 
     /**
-     * Il parser, disarmato. Vedi la nota in testa: un SVG è input non fidato.
+     * Il parser, disarmato: un SVG è input non fidato.
      *
-     * ⚠️ **`isNamespaceAware` è indispensabile e non un'opzione**: senza, `namespaceURI` è
-     * `null` su tutto e questa pulizia, che lavora **per namespace**, non troverebbe niente.
+     * ⚠️ **`isNamespaceAware` è indispensabile**: senza, `namespaceURI` è `null` su tutto, e
+     * questa pulizia lavora per namespace.
      */
     private fun parse(testo: String): Document {
         val factory = DocumentBuilderFactory.newInstance().apply {
@@ -248,35 +222,23 @@ object SvgClean {
         }
         return factory.newDocumentBuilder().apply {
             /*
-             * ⚠️⚠️ **QUESTA È LA GARANZIA VERA, e le opzioni qui sopra sono un di più**: chi
-             * risolve un'entità esterna è il risolutore, e un risolutore che risponde 'vuoto'
-             * a tutti non può aprire né un file del telefono né una connessione. Non dipende
-             * da nessuna opzione, quindi vale su qualunque parser, anche su uno che le rifiuta
-             * tutte come quello di Android.
+             * ⚠️⚠️ **Questa è la garanzia vera, le opzioni sopra sono un di più**: un risolutore
+             * che risponde 'vuoto' a tutto non apre né un file del telefono né una connessione,
+             * su qualunque parser, anche quello di Android che rifiuta le opzioni.
              */
             setEntityResolver { _, _ -> InputSource(StringReader("")) }
         }.parse(ByteArrayInputStream(testo.toByteArray()))
     }
 
     /**
-     * Le tre opzioni di irrobustimento che si **provano**, perché non tutti i parser le hanno.
+     * Le tre opzioni di irrobustimento che si provano, perché non tutti i parser le hanno.
      *
-     * ⚠️⚠️ **SU ANDROID NESSUNA DI LORO ESISTE, E PRIMA ERANO OBBLIGATORIE: È IL DIFETTO CHE
-     * FACEVA RISPONDERE 'QUESTO FILE NON È UN SVG LEGGIBILE' A OGNI FILE** (riscontro
-     * `pulitore`, 2026-09-02: *risponde sempre 'Questo file non è un SVG leggibile'*).
-     * `DocumentBuilderFactoryImpl` di Android accetta **due soli** nomi di opzione,
-     * `http://xml.org/sax/features/namespaces` e `.../validation`, e su qualunque altro
-     * **dà** `ParserConfigurationException`: sta scritto nel sorgente AOSP di `libcore`
-     * (`luni/src/main/java/org/apache/harmony/xml/parsers/DocumentBuilderFactoryImpl.java`,
-     * il `throw` nel ramo `else` di `setFeature`), non ricordato. Quindi la prima riga del
-     * vecchio blocco andava in errore, `parse` non tornava mai, e il `runCatching` di [clean]
-     * traduceva tutto in 'non è un SVG'.
-     * ⚠️⚠️ **E NESSUNA PROVA SU MACCHINA LO AVREBBE PRESO**: sul JVM il parser è Xerces, che
-     * quelle opzioni le ha tutte, quindi lo stesso codice passa. Il difetto vive **solo** dove
-     * gira l'app, ed è la ragione per cui adesso la sicurezza non poggia più su di loro ma sul
-     * risolutore di entità, che è portabile.
-     * ⚠️ **Si provano lo stesso e non si cancellano**: dove esistono (un domani, o in una prova
-     * sul JVM) chiudono la porta un passo prima del risolutore, e non costano niente.
+     * ⚠️⚠️ **Su Android nessuna esiste**: `DocumentBuilderFactoryImpl` di `libcore` accetta solo
+     * `namespaces` e `validation`, e su qualunque altro nome va in errore con
+     * `ParserConfigurationException`. Rese obbligatorie, ogni file risulterebbe 'non leggibile'.
+     * Nessuna prova sul JVM lo vede, perché là il parser è Xerces e le ha tutte: per questo la
+     * sicurezza poggia sul risolutore di entità, che è portabile. Dove esistono, chiudono la porta
+     * un passo prima.
      */
     private val DISARMO = listOf(
         "http://xml.org/sax/features/external-general-entities",
@@ -285,9 +247,7 @@ object SvgClean {
     )
 
     /**
-     * Esegue [blocco] e **ingoia** il rifiuto di un parser che non conosce quell'opzione.
-     *
-     * ⚠️ **Ingoia solo questo**, e non un errore qualsiasi: un'opzione che manca è una
+     * Esegue [blocco] e ignora il rifiuto di un parser che non conosce quell'opzione: è una
      * differenza fra parser, non un guasto, e la sicurezza non dipende da lei (vedi [DISARMO]).
      */
     private inline fun optional(blocco: () -> Unit) {
@@ -297,17 +257,14 @@ object SvgClean {
     /**
      * Il documento come testo.
      *
-     * ⚠️ **Senza il prologo `<?xml ...?>`**, come fa `XMLSerializer` nella pagina: un SVG
-     * autonomo è valido anche senza, e riaggiungerlo qui farebbe due file diversi dallo stesso
-     * documento a seconda di dove lo si è pulito.
-     * ⚠️ **Niente `indent`**: rientrare un documento pulito lo farebbe **crescere**, ed è
-     * l'opposto di quello che questo comando promette.
+     * Senza il prologo `<?xml ...?>`, come `XMLSerializer` nella pagina: con, lo stesso documento
+     * darebbe due file diversi secondo dove lo si è pulito. Niente `indent`, che farebbe crescere
+     * il file.
      */
     private fun serialize(doc: Document): String {
         val writer = StringWriter()
         TransformerFactory.newInstance().apply {
-            // ⚠️ `optional` per la stessa ragione del parser: un'opzione che una piattaforma
-            // non conosce non deve far fallire la scrittura. Vedi [DISARMO].
+            // `optional` come nel parser: un'opzione sconosciuta non fa fallire la scrittura.
             optional { setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true) }
         }.newTransformer().apply {
             setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes")
@@ -319,9 +276,8 @@ object SvgClean {
     /**
      * I nodi che soddisfano [ok], raccolti **prima** di toccarli.
      *
-     * ⚠️ **La lista si fa e poi si pota**: le raccolte del DOM sono vive, quindi togliere un
-     * nodo mentre le si scorre salta il successivo. È lo stesso motivo per cui la pagina
-     * raccoglie i commenti in un array prima di rimuoverli.
+     * ⚠️ **Prima si raccoglie, poi si pota**: le raccolte del DOM sono vive, e togliere un nodo
+     * mentre le si scorre salta il successivo. La pagina fa lo stesso.
      */
     private fun collect(radice: Node, ok: (Node) -> Boolean): List<Node> {
         val fuori = ArrayList<Node>()
@@ -347,10 +303,9 @@ object SvgClean {
     /**
      * I 25 namespace degli editor, copiati dalla pagina.
      *
-     * ⚠️⚠️ **QUI DENTRO C'È ANCHE LA PROVENIENZA C2PA**, negli URI `ns.adobe.com/xap`: è XMP,
-     * cioè il posto in cui una fotocamera o Photoshop scrivono chi ha fatto che cosa. Toglierla
-     * **è una perdita**, non solo un alleggerimento, e per questo l'interfaccia lo dice invece
-     * di nasconderlo in un conto di byte.
+     * ⚠️ **Contiene anche la provenienza C2PA**, negli URI `ns.adobe.com/xap` (XMP, dove una
+     * fotocamera o Photoshop scrivono chi ha fatto che cosa): toglierla è una perdita, e
+     * l'interfaccia lo dice.
      */
     private val NS_DA_TOGLIERE = setOf(
         "http://sodipodi.sourceforge.net/dtd/sodipodi-0.0.dtd",
@@ -383,10 +338,8 @@ object SvgClean {
     /**
      * I tre elementi che escono anche se sono SVG di pieno diritto.
      *
-     * ⚠️ **`title` e `desc` NON sono qui, e non è una dimenticanza**: sono **accessibilità**,
-     * non scarto, e la pagina li tiene per la stessa ragione. Lo stesso vale per `viewBox`, che
-     * nessuno tocca: un SVG senza viewBox smette di ridimensionarsi, cioè il modo più facile
-     * di rovinare un file credendo di alleggerirlo.
+     * ⚠️ **`title` e `desc` restano**: sono accessibilità, e la pagina li tiene. Anche `viewBox`
+     * non si tocca: senza, un SVG smette di ridimensionarsi.
      */
     private val ELEMENTI_DA_TOGLIERE = setOf("metadata", "script", "foreignobject")
 

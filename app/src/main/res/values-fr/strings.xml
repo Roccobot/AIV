@@ -2,7 +2,6 @@
 <!-- fr. Tradotto da AIV: la fonte di verità resta values/strings.xml, e ogni chiave nuova va aggiunta anche qui. -->
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
-    <string name="app_short_name">AIV</string>
     <string name="no_image">Rien à afficher</string>
     <string name="open_failed">Ce fichier n\'a pas pu être ouvert</string>
     <string name="open_cleartext">Adresse non chiffrée (http) : Android la bloque, et elle ne répond pas en https</string>
@@ -21,11 +20,7 @@
     <string name="save_name_date">Date</string>
     <string name="menu_convert">Exporter et convertir</string>
     <string name="convert_format">Format</string>
-    <string name="convert_jpeg">JPEG</string>
-    <string name="convert_png">PNG</string>
-    <string name="convert_webp">WebP</string>
     <string name="convert_webp_lossless">WebP sans perte</string>
-    <string name="convert_quality">Qualité</string>
     <string name="convert_quality_at">Qualité\u0020\u0020\u0020%1$d%%</string>
     <string name="convert_percent">%1$d%%</string>
     <string name="convert_pixels">%1$d x %2$d</string>
@@ -35,7 +30,7 @@
     <string name="convert_elsewhere">Autres formats</string>
     <string name="convert_elsewhere_desc">Android ne sait écrire que les formats ci-dessus. Pour les autres, il y a ces services, qui s\'ouvrent dans le navigateur : l\'image se choisit là-bas, depuis la mémoire du téléphone.</string>
     <string name="convert_clean">Nettoyer</string>
-    <string name="convert_clean_why">Retire les en-têtes, les métadonnées, les commentaires, les scripts, le C2PA et les restes des éditeurs, c\'est-à-dire les données les plus lourdes (jusqu\'à 99% du fichier), qui servent rarement.</string>
+    <string name="convert_clean_why" formatted="false">Retire les en-têtes, les métadonnées, les commentaires, les scripts, le C2PA et les restes des éditeurs, c\'est-à-dire les données les plus lourdes (jusqu\'à 99% du fichier), qui servent rarement.</string>
     <string name="convert_clean_keeps">Le contenu de l\'image n\'est pas modifié (tracés, formes, lignes, dessins, textes…) : l\'illustration reste intacte à 100%.</string>
     <string name="convert_clean_c2pa">⚠️ ATTENTION : la provenance C2PA part aussi, c\'est-à-dire la partie qui dit qui a fait le fichier. Gardez une copie si vous en avez besoin.</string>
     <string name="clean_now">Nettoyer</string>
@@ -45,11 +40,8 @@
     <string name="clean_not_svg">Ce fichier n\'est pas un SVG lisible.</string>
     <string name="convert_open">Ouvrir</string>
     <string name="convert_export">Exporter</string>
-    <string name="convert_ezgif">EzGif</string>
     <string name="convert_ezgif_why">Convertit depuis et vers presque tout, GIF animés compris.</string>
-    <string name="convert_squoosh">Squoosh</string>
     <string name="convert_squoosh_why">De Google, fonctionne dans le navigateur : l\'image n\'est envoyée nulle part.</string>
-    <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">La plus longue liste de formats, AVIF et TIFF compris.</string>
     <string name="toast_image_copied">Image copiée</string>
     <string name="toast_name_copied">Nom du fichier copié</string>
@@ -106,7 +98,6 @@
     <string name="front_tint">Couleur de l\'en-tête</string>
     <string name="front_tint_none">Couleur par défaut</string>
     <string name="folder_cover">Choisir la couverture</string>
-    <string name="folder_cover_auto">Couverture par défaut</string>
     <string name="folder_cover_pick">Choisissez la couverture de \'%1$s\'</string>
     <string name="folder_cover_done">Couverture mise à jour</string>
     <string name="folder_cover_fail">Cette image ne peut pas servir de couverture</string>
@@ -165,7 +156,7 @@
     <string name="settings_info_position">Position</string>
     <string name="settings_zoom_menu">Zoom dans le menu de la visionneuse</string>
     <string name="settings_zoom_menu_desc">Ajoute \'Ajuster à la vue\' et \'100%\' au menu contextuel de la visionneuse.</string>
-    <string name="hint_zoom_tap">Zoom rapide: double tapez sur l\'image pour l\'ajuster à la vue, double tapez encore pour les pixels réels. Continuez pour alterner entre ajusté et 100%.</string>
+    <string name="hint_zoom_tap" formatted="false">Zoom rapide: double tapez sur l\'image pour l\'ajuster à la vue, double tapez encore pour les pixels réels. Continuez pour alterner entre ajusté et 100%.</string>
     <string name="hint_ext_warn">⚠️ Changer l\'extension d\'un fichier n\'équivaut pas à passer d\'un format à un autre : pour cela il y a \'Exporter et convertir\'.\n\n⚠️ Si tu donnes à une image ou à une vidéo une extension qui n\'appartient pas à un fichier multimédia, l\'élément disparaîtra des vues grille et liste.</string>
     <string name="settings_anim_counter">Compteur d\'images</string>
     <string name="settings_anim_counter_desc">Affiché dans la barre de commandes des images animées.</string>
@@ -185,9 +176,9 @@
     <string name="folders_permission_media">Lister les dossiers demande l\'accès aux images et aux vidéos.</string>
     <string name="folders_none">Aucun dossier ne contient quoi que ce soit à afficher.</string>
     <string name="folders_tablet_pick">Choisissez un dossier dans la barre de navigation</string>
-    <string name="folders_rail_search">Search in folders</string>
-    <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move the folder list</string>
+    <string name="folders_rail_search">Rechercher dans les dossiers</string>
+    <string name="folders_rail_search_in">Rechercher dans %1$s</string>
+    <string name="folders_rail_move">Déplacer la liste des dossiers</string>
     <string name="hub_open">Plus</string>
     <string name="hub_view_list">Vue en liste</string>
     <string name="hub_view_grid">Vue en grille</string>
@@ -211,7 +202,6 @@
     <string name="show_folder_desc">Le dossier réapparaît normalement parmi les dossiers en vue grille et en vue liste.</string>
     <string name="hide_folder_do">Masquer</string>
     <string name="settings_hidden">Dossiers masqués</string>
-    <string name="settings_hidden_desc">Un appui long sur un dossier le masque. Ceux-ci n\'apparaissent plus dans la liste, mais ils sont intacts sur le téléphone.</string>
     <string name="settings_hidden_show">Afficher</string>
     <string name="search_hint">Rechercher dans le nom du fichier</string>
     <string name="search_clear">Effacer</string>
@@ -279,8 +269,6 @@
     <string name="facts_duration">Durée</string>
     <string name="facts_colour_grey">Niveaux de gris</string>
     <string name="facts_colour_indexed">Couleurs indexées</string>
-    <string name="facts_colour_rgb">RGB</string>
-    <string name="facts_colour_rgba">RGBA</string>
     <string name="facts_colour_bits">%1$s %2$d bits</string>
     <string name="facts_colour_channel">%1$d bits/canal</string>
     <string name="facts_colour_alpha">avec transparence</string>
@@ -393,7 +381,6 @@
     <string name="settings_facts_down">Descendre</string>
     <string name="settings_group_look">Apparence</string>
     <string name="settings_group_viewer">Visionneuse</string>
-    <string name="settings_group_input">Commandes et indicateurs</string>
     <string name="settings_group_files">Gestion des fichiers</string>
     <string name="settings_group_browse">Fichiers et dossiers</string>
     <string name="settings_group_start">Démarrage</string>
@@ -416,11 +403,6 @@
     <string name="settings_thumbs_gen_title">Génération des miniatures</string>
     <string name="settings_thumbs_gen_done">Miniatures générées avec succès.</string>
     <string name="settings_hidden_none">Aucun dossier caché</string>
-    <plurals name="settings_hidden_count">
-        <item quantity="one">%1$d dossier</item>
-        <item quantity="many">%1$d dossiers</item>
-        <item quantity="other">%1$d dossiers</item>
-    </plurals>
     <plurals name="settings_facts_count">
         <item quantity="one">%1$d donnée affichée</item>
         <item quantity="many">%1$d données affichées</item>
@@ -499,7 +481,6 @@
     <string name="look_vibrance">Vibrance</string>
     <string name="look_filter">Filtre N&amp;B</string>
     <string name="look_bw">Noir et blanc</string>
-    <string name="look_mix">HSL</string>
     <string name="look_hue">Teinte</string>
     <string name="look_lum">Luminance</string>
     <string name="look_band_red">Rouge</string>
@@ -524,7 +505,6 @@
     <string name="look_grain_lift">Hautes lumières</string>
     <string name="look_vignette_feather">Contour progressif</string>
     <string name="look_tone">Courbe</string>
-    <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Courbe des tonalités</string>
     <string name="look_target">Ciblé</string>
     <string name="look_auto">Auto</string>
@@ -772,8 +752,8 @@
     <string name="folder_add">Ajouter un dossier</string>
     <string name="folder_authorize">Autoriser le dossier</string>
     <string name="folder_authorize_title">Ajouter aux dossiers affichés</string>
-    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
-    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_list_remove_title">Retirer vraiment ce dossier de la liste ?</string>
+    <string name="folder_list_remove_do">Retirer</string>
     <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">Retirer l\'autorisation</string>
     <string name="folder_remove_desc">Retirer ce dossier de la liste des dossiers autorisés ? Son contenu disparaîtra des modes grille et liste.</string>

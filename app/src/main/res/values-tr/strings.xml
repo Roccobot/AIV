@@ -2,7 +2,6 @@
 <!-- tr. Tradotto da AIV: la fonte di verità resta values/strings.xml, e ogni chiave nuova va aggiunta anche qui. -->
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
-    <string name="app_short_name">AIV</string>
     <string name="no_image">Gösterilecek bir şey yok</string>
     <string name="open_failed">Bu dosya açılamadı</string>
     <string name="open_cleartext">Şifresiz adres (http): Android bunu engelliyor ve https ile de yanıt vermiyor</string>
@@ -21,11 +20,7 @@
     <string name="save_name_date">Tarih</string>
     <string name="menu_convert">Dışa aktar ve dönüştür</string>
     <string name="convert_format">Biçim</string>
-    <string name="convert_jpeg">JPEG</string>
-    <string name="convert_png">PNG</string>
-    <string name="convert_webp">WebP</string>
     <string name="convert_webp_lossless">WebP kayıpsız</string>
-    <string name="convert_quality">Kalite</string>
     <string name="convert_quality_at">Kalite\u0020\u0020\u0020%1$d%%</string>
     <string name="convert_percent">%1$d%%</string>
     <string name="convert_pixels">%1$d x %2$d</string>
@@ -35,7 +30,7 @@
     <string name="convert_elsewhere">Diğer biçimler</string>
     <string name="convert_elsewhere_desc">Android yalnızca yukarıdaki biçimleri yazabilir. Diğerleri için tarayıcıda açılan şu hizmetler var: görüntü orada, telefonun belleğinden seçilir.</string>
     <string name="convert_clean">Temizle</string>
-    <string name="convert_clean_why">Başlıkları, üst verileri, yorumları, betikleri, C2PA\'yı ve düzenleyici artıklarını kaldırır; bunlar en ağır verilerdir (dosyanın 99%\'una kadar) ve nadiren gerekir.</string>
+    <string name="convert_clean_why" formatted="false">Başlıkları, üst verileri, yorumları, betikleri, C2PA\'yı ve düzenleyici artıklarını kaldırır; bunlar en ağır verilerdir (dosyanın 99%\'una kadar) ve nadiren gerekir.</string>
     <string name="convert_clean_keeps">Görüntünün içeriğini değiştirmez (yollar, şekiller, çizgiler, çizimler, metin…): çizim 100% olduğu gibi kalır.</string>
     <string name="convert_clean_c2pa">⚠️ DİKKAT: dosyayı kimin yaptığını söyleyen C2PA kaynak bilgisi de gider. Gerekiyorsa bir kopyasını sakla.</string>
     <string name="clean_now">Temizle</string>
@@ -45,11 +40,8 @@
     <string name="clean_not_svg">Bu dosya okunabilir bir SVG değil.</string>
     <string name="convert_open">Aç</string>
     <string name="convert_export">Dışa aktar</string>
-    <string name="convert_ezgif">EzGif</string>
     <string name="convert_ezgif_why">Hemen her şeyden ve her şeye dönüştürür, hareketli GIF\'ler dahil.</string>
-    <string name="convert_squoosh">Squoosh</string>
     <string name="convert_squoosh_why">Google\'ın, tarayıcıda çalışır: görüntü hiçbir yere yüklenmez.</string>
-    <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">En uzun biçim listesi, AVIF ve TIFF dahil.</string>
     <string name="toast_image_copied">Görsel kopyalandı</string>
     <string name="toast_name_copied">Dosya adı kopyalandı</string>
@@ -106,7 +98,6 @@
     <string name="front_tint">Başlık rengi</string>
     <string name="front_tint_none">Varsayılan renk</string>
     <string name="folder_cover">Kapağı seç</string>
-    <string name="folder_cover_auto">Varsayılan kapak</string>
     <string name="folder_cover_pick">\'%1$s\' klasörünün kapağını seç</string>
     <string name="folder_cover_done">Kapak güncellendi</string>
     <string name="folder_cover_fail">Bu görsel kapak olarak kullanılamaz</string>
@@ -165,7 +156,7 @@
     <string name="settings_info_position">Konum</string>
     <string name="settings_zoom_menu">Görüntüleyici menüsünde yakınlaştırma</string>
     <string name="settings_zoom_menu_desc">\'Görünüme sığdır\' ve \'100%\' ögelerini görüntüleyicinin bağlam menüsüne ekler.</string>
-    <string name="hint_zoom_tap">Hızlı yakınlaştırma: görüntüye iki kez dokunun, görünüme sığar; bir kez daha dokunun, gerçek pikselleri gösterir. Dokunmaya devam ederek sığdırılmış ile 100% arasında geçiş yapın.</string>
+    <string name="hint_zoom_tap" formatted="false">Hızlı yakınlaştırma: görüntüye iki kez dokunun, görünüme sığar; bir kez daha dokunun, gerçek pikselleri gösterir. Dokunmaya devam ederek sığdırılmış ile 100% arasında geçiş yapın.</string>
     <string name="hint_ext_warn">⚠️ Bir dosyanın uzantısını değiştirmek, biçimler arasında dönüştürmekle aynı şey değildir: onun için \'Dışa aktar ve dönüştür\' var.\n\n⚠️ Bir görüntüye veya videoya ortam dosyasına ait olmayan bir uzantı verirsen, öğe ızgara ve liste görünümlerinden kaybolur.</string>
     <string name="settings_anim_counter">Kare sayacı</string>
     <string name="settings_anim_counter_desc">Hareketli görüntülerin denetim çubuğunda görünür.</string>
@@ -185,9 +176,9 @@
     <string name="folders_permission_media">Klasörleri listelemek görsellere ve videolara erişim ister.</string>
     <string name="folders_none">Gösterilecek bir şey içeren klasör yok.</string>
     <string name="folders_tablet_pick">Gezinme çubuğundan bir klasör seçin</string>
-    <string name="folders_rail_search">Search in folders</string>
-    <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move the folder list</string>
+    <string name="folders_rail_search">Klasörlerde ara</string>
+    <string name="folders_rail_search_in">%1$s içinde ara</string>
+    <string name="folders_rail_move">Klasör listesini taşı</string>
     <string name="hub_open">Daha fazla</string>
     <string name="hub_view_list">Liste görünümü</string>
     <string name="hub_view_grid">Izgara görünümü</string>
@@ -211,7 +202,6 @@
     <string name="show_folder_desc">Klasör ızgara ve liste görünümünde klasörler arasında yeniden normal şekilde görünür.</string>
     <string name="hide_folder_do">Gizle</string>
     <string name="settings_hidden">Gizlenen klasörler</string>
-    <string name="settings_hidden_desc">Bir klasöre uzun basmak onu gizler. Bunlar listede görünmez ama telefonda oldukları gibi durur.</string>
     <string name="settings_hidden_show">Göster</string>
     <string name="search_hint">Dosya adında ara</string>
     <string name="search_clear">Temizle</string>
@@ -276,8 +266,6 @@
     <string name="facts_duration">Süre</string>
     <string name="facts_colour_grey">Gri tonlama</string>
     <string name="facts_colour_indexed">Dizinli renk</string>
-    <string name="facts_colour_rgb">RGB</string>
-    <string name="facts_colour_rgba">RGBA</string>
     <string name="facts_colour_bits">%1$s %2$d bit</string>
     <string name="facts_colour_channel">%1$d bit/kanal</string>
     <string name="facts_colour_alpha">saydamlıkla</string>
@@ -378,7 +366,6 @@
     <string name="settings_facts_down">Aşağı taşı</string>
     <string name="settings_group_look">Görünüm</string>
     <string name="settings_group_viewer">Görüntüleyici</string>
-    <string name="settings_group_input">Denetimler ve göstergeler</string>
     <string name="settings_group_files">Dosya yönetimi</string>
     <string name="settings_group_browse">Dosyalar ve klasörler</string>
     <string name="settings_group_start">Başlangıç</string>
@@ -401,10 +388,6 @@
     <string name="settings_thumbs_gen_title">Küçük resimler oluşturuluyor</string>
     <string name="settings_thumbs_gen_done">Küçük resimler başarıyla oluşturuldu.</string>
     <string name="settings_hidden_none">Gizli klasör yok</string>
-    <plurals name="settings_hidden_count">
-        <item quantity="one">%1$d klasör</item>
-        <item quantity="other">%1$d klasör</item>
-    </plurals>
     <plurals name="settings_facts_count">
         <item quantity="one">%1$d bilgi görünür</item>
         <item quantity="other">%1$d bilgi görünür</item>
@@ -482,7 +465,6 @@
     <string name="look_vibrance">Canlılık</string>
     <string name="look_filter">S/B filtre</string>
     <string name="look_bw">Siyah beyaz</string>
-    <string name="look_mix">HSL</string>
     <string name="look_hue">Renk tonu</string>
     <string name="look_lum">Parlaklık</string>
     <string name="look_band_red">Kırmızı</string>
@@ -507,7 +489,6 @@
     <string name="look_grain_lift">Parlak alanlar</string>
     <string name="look_vignette_feather">Yumuşatma</string>
     <string name="look_tone">Eğri</string>
-    <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Ton eğrisi</string>
     <string name="look_target">Hedefli</string>
     <string name="look_auto">Otomatik</string>
@@ -754,8 +735,8 @@
     <string name="folder_add">Klasör ekle</string>
     <string name="folder_authorize">Klasöre izin ver</string>
     <string name="folder_authorize_title">Gösterilen klasörlere ekle</string>
-    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
-    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_list_remove_title">Bu klasör gerçekten listeden kaldırılsın mı?</string>
+    <string name="folder_list_remove_do">Kaldır</string>
     <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">İzni kaldır</string>
     <string name="folder_remove_desc">Bu klasör izin verilenler listesinden kaldırılsın mı? İçeriği ızgara ve liste modlarından kaybolacaktır.</string>

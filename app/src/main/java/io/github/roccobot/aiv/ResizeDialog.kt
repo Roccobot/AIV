@@ -11,9 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PushPin
-import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -32,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -54,84 +50,47 @@ import androidx.compose.ui.unit.dp
  * La finestra di **'Ridimensiona'**: le misure di destinazione, la regola che le governa, e che
  * cosa ne viene fuori.
  *
- * ⚠️⚠️ **RIDISEGNATA PER INTERO NELLA `2.77`, ED È LA SUA SPECIFICA ALLA LETTERA** (voce
- * `resize-ripristina` del giro dalla `2.71` alla `2.74`: *la schermata va ridisegnata e migliorata:
- * sotto 'Ridimensiona' va indicata la dimensione di origine ... Di default ci devono essere due
- * campi compilabili con il numero dei pixel di destinazione, e nessun chip deve essere selezionato
- * ... Se poi si tocca un chip, si disattivano i campi che dipendono dal compilabile ... Sotto i
- * campi compilabili, un'anteprima simile a quella di 'Rinomina'*). Fino alla `2.76` c'erano quattro
- * gettoni e **un** campo, quindi 'lato lungo 1600' diceva un numero solo e l'altra misura la si
- * scopriva in una riga di testo.
+ * La disposizione è la specifica dell'utente (voci `resize-ripristina`, `resize-finestra` e
+ * `resize-finestra-2`, giri dalla 2.74 alla 2.82): la misura di partenza sotto il titolo, due campi
+ * con le misure di destinazione, i gettoni dei modi, il risultato sotto i campi.
  *
- * ⚠️⚠️ **I DUE CAMPI SONO LA VERITÀ, E IL GETTONE DICE SOLTANTO QUALE DEI DUE COMANDA**: le
- * proporzioni si mantengono sempre, quindi i due numeri sono uno solo scritto due volte, e il modo
- * sceglie da che parte si scrive. Il valore del piano si **ricava** (vedi [Resize.valueOf]), e per
- * questo cambiare gettone non muove nessuna cifra: è la cosa che nella `2.76` costringeva la
- * finestra a inventarsi un numero a ogni cambio di modo.
+ * ⚠️ **I due campi sono la verità, il gettone dice solo quale dei due comanda**: le proporzioni
+ * si mantengono sempre, quindi i due numeri sono uno solo scritto due volte. Il valore del piano
+ * si ricava ([Resize.valueOf]), e cambiare gettone non muove nessuna cifra.
  *
- * ⚠️⚠️ **'Pixel' È IL GETTONE DEL LIBERO E NON SI ACCENDE MAI, ED È UNA LETTURA DICHIARATA**: la
- * sua riga dice *nessun chip deve essere selezionato* proprio nello stato in cui i due campi si
- * scrivono tutti e due, e quello stato è il libero. Un gettone acceso direbbe che una regola c'è,
- * mentre là non ce n'è nessuna: il gettone resta perché è la porta per **tornarci** dopo averne
- * toccato un altro, e il riscontro che si vede toccandolo è il campo disattivato che si riaccende.
+ * ⚠️ **'Pixel' è il gettone del libero e non si accende mai** (lettura dichiarata della specifica:
+ * nessun gettone acceso quando si scrivono tutti e due i campi). Un gettone acceso direbbe che c'è
+ * una regola; il gettone resta per tornare al libero, e il riscontro è il campo che si riaccende.
  *
- * ⚠️ **È una modale vera**, quindi porta tutte e due le righe (`Modifier.lowered(null)` e
- * `properties = loweredWindow(null)`): esiste per raccogliere un input scritto, che è il criterio
- * di `Rules.md` § '👆 Che cosa fa il tocco FUORI da una finestra'.
+ * È una modale vera (`Modifier.lowered(null)` e `properties = loweredWindow(null)`): raccoglie un
+ * input scritto (`Rules.md` § '👆 Che cosa fa il tocco FUORI da una finestra').
  *
- * ⚠️⚠️ **'APPLICA' ACCENDE L'INTERRUTTORE, ED È LA SUA SPECIFICA ALLA LETTERA** (risposta `editor`
- * a `d-resize-dove`: *una volta che premo 'OK' l'interruttore è acceso e salva con
- * ridimensionamento se non lo spengo*). Quindi questa finestra non chiede due volte la stessa cosa:
- * chi entra a configurare ha già detto che lo vuole, e l'interruttore serve a **spegnerlo** dopo.
- * ⚠️ **Il tasto porta 'Applica' e non 'OK'**, ed è una lettura dichiarata: dice quello che succede
- * toccandolo, e quella stringa esiste già in tutte e ventotto le lingue (è il comando del Ritaglio).
+ * ⚠️ **'Applica' accende l'interruttore** (risposta `editor` dell'utente a `d-resize-dove`): chi
+ * entra a configurare ha già detto che lo vuole, e l'interruttore serve a spegnerlo dopo. Il tasto
+ * dice 'Applica' e non 'OK' (lettura dichiarata): dice quello che succede, e la stringa esiste già.
  *
- * ⚠️⚠️ **RIDISPOSTA DALLA `2.81` SUL SUO SECONDO MOCKUP, E IL GUADAGNO È L'ALTEZZA** (voce
- * `resize-finestra`: *la finestra diventa MOLTO più compatta e usabile (e sarà meno coperta dalla
- * tastiera attiva)*). Quello che cambia, tutto suo: la misura di partenza perde la sua dicitura e
- * sale **sotto il titolo**, la percentuale diventa `%` e va in prima fila (quindi i gettoni stanno
- * in due righe), 'Ripristina' scende in basso a destra, e al suo posto in alto arriva **'Rendi
- * predefinito'**.
- * ⚠️⚠️ **MA DUE DI QUEI RITOCCHI ERANO RIUSCITI A METÀ, E LA `2.82` LI CHIUDE** (voce
- * `resize-finestra-2`): le due righe dei gettoni dipendevano dallo spazio invece che dal disegno
- * (§ [ModeRow]), e la pastiglia del comando nuovo restava larga quanto la frase intera, quindi il
- * titolo accanto andava a capo in mezzo a una parola (§ `TitleRow`). ⚠️ **Sono lo stesso genere
- * di difetto**: un conto che dichiara un'intenzione e un disegno che non la applica.
- *
- * ⚠️⚠️ **'RENDI PREDEFINITO' È UNA FUNZIONE NUOVA, E PER ESISTERE HA DOVUTO TOGLIERNE UNA A
- * 'APPLICA'** (sua riga: *fa in modo che le impostazioni di ridimensionamento restino memorizzate
- * per i salvataggi seguenti (se l'icona 'Ridimensiona' è accesa)*). Fino alla `2.80` 'Applica'
- * scriveva nelle preferenze, quindi ogni configurazione sopravviveva già al riavvio dell'app e
- * questo comando non avrebbe avuto niente da fare: adesso 'Applica' vale finché l'app è viva, e
- * l'archivio lo scrive solo questo. ⚠️ **La distinzione si dichiara a lui**, perché una parte di
- * quello che chiede c'era già.
- * ⚠️ **Il riscontro è il tasto che si spegne**, e non un avviso: la notifica di casa la disegna la
- * radice dell'app, cioè **dietro** questa finestra, quindi non si vedrebbe. Spento vuol dire che
- * il piano in mano è già il predefinito.
- * ⚠️ **Spento e non assente**: un tasto che compare e sparisce cambiando gettone farebbe ballare
- * la riga del titolo, che è il difetto che la `2.33` ha tolto alla scheda.
+ * ⚠️ **'Applica' vale finché l'app è aperta; 'Rendi predefinito' scrive il piano nelle
+ * preferenze**, per i salvataggi dopo un riavvio. Il riscontro di 'Rendi predefinito' è il tasto
+ * che si disattiva: un avviso lo disegnerebbe la radice dell'app, dietro questa finestra.
+ * Disattivato e non assente: un tasto che compare e sparisce farebbe muovere la riga del titolo.
  */
 @Composable
 fun ResizeDialog(
     /** Il piano da cui si parte: quello salvato, anche se l'interruttore è spento. */
     initial: Resize.Plan,
     /**
-     * Il piano **predefinito**, cioè quello scritto nelle preferenze.
+     * Il piano predefinito, cioè quello scritto nelle preferenze.
      *
-     * ⚠️ **Serve solo a spegnere 'Rendi predefinito' quando non c'è niente da scrivere**: senza,
-     * quel comando resterebbe acceso dopo averlo toccato, cioè non darebbe nessun riscontro.
+     * Serve solo a disattivare 'Rendi predefinito' quando non c'è niente da scrivere.
      */
     saved: Resize.Plan,
     /**
-     * Quanti pixel il salvataggio avrà davanti, o `null` finché non si sa.
+     * Le misure su cui lavorerà il salvataggio, o `null` finché non si sanno.
      *
-     * ⚠️ **Può mancare, e non è un guasto**: la misura vera si legge dal file, e di un indirizzo
-     * remoto o di un formato che il decodificatore non riconosce non arriva. ⚠️⚠️ **E ALLORA
-     * RESTA LA SOLA PERCENTUALE**, che è l'unico modo che non ha bisogno di sapere da dove si
-     * parte: senza le misure non si possono precompilare i campi né tradurre l'uno nell'altro,
-     * cioè manca tutto quello su cui la finestra nuova è costruita.
-     * ⚠️ **Può arrivare dopo l'apertura**, perché il lato lungo si legge dal file: per questo i
-     * campi li riempie un effetto e non un `remember`.
+     * ⚠️ **Possono mancare**: si leggono dal file, e per un indirizzo remoto o un formato che il
+     * decodificatore non riconosce non arrivano. Allora resta la sola percentuale, l'unico modo che
+     * non ha bisogno di sapere da dove si parte.
+     * Possono arrivare dopo l'apertura: per questo i campi li riempie un effetto.
      */
     size: Pair<Int, Int>?,
     onDismiss: () -> Unit,
@@ -151,20 +110,12 @@ fun ResizeDialog(
         mutableStateOf(da.toString())
     }
 
-    /*
-     * ⚠️ **Il modo che si VEDE, che senza le misure è la percentuale**: lo stato resta quello
-     * scelto, perché le misure possono arrivare un istante dopo e quella scelta non va persa.
-     */
+    // Il modo che si vede, che senza le misure è la percentuale: lo stato resta quello scelto,
+    // perché le misure possono arrivare un istante dopo.
     val shown = if (known) mode else Resize.Mode.SHARE
 
-    /*
-     * ⚠️⚠️ **I CAMPI PARTONO DALLE MISURE DI DESTINAZIONE, E QUANDO IL PIANO NON FA NIENTE SONO
-     * QUELLE CORRENTI**: è la sua riga alla lettera (*con le misure correnti precompilate*), ed è
-     * una regola sola invece di due, perché il piano di fabbrica è proprio quello che non
-     * rimpicciolisce (vedi [Resize.NONE]).
-     * ⚠️ **Un effetto e non un `remember`**: la misura la legge il file, quindi può arrivare dopo
-     * l'apertura, e i campi devono riempirsi quando arriva.
-     */
+    // I campi partono dalle misure di destinazione, che col piano di fabbrica ([Resize.NONE])
+    // sono quelle correnti. Un effetto, perché le misure possono arrivare dopo l'apertura.
     LaunchedEffect(size) {
         if (!known) return@LaunchedEffect
         val arrivo = initial.sizeFor(w0, h0) ?: (w0 to h0)
@@ -176,11 +127,8 @@ fun ResizeDialog(
     val wideOn = shown != Resize.Mode.SHARE && side != Resize.Side.TALL
     val tallOn = shown != Resize.Mode.SHARE && side != Resize.Side.WIDE
 
-    /*
-     * ⚠️ **Scrivendo in un campo l'altro si aggiorna**, perché le proporzioni si mantengono
-     * sempre: due numeri liberi direbbero un rapporto che il salvataggio non rispetterà. Il conto
-     * vive in [Resize.mate], cioè fuori dalla finestra, così il banco lo misura chiamandolo.
-     */
+    // Scrivendo in un campo l'altro si aggiorna, perché le proporzioni si mantengono. Il conto è
+    // in [Resize.mate], fuori dalla finestra, così il banco lo prova chiamandolo.
     val writeWide = { testo: String ->
         val pulito = testo.filter { it.isDigit() }.take(RESIZE_DIGITS)
         wide = pulito
@@ -194,12 +142,8 @@ fun ResizeDialog(
         if (n != null && known) wide = Resize.mate(Resize.Side.TALL, n, w0, h0).toString()
     }
 
-    /*
-     * ⚠️⚠️ **CAMBIARE GETTONE NON MUOVE I DUE CAMPI, MA LA PERCENTUALE SÌ, PERCHÉ È UN'ALTRA
-     * UNITÀ**: fra i cinque modi in pixel il ridimensionamento chiesto è lo stesso e cambia solo
-     * chi lo governa; passando ai per cento, o tornandone, il numero va tradotto o la finestra
-     * mostrerebbe due ridimensionamenti diversi nello stesso istante.
-     */
+    // ⚠️ Fra i cinque modi in pixel cambiare gettone non muove i campi; passando alla
+    // percentuale, o tornandone, il numero va tradotto, perché è un'altra unità.
     val pick = { scelto: Resize.Mode ->
         if (scelto != mode && known) {
             if (scelto == Resize.Mode.SHARE) {
@@ -234,17 +178,9 @@ fun ResizeDialog(
     val range = Resize.range(shown)
 
     /*
-     * ⚠️⚠️ **'RIPRISTINA' RIPORTA ALLE MISURE DELL'IMMAGINE COM'È ADESSO, ED È SUO** (voce
-     * `resize-ripristina`: *'Ripristina' deve riportare i valori non all'originale della
-     * visualizzazione o dell'immagine in memoria, bensì dell'immagine reale al suo stato
-     * corrente*). Quelle misure sono esattamente [size], che [Resize.frameSize] ricava dal file
-     * tenendo conto della posa e del ritaglio: un secondo conto sarebbe un numero da tenere
-     * allineato.
-     * ⚠️ **E toglie il gettone**, perché due campi pieni con le misure correnti sono il libero:
-     * lasciarne uno acceso direbbe che una regola governa un ridimensionamento che non c'è.
-     * ⚠️ **Scrive nei campi e non applica**: la finestra si conferma con 'Applica', come ogni
-     * altra cosa che ci si scrive dentro.
-     * ⚠️ **Senza le misure il comando non c'è**: là non si sa da dove si parte.
+     * ⚠️ **'Ripristina' riporta alle misure dell'immagine com'è adesso** (voce
+     * `resize-ripristina`): sono [size], che [Resize.frameSize] ricava dal file con la posa e il
+     * ritaglio. Torna al libero, scrive nei campi e non applica. Senza le misure non c'è.
      */
     val reset = stringResource(R.string.look_resize_reset)
     val azzera = {
@@ -257,10 +193,10 @@ fun ResizeDialog(
     val shareFocus = remember { FocusRequester() }
 
     /*
-     * ⚠️ **Il cursore lampeggia nel primo campo disponibile**, che è la sua riga, e lo rifà a ogni
-     * gettone toccato: chi sceglie 'Altezza' vuole scrivere là, non cercare il campo col dito.
-     * ⚠️ **Dentro un `runCatching` perché un nodo che non c'è ancora va in errore**: i campi
-     * cambiano con il modo, e l'effetto parte nello stesso giro in cui il campo nuovo nasce.
+     * Il cursore va nel primo campo disponibile, e ci torna a ogni gettone toccato: chi sceglie
+     * 'Altezza' vuole scrivere là.
+     * ⚠️ In un `runCatching` perché un nodo che non c'è ancora va in errore: l'effetto parte
+     * nello stesso giro in cui il campo nuovo compare.
      */
     LaunchedEffect(shown, known) {
         val chi = when {
@@ -271,12 +207,9 @@ fun ResizeDialog(
         runCatching { chi.requestFocus() }
     }
 
-    /*
-     * ⚠️⚠️ **ANTEPRIMA A LATO DA 1.024 dp, DALLA `3.36`** (mockup `resize`): parametri e
-     * risultato affiancati; sotto quella soglia restano in colonna come sul telefono. La
-     * finestra si allarga a [Adaptive.dialogBesideMaxWidth] solo in quel caso.
-     */
-    val widthDp = LocalConfiguration.current.screenWidthDp
+    // Da 1.024 dp parametri e risultato sono affiancati (mockup `resize`), e la finestra si
+    // allarga a [Adaptive.dialogBesideMaxWidth]; sotto restano in colonna.
+    val widthDp = windowWidthDp()
     val beside = Adaptive.previewBeside(widthDp)
     val dialogW = if (beside) Adaptive.dialogBesideMaxWidth else Adaptive.dialogMaxWidth
     val previewOnStart = LocalPadLook.current.hand == Hand.RIGHT
@@ -285,31 +218,18 @@ fun ResizeDialog(
         onDismissRequest = onDismiss,
         modifier = Modifier.lowered(null, maxWidth = dialogW),
         properties = loweredWindow(null),
-        /*
-         * ⚠️ **Il comando vive sulla riga del titolo**, che è dove questa app mette un comando
-         * di una finestra dalla `1.79` ('Estensione' e 'Percorso' in 'Scarica'): [TitleRow]
-         * decide da sé fra la pastiglia scritta e l'icona, misurando se il titolo ci sta
-         * accanto, quindi non c'è una seconda regola da scrivere qui.
-         */
+        // Il comando è sulla riga del titolo, il posto dei comandi di una finestra: [TitleRow]
+        // sceglie da sé fra la pastiglia scritta e l'icona, misurando lo spazio.
         title = {
-            /*
-             * ⚠️⚠️ **LA MISURA DI PARTENZA È IL SOTTOTITOLO, DALLA `2.81`, E PRIMA ERA UNA RIGA
-             * DEL CORPO** (voce `resize-finestra`: *'Dimensioni attuali' non serviva: toglilo, e
-             * metti i pixel larghezza × altezza correnti subito sotto il titolo*). Quella
-             * dicitura diceva a parole quello che il posto già dice, e il testo `t-resize-now` la
-             * toglie: la riga resta il solo numero, quindi `look_resize_now` non ha più niente da
-             * tradurre ed esce dalle ventotto lingue.
-             * ⚠️ **E i numeri non sono più in grassetto**, che è il suo mockup: là il grassetto
-             * distingueva le cifre dalla dicitura intorno, e senza dicitura distinguerebbe una
-             * riga da sé stessa.
-             */
+            // Il sottotitolo è la sola misura di partenza, senza dicitura e senza grassetto
+            // (voce `resize-finestra`).
             TitleRow(
                 title = stringResource(R.string.look_resize),
                 subtitle = if (known) AnnotatedString(plain(w0, h0)) else null,
                 commands = if (!known) emptyList() else listOf(
                     TitleCommand(
                         text = stringResource(R.string.look_resize_default),
-                        glyph = Icons.Filled.PushPin,
+                        glyph = Glyphs.Material.PushPin,
                         onTap = { plan?.let(onDefault) },
                         enabled = plan != null &&
                             Resize.portable(plan.mode) &&
@@ -320,8 +240,7 @@ fun ResizeDialog(
             )
         },
         text = {
-            // ⚠️ Lo scorrimento serve al tetto della `1.62`, come in ogni altra finestra con un
-            // campo: a tastiera aperta il pannello si accorcia invece di essere tagliato.
+            // Lo scorrimento serve a tastiera aperta: il pannello si accorcia e non si taglia.
             @Composable
             fun Fields() {
                 ModeRow(shown = shown, onPick = pick)
@@ -343,24 +262,14 @@ fun ResizeDialog(
                     )
                 } else {
                     /*
-                     * ⚠️ **I due campi su una riga sola, col segno in mezzo e l'unità in coda**,
-                     * che è la forma della sua richiesta (`[ ] × [ ] px`): scritti uno sopra
-                     * l'altro si leggerebbero come due impostazioni invece che come una misura.
-                     */
-                    /*
-                     * ⚠️⚠️ **IL SEGNO SI ALLINEA ALLE CIFRE E NON AL CAMPO, DALLA `2.81`** (voce
-                     * `resize-finestra`: *il segno `×` è allineato meglio in verticale, in modo
-                     * che sia centrato in verticale rispetto alle cifre*). Un campo con
-                     * l'etichetta in alto è alto 56 punti e il testo che si scrive dentro non
-                     * sta al suo centro: la label gli prende la parte di sopra, quindi il centro
-                     * della riga di testo cade circa 20 punti sopra il fondo. Centrando sul
-                     * campo, il segno restava più in alto delle cifre che deve separare.
-                     * ⚠️ **Il conto**: l'ultima riga di un campo di Material ha 8 punti sotto di
-                     * sé, e una riga di `bodyLarge` ne vale 24, quindi il suo centro sta a 20 dal
-                     * fondo; un segno in `titleMedium` ha la stessa misura di riga, quindi
-                     * appoggiato al fondo con [FIELD_TEXT_DROP] i due centri coincidono.
-                     * ⚠️ **Vale anche per l'unità in coda**, che nel suo mockup si legge sulla
-                     * stessa riga delle cifre.
+                     * I due campi su una riga, col segno in mezzo e l'unità in coda: si leggono
+                     * come una misura e non come due impostazioni.
+                     * ⚠️ **Il segno e l'unità si allineano alle cifre, non al campo** (voce
+                     * `resize-finestra`): l'etichetta occupa la parte alta del campo, quindi il
+                     * centro della riga di testo è a 20 punti dal fondo (8 di margine più metà
+                     * dei 24 di `bodyLarge`). Un segno in `titleMedium`, che ha la stessa
+                     * altezza di riga, appoggiato al fondo con [FIELD_TEXT_DROP] ha lo stesso
+                     * centro.
                      */
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -429,13 +338,9 @@ fun ResizeDialog(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 /*
-                 * ⚠️⚠️ **'RIPRISTINA' È SCESO IN FONDO A DESTRA, DALLA `2.81`** (voce
-                 * `resize-finestra`: *Tasto 'Ripristina' spostato in basso: si raggiunge meglio
-                 * con una mano*). In cima ci stava dalla `2.72`, ed è il posto che questa app dà
-                 * a un comando di finestra: quel posto adesso è del comando che si tocca una
-                 * volta sola, mentre questo si tocca mentre si prova, cioè col pollice.
-                 * ⚠️ **Resta la stessa pastiglia**, e non un `TextButton` accanto ad 'Applica':
-                 * là si legge come un terzo tasto di conferma, mentre scrive nei campi e basta.
+                 * 'Ripristina' è in fondo a destra, dove arriva il pollice (voce
+                 * `resize-finestra`): si tocca mentre si prova. È una pastiglia e non un
+                 * `TextButton` accanto ad 'Applica', dove sembrerebbe un terzo tasto di conferma.
                  */
                 if (known) {
                     Box(modifier = Modifier.fillMaxWidth()) {
@@ -505,30 +410,20 @@ fun ResizeDialog(
 }
 
 /**
- * La fila dei sei gettoni: due righe da tre, nell'ordine in cui lui li ha scritti.
+ * La fila dei sei gettoni: due righe da tre, nell'ordine dell'utente.
  *
- * ⚠️ **Scritta qui e non con `Choices`**, che è il pezzo delle impostazioni: là il gettone scelto
- * si disegna sempre acceso, e qui quello del libero non si accende mai (il perché vive in testa a
- * [ResizeDialog]).
+ * Scritta qui e non con `Choices` delle impostazioni, dove il gettone scelto è sempre acceso:
+ * qui quello del libero non si accende mai ([ResizeDialog]).
  *
- * ⚠️⚠️ **LE RIGHE SONO DUE PER COSTRUZIONE DALLA `2.82`, E FINO ALLA `2.81` LO DECIDEVA LO
- * SPAZIO** (voce `resize-finestra-2`: *'%' deve stare sulla prima riga*). Là era una `FlowRow`,
- * cioè le celle si dimensionavano sul testo e andavano a capo quando lo spazio finiva: sul suo
- * telefono le prime due chiedono 213 punti e il segno altri 46, contro i 270 che la finestra ha,
- * quindi mancavano **quattro punti** e il segno scendeva. Un conto che si perde per quattro punti
- * non si aggiusta allargando qualcosa: si toglie la domanda, e le righe si dichiarano.
- * - ⚠️⚠️ **LE CELLE HANNO UN PESO MISURATO E NON UGUALE, ED È QUELLO CHE EVITA LE TRONCATURE**:
- *   con tre colonne uguali una cella vale 85 punti e a 'Larghezza' ne servono 105, cioè si
- *   leggerebbe 'Larghez...'. Col peso preso dalla larghezza vera del proprio testo, chi ha una
- *   parola lunga riceve di più, e l'avanzo si distribuisce in proporzione invece di lasciare un
- *   vuoto in coda alla riga. È la resa che la fila delle forme del Ritaglio ha già.
- * - ⚠️ **Il corpo scende di un gradino**, per la stessa ragione di quella fila: a `labelMedium`
- *   la prima riga chiede 251 punti invece di 274, quindi in italiano avanza spazio e nelle
- *   lingue dai nomi lunghi si tronca più tardi.
- * - ⚠️ **Dove la somma non ci sta si tronca, e la ripartizione regge lo stesso**: in francese
- *   quelle due locuzioni sono il doppio delle nostre (*Côté le plus long*), quindi nessuna forma
- *   le fa entrare intere; quello che conta è che il segno resti dov'è e che la finestra non
- *   cresca di una riga.
+ * ⚠️ **Le righe sono due per costruzione** (voce `resize-finestra-2`: '%' sulla prima riga): con
+ * una `FlowRow` decideva lo spazio, e per pochi punti il segno scendeva.
+ * - ⚠️ **Le celle hanno un peso misurato sul proprio testo**: con tre colonne uguali una cella
+ *   vale 85 punti e a 'Larghezza' ne servono 105. Chi ha una parola lunga riceve di più, e
+ *   l'avanzo si distribuisce in proporzione, come nella fila delle forme del Ritaglio.
+ * - Il corpo è `labelMedium`, un gradino sotto, perché le lingue dai nomi lunghi si tronchino
+ *   più tardi.
+ * - Dove la somma non ci sta (in francese, per esempio) si tronca: conta che il segno resti sulla
+ *   prima riga e che la finestra non cresca.
  */
 @Composable
 private fun ModeRow(shown: Resize.Mode, onPick: (Resize.Mode) -> Unit) {
@@ -544,14 +439,9 @@ private fun ModeRow(shown: Resize.Mode, onPick: (Resize.Mode) -> Unit) {
                 for (modo in riga) {
                     val acceso = modo == shown && modo != Resize.Mode.FREE
                     val nome = stringResource(modeName(modo))
-                    /*
-                     * ⚠️⚠️ **LA PERCENTUALE SI SCRIVE COL SEGNO, DALLA `2.81`, E IL SUO NOME RESTA
-                     * NELLA DESCRIZIONE PARLATA** (voce `resize-finestra`: *'Percentuale' diventa
-                     * '%'*). Il segno non si traduce, quindi non nasce nessuna stringa e
-                     * `resize_share` non resta orfana: la legge un lettore di schermo, che di un
-                     * gettone con scritto '%' non saprebbe dire di che cosa parla.
-                     */
-                    val scritto = if (modo == Resize.Mode.SHARE) PCT else nome
+                    // La percentuale si scrive col segno (voce `resize-finestra`), e il suo nome
+                    // `resize_share` resta nella descrizione per il lettore di schermo.
+                    val scritto = if (modo == Resize.Mode.SHARE) PERCENT else nome
                     val cella = with(density) {
                         righello.measure(
                             AnnotatedString(scritto),
@@ -604,21 +494,11 @@ private fun Hint(text: String) {
 /**
  * L'anteprima: a che misura si arriva.
  *
- * ⚠️⚠️ **HA LA FORMA DELL'ANTEPRIMA DI 'Rinomina', ED È SUA RICHIESTA** (*Sotto i campi
- * compilabili, un'anteprima simile a quella di 'Rinomina', che metta in evidenza meglio le
- * dimensioni finali in W × H px*): il titoletto che dice che cosa si sta guardando, e sotto una
- * superficie incavata col risultato.
- *
- * ⚠️⚠️ **DALLA `2.81` SI CHIAMA 'RISULTATO', ED È TUTTO CENTRATO** (voce `resize-finestra`:
- * *'Anteprima' diventa 'Risultato', ed è più piccolo e centrato. Le misure finali sono centrate,
- * e forse per coerenza potrebbero avere la stessa resa grafica e gli stessi colori del risultato
- * della rinomina (ma con il testo più grande)*). Quindi la stringa di 'Rinomina' non si riusa più
- * e ne nasce una: 'Anteprima' dice che cosa si sta guardando, 'Risultato' dice che cosa si
- * otterrà, e sono due parole diverse.
- * ⚠️ **I colori sono quelli della SECONDA pastiglia della rinomina**, cioè quella del nome nuovo:
- * riempimento `secondaryContainer` e filo d'accento. ⚠️ **Il pezzo però non si riusa**, e la
- * ragione è misurata: `NamePill` porta con sé lo stringimento anti-orfano e un corpo piccolo, che
- * qui non hanno niente da fare, e il testo di qui è più grande per sua richiesta.
+ * La forma è quella dell'anteprima di 'Rinomina' (richiesta dell'utente): il titoletto
+ * 'Risultato', centrato, e sotto una superficie col risultato (voce `resize-finestra`).
+ * I colori sono quelli della seconda pastiglia della rinomina, quella del nome nuovo
+ * (`secondaryContainer` e filo d'accento). `NamePill` non si riusa: ha lo stringimento
+ * anti-orfano e un corpo piccolo, e qui il testo è più grande per richiesta dell'utente.
  */
 @Composable
 private fun Outcome(w: Int, h: Int) {
@@ -650,12 +530,10 @@ private fun Outcome(w: Int, h: Int) {
 }
 
 /**
- * Una misura scritta come lui l'ha chiesta: i due numeri in **grassetto**, il segno in mezzo e
- * l'unità in coda.
+ * Una misura come l'ha chiesta l'utente: i due numeri in grassetto, il segno in mezzo e l'unità
+ * in coda.
  *
- * ⚠️ **Il formato vive qui soltanto**: la riga del risultato usa questa funzione, e la riga sotto
- * il titolo la sua versione senza grassetto, [plain], che ne prende il testo. Scritto due volte,
- * il primo a divergere sarebbe quello che nessuno guarda.
+ * Il formato è scritto solo qui: la riga sotto il titolo ne prende il testo con [plain].
  */
 private fun measure(w: Int, h: Int): AnnotatedString = buildAnnotatedString {
     val forte = SpanStyle(fontWeight = FontWeight.Bold)
@@ -666,21 +544,16 @@ private fun measure(w: Int, h: Int): AnnotatedString = buildAnnotatedString {
 }
 
 /**
- * La stessa misura senza grassetto, che è la riga sotto il titolo: il testo di [measure], senza
- * gli stili.
- *
- * ⚠️⚠️ **DALLA `2.81` NON PASSA PIÙ DA UNA FRASE TRADOTTA, e con lei se ne sono andate la
- * stringa `look_resize_now` e la funzione che le infilava dentro il numero**: quella frase
- * diceva 'Dimensioni attuali:', e il suo testo `t-resize-now` la toglie, quindi restava un
- * segnaposto da tradurre in ventotto lingue.
+ * La stessa misura senza grassetto, per la riga sotto il titolo: il testo di [measure] senza gli
+ * stili.
  */
 internal fun plain(w: Int, h: Int): String = measure(w, h).text
 
 /**
  * Il lato lungo del file aperto, che è la sola misura vera che si legge senza decodificarlo.
  *
- * ⚠️ Vive qui e non nelle due schermate perché lo chiedono tutte e due, e perché è la metà di
- * quello che [Resize.frameSize] vuole: l'altra metà, le proporzioni, la sa l'anteprima.
+ * È qui perché lo chiedono tutte e due le schermate. È la metà di quello che vuole
+ * [Resize.frameSize]: le proporzioni le sa l'anteprima.
  */
 @Composable
 fun rememberLongSide(uri: Uri): Int? {
@@ -699,49 +572,46 @@ private val MODE_GAP = 8.dp
 /**
  * Quante colonne ha la fila dei modi.
  *
- * ⚠️ **È insieme il numero di colonne e la ripartizione in righe**, cioè sei modi in due righe, e
- * le due cose sono lo stesso elenco: chi ne aggiungesse un settimo si ritroverebbe una terza riga
- * da una cella, e quello si vede.
+ * È anche la ripartizione in righe: sei modi, due righe. Un settimo modo farebbe una terza riga
+ * da una cella sola.
  */
 private const val MODE_COLS = 3
 
 /**
  * Il riempimento orizzontale di un `FilterChip`, che Material non espone come costante pubblica.
  *
- * ⚠️ **Serve al PESO e non al disegno**, quindi una stima sbagliata sposterebbe un po' l'avanzo
- * fra le celle e nient'altro: il riempimento vero lo mette il chip.
+ * Serve al peso e non al disegno: una stima sbagliata sposterebbe solo un po' l'avanzo fra le
+ * celle.
  */
 private val MODE_PAD = 16.dp
 
 /**
  * Il segno fra le due misure.
  *
- * ⚠️ **È il segno di moltiplicazione e non la lettera `x`**, ed è quello che ha scritto lui
- * (`Dimensioni attuali: **1800**×**1200** px`): scritto come codice invece che a carattere pieno
- * perché una `x` e un `×` si somigliano abbastanza da scambiarli rileggendo.
+ * Il segno di moltiplicazione e non la lettera `x`, come l'ha scritto l'utente.
  */
 private const val BY = '×'
 
 /** L'unità dei due campi, che non si traduce in nessuna lingua. */
 private const val PX = "px"
 
-/** Il gettone della percentuale, che dalla `2.81` è il segno e non la parola. */
-private const val PCT = "%"
+/**
+ * Il segno della percentuale, qui e nelle impostazioni della filigrana: il segno e non la parola,
+ * e non si traduce in nessuna lingua, come '16:9' fra i formati del Ritaglio.
+ */
+internal const val PERCENT = "%"
 
 /**
- * Quanto il segno fra i due campi scende, per cadere sulle cifre invece che sul campo.
- *
- * ⚠️ **Il conto vive sul Row che lo usa**, con la misura di un campo di Material e della sua
- * riga di testo: qui basta sapere che è la distanza fra il fondo di un campo e il fondo della
- * riga che si scrive dentro.
+ * Quanto il segno fra i due campi scende, per cadere sulle cifre e non sul campo: la distanza
+ * fra il fondo di un campo e il fondo della riga scritta dentro (il conto è sulla `Row` che lo
+ * usa).
  */
 private val FIELD_TEXT_DROP = 8.dp
 
 /**
  * Quante cifre si accettano in un campo.
  *
- * ⚠️ **Cinque bastano al tetto dei pixel e avanzano alla percentuale**, e servono a non far
- * scrivere un numero così lungo da non entrare in un intero: il campo dice comunque quali valori
- * sono buoni, e il taglio è solo la rete.
+ * Cinque bastano al tetto dei pixel e alla percentuale, ed evitano un numero che non entra in un
+ * intero: i valori buoni li dice il campo, il taglio è solo la rete.
  */
 private const val RESIZE_DIGITS = 5

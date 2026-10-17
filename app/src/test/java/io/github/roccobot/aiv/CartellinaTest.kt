@@ -29,7 +29,7 @@ class CartellinaTest {
      * cartella stava circa 4,6 dp sopra il centro.
      */
     @Test
-    fun `la cartella è centrata nell'icona`() {
+    fun `la cartella cade al centro dell'icona`() {
         val app = ApplicationProvider.getApplicationContext<Context>()
         val icona = Shortcuts.folderBitmap(app, Color.BLACK)
         val righe = (0 until icona.height).filter { y ->

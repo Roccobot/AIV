@@ -4,11 +4,12 @@ import android.app.Application
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import java.time.Duration
 import org.junit.Assert.assertEquals
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
-import java.time.Duration
 
 /**
  * Il Feed quando la casa non lo mostra, nella `6.28` (rilievo D16 della revisione della 6.25, voce
@@ -19,6 +20,10 @@ import java.time.Duration
  */
 @RunWith(AndroidJUnit4::class)
 class FeedFuoriPlayTest {
+
+    /** I modelli costruiti dalle prove, chiusi alla fine di ognuna (`ModelliChiusi`). */
+    @get:Rule
+    val modelli = ModelliChiusi()
 
     private val main get() = shadowOf(Looper.getMainLooper())
 
@@ -45,7 +50,7 @@ class FeedFuoriPlayTest {
     @Test
     fun `fuori dal Feed una notizia non lo rilegge`() {
         val app = ApplicationProvider.getApplicationContext<Application>()
-        val model = ViewerViewModel(app)
+        val model = modelli.nuovo(app)
         aspetta { model.settings != null }
         model.goHome()
         model.readFeed(granted = false, selection = FolderSelection(), date = FeedDate.TAKEN)

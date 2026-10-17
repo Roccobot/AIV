@@ -522,10 +522,9 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
 - ⚠️⚠️ **Lo stesso tocco sulla stessa cartella rimette la predefinita**, cioè l'ultima immagine (sua
   richiesta): il gesto è uno, e fa e disfa. **Su un'altra cartella sposta la scelta là**, ed è la
   ragione per cui la modalità conserva il bucket da cui è partita.
-- ⚠️ **La voce del menu del FAB esiste ma è spenta** (`COVER_MENU_ROW`, in `FolderCover.kt`), col
-  nome 'Copertina predefinita' (sua istruzione: spegnerla senza eliminarla); la prova misura il
-  legame con l'interruttore. Nel menu non c'è una voce che sceglie: a scegliere è il tocco
-  sull'icona.
+- ⚠️ **Nel menu del FAB la copertina non ha voci**: a sceglierla e a toglierla è il tocco
+  sull'icona: una voce di menu toglieva per un tocco involontario una scelta che non si ritrova.
+  La voce che c'era, e come si recupera, in `docs/Removed.md`.
 - **Il primo tocco mostra un mini-onboarding col testo suo**, una volta sola (`Hint.COVER`). Il
   riquadro illuminato arriva da `onGloballyPositioned`, perché l'icona vive in una fascia che si
   stringe a ogni pixel di scorrimento.
@@ -536,8 +535,8 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     un volume non ancora indicizzato fanno arrivare corto l'elenco del MediaStore. Un elenco vuoto
     non cancella niente (è il caso del permesso non concesso), e conta la data del file, che la
     potatura aggiorna per le cartelle vive.
-- **`CopertinaTest`** vede il gesto (che convive col tocco lungo del colore), il legame fra la voce
-  del menu e il suo interruttore, la fascia, la precedenza sulla predefinita e il ritorno all'elenco
+- **`CopertinaTest`** vede il gesto (che convive col tocco lungo del colore), il menu del FAB senza
+  voci della copertina, la fascia, la precedenza sulla predefinita e il ritorno all'elenco
   iniziale; non vede la copia dell'immagine né la vista 'Cartelle di sistema', che legge il disco.
 
 ## ⭐ Disposizione della griglia e cartelle preferite
@@ -820,7 +819,8 @@ contrasto come da norme*. Dalla `6.20`, solo in AIV GitHub, perché AIV Play non
 - ⚠️ **La conferma dice 'nessun file sarà eliminato'** (sua istruzione). Scartato *nulla è
   cancellato*: dice la stessa cosa, ma fa pensare proprio a quello che non succede.
 - ⚠️⚠️ **Una cartella nascosta non è una destinazione** (sua istruzione): il filtro è
-  `Folder.Bucket.isHidden`, in `Folder.kt`, uno per le due schermate che fanno la domanda.
+  `FolderSelection.visible`, in `FolderSelection.kt`, uno per le due schermate che fanno la
+  domanda (la casa e le destinazioni).
   - ⚠️⚠️ **Durante il minuto di prestito anche le destinazioni la mostrano** (suo riscontro): il
     prestito si accende per entrare in una cartella nascosta, e copiarci dentro è quello che si
     vuole fare mentre dura. Arriva con `LocalPeek`, che non è statico perché cambia due volte per

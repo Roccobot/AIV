@@ -1,7 +1,5 @@
 package io.github.roccobot.aiv
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithText
@@ -52,7 +50,7 @@ class MenuRowTest {
             AivTheme(darkTheme = false) {
                 MenuRow(
                     text = VOCE,
-                    icon = Icons.Default.Info,
+                    icon = Glyphs.Material.Info,
                     onTap = { brevi++ },
                     holdLabel = TENUTA,
                     onHold = { lunghi++ }
@@ -82,7 +80,7 @@ class MenuRowTest {
         var brevi = 0
         banco.setContent {
             AivTheme(darkTheme = false) {
-                MenuRow(text = VOCE, icon = Icons.Default.Info, onTap = { brevi++ })
+                MenuRow(text = VOCE, icon = Glyphs.Material.Info, onTap = { brevi++ })
             }
         }
 
@@ -106,7 +104,7 @@ class MenuRowTest {
             AivTheme(darkTheme = false) {
                 MenuRow(
                     text = VOCE,
-                    icon = Icons.Default.Info,
+                    icon = Glyphs.Material.Info,
                     onTap = { brevi++ },
                     holdLabel = TENUTA,
                     onHold = { lunghi++ },

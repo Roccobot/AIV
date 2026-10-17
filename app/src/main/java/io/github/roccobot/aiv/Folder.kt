@@ -16,32 +16,28 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
- * The other pictures in the same folder, so that one opened photo can be leafed
- * through instead of being a dead end.
+ * Le altre immagini della stessa cartella, perché un'immagine aperta si possa sfogliare.
  *
- * ⚠️⚠️ **The picker cannot answer this question, and that is the whole reason this
- * file exists.** What comes back from the system picker is a permit for ONE item:
- * on Android 13 and up a `content://media/picker/...` address that grants access
- * to that picture and to nothing around it. There is no parent to walk up to. The
- * folder lives in the MediaStore, and reading the MediaStore needs a permission,
- * which is what the user agreed to pay.
+ * ⚠️ **Il selettore di sistema non risponde a questa domanda**: restituisce il permesso per un
+ * solo elemento, da Android 13 un indirizzo `content://media/picker/...` che dà accesso a
+ * quell'immagine e a niente intorno. Non c'è un genitore da risalire: la cartella vive nel
+ * MediaStore, e leggerlo vuole un permesso, quello che l'utente ha accettato di dare.
  */
 object Folder {
 
-    /** One folder, in order, and where the picture on screen sits inside it. */
+    /** Una cartella, in ordine, e la posizione dell'immagine sullo schermo dentro di lei. */
     data class Series(val items: List<Uri>, val index: Int) {
         val size: Int get() = items.size
         fun at(position: Int): Uri? = items.getOrNull(position)
 
         /**
-         * Le stesse foto dall'ultima alla prima, con quella aperta ancora al suo posto.
+         * Le stesse immagini dall'ultima alla prima, con quella aperta ancora al suo posto.
          *
-         * ⚠️⚠️ **Girare la serie, e non il gesto**, e la differenza si vede: l'indice
-         * mostrato, il verso della strisciata e l'ordine della lista vengono tutti da
-         * qui, quindi restano coerenti per costruzione. Invertendo il solo gesto il
-         * contatore avrebbe fatto `5/7` e poi `4/7` mentre il dito va avanti.
-         * ⚠️ **È la sua stessa inversa**, e ci si conta: una funzione sola basta a
-         * girare e a tornare indietro (vedi `ViewerViewModel.step`).
+         * ⚠️ **Si gira la serie, non il gesto**: indice mostrato, verso della strisciata e
+         * ordine della lista vengono tutti da qui e restano coerenti. Girando il solo gesto il
+         * contatore farebbe `5/7` e poi `4/7` mentre il dito va avanti.
+         * È la sua stessa inversa: una funzione sola gira e torna indietro (vedi
+         * `ViewerViewModel.step`).
          */
         fun reversed(): Series = Series(items.reversed(), items.lastIndex - index)
 
@@ -49,19 +45,12 @@ object Folder {
          * Di quanti posti si sposta davvero una strisciata di [delta], saltando i filmati
          * quando [skipVideos].
          *
-         * ⚠️⚠️ **STA QUI, SULLA SERIE, E NON NEL MODELLO, dalla 1.06**: fino alla `1.05`
-         * viveva dentro `ViewerViewModel`, privata, e la **schermata** non poteva
-         * chiamarla. Così le vicine che scivolano dentro dal bordo si calcolavano con un
-         * `index ± 1` crudo, e sfogliando compariva per un istante il filmato che
-         * l'impostazione prometteva di non far vedere (riscontro dell'utente sul collaudo:
-         * *i video compaiono per un istante anche quando è attiva l'opzione per ignorarli
-         * sfogliando*). Il passo era giusto, la vicina no: due conti diversi per la stessa
-         * domanda, ed è il difetto che una funzione condivisa non può avere.
-         * ⚠️ **Se di là ci sono solo filmati il passo esce dalla serie**, e non si ferma
-         * sull'ultima immagine: chi chiama trova `null` da [at], che è la stessa risposta
-         * del capolinea. Fermarsi **sul** filmato sarebbe stato più gentile e più
-         * sbagliato, perché l'impostazione dice di non mostrarlo proprio nel caso in cui
-         * era stata accesa apposta.
+         * ⚠️ **È sulla serie e non nel modello**, perché la usano il modello per il passo e la
+         * schermata per le vicine che scivolano dal bordo: con due conti diversi, sfogliando
+         * compariva per un istante il video che l'impostazione esclude (riscontro dell'utente).
+         * Se di là ci sono solo video il passo esce dalla serie, e chi chiama trova `null` da
+         * [at], come al capolinea: fermarsi sul video mostrerebbe quello che l'impostazione
+         * esclude.
          */
         fun stepping(delta: Int, skipVideos: Boolean): Int {
             if (!skipVideos || delta == 0) return delta
@@ -77,24 +66,18 @@ object Folder {
         /**
          * L'indirizzo che una strisciata di [delta] raggiunge davvero, e `null` se non c'è.
          *
-         * ⚠️ È [stepping] più [at], e serve a chi vuole **la foto** e non il numero di
-         * posti: la schermata, per disegnare le vicine e per sapere se il gesto ha ancora
-         * dove andare.
+         * È [stepping] più [at], per chi vuole l'immagine e non il numero di posti: la
+         * schermata, per disegnare le vicine e per sapere se il gesto ha ancora dove andare.
          */
         fun toward(delta: Int, skipVideos: Boolean): Uri? = at(index + stepping(delta, skipVideos))
     }
 
     /**
-     * L'esito della ricerca, col PERCHÉ quando non c'è una serie.
+     * L'esito della ricerca, col perché quando non c'è una serie.
      *
-     * ⚠️⚠️ **Nato dopo due giri a vuoto, e il difetto era di processo prima che di
-     * codice**: finché questa funzione rispondeva `null` e basta, una strisciata che
-     * non faceva niente era indistinguibile da una strisciata guasta, e da fuori non
-     * c'era modo di sapere quale delle due fosse. Due versioni sono andate perse a
-     * indovinare. Un esito che dice la ragione costa quattro stringhe e chiude la
-     * domanda in un'occhiata.
-     * ⚠️ Quindi chi un domani volesse 'semplificare' rimettendo un `Series?` sappia
-     * che toglierebbe l'unica cosa che rende diagnosticabile la funzione.
+     * ⚠️ **Non un `Series?`**: con un `null` e basta, una strisciata che non fa niente non si
+     * distingue da una strisciata guasta. L'esito che dice la ragione rende la funzione
+     * diagnosticabile, e la riga dei dettagli lo stampa.
      */
     sealed interface Lookup {
         /** La cartella c'è, e questa è. */
@@ -105,26 +88,25 @@ object Folder {
 
         /**
          * L'indirizzo non sa dire nome e peso di quello che ha aperto.
-         * ⚠️ Distinto da [NotInGallery] apposta: qui la domanda non ha nemmeno
-         * raggiunto il MediaStore, e i due casi vogliono correzioni diverse.
+         * Distinto da [NotInGallery]: qui la domanda non ha raggiunto il MediaStore, e i due
+         * casi vogliono correzioni diverse.
          */
         data object Unreadable : Lookup
 
         /**
-         * Il MediaStore non conosce questa immagine: una chat, il web, un file
-         * sciolto. [detail] porta quello che si era riusciti a leggere, e non è un
-         * vezzo: è la differenza fra 'non funziona' e sapere quale chiave ha
+         * Il MediaStore non conosce questa immagine: una chat, il Web, un file sciolto.
+         * [detail] contiene quello che si è riusciti a leggere, per sapere quale chiave ha
          * fallito. La riga dei dettagli lo stampa.
          */
         data class NotInGallery(val detail: String) : Lookup
 
-        /** La cartella esiste e ha questa foto sola: non c'è niente da sfogliare. */
+        /** La cartella esiste e ha questa immagine sola: non c'è niente da sfogliare. */
         data object Alone : Lookup
 
         /**
-         * La cartella ha più foto ma l'aperta non è fra loro.
-         * ⚠️ Questo NON dovrebbe succedere, ed è scritto apposta: se compare, il
-         * difetto è nel modo in cui si risale alla riga, non nei dati.
+         * La cartella ha più immagini ma quella aperta non è fra loro.
+         * ⚠️ Non dovrebbe succedere: se compare, il difetto è nel modo in cui si risale alla
+         * riga, non nei dati.
          */
         data object Lost : Lookup
 
@@ -134,99 +116,63 @@ object Folder {
         /**
          * Lo stesso esito con la serie girata; gli esiti senza serie restano sé stessi.
          *
-         * ⚠️ Sta sull'esito e non solo sulla serie perché chi gira non sa quale dei sei
-         * casi ha in mano: senza questo, ogni chiamante ripeterebbe il `when`.
+         * È sull'esito e non solo sulla serie perché chi gira non sa quale caso ha in mano:
+         * senza, ogni chiamante ripeterebbe il `when`.
          */
         fun reversed(): Lookup = if (this is Found) Found(series.reversed()) else this
     }
 
     /**
-     * Una cartella come la mostra la schermata di scelta.
+     * Una cartella di immagini, come la mostra l'elenco iniziale.
      *
-     * ⚠️⚠️ **LA COPERTINA COSTA ZERO QUERY, ed è la ragione per cui è arrivata adesso e
-     * non prima**: [buckets] scorre già tutte le righe in ordine di data, quindi la
-     * **prima** riga di ogni cartella è la sua foto più recente. Prenderne l'indirizzo
-     * mentre si passa è un campo in più, non una domanda in più al MediaStore. La nota
-     * vecchia diceva che un'anteprima per riga sarebbe stata 'mezza galleria': era vero
-     * quando la galleria non era stata decisa, e la decisione c'è (passo 2 del piano).
-     * ⚠️ **Null quando il provider non serve la colonna dell'id**: la cartella si mostra
-     * lo stesso, col suo simbolo. Una cartella che sparisce dall'elenco perché manca
-     * un'anteprima sarebbe il peggiore dei baratti.
-     * ⚠️ La copertina è la foto più recente e **non** quella con cui la cartella si
-     * apre: col verso cronologico acceso l'apertura parte dall'altro capo (vedi
-     * `atSequenceStart`). Sono due cose diverse apposta, perché la copertina risponde a
-     * 'che cosa c'è qui dentro' e l'apertura a 'da dove comincio a sfogliare'.
-     */
-    /**
-     * Una cartella di immagini.
+     * [cover] è l'immagine più recente, e costa zero query: [buckets] scorre le righe in ordine
+     * di data, quindi la prima riga di ogni cartella è la sua copertina predefinita. È `null`
+     * quando il provider non serve la colonna dell'id, e la cartella si mostra lo stesso col suo
+     * simbolo. Non è l'immagine con cui la cartella si apre: col verso cronologico l'apertura
+     * parte dall'altro capo (vedi `atSequenceStart`).
      *
-     * ⚠️ **`path` è il percorso della cartella sul disco**, e serve a una cosa sola:
-     * l'esclusione (`Settings.hiddenFolders`, che dalla `2.96` lo tiene senza la radice del
-     * volume: vedi `portablePath`). Non costa una colonna in più, perché il
-     * percorso della riga si legge già per ricostruire il nome quando manca; qui se ne
-     * tiene la parte fino all'ultima barra. ⚠️ Può essere `null`: un provider che non
-     * serve la colonna `DATA` esiste, e in quel caso quella cartella non si può nascondere
-     * per percorso. Dichiarato invece che nascosto dietro una stringa vuota, che si
-     * confonderebbe con la radice.
+     * [path] è il percorso della cartella sul disco, per l'esclusione (`Settings.hiddenFolders`,
+     * senza la radice del volume: vedi `portablePath`); non costa una colonna in più. ⚠️ Può
+     * essere `null`, quando il provider non serve la colonna `DATA`, e allora la cartella non si
+     * può nascondere per percorso: una stringa vuota si confonderebbe con la radice.
      */
     data class Bucket(
         val id: Long,
         val name: String,
         /**
-         * Quante fotografie e quanti filmati, **contati a parte** dalla `0.98`.
-         *
-         * ⚠️⚠️ **DUE NUMERI E NON UNO** (richiesta dell'utente, 2026-08-31: *l'anteprima
-         * della cartella deve avere il contatore delle immagini e, separatamente con
-         * un'altra icona, anche quello dei video*): da quando i filmati si sfogliano, un
-         * numero solo dice 'ottantotto cose' a chi sta cercando di capire se là dentro ci
-         * sono i video delle vacanze o le foto.
-         * ⚠️ Non costa una query in più: la riga porta già il tipo, che serviva alla
-         * copertina, e il conto si fa nella stessa passata.
+         * Quante immagini e quanti video, contati a parte (richiesta dell'utente: due
+         * contatori con due icone). Il tipo è già nella riga, e il conto si fa nella stessa
+         * passata.
          */
         val pictures: Int,
         val clips: Int,
         val cover: Uri?,
         val path: String? = null,
         /**
-         * When the most recently modified file of the folder was modified, in seconds, from the
-         * `5.80`: the key of [FolderOrder.RECENT].
+         * Quando è stato modificato il file più recente della cartella, in secondi: la chiave di
+         * [FolderOrder.RECENT].
          *
-         * ⚠️ **It is the first row's `DATE_MODIFIED`**: the rows arrive newest first, which is
-         * also why the first row gives the cover, so it costs no query.
+         * È il `DATE_MODIFIED` della prima riga, che arriva per prima come la copertina: non
+         * costa query.
          */
         val latest: Long = 0L
     ) {
-        /** Quante cose in tutto: la somma, per chi non ha bisogno della distinzione. */
+        /** Quanti elementi in tutto, per chi non ha bisogno della distinzione. */
         val count: Int get() = pictures + clips
     }
 
     /**
-     * Le cartelle di immagini del telefono, **in ordine alfabetico**.
+     * Le cartelle di immagini del telefono, in ordine alfabetico (richiesta dell'utente, 1.83:
+     * davanti alle cartelle si sa già il nome di quella che si cerca). Un altro ordine lo decide
+     * `FolderSelection.arrange`, con [Bucket.latest].
      *
-     * ⚠️⚠️ **L'ORDINE È ALFABETICO DALLA `1.83`, E PRIMA ERA PER DATA** (campo libero del giro
-     * della `1.82`, punto C: *mentre le griglie di immagini devono avere le più recenti in cima,
-     * le griglie di cartelle (schermata home) deve essere sempre ordinata alfabeticamente per
-     * nome*). Le due griglie rispondono a due domande diverse: davanti a una cartella si sa già
-     * come si chiama quella che si cerca, davanti alle immagini no, e allora l'ultima arrivata è
-     * quella che si vuole.
-     * ⚠️⚠️ **SI ORDINA ALLA FINE E NON NELLA QUERY, ed è obbligatorio**: l'ordine delle righe fa
-     * un secondo lavoro, cioè far sì che la prima riga di ogni cartella sia la sua immagine più
-     * recente (vedi il ramo della copertina qui sotto). Ordinando la query per nome, la copertina
-     * diventerebbe una riga qualunque.
-     * ⚠️ **Il confronto passa da un [Collator] e non da `sortedBy`**: `compareTo` fra stringhe
-     * ordina per codice, quindi metterebbe tutte le maiuscole prima delle minuscole e le lettere
-     * accentate in fondo. Il collatore della lingua in vigore fa quello che si aspetta chi legge.
-     *
-     * ⚠️⚠️ **Il raggruppamento si fa QUI e non nella query**, ed è voluto: il `GROUP BY`
-     * del MediaStore ha cambiato forma fra le versioni di Android (dalla stringa di
-     * selezione all'argomento nel bundle, con provider che lo rifiutano), mentre una
-     * passata sulle righe è un comportamento solo, uguale dappertutto. Costa una query
-     * e nessun dialetto.
-     * ⚠️ L'ordine delle righe serve ancora a una cosa: fa sì che la prima riga di ogni cartella
-     * sia la sua immagine più nuova, che è quella che diventa la copertina. Il primo dei suoi due
-     * lavori (mettere davanti la cartella toccata più di recente) è decaduto con l'ordine
-     * alfabetico, e dalla `5.80` torna a richiesta: la data della prima riga diventa
-     * [Bucket.latest], e l'ordine della griglia lo decide `FolderSelection.arrange`.
+     * ⚠️ **Si ordina alla fine e non nella query**: le righe arrivano per data, così la prima di
+     * ogni cartella è la sua immagine più recente, cioè la copertina e [Bucket.latest].
+     * Il confronto passa da un [Collator]: `compareTo` fra stringhe ordina per codice, con le
+     * maiuscole prima delle minuscole e le lettere accentate in fondo.
+     * ⚠️ **Il raggruppamento si fa qui e non nella query**: il `GROUP BY` del MediaStore ha
+     * cambiato forma fra le versioni di Android, e alcuni provider lo rifiutano; una passata
+     * sulle righe è uguale dappertutto.
      */
     suspend fun buckets(context: Context): List<Bucket> = withContext(Dispatchers.IO) {
         if (!granted(context)) return@withContext emptyList()
@@ -239,11 +185,9 @@ object Folder {
                 null,
                 "${MediaStore.Images.Media.DATE_MODIFIED} DESC, ${MediaStore.Images.Media._ID} DESC"
             )?.use { c ->
-                // ⚠️ Le colonne si risolvono UNA VOLTA e non a ogni riga, e non è solo
-                // questione di velocità: dentro il ciclo un `getString` su una colonna
-                // che il provider non serve darebbe errore a metà elenco, e quello che si
-                // è raccolto fin lì tornerebbe come se fosse tutto. Un elenco troncato
-                // in silenzio è peggio di un elenco vuoto.
+                // ⚠️ Le colonne si risolvono una volta, prima del ciclo: dentro, un
+                // `getString` su una colonna che il provider non serve darebbe errore a metà
+                // elenco, e quello raccolto fin lì tornerebbe come se fosse tutto.
                 val bucketAt = c.column(MediaStore.Images.Media.BUCKET_ID)
                     ?: return@use
                 val nameAt = c.column(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
@@ -257,18 +201,15 @@ object Folder {
                     val clip = c.isClip(kindAt)
                     val seen = found[id]
                     found[id] = if (seen == null) {
-                        // ⚠️ Il nome della cartella può mancare, e succede davvero: allora
-                        // lo si ricava dal percorso della riga, perché una voce vuota da
-                        // toccare al buio è peggio di un nome ricostruito.
+                        // Il nome della cartella può mancare: allora si ricava dal percorso
+                        // della riga.
                         val name = nameAt?.let { c.getString(it) }?.takeIf { it.isNotBlank() }
                             ?: pathAt?.let { c.getString(it) }?.trimEnd('/')
                                 ?.substringBeforeLast('/')?.substringAfterLast('/')
                                 ?.takeIf { it.isNotBlank() }
                             ?: id.toString()
-                        // ⚠️ La copertina si prende SOLO qui, nel ramo della prima riga:
-                        // le righe arrivano dalla più recente, quindi questa è la foto
-                        // più nuova della cartella. Prenderla anche dopo la sostituirebbe
-                        // con la più vecchia, che è l'errore da non fare.
+                        // ⚠️ La copertina si prende solo qui, sulla prima riga, che è la più
+                        // recente: presa anche dopo diventerebbe la più vecchia.
                         Bucket(
                             id = id,
                             name = name,
@@ -286,9 +227,8 @@ object Folder {
                 }
             }
         }
-        // ⚠️ Il collatore si prende una volta per chiamata e non per confronto: `getInstance`
-        // legge la lingua in vigore e costruisce le sue tabelle, che su un elenco di cartelle
-        // sarebbe un lavoro rifatto a ogni paragone.
+        // Il collatore si prende una volta per chiamata: `getInstance` legge la lingua in vigore
+        // e costruisce le sue tabelle.
         val ordine = Collator.getInstance()
         found.values.sortedWith(compareBy(ordine) { it.name })
     }
@@ -297,21 +237,14 @@ object Folder {
      * Tutte le immagini e tutti i video delle cartelle che l'elenco iniziale mostra, dalla più
      * recente.
      *
-     * ⚠️⚠️ **NASCE CON LA `2.97` PER 'GENERA MINIATURE', ED È LA SUA SPECIFICA** (campo libero del
-     * giro della `2.93` e della `2.94`: *un nuovo pulsante 'Genera miniature' che genera le
-     * miniature di TUTTE le miniature delle cartelle visibili, di fatto generando una cache
-     * dell'intera collezione*).
-     * 'Visibili' vuol dire quelle dell'elenco iniziale: una cartella nascosta resta fuori, e il
-     * minuto di 'Mostra nascoste' non conta, perché è un prestito e non una scelta.
-     * ⚠️ **Una query sola, come [buckets]**, con lo stesso filtro e lo stesso ordine: chiedere
-     * cartella per cartella vorrebbe dire una interrogazione per ogni cartella del telefono.
-     * ⚠️ **Il confronto con le nascoste si fa una volta per cartella** e non per riga: le righe di
-     * una cartella sono tante, e la risposta è la stessa per tutte.
-     * ⚠️ **Una riga senza percorso entra**, come in `Bucket.isHidden`: senza la colonna non c'è
-     * niente da confrontare, e una miniatura in più costa meno di una cartella visibile lasciata
-     * fuori.
-     * ⚠️ **Dalla più recente**, perché sono le immagini che si aprono per prime: se la generazione
-     * si ferma a metà, quello che è fatto è quello che serve di più.
+     * Serve a 'Genera miniature' ([Warmup]). Una cartella nascosta resta fuori, e il minuto di
+     * 'Mostra nascoste' non conta: è un prestito e non una scelta.
+     * Una query sola, come [buckets], con lo stesso filtro e lo stesso ordine; il confronto con
+     * le nascoste si fa una volta per cartella, non per riga.
+     * Una riga senza percorso entra, come in [FolderSelection.visible]: una miniatura in più costa meno
+     * di una cartella visibile lasciata fuori.
+     * Dalla più recente, perché sono le immagini che si aprono per prime: se la generazione si
+     * ferma a metà, quello che è fatto è quello che serve di più.
      */
     suspend fun everything(context: Context, hidden: Set<String>,
         selection: FolderSelection = FolderSelection(hidden = hidden)): List<Uri> =
@@ -347,43 +280,22 @@ object Folder {
     /**
      * La cartella che contiene il file in [file], cioè il suo percorso meno il nome.
      *
-     * ⚠️ **Una funzione sola per [buckets] e per [everything]**: è la stessa domanda (*in che
-     * cartella sta questa riga?*), e due modi di rispondere darebbero due elenchi di nascoste che
-     * non coincidono.
+     * Una funzione sola per [buckets] e per [everything]: due modi di rispondere darebbero due
+     * elenchi di nascoste che non coincidono.
      */
     private fun folderOf(file: String?): String? =
         file?.substringBeforeLast('/')?.takeIf { it.isNotBlank() }
 
     /**
-     * La cartella intera, posizionata sulla prima foto dell'ordine di base, cioè la più
-     * recente.
+     * Quanto pesa una cartella, quante immagini e quanti video contiene, e dov'è su disco: i
+     * dati delle pastiglie dell'intestazione, che dalla griglia non si sanno (là ci sono gli
+     * indirizzi, non le righe).
      *
-     * ⚠️ **Chi apre deve poi spostarsi sull'inizio della sequenza SCELTA** (vedi
-     * `ViewerViewModel.openGrid`): con il verso invertito la più recente è l'ultima, e
-     * aprire una cartella su un vicolo cieco è il difetto che questa funzione ha avuto
-     * nella 0.29.
-     * ⚠️ **Una cartella con una foto sola qui vale [Lookup.Found] e non [Lookup.Alone]**,
-     * al contrario di [seriesAround], e la differenza non è una svista: là la domanda è
-     * 'che cosa c'è intorno a questa foto', e una sola non è una serie; qui la domanda è
-     * 'apri questa cartella', e la risposta deve comunque portare l'immagine da aprire.
-     */
-    /**
-     * Quanto pesa una cartella e quanti video contiene.
-     *
-     * ⚠️⚠️ **NASCE PER LE DUE PASTIGLIE DEL INTESTAZIONE, DALLA `1.83`** (variante 10 del mockup,
-     * scelta da lui): sono due dati che dalla griglia non si sanno, perché là ci sono gli
-     * indirizzi e non le righe. Il brief lo dice in una riga: *il conto va fatto una volta e non
-     * per miniatura*.
-     * ⚠️⚠️ **UNA QUERY SOLA PER TUTTI E DUE I NUMERI, e l'alternativa era una per file**: il peso
-     * di un `content://` si legge dalla sua riga, quindi con l'elenco degli indirizzi in mano
-     * servirebbero duecento interrogazioni per una cartella di duecento immagini. Qui si chiede
-     * al bucket, che è la stessa condizione con cui la cartella è stata letta.
-     * ⚠️ **Il conto dei video si fa QUI e non sugli indirizzi**, benché dall'indirizzo si
-     * riconosca un filmato: la riga porta già il tipo, quindi contarlo costa niente, e chi
-     * chiama non deve sapere come è fatto un indirizzo di video.
-     * ⚠️ **Un peso che non si legge vale zero e non fa fallire niente**: una riga senza `SIZE`
-     * esiste (un file appena arrivato, un provider avaro), e un totale un po' più basso è meglio
-     * di nessun totale.
+     * ⚠️ **Una query sola per tutti i numeri**: il peso di un `content://` si legge dalla sua
+     * riga, quindi partendo dagli indirizzi servirebbe una query per file. Si chiede al bucket,
+     * con la stessa condizione con cui la cartella è stata letta.
+     * Un peso che non si legge vale zero: una riga senza `SIZE` esiste (un file appena arrivato,
+     * un provider avaro), e un totale un po' più basso è meglio di nessun totale.
      */
     suspend fun weigh(context: Context, bucket: Long): Facts = withContext(Dispatchers.IO) {
         if (!granted(context)) return@withContext Facts()
@@ -420,34 +332,24 @@ object Folder {
     }
 
     /**
-     * Rinomina la cartella che vive in [path], e dice dove è finita.
+     * Rinomina la cartella in [path], e dice dove è finita (tocco lungo sul nome
+     * dell'intestazione, richiesta dell'utente).
      *
-     * ⚠️⚠️ **NASCE NELLA `1.95` DAL TOCCO LUNGO SUL NOME DELL'INTESTAZIONE** (sua richiesta:
-     * *non più 'copia percorso' -> passa a 'Rinomina': per rinominare facilmente la cartella*).
+     * ⚠️ **Si rinomina sul disco e non nel `MediaStore`**: il provider conosce i file, non le
+     * directory, e una cartella con file che non indicizza resterebbe mezza spostata. Con
+     * l'accesso a tutti i file, `renameTo` è atomico e sposta tutto quello che c'è dentro.
      *
-     * ⚠️⚠️ **SI RINOMINA SUL DISCO E NON NEL `MediaStore`**, ed è la sola via che rinomini
-     * davvero **la cartella**: il provider conosce i file, non le directory, quindi passando di
-     * là si dovrebbero riscrivere il `RELATIVE_PATH` di ogni riga una per una, e una cartella
-     * senza media (o con dentro file che il MediaStore non indicizza) resterebbe dov'è, mezza
-     * spostata. L'app ha l'accesso a tutti i file, che è il permesso con cui crea già le cartelle
-     * nuove: `renameTo` è atomico e sposta tutto quello che c'è dentro, indicizzato o no.
+     * ⚠️ **Il `BUCKET_ID` cambia**: il MediaStore lo ricava dal percorso, quindi la cartella
+     * rinominata è per lui una cartella nuova. Chi chiama riapre la griglia sull'identificatore
+     * nuovo e vi trasferisce quello che era appeso al vecchio (la copertina scelta e il colore).
+     * L'identificatore nuovo si chiede al MediaStore, non si calcola: la formula è un dettaglio
+     * del provider, già cambiato fra due versioni di Android, e un numero sbagliato darebbe una
+     * cartella vuota senza errori.
      *
-     * ⚠️⚠️ **IL `BUCKET_ID` CAMBIA, E QUESTO GOVERNA TUTTO IL RESTO**: il MediaStore lo ricava
-     * dal **percorso**, quindi per lui la cartella rinominata è una cartella nuova, e quella di
-     * prima non esiste più. Chi chiama deve riaprire la griglia sull'identificatore nuovo, e
-     * portarsi dietro quello che era appeso al vecchio (la copertina scelta e la tinta).
-     * ⚠️ **L'identificatore nuovo si CHIEDE al MediaStore e non si calcola**: la formula che lo
-     * ricava dal percorso è un dettaglio del provider, cambiata già una volta fra due versioni di
-     * Android, e un numero calcolato a mano che diverge non darebbe nessun errore: darebbe una
-     * cartella vuota. Qui si legge la riga di un file che ci vive dentro.
-     *
-     * ⚠️ **Lo scan riguarda i file, non la cartella**: `MediaScannerConnection` indicizza file, e
-     * di una directory non fa niente. Quindi si raccolgono i percorsi prima (per togliere le righe
-     * vecchie) e i corrispondenti dopo (per metterne di nuove), e si aspetta, che è quello che
-     * [FileTree.scan] fa già per copie e spostamenti.
-     * ⚠️ **Il nome si controlla qui e non solo nella finestra**: uno slash trasformerebbe una
+     * Lo scan riguarda i file, non la cartella: si raccolgono i percorsi prima (per togliere le
+     * righe vecchie) e dopo (per le nuove), come [FileTree.scan] fa per copie e spostamenti.
+     * ⚠️ **Il nome si controlla anche qui, non solo nella finestra**: una barra trasformerebbe la
      * rinomina in uno spostamento, e i due nomi speciali del file system porterebbero altrove.
-     * Una finestra è un posto in cui si scrive, non una garanzia.
      */
     suspend fun rename(context: Context, path: String, name: String): Renamed =
         withContext(Dispatchers.IO) {
@@ -460,9 +362,8 @@ object Folder {
             if (casa == null || !vecchia.isDirectory) return@withContext Renamed.FAILED
             val nuova = File(casa, pulito)
             if (nuova.absolutePath == vecchia.absolutePath) return@withContext Renamed.FAILED
-            // ⚠️ Un nome già preso non si rinumera come per i file: là il numero fa parte del
-            // mestiere della copia, qui l'utente ha scritto un nome e riceverne un altro sarebbe
-            // una sorpresa. Si dice che è occupato e si lascia riscrivere.
+            // Un nome già preso non si rinumera come per i file: l'utente ha scritto un nome, e
+            // riceverne un altro sarebbe una sorpresa. Si dice che è occupato.
             if (nuova.exists()) return@withContext Renamed.TAKEN
             val prima = runCatching {
                 vecchia.walkTopDown().filter { it.isFile }.map { it.absolutePath }.toList()
@@ -488,25 +389,22 @@ object Folder {
     }
 
     /**
-     * The MediaStore folder at [path], or `null` when it holds no picture: the key of its colour
-     * (`FolderTints`), for 'Faro' from the 6.20, which starts from a disk folder.
+     * La cartella del MediaStore in [path], o `null` quando non contiene immagini: la chiave del
+     * suo colore (`FolderTints`), per 'Faro', che parte da una cartella su disco.
      */
     suspend fun bucketOf(context: Context, path: String): Long? =
         withContext(Dispatchers.IO) { bucketAt(context, path) }
 
     /**
-     * L'identificatore che il `MediaStore` dà alla cartella in [path], letto da un file che ci
-     * vive dentro.
+     * L'identificatore che il `MediaStore` dà alla cartella in [path], letto da un file che vi
+     * è dentro.
      *
-     * ⚠️ **`null` quando la cartella non ha media indicizzati**, e non è un guasto: una cartella
-     * senza immagini né video non compare nella schermata iniziale, quindi non c'è nessun
-     * identificatore da conoscere.
-     * ⚠️⚠️ **IL `LIKE` RESTRINGE MA NON DECIDE, E I DUE PASSI SERVONO TUTTI E DUE**: da solo
-     * prenderebbe le **sottocartelle**, che hanno un bucket loro, e i suoi due jolly (`%` e `_`,
-     * e il secondo in un nome di cartella è comune) allargherebbero il risultato invece di
-     * restringerlo. Quindi SQLite taglia il grosso e il confronto esatto sul genitore sceglie:
-     * senza il primo passo questa query leggerebbe l'intera galleria riga per riga, senza il
-     * secondo risponderebbe con la cartella sbagliata.
+     * `null` quando la cartella non ha media indicizzati: allora non compare nell'elenco
+     * iniziale, e non c'è identificatore da conoscere.
+     * ⚠️ **Il `LIKE` restringe, il confronto esatto decide**: da solo prenderebbe le
+     * sottocartelle, che hanno un bucket loro, e i suoi jolly (`%` e `_`, comune nei nomi)
+     * allargherebbero il risultato. Senza il `LIKE` la query leggerebbe tutta la galleria, senza
+     * il confronto risponderebbe con la cartella sbagliata.
      */
     private fun bucketAt(context: Context, path: String): Long? = runCatching {
         context.contentResolver.query(
@@ -533,23 +431,17 @@ object Folder {
     /**
      * Quello che di una cartella si sa solo interrogando il `MediaStore`.
      *
-     * ⚠️ **Zero è anche la risposta di 'non lo so ancora'**, ed è voluto: chi disegna le
-     * pastiglie le mostra solo con un numero sopra lo zero, quindi una cartella non ancora pesata
-     * e una cartella vuota si comportano allo stesso modo invece di lampeggiare.
-     * ⚠️⚠️ **[shots] E [path] ARRIVANO CON LA `1.85`, DALLA STESSA QUERY**: il terzo è la risposta
-     * a `d-front-altro` (*aggiungi il numero di immagini*), il quarto serve ai due gesti
-     * dell'intestazione (aprire il gestore file, e copiare il nome col percorso). Nessuno dei due
-     * costa una lettura in più, che è la ragione per cui vivono qui invece che in una funzione
-     * loro.
+     * Zero vale anche 'non lo so ancora': le pastiglie si mostrano solo sopra lo zero, quindi una
+     * cartella non ancora pesata e una vuota si comportano allo stesso modo, senza lampeggiare.
+     * Tutti i campi vengono dalla stessa query ([weigh]).
      *
-     * @param shots quante immagini, cioè le righe che non sono video: contate qui e non
-     *   sottratte dal totale, perché una riga di un tipo che non conosciamo non è né l'una né
+     * @param shots quante immagini (risposta a `d-front-altro`): le righe che non sono video,
+     *   contate e non sottratte dal totale, perché una riga di tipo sconosciuto non è né l'una né
      *   l'altra cosa.
-     * @param path la cartella su disco, presa dalla prima riga che ce l'ha.
-     *   ⚠️ **Si legge da `DATA`, che è deprecata, e non da `RELATIVE_PATH`**: quella nasce con
-     *   l'API 29 e questa app arriva ad Android 9, quindi la seconda darebbe `null` proprio dove
-     *   il gestore file di sistema è l'unica via per guardare una cartella. Il campo resta
-     *   leggibile, e quello che è deprecato è **scriverlo**.
+     * @param path la cartella su disco, presa dalla prima riga che ce l'ha: serve alla rinomina
+     *   della cartella (`ViewerViewModel.renameFolder`).
+     *   ⚠️ **Si legge da `DATA`, deprecata, e non da `RELATIVE_PATH`**, che esiste dall'API 29,
+     *   mentre l'app arriva ad Android 9. Leggere `DATA` è ancora lecito; è deprecato scriverla.
      */
     data class Facts(
         val bytes: Long = 0L,
@@ -558,6 +450,16 @@ object Folder {
         val path: String? = null
     )
 
+    /**
+     * La cartella intera, posizionata sulla prima immagine dell'ordine di base, cioè la più
+     * recente.
+     *
+     * ⚠️ **Chi apre deve poi spostarsi sull'inizio della sequenza scelta** (vedi
+     * `ViewerViewModel.openGrid`): col verso invertito la più recente è l'ultima.
+     * Una cartella con un'immagine sola qui vale [Lookup.Found] e non [Lookup.Alone], al
+     * contrario di [seriesAround]: qui la domanda è 'apri questa cartella', e la risposta deve
+     * comunque contenere l'immagine da aprire.
+     */
     suspend fun newestIn(context: Context, bucket: Long): Lookup = withContext(Dispatchers.IO) {
         if (!granted(context)) return@withContext Lookup.NoPermission
         val ids = urisOf(context, bucket)
@@ -568,25 +470,17 @@ object Folder {
     /**
      * Le immagini del telefono il cui **nome** contiene [text], in tutte le cartelle.
      *
-     * ⚠️⚠️ **RISPONDE CON UN [Lookup] E NON CON UNA LISTA, e non è pedanteria**: così i
-     * risultati sono una **serie** come quella di una cartella, quindi la griglia li mostra,
-     * il visualizzatore li sfoglia, la selezione multipla ci lavora sopra e il verso segue
-     * l'impostazione, tutto senza una riga in più. Una lista nuda avrebbe voluto un secondo
-     * giro di tubature parallelo a quello che c'è già.
-     * ⚠️⚠️ **Le cartelle NASCOSTE restano fuori**, o l'esclusione sarebbe una finzione: una
-     * cartella tolta dall'elenco che poi riappare in fondo a una ricerca non è nascosta, è
-     * solo spostata. È il motivo per cui questa funzione vuole [hidden] invece di leggerselo
-     * da sé: le impostazioni le sa il modello, il MediaStore no.
-     * ⚠️ **`LIKE` distingue gli accenti e non le maiuscole**: SQLite normalizza le sole
-     * lettere ASCII, quindi *foto* trova *FOTO* ma *città* non trova *CITTA*. Sui nomi di
-     * file la cosa quasi non si vede, e il rimedio vero (una colonna normalizzata tutta
-     * nostra) vorrebbe un indice nostro di tutta la galleria.
-     * ⚠️ **`%` e `_` nel testo cercato si neutralizzano**: sono i jolly di `LIKE`, e senza
-     * l'escape chi cerca `foto_01` troverebbe anche `foto-01`, cioè un risultato in più che
-     * nessuno ha chiesto e che non si spiega.
-     * ⚠️ **Nessun tetto ai risultati, ed è deliberato**: la griglia è pigra e una lista di
-     * qualche migliaio di indirizzi pesa quanto un'immagine piccola. Un tetto silenzioso
-     * direbbe 'non c'è altro' mentendo, che è il difetto peggiore di una ricerca.
+     * ⚠️ **Risponde con un [Lookup] e non con una lista**: i risultati sono una serie come quella
+     * di una cartella, quindi la griglia li mostra, il visualizzatore li sfoglia, la selezione
+     * multipla ci lavora e il verso segue l'impostazione, senza un secondo percorso parallelo.
+     * ⚠️ **Le cartelle nascoste restano fuori** ([selection]), o una cartella esclusa
+     * riapparirebbe in fondo a una ricerca: le impostazioni le sa il modello, il MediaStore no.
+     * `LIKE` distingue gli accenti e non le maiuscole: SQLite normalizza solo le lettere ASCII,
+     * quindi *foto* trova *FOTO* ma *città* non trova *CITTA*.
+     * `%` e `_` nel testo cercato si neutralizzano: senza l'escape `foto_01` troverebbe anche
+     * `foto-01`.
+     * Nessun tetto ai risultati: la griglia è pigra, e un tetto silenzioso direbbe 'non c'è
+     * altro' mentendo.
      */
     suspend fun byName(
         context: Context,
@@ -601,15 +495,11 @@ object Folder {
         val pattern = "%" + needle.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
         val found = mutableListOf<Uri>()
         /*
-         * ⚠️⚠️ **IL CONFINE È UNA CONDIZIONE DELLA QUERY E NON UN FILTRO DOPO**: chiedere tutta
-         * la galleria per buttare via il 99% dei risultati costa una lettura di ogni riga a ogni
-         * lettera battuta, ed è proprio quello che la pausa fra un tasto e l'altro esiste per
-         * evitare. Il `BUCKET_ID` è indicizzato, quindi con lui la ricerca in una cartella è più
-         * veloce di quella globale invece che uguale.
-         * ⚠️ **Le cartelle nascoste si filtrano lo stesso**: una cartella nascosta non si apre,
-         * quindi in una ricerca ristretta il caso non capita; ma la riga qui sotto non sa da dove
-         * arriva il confine, e spegnerla sulla fiducia sarebbe un buco che si apre il giorno che
-         * qualcuno chiama questa funzione da un altro posto.
+         * Il confine della cartella è una condizione della query, non un filtro dopo: il
+         * `BUCKET_ID` è indicizzato, e chiedere tutta la galleria a ogni lettera battuta per
+         * scartarne quasi tutta sarebbe lento.
+         * Le cartelle nascoste si filtrano lo stesso: in una ricerca ristretta il caso non
+         * capita, ma il filtro non sa da dove arriva il confine.
          */
         val dove = if (bucket == null) {
             media("${MediaStore.Images.Media.DISPLAY_NAME} LIKE ? ESCAPE '\\'")
@@ -645,19 +535,18 @@ object Folder {
     }
 
     /**
-     * Every photo and video of the folders the grid shows, in Feed order ([Feed.order]), or
-     * `null` without the permission.
+     * Tutte le immagini e i video delle cartelle che la griglia mostra, nell'ordine del Feed
+     * ([Feed.order]), o `null` senza il permesso.
      *
-     * ⚠️⚠️ **The folders are those of [selection]**, the same filter as the grid and the search
-     * (his choice D1): hidden, included and excluded folders count as they do there. The bin is
-     * out by construction, as in the search: AIV GitHub keeps it in the app's own folder, where
-     * the MediaStore does not look, and the system's trash of AIV Play is left out of a query by
-     * default.
-     * ⚠️ **`DATE_TAKEN` is read from the files table too**: the column lives in the table, like
-     * the others of [COLUMNS], and for a row without it the cursor gives `null`.
-     * ⚠️ **[peeking] shows the hidden folders here too** (his request for the `6.03`): 'Mostra
-     * nascoste' adds their pictures to the stream for as long as it lasts, as it adds their
-     * folders to the grid.
+     * Le cartelle sono quelle di [selection], lo stesso filtro della griglia e della ricerca
+     * (scelta D1 dell'utente). Il cestino è fuori per costruzione: AIV GitHub lo tiene nella
+     * cartella dell'app, dove il MediaStore non guarda, e il cestino di sistema di AIV Play è
+     * escluso di serie da una query.
+     * `DATE_TAKEN` si legge anche dalla tabella dei file, come le altre colonne di [COLUMNS]; per
+     * una riga che non ce l'ha il cursore dà `null`.
+     * [peeking] mostra anche qui le cartelle nascoste (richiesta dell'utente, 6.03): 'Mostra
+     * nascoste' aggiunge le loro immagini al Feed finché dura, come aggiunge le cartelle alla
+     * griglia.
      */
     suspend fun feed(
         context: Context,
@@ -694,14 +583,13 @@ object Folder {
             Feed.order(Feed.shown(rows, selection, peeking), date)
         }
 
-    /** The date of taking, which only the Feed reads: see [feed]. */
+    /** La data dello scatto, che legge solo il Feed: vedi [feed]. */
     private const val TAKEN = MediaStore.Images.Media.DATE_TAKEN
 
     /**
-     * Se le cartelle si possono leggere. ⚠️ **Il permesso dipende dalla variante, e lo dice
-     * [Store]** (dalla `5.10`): in `github` è quello PESANTE, l'accesso a tutti i file, scelta
-     * dell'utente (*preferisco chiedere un permesso pesante prima e poi essere a posto per
-     * sempre*); in `play` sono i permessi su immagini e video, e l'accesso parziale conta.
+     * Se le cartelle si possono leggere. Il permesso dipende dalla variante, e lo dice [Store]:
+     * in `github` è l'accesso a tutti i file (scelta dell'utente), in `play` sono i permessi su
+     * immagini e video, e l'accesso parziale conta.
      */
     fun granted(context: Context): Boolean = Store.granted(context)
 
@@ -710,9 +598,8 @@ object Folder {
      * variante `github`: `MANAGE_EXTERNAL_STORAGE` è un permesso speciale, si concede con un
      * interruttore nelle impostazioni e non con il solito 'Consenti'.
      *
-     * ⚠️ Ne esistono DUE, e la seconda non è un lusso: quella mirata all'app manca
-     * su qualche sistema, e senza il ripiego sull'elenco generale la richiesta
-     * fallirebbe con un'eccezione invece di portare da qualche parte.
+     * ⚠️ Sono due: quella mirata all'app manca su qualche sistema, e senza il ripiego
+     * sull'elenco generale la richiesta fallirebbe con un'eccezione.
      */
     fun settingsIntents(context: Context): List<Intent> = listOf(
         Intent(
@@ -723,15 +610,13 @@ object Folder {
     )
 
     // ⚠️ L'ordine è quello degli indici usati sotto (0 id, 1 bucket, 2 nome, 3 peso,
-    // 4 percorso, 5 nome della cartella, 6 tipo): chi ne aggiunge una la mette IN FONDO.
-    // ⚠️ `DATA` è deprecata nell'API e serve lo stesso: è la sola colonna che dice
-    // dov'è il file, ed è la chiave con cui l'indirizzo del selettore si riporta
-    // alla riga giusta senza indovinare.
-    // ⚠️⚠️ **Le costanti restano quelle di `Images` anche ora che si legge la tabella
-    // dei FILE, e non è una svista**: sono `String` condivise, dichiarate identiche in
-    // `ImageColumns` e in `VideoColumns` perché la colonna sta sotto, nella tabella, non
-    // nella vista. Le sorelle di `MediaStore.MediaColumns` direbbero la stessa cosa ma
-    // esistono solo da Android 10, e `minSdk` qui è 28.
+    // 4 percorso, 5 nome della cartella, 6 tipo, 7 data): una colonna nuova va in fondo.
+    // `DATA` è deprecata e serve lo stesso: è la sola colonna che dice dov'è il file, ed è la
+    // chiave con cui l'indirizzo del selettore si riporta alla riga giusta.
+    // Le costanti sono quelle di `Images` anche sulla tabella dei file: sono `String`
+    // identiche in `ImageColumns` e in `VideoColumns`, perché la colonna è nella tabella e non
+    // nella vista. Quelle di `MediaStore.MediaColumns` esistono solo da Android 10, e `minSdk`
+    // è 28.
     @Suppress("DEPRECATION")
     private val COLUMNS = arrayOf(
         MediaStore.Images.Media._ID,
@@ -741,33 +626,28 @@ object Folder {
         MediaStore.Images.Media.DATA,
         MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
         MediaStore.Files.FileColumns.MEDIA_TYPE,
-        // ⚠️ From the `5.80`, for the grid ordered by date (`Bucket.latest`).
+        // Per la griglia ordinata per data (`Bucket.latest`).
         MediaStore.Images.Media.DATE_MODIFIED
     )
 
     /**
-     * La tabella che si interroga, e dalla `0.83` è quella dei FILE.
+     * La tabella che si interroga: quella dei file.
      *
-     * ⚠️⚠️ **UNA QUERY SOLA PER IMMAGINI E VIDEO, e l'alternativa era peggiore.** Le due
-     * viste `Images.Media` e `Video.Media` sono due filtri sulla **stessa** tabella, quindi
-     * interrogarle tutte e due vorrebbe dire due cursori da fondere a mano tenendo l'ordine
-     * per data: un secondo ordinamento scritto in Kotlin che deve restare d'accordo con
-     * quello di SQLite, per sempre. La tabella sotto le contiene già in ordine.
-     * ⚠️ **Il volume si scrive per esteso e non con `MediaStore.VOLUME_EXTERNAL`**, che è
-     * arrivato con Android 10: la stringa è la stessa e vale anche sui telefoni più
-     * vecchi, che questa app sostiene fino ad Android 9.
-     * ⚠️ **Non è privata perché è anche l'indirizzo che si ascolta**: `ViewerViewModel` ci
-     * registra l'osservatore che accorge l'app dei file arrivati da fuori, e la tabella da
-     * ascoltare deve essere per forza quella che si legge.
+     * ⚠️ **Una query sola per immagini e video**: `Images.Media` e `Video.Media` sono due filtri
+     * sulla stessa tabella, e interrogarle a parte vorrebbe dire fondere due cursori a mano con
+     * un secondo ordinamento in Kotlin da tenere d'accordo con quello di SQLite.
+     * Il volume si scrive per esteso: `MediaStore.VOLUME_EXTERNAL` esiste da Android 10, e l'app
+     * arriva ad Android 9.
+     * Non è privata perché `ViewerViewModel` vi registra l'osservatore dei file arrivati da
+     * fuori, e la tabella da ascoltare deve essere quella che si legge.
      */
     val TABLE: Uri = MediaStore.Files.getContentUri("external")
 
     /**
-     * Il filtro che tiene fuori tutto ciò che non è una fotografia o un filmato.
+     * Il filtro che tiene fuori tutto ciò che non è un'immagine o un video.
      *
-     * ⚠️⚠️ **SERVE SEMPRE, in ogni query di questo file**: la tabella dei file contiene
-     * anche i documenti, la musica e le **cartelle** (tipo 0). Dimenticarlo una volta sola
-     * vuol dire una griglia che mostra i PDF.
+     * ⚠️ **Serve in ogni query di questo file**: la tabella dei file contiene anche documenti,
+     * musica e cartelle (tipo 0), e senza il filtro la griglia mostrerebbe i PDF.
      */
     private val MEDIA = "${MediaStore.Files.FileColumns.MEDIA_TYPE} IN " +
         "(${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, " +
@@ -777,24 +657,18 @@ object Folder {
     private fun media(and: String): String = "$MEDIA AND ($and)"
 
     /**
-     * The folder the picture at [uri] belongs to, or the REASON there is none.
+     * La cartella dell'immagine in [uri], o il perché non c'è.
      *
-     * ⚠️ Una cartella con quella foto sola non è una serie, e vale `Alone`: offrire
-     * di sfogliarla sarebbe un gesto che non porta da nessuna parte.
+     * Una cartella con quell'immagine sola non è una serie, e vale `Alone`.
      */
     suspend fun seriesAround(context: Context, uri: Uri): Lookup = withContext(Dispatchers.IO) {
         if (!granted(context)) return@withContext Lookup.NoPermission
         val card = identify(context, uri) ?: return@withContext Lookup.Unreadable
         val found = locate(context, uri, card)
-            // ⚠️⚠️ IL RIPIEGO SUL DISCO, ED È QUELLO PER CUI IL PERMESSO PESANTE È
-            // STATO PRESO. Se il MediaStore non riconosce la foto, la cartella si
-            // legge lo stesso: `MANAGE_EXTERNAL_STORAGE` dà i file, non un indice, e
-            // una directory non può 'non essere indicizzata'. Serve solo il
-            // percorso, che il selettore dichiara.
-            // ⚠️ Resta un RIPIEGO e non la via principale: dal MediaStore vengono
-            // indirizzi `content://` come quello con cui la foto è stata aperta,
-            // mentre di qui vengono `file://`, che il caricatore regge ma che sono
-            // un secondo genere di indirizzo in circolo.
+            // Il ripiego sul disco: se il MediaStore non riconosce l'immagine, la cartella si
+            // legge lo stesso con l'accesso a tutti i file, dal percorso che il selettore
+            // dichiara. Resta un ripiego perché dà indirizzi `file://`, un secondo genere di
+            // indirizzo accanto ai `content://` del MediaStore.
             ?: return@withContext fromDisk(card) ?: Lookup.NotInGallery(card.evidence())
         list(context, found)
     }
@@ -802,23 +676,21 @@ object Folder {
     /**
      * Che cosa si è riusciti a sapere di quello che è stato aperto.
      *
-     * ⚠️ [size] vale -1 quando chi serve l'indirizzo non lo dichiara, e [path] è null
-     * quando non è un indirizzo del selettore: **sono assenze, non valori**, e il
-     * codice che cerca deve trattarle come tali invece di confrontarle.
+     * ⚠️ [size] vale -1 quando chi serve l'indirizzo non lo dichiara, e [path] è null quando
+     * non è un indirizzo del selettore: sono assenze, non valori, e non si confrontano.
      */
     private data class Card(val name: String, val size: Long, val path: String?, val synthetic: Boolean) {
         val sizeKnown: Boolean get() = size >= 0
 
         /**
-         * Il percorso solo quando è VERO.
-         *
-         * ⚠️⚠️ Quello del selettore non lo è: `/sdcard/.transforms/synthetic/picker/...`
-         * è una via FUSE inventata per l'occasione, non il posto dove il file sta.
+         * Il percorso solo quando è vero: quello del selettore,
+         * `/sdcard/.transforms/synthetic/picker/...`, è una via FUSE inventata, non il posto
+         * del file.
          */
         val realPath: String?
             get() = path?.takeUnless { it.contains(SYNTHETIC_MARK) }
 
-        /** Compatta, perché finisce in una riga sola sopra una fotografia. */
+        /** Compatta, perché finisce in una riga sola sopra un'immagine. */
         fun evidence(): String = buildString {
             append(name)
             append(if (sizeKnown) ", $size B" else ", peso ignoto")
@@ -829,37 +701,31 @@ object Folder {
     }
 
     /**
-     * ⚠️⚠️ **IL SELETTORE DICE UN NOME E UN PERCORSO CHE NON ESISTONO**, e questa
-     * costante è metà del rimedio. Dal sorgente AOSP (`PickerDbFacade`, commenti sui
-     * due `getProjection...`), per un indirizzo del selettore:
-     * - `_display_name` vale **`<media-id>.<estensione>`**;
-     * - `_data` vale **`/sdcard/.transforms/synthetic/picker/<utente>/<autorità>/media/<quel nome>`**.
+     * ⚠️ **Il selettore dichiara un nome e un percorso che non esistono**. Dal sorgente AOSP
+     * (`PickerDbFacade`, commenti sui due `getProjection...`), per un indirizzo del selettore:
+     * - `_display_name` vale `<media-id>.<estensione>`;
+     * - `_data` vale `/sdcard/.transforms/synthetic/picker/<utente>/<autorità>/media/<quel nome>`.
      *
-     * Nessuno dei due combacia con quello che il MediaStore ha in riga, quindi
-     * cercare per nome o per percorso non trova **mai** niente: è il difetto per cui
-     * la funzione ha risposto 'non è nella galleria' dalla 0.19 alla 0.25.
-     * L'unico dato vero che il selettore serve è il **peso**, e l'id in coda
-     * all'indirizzo, che per gli elementi locali **è** l'id del MediaStore.
+     * Nessuno dei due combacia con la riga del MediaStore, quindi cercare per nome o per
+     * percorso non trova mai niente. I dati veri sono il peso e l'id in coda all'indirizzo, che
+     * per gli elementi locali è l'id del MediaStore.
      */
     private const val SYNTHETIC_MARK = "/.transforms/synthetic/"
 
     /**
-     * Dove il MediaStore ha davvero trovato la foto: la cartella, la riga e che cosa è.
+     * Dove il MediaStore ha trovato l'immagine: la cartella, la riga e che cosa è.
      *
-     * ⚠️ [video] serve a ricostruire l'indirizzo giusto ([uriOf]): la stessa riga, nelle
-     * due tabelle, ha due indirizzi diversi, e cercare quello sbagliato dentro la serie
-     * darebbe [Lookup.Lost] su un file che è lì.
+     * [video] serve a ricostruire l'indirizzo giusto ([uriOf]): la stessa riga ha due
+     * indirizzi nelle due tabelle, e cercare quello sbagliato darebbe [Lookup.Lost].
      */
     private data class Located(val bucket: Long, val id: Long, val video: Boolean)
 
     private fun identify(context: Context, uri: Uri): Card? =
         runCatching {
             val wanted = mutableListOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE)
-            // ⚠️⚠️ IL PERCORSO È LA CHIAVE BUONA, e da Android 13 il selettore lo
-            // serve: `PickerMediaColumns.DATA` è pubblica e risponde col percorso
-            // vero del file scelto (`PickerUriResolver.getPickerFileFromUri` la usa
-            // esattamente così). Con quello la riga del MediaStore si trova per
-            // uguaglianza, senza indovinare per nome e peso.
+            // Il percorso è la chiave buona, e da Android 13 il selettore lo serve:
+            // `PickerMediaColumns.DATA` risponde col percorso vero del file scelto (così la usa
+            // `PickerUriResolver.getPickerFileFromUri`), e la riga si trova per uguaglianza.
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 wanted += MediaStore.PickerMediaColumns.DATA
             }
@@ -884,25 +750,20 @@ object Folder {
 
     /**
      * ⚠️ `getColumnIndex` risponde -1 su una colonna che il provider non serve, e
-     * `getString(-1)` **dà errore**: chiedere una proiezione non garantisce di
-     * riceverla, quindi ogni lettura passa di qui.
+     * `getString(-1)` dà errore: chiedere una proiezione non garantisce di riceverla, quindi
+     * ogni lettura passa di qui.
      */
     private fun Cursor.column(name: String): Int? = getColumnIndex(name).takeIf { it >= 0 }
 
     /**
-     * Quale riga del MediaStore è la foto sullo schermo: la cartella e l'id.
+     * Quale riga del MediaStore è l'immagine sullo schermo: la cartella e l'id.
      *
-     * ⚠️⚠️ **CHE COSA SI PUÒ CONFRONTARE, che è la lezione di sei versioni.** Di un
-     * indirizzo del selettore il nome e il percorso sono **inventati** (vedi
-     * `SYNTHETIC_MARK`): usarli come chiave non trova mai niente, e per giunta in
-     * silenzio. Restano veri il **peso** e l'**id in coda all'indirizzo**, e sono
-     * esattamente i due su cui questa funzione poggia adesso.
-     *
-     * ⚠️ **L'id resta CONTROLLATO e non creduto**, perché un indirizzo qualunque
-     * finisce con un numero e quel numero può essere la riga di qualcun altro. Ma il
-     * controllo è sul **peso**, non sul nome: prima era sul nome, e siccome il nome
-     * del selettore è sintetico **la riga giusta veniva trovata e poi buttata via**.
-     * È questo il difetto che ha resistito più a lungo.
+     * ⚠️ **Di un indirizzo del selettore nome e percorso sono inventati** (vedi
+     * `SYNTHETIC_MARK`): come chiave non trovano niente, in silenzio. Restano veri il peso e
+     * l'id in coda all'indirizzo.
+     * ⚠️ **L'id si controlla sul peso, non sul nome**: un indirizzo qualunque finisce con un
+     * numero che può essere la riga di qualcun altro, e col nome sintetico del selettore la
+     * riga giusta sarebbe trovata e poi scartata.
      */
     private fun locate(context: Context, uri: Uri, card: Card): Located? {
         // 1. L'id in coda all'indirizzo, verificato sul peso. Per un elemento locale
@@ -931,10 +792,9 @@ object Folder {
             )?.let { return it }
         }
 
-        // 4. Il solo peso, quando il nome non è utilizzabile. ⚠️ Poco selettivo, e ci
-        // si arriva solo se le tre vie sopra hanno fallito: due file con lo stesso
-        // numero esatto di byte esistono, ma sono rari, e una cartella forse
-        // sbagliata è comunque meglio di un gesto che non fa niente.
+        // 4. Il solo peso, quando il nome non è utilizzabile. Poco selettivo, e ci si arriva
+        // solo se le tre vie sopra hanno fallito: due file con lo stesso numero esatto di byte
+        // sono rari, e una cartella forse sbagliata è meglio di un gesto che non fa niente.
         if (card.sizeKnown) {
             rowByWhere(
                 context,
@@ -957,42 +817,17 @@ object Folder {
     /**
      * Le estensioni che si considerano immagini leggendo una cartella dal disco.
      *
-     * ⚠️ Un elenco serve perché una directory contiene di tutto, e il MediaStore,
-     * che qui non c'è, era proprio quello che sapeva distinguere. Sono le stesse
-     * dei filtri del manifest, che è dove vive l'idea che l'app ha di 'immagine'.
+     * Serve un elenco perché una directory contiene di tutto, e qui il MediaStore, che sa
+     * distinguere, non c'è.
      *
-     * ⚠️⚠️ **E DALLA `1.47` QUELLA FRASE È VERA, mentre prima non lo era**: `bmp` stava qui e
-     * non nei due filtri, quindi l'app mostrava un BMP in una cartella e poi non si offriva
-     * di aprirne il collegamento. Era il difetto dell'SVG della `1.31` rovesciato: là un
-     * formato dichiarato e non disegnato, qui uno aperto e non dichiarato. ⚠️ Le due frasi
-     * che dicevano 'sono le stesse' non erano una svista da correggere leggendo: nessuno
-     * confronta due elenchi che vivono in due file di linguaggi diversi, ed è la ragione per
-     * cui la discordanza è durata.
-     *
-     * ⚠️⚠️ **`svg` C'È DALLA 1.31, e la sua assenza era un difetto vero e non una scelta**:
-     * i filtri del manifest lo dichiaravano già (`pathPattern` e `pathSuffix`, dalla `0.16`),
-     * quindi l'app si offriva di aprire un formato che poi non compariva nemmeno in una
-     * cartella letta dal disco. La domanda dell'utente (*che mi dici degli SVG?*) ha trovato
-     * i due elenchi che si contraddicevano.
-     * ⚠️⚠️ **`tif` e `tiff` SONO USCITI NELLA `1.32`**, su istruzione dell'utente (*togli*),
-     * e insieme a loro le otto righe che li dichiaravano nel manifest: `ImageDecoder` non
-     * legge il TIFF e nessun ripiego lo copre, quindi elencarli qui voleva dire mostrarli in
-     * una cartella per poi dare errore aprendoli. Era il gemello del difetto dell'SVG,
-     * scoperto insieme a lui: là un formato **supportato e non dichiarato**, qui uno
-     * **dichiarato e non supportato**.
-     * ⚠️ **Chi ne trova uno in una cartella non lo vede più**, e questo è il cambiamento
-     * visibile: non è una regressione, è la fine di un invito che l'app non poteva onorare.
-     * ⚠️⚠️ **`svgz` ARRIVA CON LA `1.34` E NON È COSTATO NIENTE DI DECODIFICA**, ed è la
-     * differenza col caso del TIFF: un `.svgz` è un SVG **compresso con gzip**, e il parser
-     * di androidsvg riconosce da sé la firma e si avvolge in un `GZIPInputStream`. Quindi qui
-     * la dichiarazione arriva **dopo** la capacità, che è il verso giusto. L'ha chiesto
-     * l'utente (giro della `1.31`, voce `svg-elenchi`: *aggiungi anche SVGZ*).
-     * ⚠️⚠️ **`dng` ARRIVES WITH THE `5.80`, HIS REQUEST OF 2026-10-12, AND IT IS THE ONE RAW
-     * FORMAT**: the system decoder reads it on its own (the Android image decoder lists *Digital
-     * negatives (via the DNG SDK)*), so here too the declaration comes after the capability. The
-     * other raw formats stay out: no decoder of the phone reads them. The editor cannot write a
-     * DNG back, so saving one makes a JPEG copy beside it (his answer `D1`, which is what
-     * `ImageEdit.canOverwrite` already does for every format it cannot write).
+     * ⚠️ **Deve coincidere coi filtri del manifesto**, dove vive l'idea che l'app ha di
+     * 'immagine': un formato elencato qui e non là si vede in una cartella ma l'app non si offre
+     * di aprirlo, e viceversa. Nessun controllo confronta i due elenchi, in due linguaggi
+     * diversi: un formato nuovo entra in tutti e due, e in [ImageActions] (`IMAGE_SUFFIXES`).
+     * Un formato si dichiara solo se il decodificatore lo legge: per questo TIFF e i RAW non ci
+     * sono, mentre `svgz` (androidsvg lo decomprime da sé) e `dng` (lo legge il decodificatore di
+     * sistema, richiesta dell'utente) sì. Il DNG non si riscrive: salvarlo crea una copia JPEG
+     * accanto (risposta `D1`, vedi `ImageEdit.canOverwrite`).
      */
     private val EXTENSIONS = setOf(
         "jpg", "jpeg", "jpe", "png", "gif", "webp", "avif", "heic", "heif", "bmp",
@@ -1000,40 +835,35 @@ object Folder {
     )
 
     /**
-     * Immagine o filmato: quello che una cartella letta dal disco deve mostrare.
+     * Immagine o video: quello che una cartella letta dal disco deve mostrare.
      *
-     * ⚠️ **I video ci sono dalla `0.83`**, e l'elenco delle loro estensioni vive in
-     * [Videos] insieme a tutto il resto che li riguarda, invece di essere copiato qui: due
-     * elenchi si separano al primo formato aggiunto in uno solo dei due.
+     * Le estensioni dei video sono in [Videos], con tutto quello che li riguarda: una copia qui
+     * si separerebbe al primo formato aggiunto.
      */
     private fun File.isMedia(): Boolean = isPicture(extension) || extension.lowercase() in
         Videos.EXTENSIONS
 
     /**
-     * Se quell'estensione è di una fotografia.
+     * Se quell'estensione è di un'immagine.
      *
-     * ⚠️ **Interna e non privata dalla `0.84`**: la usa anche [Tree], la vista delle cartelle
-     * di sistema, che legge il disco e quindi ha lo stesso problema di questo file, cioè
-     * nessuno che dica di che tipo è un file. Copiare l'elenco là avrebbe voluto dire due
-     * elenchi che si separano al primo formato aggiunto in uno solo dei due, che è la stessa
-     * ragione per cui le estensioni dei video vivono tutte in [Videos].
+     * Interna e non privata: la usa anche [Tree], la vista 'Cartelle di sistema', che legge il
+     * disco e non ha nessuno che dica il tipo di un file.
      */
     internal fun isPicture(ext: String): Boolean = ext.lowercase() in EXTENSIONS
 
     /**
-     * La cartella letta dal FILESYSTEM, quando il MediaStore non riconosce la foto.
+     * La cartella letta dal filesystem, quando il MediaStore non riconosce l'immagine.
      *
-     * ⚠️ L'ordine imita quello del MediaStore (data e poi nome, **decrescente**) invece
-     * di inventarne uno suo: sfogliare la stessa cartella deve dare la stessa sequenza,
-     * da qualunque delle due vie sia arrivata. Girato nella 0.30 insieme all'altro, e
-     * sono due posti da tenere d'accordo a mano.
+     * ⚠️ **L'ordine imita quello di [urisOf]** (data decrescente, poi nome al posto dell'id):
+     * la stessa cartella deve dare la stessa sequenza da tutte e due le vie, e i due posti si
+     * tengono d'accordo a mano.
      */
     private fun fromDisk(card: Card): Lookup? {
-        // ⚠️ Solo il percorso VERO: quello sintetico del selettore punta a una via
-        // FUSE inventata, la cui cartella non contiene le foto vicine.
+        // Solo il percorso vero: quello sintetico del selettore punta a una via FUSE inventata,
+        // la cui cartella non contiene le immagini vicine.
         val path = card.realPath ?: return null
-        // ⚠️ Il selettore può dichiarare `/sdcard`, che è un collegamento: AOSP fa
-        // la stessa sostituzione in `PickerUriResolver.getPickerFileFromUri`.
+        // Il selettore può dichiarare `/sdcard`, che è un collegamento: AOSP fa la stessa
+        // sostituzione in `PickerUriResolver.getPickerFileFromUri`.
         val real = path.replaceFirst("/sdcard", "/storage/emulated/0")
         val file = runCatching { File(real) }.getOrNull() ?: return null
         val dir = file.parentFile ?: return null
@@ -1051,10 +881,7 @@ object Folder {
     }
 
     /**
-     * Quello che di una riga serve a riconoscerla.
-     *
-     * ⚠️ Era una `Triple` fino alla `0.83`, e con la quarta cosa da portare (il tipo) i
-     * `.first` e `.second` sarebbero diventati indovinelli: qui i campi hanno un nome.
+     * Quello che di una riga serve a riconoscerla, con un nome per ogni campo.
      */
     private data class Row(val bucket: Long, val size: Long, val name: String, val video: Boolean)
 
@@ -1083,10 +910,9 @@ object Folder {
         }.getOrNull()
 
     /**
-     * Se la riga su cui è fermo il cursore è un filmato.
+     * Se la riga su cui è fermo il cursore è un video.
      *
-     * ⚠️ La colonna può mancare, e allora la risposta è 'immagine': è quello che l'app ha
-     * fatto per ottantadue versioni, quindi come ripiego non introduce niente di nuovo.
+     * La colonna può mancare, e allora la risposta è 'immagine'.
      */
     private fun Cursor.isClip(at: Int?): Boolean =
         at != null && !isNull(at) && getInt(at) == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO
@@ -1094,62 +920,39 @@ object Folder {
     /**
      * L'indice della colonna del tipo dentro [COLUMNS], per chi legge per posizione.
      *
-     * ⚠️ Le due funzioni qui sopra leggono le colonne **per indice** e non per nome, come
-     * facevano già: la proiezione è la stessa `COLUMNS` di sempre, quindi la posizione è
-     * nota. Chi aggiunge una colonna la mette in fondo, e questo numero resta buono.
+     * Le due funzioni qui sopra leggono le colonne per indice: la proiezione è [COLUMNS], quindi
+     * la posizione è nota. Una colonna nuova va in fondo, e questo numero resta buono.
      */
     private const val KIND_AT = 6
 
     /**
-     * Everything in that bucket, in a fixed order, with the opened picture found
-     * inside it.
+     * Tutta la cartella, nell'ordine di base di [urisOf], con dentro l'immagine aperta.
      *
-     * ⚠️ **Ordered by date and not by name**, and the reason is that names sort
-     * badly: `IMG_10` comes before `IMG_9` in any lexicographic order, so a folder
-     * of numbered photos would leaf through in a jumbled sequence. The id breaks
-     * ties, so two photos with the same timestamp still have one order rather than
-     * whichever the database feels like today.
-     * ⚠️ **Dalla più recente alla più vecchia** dalla 0.30, che è il verso della
-     * galleria di un telefono: vedi [idsOf].
-     *
-     * ⚠️ **Il VERSO invece non si decide qui**, ed è voluto: crescente sempre, e chi
-     * sfoglia dalla più recente lo ottiene girando la serie (`Series.reversed`, e
-     * l'impostazione in `ViewerViewModel.folder`). Con un `DESC` qui l'ordine
-     * dipenderebbe da due posti, e il ripiego sul disco andrebbe tenuto d'accordo a
-     * mano.
+     * Per data e non per nome: in ordine lessicografico `IMG_10` viene prima di `IMG_9`. L'id
+     * risolve i pari merito, così due immagini con la stessa data hanno sempre lo stesso ordine.
+     * Il verso scelto dall'utente non si decide qui: si ottiene girando la serie
+     * (`Series.reversed`, e l'impostazione in `ViewerViewModel.folder`).
      */
     private fun list(context: Context, found: Located): Lookup {
         val ids = urisOf(context, found.bucket)
         if (ids.size < 2) return Lookup.Alone
-        // ⚠️⚠️ L'INDICE SI TROVA PER ID, e non più confrontando nome o peso: l'id è la
-        // chiave della riga, quindi non può sbagliare e non può essere sintetico. Prima
-        // si riconfrontavano nome e percorso, cioè proprio i due dati che il selettore
-        // INVENTA, e la foto appena trovata rischiava di finire 'non ritrovata nella sua
-        // cartella'.
+        // ⚠️ L'indice si trova per id, la chiave della riga, che non può essere sintetica:
+        // nome e percorso sono proprio i dati che il selettore inventa.
         val index = ids.indexOf(uriOf(found.id, found.video))
         if (index < 0) return Lookup.Lost
         return Lookup.Found(Series(ids, index))
     }
 
     /**
-     * Gli id di una cartella nell'ordine di base, **dalla foto più recente alla più
-     * vecchia**.
+     * Gli indirizzi di una cartella nell'ordine di base, dall'immagine più recente alla più
+     * vecchia.
      *
-     * ⚠️⚠️ **DECRESCENTE, e dalla 0.30 è il verso PREDEFINITO** (decisione dell'utente:
-     * *questa modalità di sfogliare le immagini dev'essere quella predefinita, è la cosa
-     * più naturale su smartphone*). Fino alla 0.29 era crescente e il verso della
-     * galleria si otteneva con un'impostazione accesa: adesso è il contrario, e
-     * l'impostazione serve a tornare all'ordine cronologico. ⚠️ Chi lo rimette crescente
-     * 'per coerenza col MediaStore' rovescia il comportamento di tutta l'app.
-     *
-     * ⚠️⚠️ **ERANO GLI ID FINO ALLA `0.82`, e adesso sono gli INDIRIZZI**, perché con i
-     * video l'id da solo non basta più a dire di che riga si parla: la stessa riga vive
-     * nelle due tabelle con due indirizzi, e per costruire quello giusto bisogna sapere il
-     * tipo. Portandosi dietro l'indirizzo intero il tipo viaggia con lui, che è la stessa
-     * decisione dichiarata in [Videos].
-     * ⚠️ Il confronto resta esatto: sono stringhe costruite qui, dalla stessa funzione, e
-     * non indirizzi ricostruiti altrove per somiglianza, che è il genere di cosa che in
-     * questo file ha già fatto danni.
+     * ⚠️ **Decrescente è il verso predefinito** (decisione dell'utente: è il più naturale su uno
+     * smartphone); l'impostazione serve a tornare all'ordine cronologico. Rimesso crescente,
+     * rovescerebbe il comportamento di tutta l'app.
+     * Indirizzi e non id: la stessa riga ha due indirizzi nelle due tabelle, e l'indirizzo
+     * contiene il tipo (vedi [Videos]). Il confronto resta esatto, perché sono costruiti tutti
+     * da [uriOf].
      */
     private fun urisOf(context: Context, bucket: Long): List<Uri> {
         val found = mutableListOf<Uri>()
@@ -1168,11 +971,10 @@ object Folder {
     /**
      * L'indirizzo di una riga, nella tabella che le compete.
      *
-     * ⚠️⚠️ **NON si costruisce sulla tabella dei FILE anche se è quella che si interroga**,
-     * ed è la scelta che tiene in piedi tutto il resto: `content://media/external/file/12`
-     * non dice se è una fotografia o un filmato, mentre `.../video/media/12` sì. Il tipo
-     * dentro l'indirizzo è quello che permette a `Videos.isVideo` di essere una funzione
-     * pura, senza query, chiamabile per ogni riquadro che scorre.
+     * ⚠️ **Non si costruisce sulla tabella dei file, anche se è quella che si interroga**:
+     * `content://media/external/file/12` non dice se è un'immagine o un video,
+     * `.../video/media/12` sì. Col tipo nell'indirizzo `Videos.isVideo` è una funzione pura,
+     * senza query, chiamabile per ogni riquadro che scorre.
      */
     private fun uriOf(id: Long, video: Boolean): Uri = ContentUris.withAppendedId(
         if (video) MediaStore.Video.Media.EXTERNAL_CONTENT_URI
@@ -1182,49 +984,41 @@ object Folder {
 }
 
 /**
- * La radice dell'archivio PRIMARIO in testa a un percorso, cioè la parte che cambia da un telefono
- * all'altro.
+ * La radice dell'archivio primario in testa a un percorso, cioè la parte che cambia da un
+ * telefono all'altro.
  *
- * ⚠️ **Le forme sono quelle con cui Android nomina l'archivio del telefono**: col numero dell'utente
- * (`/storage/emulated/0`, e `10` per un profilo di lavoro), coi suoi due nomi storici (`/sdcard`,
- * `/mnt/sdcard`) e con quello di `/storage/self`. ⚠️ **`emulated` e `self` da soli non sono un
- * volume**: senza il numero, `/storage/emulated/legacy` si leggerebbe come l'archivio primario.
- * ⚠️ **Deve finire su una barra o sul percorso**, o `/sdcardx` si leggerebbe come `/sdcard` seguito
- * da una `x`.
+ * Le forme sono quelle con cui Android nomina l'archivio del telefono: col numero dell'utente
+ * (`/storage/emulated/0`, e `10` per un profilo di lavoro), coi due nomi storici (`/sdcard`,
+ * `/mnt/sdcard`) e con `/storage/self/primary`. `emulated` e `self` da soli non sono un volume:
+ * senza il numero, `/storage/emulated/legacy` si leggerebbe come l'archivio primario.
+ * Deve finire su una barra o sul percorso, o `/sdcardx` si leggerebbe come `/sdcard`.
  */
 private val PRIMARY_ROOT = Regex(
     "^(?:/storage/emulated/\\d+|/storage/self/primary|/sdcard|/mnt/sdcard)(?=/|$)"
 )
 
 /**
- * La radice di un volume RIMOVIBILE, una scheda o una chiavetta, scritta intera: `/storage/1234-5678`.
+ * La radice di un volume rimovibile, una scheda o una chiavetta, scritta intera:
+ * `/storage/1234-5678`.
  *
- * ⚠️ Esclude i due nomi che [PRIMARY_ROOT] tratta, `emulated` e `self`, che non sono un volume a sé.
+ * Esclude i due nomi che [PRIMARY_ROOT] tratta, `emulated` e `self`, che non sono un volume a sé.
  */
 private val REMOVABLE_ROOT = Regex("^/storage/(?!emulated(?:/|$)|self(?:/|$))[^/]+$")
 
 /**
  * Il percorso di una cartella come lo scrive l'elenco delle nascoste.
  *
- * ⚠️⚠️ **SULL'ARCHIVIO DEL TELEFONO SENZA LA RADICE, SU UNA SCHEDA INTERO, DALLA `2.99`**, ed è la sua
- * nota sulla voce `nascoste-percorsi` del giro della `2.98`: *preferirei che si nascondesse solo la
- * cartella nel percorso specifico, ma allo stesso tempo che quel percorso specifico fosse
- * riconducibile al corrispettivo di qualsiasi dispositivo*. Dalla `2.96` alla `2.98` la radice si
- * toglieva da ogni volume, quindi `DCIM/Temp` nascondeva quella cartella sul telefono **e** su ogni
- * scheda; la richiesta di allora era la sua riga del giro della `2.93` e della `2.94` (*se nascondo
- * /DCIM/Temp da un dispositivo, dovrebbe essere nascosto anche su un altro dispositivo*).
- * - **L'archivio del telefono perde la radice**, perché è la parte che da un telefono all'altro cambia
- *   (il numero dell'utente, i nomi storici): `DCIM/Temp` vuol dire quella cartella sul telefono, su
- *   qualunque telefono. ⚠️ **Le voci scritte dalla `2.96` in poi hanno già questa forma**, quindi non
- *   serve una migrazione: una voce nata da una scheda in quei tre giorni adesso vale per il telefono.
- * - ⚠️⚠️ **UNA SCHEDA TIENE IL PERCORSO INTERO, E NON È UN RIPIEGO**: il suo identificativo è quello
- *   della scheda e non del telefono, e Android la monta sempre sotto `/storage/<identificativo>`.
- *   Quindi `/storage/1234-5678/DCIM` vuol dire quella cartella su quella scheda, anche messa in un
- *   altro telefono, cioè proprio *il corrispettivo di qualsiasi dispositivo*.
- * ⚠️ **La radice dell'archivio diventa la stringa vuota**, e una radice nasconde solo se stessa (vedi
- * [covers]): nascosta, spariscono le immagini che vivono proprio là, e le cartelle dentro no.
- * ⚠️ **Un percorso fuori da un volume resta intero**, come una scheda: non ha niente da portare su un
- * altro telefono.
+ * ⚠️ **Sull'archivio del telefono senza la radice, su una scheda intero** (nota dell'utente sulla
+ * voce `nascoste-percorsi`: nascondere solo quella cartella, ma riconoscibile su qualsiasi
+ * dispositivo).
+ * - L'archivio del telefono perde la radice, la parte che da un telefono all'altro cambia:
+ *   `DCIM/Temp` vuol dire quella cartella sul telefono, su qualunque telefono.
+ * - Una scheda tiene il percorso intero: il suo identificativo è quello della scheda, e Android
+ *   la monta sempre sotto `/storage/<identificativo>`. Quindi `/storage/1234-5678/DCIM` vuol dire
+ *   quella cartella su quella scheda, anche in un altro telefono.
+ * La radice dell'archivio diventa la stringa vuota, e una radice nasconde solo se stessa (vedi
+ * [covers]): le immagini che sono proprio là, non le cartelle dentro.
+ * Un percorso fuori da un volume resta intero, come una scheda.
  */
 internal fun portablePath(path: String): String {
     val root = PRIMARY_ROOT.find(path) ?: return path.trimEnd('/').ifEmpty { path }
@@ -1234,14 +1028,12 @@ internal fun portablePath(path: String): String {
 /**
  * Se la voce [entry] copre la cartella [own], scritte tutte e due nella forma di [portablePath].
  *
- * ⚠️⚠️ **IL CONFRONTO È SUL SEPARATORE, e senza di lui la funzione nasconderebbe cose che
- * nessuno ha escluso**: con un `startsWith` nudo, escludere `.../Foo` toglierebbe anche
- * `.../Foo2` e `.../Foobar`, che sono cartelle diverse con un nome che comincia uguale.
- * Chiedendo la barra dopo, si nasconde `Foo` e tutto quello che sta **dentro** `Foo`, che
- * è quello che vuol dire escludere un percorso.
- * ⚠️ **La radice di un volume copre solo se stessa**, quella del telefono (la voce vuota) come quella
- * di una scheda: la voce vuota, con la barra dopo, coprirebbe ogni percorso fuori dall'archivio, che
- * comincia proprio con la barra, e la radice di una scheda coprirebbe la scheda intera.
+ * ⚠️ **Il confronto è sul separatore**: con un `startsWith` nudo, escludere `.../Foo`
+ * toglierebbe anche `.../Foo2` e `.../Foobar`. Con la barra dopo si nasconde `Foo` e tutto
+ * quello che c'è dentro.
+ * ⚠️ **La radice di un volume copre solo se stessa**, quella del telefono (la voce vuota) come
+ * quella di una scheda: la voce vuota con la barra dopo coprirebbe ogni percorso fuori
+ * dall'archivio, e la radice di una scheda la scheda intera.
  */
 private fun covers(entry: String, own: String): Boolean =
     own == entry || (entry.isNotEmpty() && !REMOVABLE_ROOT.matches(entry) && own.startsWith("$entry/"))
@@ -1249,9 +1041,9 @@ private fun covers(entry: String, own: String): Boolean =
 /**
  * Le voci dell'elenco delle nascoste che coprono la cartella in [path], un percorso intero.
  *
- * ⚠️ **Sono tutte e non una**, ed è quello che serve a rimostrare una cartella (vedi il dialogo in
- * `FolderScreen`): una cartella dentro una nascosta è coperta da lei, e togliere la sola voce col
- * suo nome non la farebbe tornare.
+ * Tutte e non una, perché servono a rimostrare una cartella (vedi il dialogo in `FolderScreen`):
+ * una cartella dentro una nascosta è coperta da lei, e togliere la sola voce col suo nome non la
+ * farebbe tornare.
  */
 internal fun coveringOf(hidden: Set<String>, path: String): List<String> {
     if (hidden.isEmpty()) return emptyList()
@@ -1269,45 +1061,27 @@ internal fun hiddenIn(hidden: Set<String>, path: String): Boolean {
 /**
  * Se la cartella in [path] è proprio una voce dell'elenco, e non soltanto coperta da una.
  *
- * ⚠️ **Serve al segno della vista 'Cartelle di sistema'**, che dalla `0.84` segna le cartelle che
- * l'utente ha nascosto e non quelle che ci stanno dentro: entrando in una cartella nascosta ogni
- * riga porterebbe lo stesso segno, e il segno non direbbe più niente.
+ * Serve al segno della vista 'Cartelle di sistema', che segna le cartelle nascoste e non quelle
+ * che contengono: dentro una cartella nascosta ogni riga avrebbe il segno, che non direbbe più
+ * niente.
  */
 internal fun listedIn(hidden: Set<String>, path: String): Boolean = portablePath(path) in hidden
 
 /**
  * Il nome di una voce dell'elenco delle nascoste, per il pannello e per la pagina delle impostazioni.
  *
- * ⚠️ **La radice di un volume non ha un nome**, e si scrive con la barra, che è come si scrive
- * la radice.
+ * La radice di un volume non ha un nome, e si scrive con la barra.
  */
 internal fun hiddenName(entry: String): String = entry.substringAfterLast('/').ifEmpty { "/" }
 
 /**
- * Il percorso di una voce come lo si legge: con la barra davanti, come lo ha scritto lui.
- *
- * ⚠️ **La barra davanti è quella della sua riga** (*se nascondo /DCIM/Temp*), e dice che il
- * percorso parte dalla radice: senza, `DCIM/Temp` si leggerebbe come un nome qualunque.
+ * Il percorso di una voce come lo si legge: con la barra davanti, come lo scrive l'utente
+ * (`/DCIM/Temp`). La barra dice che il percorso parte dalla radice: senza, `DCIM/Temp` si
+ * leggerebbe come un nome qualunque.
  */
 internal fun hiddenShown(entry: String): String = if (entry.startsWith('/')) entry else "/$entry"
 
-/**
- * Se questa cartella è fra quelle che l'utente ha escluso.
- *
- * ⚠️ **Una cartella senza percorso non si nasconde mai**: il provider può non servire la
- * colonna, e allora non c'è niente da confrontare. Meglio mostrarne una di troppo che
- * nasconderne una a caso.
- * ⚠️⚠️ **VIVE QUI DALLA `2.02`, E PRIMA ERA PRIVATA IN `FolderScreen.kt`**: adesso la leggono
- * in due, perché una cartella esclusa non compare nemmeno fra le destinazioni di una copia
- * (vedi `destinations`). Una seconda copia del confronto avrebbe potuto divergere proprio sul
- * separatore, che è la parte difficile, e dalla `2.96` anche sulla radice del volume.
- */
-internal fun Folder.Bucket.isHidden(hidden: Set<String>): Boolean {
-    val own = path ?: return false
-    return hiddenIn(hidden, own)
-}
-
-/** Break opportunity before each uppercase letter that follows a lowercase one. */
+/** Un punto in cui andare a capo prima di ogni maiuscola che segue una minuscola. */
 internal fun camelBreak(name: String): String =
     buildString(name.length + 4) {
         for (i in name.indices) {

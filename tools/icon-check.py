@@ -57,6 +57,14 @@ def leggi_tracciato(d):
     """
     incollati = len(RE_INCOLLATI.findall(d))
     testo = separa(d)
+    # Dove `separa` ha messo le sue virgole, per contare le colonne degli errori su `d`, cioè sul
+    # testo che chi legge ha davanti (dalla `6.30`, rilievo G28: prima erano sfalsate di una per
+    # ogni coppia incollata che precedeva l'errore).
+    virgole = [m.end(1) + k for k, m in enumerate(RE_INCOLLATI.finditer(d))]
+
+    def colonna(i):
+        return i + 1 - sum(1 for v in virgole if v < i)
+
     fuori = []
     i = 0
     lettera = None
@@ -77,7 +85,7 @@ def leggi_tracciato(d):
                 lettera = None
             continue
         if lettera is None:
-            return None, f'numeri senza un comando davanti, alla colonna {i + 1}', incollati
+            return None, f'numeri senza un comando davanti, alla colonna {colonna(i)}', incollati
         quanti = COMANDI[lettera.upper()]
         numeri = []
         while len(numeri) < quanti:
@@ -86,7 +94,7 @@ def leggi_tracciato(d):
             m = RE_NUMERO.match(testo, i)
             if not m:
                 return (None, f"il comando '{lettera}' vuole {quanti} numeri e alla colonna "
-                        f"{i + 1} non ce n'è uno", incollati)
+                        f"{colonna(i)} non ce n'è uno", incollati)
             numeri.append(float(m.group(0)))
             i = m.end()
         fuori.append((lettera, numeri))
@@ -108,12 +116,72 @@ def sottotracciati(comandi):
 # ⚠️ Quello che il formato NON conosce va dichiarato qui, o passa di straforo: maschere,
 # filtri, modalità di fusione, `<use>`, testo, campiture a motivo. Non esistono come elementi,
 # quindi chi ne trova uno ha un file che Android non sa disegnare.
-ELEMENTI_OK = {'vector', 'group', 'path', 'clip-path', 'aapt:attr', 'gradient', 'item'}
+# ⚠️ I nomi sono quelli SENZA lo spazio dei nomi, perché così li confronta il ciclo qui sotto:
+# `<aapt:attr>`, che contiene un gradiente incorporato, si legge `attr` (rilievo G26, `6.30`: con
+# `aapt:attr` nell'elenco il primo gradiente sarebbe stato bloccato a torto).
+ELEMENTI_OK = {'vector', 'group', 'path', 'clip-path', 'attr', 'gradient', 'item'}
 ATTRIBUTI_PATH_OK = {
     'name', 'pathData', 'fillColor', 'fillType', 'fillAlpha',
     'strokeColor', 'strokeWidth', 'strokeAlpha', 'strokeLineCap', 'strokeLineJoin',
     'strokeMiterLimit', 'trimPathStart', 'trimPathEnd', 'trimPathOffset',
 }
+
+
+def numero(elemento, nome):
+    """Il valore numerico di un attributo Android, senza l'unità; None se manca o non si legge."""
+    v = elemento.get(ANDROID + nome)
+    if v is None:
+        return None
+    m = re.match(r'^(-?[\d.]+)(dp|px)?$', v.strip())
+    return float(m.group(1)) if m else None
+
+
+def con_gruppi(radice):
+    """Ogni tracciato con i gruppi che lo contengono, dal più esterno al più interno."""
+    fuori = []
+
+    def scendi(elemento, sopra):
+        for figlio in elemento:
+            nome = figlio.tag.split('}')[-1]
+            if nome == 'path':
+                fuori.append((figlio, sopra))
+            elif nome == 'group':
+                scendi(figlio, sopra + [figlio])
+
+    scendi(radice, [])
+    return fuori
+
+
+def trasformazione(g):
+    """Il gruppo come attributo `transform` di SVG, '' se non trasforma niente.
+
+    ⚠️⚠️ L'ORDINE È QUELLO DI ANDROID, e da lì viene il rilievo G25 (`6.30`): un gruppo porta il
+    punto in `traslazione + perno + rotazione(scala(p - perno))`, cioè prima scala e ruota attorno
+    al perno, poi trasla. In SVG si applica per prima la trasformazione scritta più a destra,
+    quindi l'ordine scritto è il rovescio. Prima qui si scriveva `scale` prima di `translate`, che
+    applica la traslazione per prima, e si sommavano i gruppi fratelli come se fossero annidati:
+    su `ic_launcher_foreground` l'inchiostro risultava spostato del 6% della tela."""
+    def val(nome, base):
+        v = numero(g, nome)
+        return base if v is None else v
+    px, py = val('pivotX', 0.0), val('pivotY', 0.0)
+    tx, ty = val('translateX', 0.0), val('translateY', 0.0)
+    r = val('rotation', 0.0)
+    sx, sy = val('scaleX', 1.0), val('scaleY', 1.0)
+    ruota_o_scala = r != 0.0 or (sx, sy) != (1.0, 1.0)
+    # Senza rotazione né scala il perno non sposta niente, e resta la sola traslazione.
+    if not ruota_o_scala:
+        px = py = 0.0
+    pezzi = []
+    if (tx + px, ty + py) != (0.0, 0.0):
+        pezzi.append(f'translate({tx + px} {ty + py})')
+    if r != 0.0:
+        pezzi.append(f'rotate({r})')
+    if (sx, sy) != (1.0, 1.0):
+        pezzi.append(f'scale({sx} {sy})')
+    if (px, py) != (0.0, 0.0):
+        pezzi.append(f'translate({-px} {-py})')
+    return ' '.join(pezzi)
 
 
 def controlla_xml(percorso):
@@ -129,15 +197,8 @@ def controlla_xml(percorso):
     if tag != 'vector':
         blocca.append(f"la radice è '{tag}' invece di 'vector'")
 
-    def num(elemento, nome):
-        v = elemento.get(ANDROID + nome)
-        if v is None:
-            return None
-        m = re.match(r'^(-?[\d.]+)(dp|px)?$', v.strip())
-        return float(m.group(1)) if m else None
-
-    larghezza, altezza = num(radice, 'width'), num(radice, 'height')
-    vw, vh = num(radice, 'viewportWidth'), num(radice, 'viewportHeight')
+    larghezza, altezza = numero(radice, 'width'), numero(radice, 'height')
+    vw, vh = numero(radice, 'viewportWidth'), numero(radice, 'viewportHeight')
     if vw is None or vh is None:
         blocca.append('manca viewportWidth o viewportHeight')
     if larghezza is None or altezza is None:
@@ -152,7 +213,7 @@ def controlla_xml(percorso):
     if None not in (larghezza, vw) and vw:
         rapporto = larghezza / vw
 
-    tracciati, gruppi = [], []
+    gruppi = []
     for elemento in radice.iter():
         nome = elemento.tag.split('}')[-1]
         if nome not in ELEMENTI_OK:
@@ -160,7 +221,6 @@ def controlla_xml(percorso):
                           f'maschere, filtri, fusioni e testo non si convertono, si espandono')
             continue
         if nome == 'path':
-            tracciati.append(elemento)
             for chiave in elemento.attrib:
                 corto = chiave.split('}')[-1]
                 if corto not in ATTRIBUTI_PATH_OK:
@@ -169,26 +229,12 @@ def controlla_xml(percorso):
         elif nome == 'group':
             gruppi.append(elemento)
 
+    tracciati = con_gruppi(radice)
     if not tracciati:
         blocca.append('nessun tracciato')
 
-    # La trasformazione dei gruppi, che serve a rendere il vettore come Android lo rende.
-    trasla = [0.0, 0.0]
-    scala = [1.0, 1.0]
-    for g in gruppi:
-        for chiave, dove, indice in (('translateX', trasla, 0), ('translateY', trasla, 1),
-                                     ('scaleX', scala, 0), ('scaleY', scala, 1)):
-            v = num(g, chiave)
-            if v is None:
-                continue
-            if dove is trasla:
-                dove[indice] += v
-            else:
-                dove[indice] *= v
-
-    dati = {'width': larghezza, 'viewport': (vw, vh), 'gruppi': len(gruppi), 'path': [],
-            'trasforma': {'trasla': tuple(trasla), 'scala': tuple(scala)}}
-    for p in tracciati:
+    dati = {'width': larghezza, 'viewport': (vw, vh), 'gruppi': len(gruppi), 'path': []}
+    for p, sopra in tracciati:
         d = p.get(ANDROID + 'pathData')
         if not d:
             blocca.append('un path senza pathData')
@@ -217,6 +263,9 @@ def controlla_xml(percorso):
             'd': d, 'byte': len(d), 'comandi': len(comandi),
             'sottotracciati': sottotracciati(comandi), 'incollati': incollati,
             'tratto': tratto, 'fillType': riempimento,
+            # Le trasformazioni dei gruppi che lo contengono, dal più esterno, per rendere il
+            # vettore come lo rende Android.
+            'gruppi': tuple(t for t in map(trasformazione, sopra) if t),
         })
 
     # ⚠️⚠️ UN GRUPPO DI SOLA TRASLAZIONE NON SI SEGNALA, ed è una correzione del 2026-09-03:
@@ -247,21 +296,41 @@ def controlla_xml(percorso):
 
 
 # ── La resa: l'inchiostro, le linee guida, l'avvolgimento, la cucitura ────────────────────
-PLAYWRIGHT = pathlib.Path('/opt/node22/lib/node_modules/playwright')
 # Le linee guida Material per un'icona di sistema: tela 24, area viva 20 (2 di margine per
 # lato), e quattro sagome di riferimento.
 SAGOME = {'quadrato': 18.0, 'cerchio': 20.0, 'orizzontale': (20.0, 16.0), 'verticale': (16.0, 20.0)}
 
 
-def resa(icone):
-    """Le misure di resa, o None se Chromium non c'è. `icone` è una lista di (nome, svg)."""
-    if not PLAYWRIGHT.exists():
+def playwright():
+    """Il modulo `playwright` di Node, o None: quello che Node trova dalla radice del
+    repository, poi quello installato globalmente.
+
+    Dalla `6.30` (rilievo G28): prima si guardava solo il percorso del container delle sessioni,
+    e su un'altra macchina la resa risultava sempre non misurata, anche con Playwright installato."""
+    try:
+        e = subprocess.run(['node', '-p', "require.resolve('playwright')"], cwd=RADICE,
+                           capture_output=True, text=True)
+        if e.returncode == 0:
+            return e.stdout.strip()
+        e = subprocess.run(['npm', 'root', '-g'], capture_output=True, text=True)
+    except OSError:
         return None
+    globale = pathlib.Path(e.stdout.strip()) / 'playwright'
+    return str(globale) if e.returncode == 0 and globale.exists() else None
+
+
+def resa(icone):
+    """Le misure di resa e un avviso, oppure None e il motivo per cui mancano.
+
+    `icone` è una lista di (nome, svg)."""
+    modulo = playwright()
+    if not modulo:
+        return None, 'Node o il suo modulo playwright non ci sono in questo ambiente'
     with tempfile.TemporaryDirectory() as tmp:
         cartella = pathlib.Path(tmp)
         for nome, svg in icone:
             (cartella / f'{nome}.svg').write_text(svg, encoding='utf-8')
-        script = f'''const {{ chromium }} = require('{PLAYWRIGHT}');
+        script = f'''const {{ chromium }} = require({json.dumps(modulo)});
 const fs = require('fs');
 (async () => {{
   const b = await chromium.launch();
@@ -282,18 +351,18 @@ const fs = require('fs');
         (cartella / 'r.js').write_text(script, encoding='utf-8')
         e = subprocess.run(['node', str(cartella / 'r.js')], capture_output=True, text=True)
         if e.returncode:
-            return None
+            righe = e.stderr.strip().splitlines()[-8:]
+            return None, 'lo script di resa è fallito:\n   ' + '\n   '.join(righe)
         box = json.loads((cartella / 'box.json').read_text())
-        pixel = {}
         try:
             from PIL import Image
             import numpy as np
-            for nome, _ in icone:
-                a = np.asarray(Image.open(cartella / f'{nome}.png').convert('L'), dtype=int)
-                pixel[nome] = a
-        except Exception:
-            pixel = {}
-        return box, pixel
+        except ImportError as manca:
+            return (box, {}), (f"manca la libreria Python '{manca.name}': le colonne verso e "
+                               f'cuc restano ?')
+        pixel = {nome: np.asarray(Image.open(cartella / f'{nome}.png').convert('L'), dtype=int)
+                 for nome, _ in icone}
+        return (box, pixel), None
 
 
 def svg_di(dati, regola=None, unisci=False):
@@ -305,21 +374,21 @@ def svg_di(dati, regola=None, unisci=False):
     l'unica spia che si ha, e va guardato invece che riportato.
     """
     vw, vh = dati['viewport']
-    d = [p['d'] for p in dati['path']]
+
+    def nei_gruppi(gruppi, corpo):
+        for t in reversed(gruppi):
+            corpo = f'<g transform="{t}">{corpo}</g>'
+        return corpo
+
     regole = [regola or p['fillType'].lower() for p in dati['path']]
     if unisci:
-        corpo = f'<path d="{" ".join(d)}" fill="#000" fill-rule="{regole[0]}"/>'
+        # Solo per tracciati con gli stessi gruppi: lo controlla `unibili`.
+        d = ' '.join(p['d'] for p in dati['path'])
+        dentro = nei_gruppi(dati['path'][0]['gruppi'],
+                            f'<path d="{d}" fill="#000" fill-rule="{regole[0]}"/>')
     else:
-        corpo = ''.join(f'<path d="{x}" fill="#000" fill-rule="{r}"/>'
-                        for x, r in zip(d, regole))
-    pezzi = []
-    if dati['trasforma']['scala'] != (1.0, 1.0):
-        sx, sy = dati['trasforma']['scala']
-        pezzi.append(f'scale({sx} {sy})')
-    if dati['trasforma']['trasla'] != (0.0, 0.0):
-        tx, ty = dati['trasforma']['trasla']
-        pezzi.append(f'translate({tx} {ty})')
-    dentro = f'<g transform="{" ".join(pezzi)}">{corpo}</g>' if pezzi else corpo
+        dentro = ''.join(nei_gruppi(p['gruppi'], f'<path d="{p["d"]}" fill="#000" fill-rule="{r}"/>')
+                         for p, r in zip(dati['path'], regole))
     # ⚠️⚠️ DUE GRUPPI ANNIDATI, e la ragione è nella specifica: `getBBox` torna i limiti nel
     # sistema di coordinate DELL'ELEMENTO, quindi ignora la trasformazione che l'elemento porta
     # su di sé. Interrogando il gruppo che trasla si otterrebbero i limiti di prima della
@@ -329,6 +398,12 @@ def svg_di(dati, regola=None, unisci=False):
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" '
             f'viewBox="0 0 {vw} {vh}"><rect width="{vw}" height="{vh}" fill="#fff"/>'
             f'<g>{dentro}</g></svg>')
+
+
+def unibili(dati):
+    """Se i tracciati si possono confrontare con la loro unione: più di uno, e tutti negli
+    stessi gruppi, perché un `<path>` solo non può avere due trasformazioni."""
+    return len(dati['path']) > 1 and len({p['gruppi'] for p in dati['path']}) == 1
 
 
 def sagoma(w, h):
@@ -378,13 +453,15 @@ def main():
         d = dati_di[nome]
         pagine.append((f'{nome}--nz', svg_di(d, 'nonzero')))
         pagine.append((f'{nome}--eo', svg_di(d, 'evenodd')))
-        if len(d['path']) > 1:
+        if unibili(d):
             pagine.append((f'{nome}--uno', svg_di(d, 'nonzero', unisci=True)))
-    esito = resa(pagine) if pagine else None
+    esito, motivo = resa(pagine) if pagine else (None, 'nessuna icona da rendere')
     if esito is None:
-        print('\n⚠️ Resa NON misurata: Chromium o Playwright non ci sono in questo ambiente. '
+        print(f'\n⚠️ Resa NON misurata: {motivo}. '
               'Restano fuori: inchiostro, linee guida Material, avvolgimento, cucitura.')
         return 1 if rotti else 0
+    if motivo:
+        print(f'\n⚠️ {motivo}')
 
     box, pixel = esito
     print(f'\n{"icona":<28}{"inchiostro a 24 (x, y, w, h)":<30}{"marg":>6}{"sagoma":>13}'
@@ -414,7 +491,7 @@ def main():
         # segnalava `ic_aiv_mark`, che la dichiara: un avviso su un file corretto.
         dichiarata = any(p['fillType'].lower() == 'evenodd' for p in d['path'])
         verso = diverso(f'{nome}--nz', f'{nome}--eo')
-        cuc = diverso(f'{nome}--nz', f'{nome}--uno') if len(d['path']) > 1 else '-'
+        cuc = diverso(f'{nome}--nz', f'{nome}--uno') if unibili(d) else '-'
         print(f'{nome:<28}{f"{x0:.2f}, {y0:.2f}, {w:.2f}, {h:.2f}":<30}{marg:>6.2f}'
               f'{nomeSagoma:>13}{str(verso):>7}{str(cuc):>6}')
         if isinstance(verso, int) and verso > 0 and not dichiarata:

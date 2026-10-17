@@ -12,24 +12,20 @@ import kotlin.math.roundToInt
  * Le due manopole che si regolano strisciando sopra un filmato: **luminosità** a sinistra,
  * **volume** a destra.
  *
- * ⚠️⚠️ **LA LUMINOSITÀ È QUELLA DELLA FINESTRA, NON QUELLA DEL TELEFONO**, ed è la scelta
- * che rende la funzione possibile senza chiedere niente: scrivere la luminosità di sistema
- * vuole `WRITE_SETTINGS`, un permesso che si concede da una pagina di sistema e che per
- * guardare un video nessuno vorrebbe dare. `screenBrightness` della finestra non chiede
- * nulla, vale finché l'app è davanti e sparisce quando si esce, che è esattamente il
- * comportamento dei lettori video.
- * ⚠️ Il volume invece è quello **vero** del telefono (il flusso della musica), perché un
- * volume finto non esiste: l'audio lo suona il sistema.
+ * ⚠️ **La luminosità è quella della finestra, non quella del telefono**: scrivere quella di
+ * sistema vuole `WRITE_SETTINGS`, un permesso che si concede da una pagina di sistema.
+ * `screenBrightness` della finestra non chiede nulla, vale finché l'app è davanti e sparisce
+ * quando si esce, come nei lettori video.
+ * Il volume è quello vero del telefono (il flusso della musica): l'audio lo suona il sistema.
  */
 object Knobs {
 
     /**
      * La luminosità attuale di questa finestra, da 0 a 1.
      *
-     * ⚠️⚠️ **La prima volta la finestra NON HA una luminosità propria** e risponde
-     * `BRIGHTNESS_OVERRIDE_NONE`, che vale -1: usarlo come punto di partenza farebbe
-     * saltare lo schermo al nero al primo movimento del dito. Si parte allora da quella di
-     * **sistema**, che è quella che la persona sta vedendo in quel momento.
+     * ⚠️ La prima volta la finestra non ha una luminosità propria e risponde
+     * `BRIGHTNESS_OVERRIDE_NONE` (-1): come punto di partenza porterebbe lo schermo al nero al
+     * primo movimento del dito. Si parte allora da quella di sistema, cioè da quella visibile.
      */
     fun brightness(activity: Activity?): Float {
         val own = activity?.window?.attributes?.screenBrightness ?: return HALF
@@ -43,9 +39,8 @@ object Knobs {
     /**
      * Scrive la luminosità di questa finestra.
      *
-     * ⚠️ Il minimo non è zero ma [FLOOR]: a zero certi schermi si spengono del tutto, e chi
-     * ha strisciato troppo si ritrova al buio senza capire che cosa ha fatto e senza vedere
-     * il dito per rimediare.
+     * Il minimo è [FLOOR]: a zero certi schermi si spengono del tutto, e chi ha strisciato
+     * troppo resta al buio senza vedere dove rimediare.
      */
     fun setBrightness(activity: Activity?, value: Float) {
         val window = activity?.window ?: return
@@ -57,14 +52,10 @@ object Knobs {
     /**
      * Ridà la finestra alla luminosità di sistema.
      *
-     * ⚠️⚠️ **NON È [setBrightness] CON UN VALORE ALTO**, ed è la ragione per cui esiste una
-     * seconda funzione: quella stringe il valore fra [FLOOR] e 1, quindi non può scrivere
-     * `BRIGHTNESS_OVERRIDE_NONE`, che è il solo valore che **toglie** l'imposizione invece di
-     * sostituirla. Scrivere 1 lascerebbe lo schermo al massimo, che è un'altra cosa da 'come
-     * prima'.
-     * ⚠️ **Il volume non ha una funzione gemella, e non è una dimenticanza**: [setVolume]
-     * scrive il volume vero del telefono e non una proprietà della finestra, quindi
-     * rimetterlo a posto vorrebbe dire disfare una scelta fatta sul dispositivo.
+     * ⚠️ È una funzione a sé perché [setBrightness] stringe il valore fra [FLOOR] e 1, e non
+     * può scrivere `BRIGHTNESS_OVERRIDE_NONE`, il solo valore che toglie l'imposizione.
+     * Il volume non ha una funzione gemella: [setVolume] scrive il volume vero del telefono, e
+     * rimetterlo a posto disferebbe una scelta fatta sul dispositivo.
      */
     fun clearBrightness(activity: Activity?) {
         val window = activity?.window ?: return
@@ -84,8 +75,7 @@ object Knobs {
     /**
      * Scrive il volume della musica.
      *
-     * ⚠️ Senza bandierine: `FLAG_SHOW_UI` farebbe comparire **anche** il cursore di sistema
-     * sopra il nostro, cioè due indicatori per lo stesso gesto.
+     * Senza flag: `FLAG_SHOW_UI` mostrerebbe anche il cursore di sistema sopra il nostro.
      */
     fun setVolume(context: Context, value: Float) {
         val audio = context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager ?: return
@@ -98,9 +88,8 @@ object Knobs {
     /**
      * L'attività dentro cui gira questa composizione, che serve per la finestra.
      *
-     * ⚠️ Non basta un cast: il contesto di una composizione è spesso un `ContextWrapper`
-     * (il tema ne mette uno), e il cast diretto risponderebbe null proprio dove l'attività
-     * c'è.
+     * Non basta un cast: il contesto di una composizione è spesso un `ContextWrapper` (il tema
+     * ne mette uno), e il cast diretto risponderebbe null anche dove l'attività c'è.
      */
     fun activityOf(context: Context): Activity? {
         var walk: Context? = context

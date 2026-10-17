@@ -68,59 +68,22 @@ import kotlin.math.roundToInt
 /**
  * La superficie di **ogni** menu dell'app: un riquadro che cresce, dove dice il posizionatore.
  *
- * ⚠️⚠️ **UNA SOLA, DALLA `1.46`, E PRIMA ERANO DUE MECCANISMI PER CINQUE MENU** (richiesta
- * dell'utente, 2026-09-03: *non è per il gusto dell'uniformità: è per avere un sistema
- * affidabile. Se volessi reintrodurre un elemento decorativo come la vecchia linea color
- * accento, basterebbe un unico ragionamento per tutti gli elementi*). Tre menu passavano di
- * qui e due erano `DropdownMenu` di Material, e ogni cosa che riguarda 'tutti i menu' andava
- * scritta due volte.
- * - **La prima prova che costa** è la `1.28`, che ha unificato lo stondamento di 'tutti i
- *   menu' e ha dimenticato quello della schermata iniziale, perché era il solo a non passare
- *   di qui. Il difetto è uscito otto versioni dopo, e lo ha visto l'utente prima di noi.
- * - **La seconda** è la striscia d'accento, abbandonata nella `1.38` non per lo spessore ma
- *   perché *ne esistono almeno 3 versioni diverse*: di una cosa sola esistevano tre rese
- *   perché di posti in cui disegnarla ce n'erano tre.
- * - **La terza è della `1.46` stessa**: il filtro della testata della griglia era l'unica
- *   superficie senza velo, e a nasconderlo era una frase che dava un altro menu per l'unico
- *   fuori da qui. Finché le superfici sono cinque, la difesa è un elenco che qualcuno deve
- *   tenere vero; adesso la difesa è che l'alternativa non esiste più nel progetto.
+ * ⚠️ **Una superficie sola per tutti i menu** (richiesta dell'utente, 1.46: un sistema
+ * affidabile, dove una decisione su 'tutti i menu' si prende una volta). Con due meccanismi, ogni
+ * cambio andava scritto due volte e uno dei due veniva dimenticato.
  *
- * ⚠️⚠️ **`Popup` E NON `DropdownMenu`, ed è quello che permette di scegliere il posto**: un
- * `DropdownMenu` si posiziona **contro il proprio genitore** e non accetta un posizionatore,
- * quindi con lui non si potevano scrivere né 'al centro della finestra' né 'sopra il FAB'.
- * ⚠️ **Il conto delle finestre non cambia**, e chi cercasse qui un guadagno di prestazioni non
- * lo trova: un `DropdownMenu` di Material **è** un `Popup`.
+ * `Popup` e non `DropdownMenu`, perché permette di scegliere il posto: un `DropdownMenu` si
+ * posiziona contro il proprio genitore e non accetta un posizionatore, quindi non si mette 'al
+ * centro della finestra' né 'sopra il FAB'. Le finestre sono le stesse: un `DropdownMenu` di
+ * Material è un `Popup`. Non è un guscio da togliere: posiziona un menu dove Material non sa
+ * metterlo.
  *
- * ⚠️ **IL CONTENUTO RESTA LIBERO, ed è la superficie a essere una e non la disposizione**:
- * dentro ci vanno voci ([MenuRow]), un riquadro di tasti (`ActionPad`) o una fila di tasti,
- * come nel filtro della testata. Quelli sono contenuto di un menu, non un secondo modo di fare
- * un menu.
+ * Il contenuto è libero: voci ([MenuRow]), un riquadro di tasti (`ActionPad`) o una fila di
+ * tasti, come nel filtro della testata.
  *
- * ⚠️⚠️ **STA IN UN FILE A SÉ dalla 0.75, da quando i menu non sono più uno**: il secondo
- * avrebbe copiato la superficie, l'ombra e i numeri dell'animazione, e un'animazione scritta
- * in due posti diverge al primo ritocco. Quei numeri li ha scelti l'utente su un mockup,
- * quindi valgono per i menu, non per uno.
- * ⚠️⚠️ **DALLA 1.28 IL RAGGIO NON È PIÙ UN PARAMETRO, ed è la correzione di un difetto vero**
- * (richiesta dell'utente, 2026-09-02: *va uniformato TUTTO*). Fino alla `1.27` ogni menu
- * portava il suo numero, e i numeri erano **tre**: 8 nel visualizzatore, 8 nel navigatore, 16
- * nella selezione. Erano nati come 'dipende dalla forma del contenuto', che è una ragione
- * plausibile e sbagliata: uno stondamento dice **che cosa è** quella superficie, non quanto è
- * larga, e tre valori diversi dicevano che erano tre cose diverse. Adesso è [MENU_ROUND], uno
- * solo, e non si può più far divergere passandogli un numero.
- *
- * ⚠️⚠️ **LA STRISCIA D'ACCENTO NON C'È PIÙ, DALLA 1.38, ED È L'UTENTE A RINUNCIARCI**
- * (riscontro `striscia-sotto`, 2026-09-02: *Togli il bordino dappertutto: rinuncio e cercherò
- * un altro sistema per veicolare l'identità*). Era nata nella `1.29` da un suo mockup e ha
- * attraversato cinque versioni: pastiglia da 5dp, forma rifatta sul mockup a 6, spessore a 7,
- * poi anche sui sotto-menu e a una distanza sola dal fondo.
- * ⚠️⚠️ **E CON LEI ESCE `SubPanel`, il guscio che le serviva** (stessa richiesta: *torna anche
- * a disattivare i sistemi ad-hoc per il disegno di finestre e pannelli, salvo dove serve per
- * altri motivi*). Quel guscio esisteva perché un `AlertDialog` non lascia disegnare in fondo
- * alla propria superficie: senza striscia da disegnare, il pannellino del tocco lungo su
- * 'Info' è tornato a essere un `AlertDialog` di Material.
- * ⚠️ **Questa superficie invece RESTA, e non è un sistema ad-hoc dello stesso genere**: nasce
- * nella `0.75` per **posizionare** un menu dove Material non sa metterlo, che è un lavoro che
- * nessun componente di libreria fa. Chi ripassasse a togliere 'i gusci nostri' si fermi qui.
+ * I numeri dell'animazione li ha scelti l'utente su un mockup, e valgono per tutti i menu. Il
+ * raggio non è un parametro ([MENU_ROUND], richiesta dell'utente, 1.28): uno stondamento dice
+ * che cosa è una superficie, non quanto è larga.
  */
 @Composable
 fun MenuShell(
@@ -128,40 +91,26 @@ fun MenuShell(
     /** Dove va il menu: [MenuInWindow] oppure un [rememberMenuSpot]. */
     position: PopupPositionProvider,
     /**
-     * Quanto deve essere largo almeno il pannello. Vedi [menuFloor], che è l'unico a passarlo.
+     * Quanto deve essere largo almeno il pannello. Vedi [menuFloor], l'unico che lo passa.
      *
-     * ⚠️ **Non specificato vuol dire 'quanto il contenuto'**, che è il comportamento di sempre e
-     * quello che vogliono i menu non ancorati a una griglia: un minimo di serie li allargherebbe
-     * tutti.
+     * Non specificato vuol dire 'quanto il contenuto', come vogliono i menu non ancorati a una
+     * griglia.
      */
     minWidth: Dp = Dp.Unspecified,
     content: @Composable () -> Unit
 ) {
     /*
-     * ⚠️⚠️ **UN AVANZAMENTO SOLO PER PANNELLO, SFOCATURA E PATINA, DALLA `1.67`, E PRIMA ERANO
-     * DUE** (riscontro del giro della `1.66`: *il menu se ne va troppo piano, la transizione
-     * s'inceppa e rimane bloccato a schermo a mezza opacità per un tempo che lo rende visibile,
-     * poi l'animazione finisce a scatti ... Semplifica al massimo e fai sparire il menu in modo
-     * fluido e senza glitch, con una dissolvenza veloce*). La `1.61` aveva staccato la patina dal
-     * pannello per darle una coda lunga, e la `1.65` aveva allungato l'uscita del pannello per
-     * accompagnarla: con un'uscita di [MENU_OUT_MS] non c'è più nessuna coda da accompagnare,
-     * quindi i due numeri tornano a essere uno.
-     * ⚠️ **La regola della `1.65` NON è caduta, ed è quella che tiene in piedi questa forma**: una
-     * sfocatura che cala vuole qualcosa in scena che se ne stia andando, e qui il pannello se ne va
-     * **con** lei e per lo stesso tempo. Il fatto per esteso sta in fondo a `Veil.kt`.
-     * ⚠️ **E riaprendo a metà uscita non c'è nessun salto**: `animateTo` riparte dal valore
-     * corrente, quindi un pannello sbiadito a mezza strada risale da lì.
+     * Un avanzamento solo per pannello, sfocatura e patina: l'uscita è una dissolvenza veloce di
+     * [MENU_OUT_MS] (riscontro dell'utente, giro della `1.66`), e una sfocatura che cala vuole in
+     * scena qualcosa che se ne va con lei (il fatto per esteso è in fondo a `Veil.kt`).
+     * Riaprendo a metà uscita non c'è salto: `animateTo` riparte dal valore corrente.
      *
-     * ⚠️⚠️ **LA PRIMA COMPOSIZIONE NON ANIMA, DALLA `1.76`, E SENZA QUESTA RIGA OGNI SCHERMATA
-     * CHE ARRIVA APRIVA UN MENU VUOTO PER SEI FOTOGRAMMI.** Un `LaunchedEffect` parte anche alla
-     * prima composizione, e là `wanted` è falso e il valore è già zero: `animateTo` non muoveva
-     * un pixel, ma teneva l'animazione **in corso** per [MENU_OUT_MS]. Da lì [MenuState.visible]
-     * diceva 'menu in scena', quindi nascevano una finestra di popup vuota, il cancello dei
-     * tocchi di [MenuGuard] e il distacco del FAB nella sua finestra.
-     * ⚠️ **È la stessa guardia che `TapHoldFab` ha da sempre**, con la sua stessa ragione scritta
-     * accanto: chi anima dentro un `LaunchedEffect` senza chiave deve chiedersi che cosa fa al
-     * primo giro. ⚠️ **Il confronto è un'uguaglianza esatta e regge**: `animateTo` chiude
-     * assegnando il valore d'arrivo, quindi a corsa finita i due numeri sono lo stesso.
+     * ⚠️ **La prima composizione non anima**: un `LaunchedEffect` parte anche alla prima
+     * composizione, dove `wanted` è falso e il valore è già zero, e `animateTo` terrebbe
+     * l'animazione in corso per [MENU_OUT_MS]. In quel tempo [MenuState.visible] direbbe 'menu in
+     * scena', con una finestra di popup vuota, il cancello dei tocchi di [MenuGuard] e il distacco
+     * del FAB. È la stessa guardia di `TapHoldFab`. L'uguaglianza esatta regge: `animateTo` chiude
+     * assegnando il valore d'arrivo.
      */
     LaunchedEffect(state.wanted) {
         val meta = if (state.wanted) 1f else 0f
@@ -176,28 +125,21 @@ fun MenuShell(
     }
 
     /*
-     * ⚠️⚠️ **QUI FUORI E NON DENTRO IL `Popup`**: la patina la dipinge l'app, e chiesta da qui la
-     * richiesta non dipende dalla vita della finestra. ⚠️ **Dalla `1.67` non le serve più per
-     * sopravviverle**, perché l'uscita è una dissolvenza sola: resta fuori perché così a spegnerla
-     * è la composizione della **schermata**, che è quella che se ne va quando si naviga altrove,
-     * ed è il caso in cui il menu spariva lasciando addosso all'app il proprio scuro.
+     * ⚠️ **Fuori dal `Popup`**: la patina la dipinge l'app, e chiesta da qui la spegne la
+     * composizione della schermata, che è quella che se ne va quando si naviga altrove. Dentro,
+     * un menu chiuso navigando lascerebbe sull'app il suo scuro.
      */
     AppPatina { state.show.value }
 
     /*
-     * ⚠️⚠️ **SI DICHIARA IN SCENA, E QUESTO TOGLIE IL TOCCO CHE ARRIVAVA ANCHE SOTTO** (difetto
-     * trovato dal censimento della UI del 2026-09-05, e confermato dal bytecode di Compose:
-     * `createFlags` di `AndroidPopup_androidKt` parte da `FLAG_WATCH_OUTSIDE_TOUCH` e non mette
-     * mai `FLAG_NOT_TOUCH_MODAL`, quindi da Android 12 un tocco fuori dal menu arriva **a tutte
-     * e due** le finestre: il popup lo legge come 'fuori' e si chiude, l'app lo legge come un
-     * tocco suo e apre la riga o la cartella che stava sotto il dito).
-     * ⚠️⚠️ **A ripararlo è UN velo solo, in `AivTheme`, e non uno per schermata**: fino alla
-     * `1.69` esisteva in un posto solo su cinque chiamanti (`GridScreen`, il menu del FAB del
-     * cestino), e le altre quattro schermate non ce l'avevano. Ripeterlo quattro volte avrebbe
-     * lasciato in piedi il quinto modo di dimenticarsene; dichiararsi qui lo dà a ogni menu che
-     * nascerà, perché [MenuShell] è la sola via per aprirne uno dalla `1.46`. Vedi [MenuGuard].
-     * ⚠️ **Sta PRIMA del cancello qui sotto**, quindi vale anche mentre il pannello se ne va:
-     * l'uscita dura [MENU_OUT_MS], e un tocco in quel tratto arriverebbe sotto come gli altri.
+     * ⚠️ **Il menu si dichiara in scena, così il tocco fuori non arriva anche sotto** (misurato
+     * sul bytecode di Compose): `createFlags` di `AndroidPopup_androidKt` parte da
+     * `FLAG_WATCH_OUTSIDE_TOUCH` e non mette mai `FLAG_NOT_TOUCH_MODAL`, quindi da Android 12 un
+     * tocco fuori dal menu arriva a tutte e due le finestre: il popup si chiude, e l'app apre
+     * la riga o la cartella sotto il dito.
+     * Lo ripara un cancello solo, in `AivTheme` ([MenuGuard]), per ogni menu, perché [MenuShell]
+     * è la sola via per aprirne uno.
+     * È prima del cancello qui sotto, quindi vale anche durante l'uscita di [MENU_OUT_MS].
      */
     val inScena = state.visible
     DisposableEffect(state, inScena) {
@@ -206,159 +148,77 @@ fun MenuShell(
     }
 
     /*
-     * ⚠️⚠️ **IL CANCELLO SERVE ALL'ORDINE FRA LE FINESTRE**: a menu chiuso non deve esistere
-     * nessun `Popup`, o il FAB che si stacca sopra la propria finestra non sarebbe più
-     * l'ultima aggiunta e finirebbe sotto. Un popup sempre presente e trasparente in più si
-     * mangerebbe i tocchi.
+     * ⚠️ **A menu chiuso non deve esistere nessun `Popup`**: il FAB che si stacca nella sua
+     * finestra non sarebbe più l'ultima aggiunta e finirebbe sotto, e un popup trasparente
+     * sempre presente intercetterebbe i tocchi.
      */
     if (!state.visible) return
 
     Popup(
         /*
-         * ⚠️⚠️ **LA FINESTRA SEGUE IL PANNELLO CHE CRESCE, dalla 1.53, e questa riga è metà
-         * della correzione** (riscontro dell'utente, giro della `1.51`, voce
-         * `sfocatura-segue`: *si vede ancora, specialmente nel cestino*). Vedi [Growing] per il
-         * meccanismo: senza di lei la finestra resta grande quanto il pannello **a riposo**
-         * mentre il disegno dentro è al 96%, e la sfocatura, che è un attributo della finestra,
-         * copre quella fascia di 2% per lato. È la cornice che lui vede, e la `1.50` l'aveva
-         * solo attenuata dosando la sfocatura.
+         * La finestra segue il pannello che cresce (voce `sfocatura-segue`, vedi [Growing]):
+         * senza, resterebbe grande quanto il pannello a riposo mentre il disegno è al 96%, e la
+         * sfocatura di finestra coprirebbe quella fascia, che si vede come una cornice.
          */
         popupPositionProvider = remember(position, state) { Growing(position) { grown(state) } },
         onDismissRequest = state::close,
         properties = PopupProperties(
             /*
-             * ⚠️⚠️ **COSTANTE, E NON DEVE TORNARE A CAMBIARE DURANTE UN'ANIMAZIONE**: la `1.61`
-             * lo legava a `wanted`, perché là la finestra sopravviveva al pannello e col focus si
-             * sarebbe mangiata il gesto Indietro. Costava uno **sfarfallio**, e la causa è
-             * misurata sul bytecode di Compose: un `PopupProperties` che cambia fa **assegnare** i
-             * flag della finestra da capo, quindi in quel fotogramma sparivano la sfocatura e il
-             * velo che `Veil` le aveva messo. La nota in fondo a `Veil.kt` la scrive per esteso.
-             * ⚠️ **Dalla `1.64` il problema non esiste più**: la finestra muore col pannello, e
-             * non c'è nessun tratto in cui tenga il focus senza avere niente in scena.
+             * ⚠️ **Costante: non deve cambiare durante un'animazione**. Un `PopupProperties` che
+             * cambia fa riassegnare i flag della finestra, e per un fotogramma spariscono la
+             * sfocatura e il velo (misurato sul bytecode, nota in fondo a `Veil.kt`). La finestra
+             * si chiude col pannello, quindi non tiene mai il focus senza niente in scena.
              */
             focusable = true,
             dismissOnBackPress = true,
-            /*
-             * ⚠️⚠️ **SEMPRE ACCESO, dalla `1.46`, e prima era un parametro con un valore
-             * solo.** Nasceva nella `0.75` per il menu della selezione, dove il FAB
-             * **alternava** il menu e la chiusura di fuori faceva lampeggiare; la `1.06` ha
-             * tolto quell'alternanza, e da allora tutti e tre i chiamanti passavano `true`
-             * mentre il KDoc descriveva per esteso un comportamento che non esisteva più. Un
-             * parametro con un valore solo è un invito a farlo ridiventare due.
-             */
+            // Sempre acceso: tutti i menu si chiudono toccando fuori.
             dismissOnClickOutside = true
         )
     ) {
         /*
-         * ⚠️⚠️ **DENTRO IL `Popup` E NON FUORI, ed è tutta la differenza**: il velo si applica
-         * alla finestra che **ospita** chi lo chiede, e qui fuori la finestra sarebbe quella
-         * della schermata, cioè si velerebbe da sé. Vedi [WindowVeil].
-         *
-         * ⚠️⚠️ **SEGUE IL PANNELLO, DALLA 1.50, e la riga qui sotto è tutta la correzione**
-         * (riscontro dell'utente, giro della `1.48`: *una specie di cornice sfumata si
-         * materializza dove c'era/ci sarà il margine del pannello effettivo*, e nella voce
-         * accanto *la sfocatura non dovrebbe sparire all'inizio della transizione: dovrebbe
-         * avere essa stessa una transizione*). Le due segnalazioni sono **la stessa cosa**: la
-         * sfocatura è un attributo della **finestra**, quindi copriva il rettangolo pieno del
-         * popup fin dal primo fotogramma mentre il pannello dentro era ancora rimpicciolito e
-         * trasparente, e quel rettangolo coi bordi sfumati è la cornice che vedeva. Adesso il
-         * velo riceve [MenuState.show], cioè lo stesso numero che muove l'opacità e la scala:
-         * cresce col pannello e cala con lui, e a zero si spegne del tutto.
-         * ⚠️ **Il costo è dichiarato**: un `updateViewLayout` per fotogramma per la durata
-         * dell'animazione, che è il prezzo della cosa chiesta. La via che lo eviterebbe (la
-         * sfocatura dipinta sulla vista dell'app con un `RenderEffect`) è un rifacimento a sé.
-         *
-         * ⚠️⚠️ **DUE VERSIONI PRIMA FACEVA IL CONTRARIO, E SAPERLO EVITA DI TORNARCI**: la
-         * `1.48` lo faceva cadere all'**inizio** dell'uscita (`if (state.wanted)`), per togliere
-         * la sovrapposizione di due finestre che chiedevano la sfocatura insieme. Quella
-         * diagnosi era giusta a metà: la sovrapposizione c'era, ma toglierla di netto ha lasciato
-         * un buco di uno o due fotogrammi fra il velo del menu che spariva e quello del dialogo
-         * che arrivava, ed è il *flash* che lui ha segnalato dopo. Con la sfocatura che cala
-         * invece di sparire, le due si sovrappongono per un momento **degradando**, che è la cosa
-         * che un occhio legge come una transizione invece che come un lampo.
-         *
-         * ⚠️⚠️ **DALLA 1.53 QUESTA RIGA NON È PIÙ LA CURA DELLA CORNICE, ed è importante non
-         * crederlo**: la cornice aveva una causa geometrica (la finestra più grande del disegno)
-         * e adesso quella causa non c'è più, perché la finestra si stringe col pannello (vedi
-         * [Growing]). Il dosaggio resta, e serve a due altre cose: la **sfocatura**, che cresce e
-         * cala col pannello invece di comparire tutta insieme, e il velo dipinto, che segue lo
-         * stesso numero.
-         * ⚠️⚠️ **E IL LAMPO NON SI CURA PIÙ QUI, dalla `1.54`**: era una **somma** fra due
-         * finestre velate (0,45 e 0,45 fanno 0,70), e nessun ordine di chiamate lo poteva
-         * togliere, perché due finestre non si aggiornano nello stesso fotogramma. Adesso il velo
-         * lo dipinge l'app, uno solo, e vale il massimo delle richieste in scena: il perché per
-         * esteso sta su `VeilStage`, in `Veil.kt`.
-         *
-         * ⚠️⚠️ **QUI RESTA LA SOLA SFOCATURA, e il livello scuro lo chiede [AppPatina] più su**:
-         * sono due meccanismi diversi (un attributo di finestra e un rettangolo che l'app
-         * dipinge), e la `1.64` li ha separati per questo.
-         * ⚠️⚠️ **MA IL NUMERO CHE LI MUOVE È DI NUOVO UNO, DALLA `1.67`**, ed è l'avanzamento del
-         * pannello: separati erano per dare alla patina una coda più lunga dell'uscita, e con
-         * [MENU_OUT_MS] la coda non c'è più. Il perché sta là e in fondo a `Veil.kt`.
+         * ⚠️ **Dentro il `Popup`**: la sfocatura si applica alla finestra che ospita chi la
+         * chiede, e fuori sarebbe quella della schermata (vedi [WindowVeil]).
+         * Riceve [MenuState.show], lo stesso numero che muove opacità e scala: la sfocatura
+         * cresce e cala col pannello, e a zero si spegne. Costa un `updateViewLayout` per
+         * fotogramma durante l'animazione.
+         * Qui c'è la sola sfocatura, attributo di finestra; il velo scuro lo chiede [AppPatina]
+         * più su, e lo dipinge l'app (il perché è su `VeilStage`, in `Veil.kt`).
          */
         WindowVeil { state.show.value }
         /*
-         * ⚠️⚠️ **CON L'OMBRA IL MENU SI DÀ UN'ARIA INTORNO, E SENZA DI LEI L'OMBRA NON ESISTE**
-         * (istruzione dell'utente, 2026-09-07: *facciamo che si può scegliere tra sfocatura e
-         * ombreggiatura (MAI insieme)*). La finestra di un `Popup` è grande quanto quello che ci
-         * si misura dentro, e un'ombra **esce** dal pannello: senza aria viene tagliata di netto
-         * sul rettangolo della finestra, e quel taglio è il 'quadrato sfocato' che lui ha bocciato
-         * due volte. Il conto dell'aria, e il secondo taglio che evita, stanno su [LIFT_ROOM].
-         * ⚠️⚠️ **E LA PAGA SOLO CHI HA SCELTO L'OMBRA, per una ragione geometrica e non di
-         * risparmio**: con la sfocatura la finestra deve restare grande **quanto** il pannello
-         * disegnato, o sfoca una fascia di sfondo intorno a lui, che è la cornice del giro della
-         * `1.51`. Le due vie vogliono due finestre opposte, ed è la ragione per cui 'mai insieme'
-         * non è soltanto una regola di gusto.
+         * ⚠️ **Con l'ombra il menu si dà un'aria intorno**: la finestra di un `Popup` è grande
+         * quanto quello che vi si misura, e l'ombra, che esce dal pannello, sarebbe tagliata di
+         * netto sul suo rettangolo (il 'quadrato sfocato' bocciato dall'utente). Il conto è su
+         * [LIFT_ROOM].
+         * Solo con l'ombra: con la sfocatura la finestra deve restare grande quanto il pannello,
+         * o sfoca una fascia intorno a lui. Le due vie vogliono finestre opposte, e per questo
+         * sono alternative.
          */
         val alzato = LocalAivDepth.current == PanelDepth.SHADOW
         val ariaPx = with(LocalDensity.current) { if (alzato) LIFT_ROOM.toPx() else 0f }
         Surface(
             /*
-             * ⚠️⚠️ **CRESCE DA 0,96 E NON DA ZERO, in [MENU_IN]** (scelta dell'utente sul
-             * mockup). Prima sbucava **dal punto premuto** con una scala da 0,72: un menu che
-             * si gonfia da un angolo dello schermo tira l'occhio dove il dito era già, e
-             * l'utente ha chiesto una cosa sobria. Da 0,96 il movimento si sente e non si
-             * guarda.
-             * ⚠️ L'origine è quella di serie, il **centro** del riquadro, e resta il centro
-             * anche dopo la correzione della `1.53`: è la ragione per cui il riquadro si mette
-             * **in mezzo** alla misura che dichiara (vedi la riga `place` qui sotto). Farlo
-             * crescere dall'angolo sarebbe la cosa che l'utente ha scartato.
+             * Cresce da 0,96 in [MENU_IN], dal centro del riquadro (scelta dell'utente sul
+             * mockup, che ha scartato l'apertura dal punto premuto): il movimento si sente e non
+             * si guarda. Per questo il riquadro si mette in mezzo alla misura che dichiara (la
+             * riga `place` qui sotto).
              *
-             * ⚠️⚠️ **E LA MISURA DICHIARATA È QUELLA SCALATA, dalla 1.53**: il `layout` qui
-             * sotto misura il pannello intero e ne riporta il 96%, così la **finestra** del
-             * `Popup` è grande quanto il pannello **disegnato** invece che quanto sarà. È
-             * l'altra metà della correzione di `sfocatura-segue`, e il perché per esteso sta su
-             * [Growing]. ⚠️ **Il contenuto non si stringe**: viene misurato coi vincoli interi
-             * e solo il nodo di fuori dichiara meno, quindi nessun testo va a capo in modo
-             * diverso mentre il menu entra.
-             *
-             * ⚠️⚠️ **`ModulateAlpha` SERVIVA ALL'OMBRA, E DALLA `1.54` L'OMBRA NON C'È PIÙ**
-             * (riscontro dell'utente, giro della `1.46`: *c'è un glitch tremendo sugli angoli
-             * del pannello in apertura/chiusura*). Il meccanismo di allora, che vale la pena
-             * conoscere perché torna ogni volta che qualcosa esce da un nodo: con la strategia
-             * di serie un'alfa minore di 1 fa disegnare il sottoalbero in un **buffer fuori
-             * schermo** grande quanto il nodo, e l'ombra, che sta **intorno** a quello che la
-             * getta, finiva contro il bordo del buffer e veniva tagliata di netto proprio agli
-             * angoli. Adesso da questo nodo non esce più niente: il bordo è dentro, e la riga è
-             * uscita con la sua ragione.
+             * La misura dichiarata è quella scalata: il `layout` misura il pannello intero e ne
+             * riporta la frazione, così la finestra del `Popup` è grande quanto il pannello
+             * disegnato (vedi [Growing]). Il contenuto è misurato coi vincoli interi, quindi
+             * nessun testo va a capo diversamente mentre il menu entra.
              */
             modifier = Modifier
                 /*
-                 * ⚠️⚠️ **IL TOCCO SULL'ARIA VALE COME IL TOCCO FUORI, e senza questa riga
-                 * sarebbe una fascia morta**: l'aria appartiene alla **finestra** del menu,
-                 * quindi `dismissOnClickOutside` non la vede, esattamente come l'aria dei
-                 * dialoghi (il precedente è il giro della `1.69`, e il perché vive su `airTop`
-                 * in `Centred.kt`). Senza, un dito appena fuori dal pannello non farebbe niente.
-                 * ⚠️⚠️ **STA PRIMA DEL `layout` DI PROPOSITO, ed è una trappola misurata**: nella
-                 * stessa catena la prova del tocco si ferma sul primo nodo di layout, quindi chi
-                 * ascolta va prima di lui; scritto qui, il suo riquadro è quello **dichiarato**
-                 * là sotto, che è l'unico a comprendere l'aria.
-                 * ⚠️ **Non consuma niente**: quello che si tocca è spazio vuoto, e il tocco è già
-                 * dentro la finestra del popup, quindi all'app non arriva comunque.
-                 * ⚠️ **A sfocatura o a niente il nodo NON esiste**, e non è un risparmio: un nodo
-                 * di tocco grande quanto il pannello che sta sempre in scena è la causa del
-                 * blocco totale della `1.70`, e il rimedio di allora è l'assenza (vedi
-                 * [MenuGuard]).
+                 * ⚠️ **Il tocco sull'aria vale come il tocco fuori**: l'aria è della finestra
+                 * del menu, quindi `dismissOnClickOutside` non la vede, come l'aria dei dialoghi
+                 * (il perché è su `airTop` in `Centred.kt`).
+                 * ⚠️ **È prima del `layout` di proposito** (misurato): la prova del tocco si
+                 * ferma sul primo nodo di layout della catena, e così il riquadro di chi ascolta
+                 * è quello dichiarato là sotto, l'unico che comprende l'aria.
+                 * Non consuma niente: il tocco è già dentro la finestra del popup.
+                 * ⚠️ **Senza ombra il nodo non esiste**: un nodo di tocco sempre in scena può
+                 * bloccare tutti i tocchi dell'app (vedi [MenuGuard]).
                  */
                 .then(
                     if (!alzato) Modifier else Modifier.pointerInput(state, ariaPx) {
@@ -391,77 +251,42 @@ fun MenuShell(
                     scaleY = k
                 }
                 /*
-                 * ⚠️⚠️ **L'ARIA DELL'OMBRA STA DENTRO L'OPACITÀ, e fuori non servirebbe a
-                 * niente**: un'opacità minore di uno fa disegnare tutto quello che sta sotto in
-                 * un buffer grande **quanto questo nodo**, quindi l'ombra andrebbe a sbattere
-                 * contro il bordo del buffer invece che contro quello della finestra. Il
-                 * meccanismo è lo stesso che nella `1.46` tagliava l'ombra proprio agli angoli
-                 * (vedi la nota di `ModulateAlpha` qui sotto), e l'aria lo neutralizza.
+                 * ⚠️ **L'aria dell'ombra è dentro l'opacità**: un'opacità minore di uno fa
+                 * disegnare il sottoalbero in un buffer grande quanto questo nodo, e l'ombra
+                 * sarebbe tagliata dal bordo del buffer, proprio agli angoli.
                  */
                 .then(if (!alzato) Modifier else Modifier.padding(LIFT_ROOM))
-                /*
-                 * ⚠️ **L'ombra prima del bordo**: il tratto d'accento è parte della superficie
-                 * che si alza, quindi l'ombra avvolge tutti e due. Che cosa fa e perché è
-                 * alternativa alla sfocatura stanno in testa a `Edge.kt`.
-                 */
-                .lifted(MENU_ROUND)
-                /*
-                 * ⚠️⚠️ **IL BORDO D'ACCENTO AL POSTO DELL'OMBRA, dalla `1.54`** (richiesta
-                 * dell'utente, 2026-09-04: *via le ombre e vai con il bordino da 2px del colore
-                 * di accento*). Il perché per esteso, e che cosa c'entra col 'quadrato sfocato'
-                 * che vedeva intorno ai menu, stanno in testa a `Edge.kt`.
-                 * ⚠️ **Sta sul modificatore e non è un parametro della `Surface`**: il suo
-                 * `border` disegnerebbe il filo **sotto** il contenuto, e con lo stesso colore
-                 * di un'icona a filo di bordo si mescolerebbe; qui invece il contorno si
-                 * sovrappone a tutto, che è quello che un bordo deve fare.
-                 */
-                .edged(MENU_ROUND),
+                // L'ombra, quando è lei la scelta (vedi `Edge.kt`).
+                .lifted(MENU_ROUND),
             shape = RoundedCornerShape(MENU_ROUND),
             color = MaterialTheme.colorScheme.surfaceContainer
         ) {
             Column(
                 /*
-                 * ⚠️⚠️ **LE TRE RIGHE NELL'ORDINE DI `DropdownMenuContent`, letto in `MenuKt`,
-                 * e l'ordine conta**: il margine sta **fuori** dallo scorrimento, quindi non
-                 * scorre via; la larghezza intrinseca sta in mezzo, ed è Material stesso a
-                 * dimostrare che convive con un contenuto che scorre.
-                 * ⚠️⚠️ **LO SCORRIMENTO NON È UN LUSSO**: in orizzontale, su una finestra alta
-                 * 360dp, fra i margini di Material restano 264dp, mentre il menu del
-                 * visualizzatore è alto circa 474dp. Fino alla `1.46` quel menu sforava e la
-                 * sua ultima voce non si poteva raggiungere; i due `DropdownMenu` dell'app lo
-                 * scorrimento ce l'avevano, perché glielo dava Material.
-                 * ⚠️⚠️ **LA LARGHEZZA INTRINSECA NON È UN DETTAGLIO: senza, una voce sola si
-                 * allarga a TUTTA la finestra.** Un `DropdownMenuItem` chiede `fillMaxWidth`, e
-                 * il suo tetto di larghezza non lo trattiene, perché rispetta i vincoli che
-                 * riceve e dentro un `Popup` quei vincoli sono la finestra.
-                 * ⚠️ **Con un contenuto che porta la sua larghezza non cambia niente**, ed è il
-                 * caso del visualizzatore: la larghezza intrinseca di una misura fissa è quella
-                 * misura.
+                 * L'ordine è quello di `DropdownMenuContent` (letto in `MenuKt`): il margine è
+                 * fuori dallo scorrimento, quindi non scorre via, e la larghezza intrinseca è in
+                 * mezzo.
+                 * ⚠️ **Lo scorrimento serve**: in orizzontale, su una finestra alta 360dp,
+                 * restano 264dp, e il menu del visualizzatore è alto circa 474dp.
+                 * ⚠️ **Senza la larghezza intrinseca una voce sola si allarga a tutta la
+                 * finestra**: un `DropdownMenuItem` chiede `fillMaxWidth`, e dentro un `Popup` i
+                 * vincoli sono la finestra. Con un contenuto di larghezza fissa non cambia niente.
                  */
                 modifier = Modifier
                     .padding(vertical = MENU_PAD)
-                    /*
-                     * ⚠️ **Il minimo va PRIMA della larghezza intrinseca**, o non serve a
-                     * niente: qui i modificatori di misura si applicano da fuori a dentro,
-                     * quindi il vincolo che arriva alla riga sotto è già stretto al minimo, e
-                     * una larghezza intrinseca più piccola viene riportata dentro quel
-                     * vincolo. Scritto dopo, la larghezza sarebbe già fissata.
-                     */
+                    // ⚠️ Il minimo va prima della larghezza intrinseca: i modificatori di misura
+                    // si applicano da fuori a dentro, e scritto dopo la larghezza sarebbe già
+                    // fissata.
                     .widthIn(min = minWidth)
                     .width(IntrinsicSize.Max)
                     .verticalScroll(rememberScrollState())
                     /*
-                     * ⚠️⚠️ **MENTRE ESCE, IL MENU NON SI TOCCA PIÙ**: un tocco su una voce che
-                     * sta sbiadendo ne eseguirebbe l'azione, e chi ha appena chiuso il menu non
-                     * si aspetta di aver premuto qualcosa. Si consuma nella passata iniziale,
-                     * dentro la composizione, senza toccare i flag della finestra: quelli li
-                     * usa il velo, e riscriverli lo spegnerebbe.
-                     * ⚠️⚠️ **E ANCHE AL LETTORE DI SCHERMO, dalla `1.81`**: `deaf()` consuma
-                     * eventi di **puntatore**, mentre l'azione di una voce vive nella semantica
-                     * e un comando di accessibilità la esegue senza passare dal dito. Il varco
-                     * durava i 75 ms dell'uscita, cioè quattro fotogrammi, e chiuderlo costa la
-                     * riga qui accanto: il caso gemello è già chiuso così sul FAB, in
-                     * `ActionPad.kt`.
+                     * ⚠️ **Mentre esce, il menu non si tocca più**: un tocco su una voce che
+                     * sbiadisce ne eseguirebbe l'azione. Si consuma nella passata iniziale,
+                     * senza toccare i flag della finestra, che usa la sfocatura.
+                     * E anche per il lettore di schermo: `deaf()` consuma eventi di puntatore,
+                     * mentre un comando di accessibilità esegue l'azione dalla semantica (come
+                     * sul FAB, in `ActionPad.kt`).
                      */
                     .then(if (state.wanted) Modifier else Modifier.deaf())
                     .then(if (state.wanted) Modifier else Modifier.clearAndSetSemantics { })
@@ -473,8 +298,8 @@ fun MenuShell(
 /**
  * Non lascia passare nessun tocco, consumandolo prima che arrivi ai figli.
  *
- * ⚠️ Nella passata **iniziale**, cioè prima che i figli lo vedano: nella passata `Main` il nodo
- * più interno riceve per primo, quindi una voce lo consumerebbe lei.
+ * Nella passata iniziale, prima che i figli lo vedano: nella passata `Main` il nodo più interno
+ * riceve per primo, e una voce lo consumerebbe lei.
  */
 private fun Modifier.deaf(): Modifier = pointerInput(Unit) {
     awaitPointerEventScope {
@@ -484,23 +309,17 @@ private fun Modifier.deaf(): Modifier = pointerInput(Unit) {
     }
 }
 
-/** L'aria sopra e sotto il contenuto di OGNI menu. */
+/** L'aria sopra e sotto il contenuto di ogni menu. */
 private val MENU_PAD = 8.dp
 
 /**
  * Da quanto piccolo cresce il menu, e in quanti millisecondi.
  *
- * ⚠️ La scala è **scelta dell'utente**: 0,96, dove prima era 0,72 in 220ms **dal punto
- * premuto**. Il salto che si sentiva era la scala più della durata, ed è la ragione per cui è
- * la scala il numero che è cambiato di più.
- * ⚠️⚠️ **LA DURATA È SCESA DA 170 A 120 NELLA `1.54`, e nasce come una PROVA** (richiesta
- * dell'utente, 2026-09-04: *proviamo a impostare animazioni più veloci*). 120ms è la durata
- * con cui Material fa entrare un menu, quindi non è un numero inventato per l'occasione: è
- * il minimo sotto il quale un movimento smette di leggersi come un movimento.
- * ⚠️ **La ragione che l'ha chiesta non regge, e va detto invece di lasciarlo credere**: la
- * velocità serviva a non far vedere l'angolo sfocato che sporge dal pannello, ma quel difetto
- * è **fermo** finché il menu è aperto, quindi nessuna durata lo nasconde. La nota in fondo a
- * `Veil.kt` dice che cosa lo toglierebbe davvero.
+ * La scala è scelta dell'utente. La durata, 120ms, è quella con cui Material fa entrare un
+ * menu (richiesta dell'utente: animazioni più veloci): sotto, un movimento smette di leggersi
+ * come tale.
+ * ⚠️ Nessuna durata nasconde l'angolo sfocato che sporge dal pannello, che è fermo finché il
+ * menu è aperto: che cosa lo toglierebbe è scritto in fondo a `Veil.kt`.
  */
 private const val MENU_SMALL = 0.96f
 private const val MENU_IN = 120
@@ -511,76 +330,46 @@ private val MENU_EASE = CubicBezierEasing(0.2f, 0f, 0f, 1f)
 /**
  * L'uscita di un menu: una dissolvenza corta, e senza nessuna curva.
  *
- * ⚠️⚠️ **75 MILLESIMI, DALLA `1.67`, E IL NUMERO È DI MATERIAL** (`OutTransitionDuration`, che è
- * la durata con cui la libreria fa sparire i propri menu). ⚠️ **Ed è la misura che qui era stata
- * SCARTATA due volte**: Material fa l'uscita più corta dell'entrata, e fino alla `1.66` non si
- * faceva, prima perché l'uscita era l'entrata letta all'indietro e poi perché doveva accompagnare
- * la coda della patina. Adesso è una richiesta esplicita dell'utente (riscontro del giro della
- * `1.66`: *semplifica al massimo e fai sparire il menu in modo fluido e senza glitch, con una
- * dissolvenza veloce*), e con lei cade tutto quello che la coda si portava dietro.
- * ⚠️⚠️ **IL DIFETTO CHE TOGLIE NON ERA UNA CURVA SBAGLIATA, ERA IL TEMPO PASSATO IN SCENA**
- * (*toccando 'Impostazioni' o 'Cestino', che portano ad un'altra schermata, il menu se ne va
- * troppo piano, la transizione s'inceppa e rimane bloccato a schermo a mezza opacità per un tempo
- * che lo rende visibile, poi l'animazione finisce a scatti*). Quelle voci navigano, quindi
- * mentre il menu usciva l'app componeva una schermata nuova **e** ne animava la transizione: il
- * pannello di un menu che non c'è più galleggiava a mezza opacità sopra la schermata di arrivo, e
- * i fotogrammi che la composizione si prendeva erano quelli della sua dissolvenza. A 75 ms il
- * pannello è già andato quando la schermata nuova arriva.
- * ⚠️ **La curva è LINEARE perché a questa durata una curva è una decorazione che nessuno vede**:
- * quattro fotogrammi. E una curva che parte piano è esattamente ciò che, sotto carico, si legge
- * come un pannello che si inceppa.
- * ⚠️ **L'entrata non si tocca**: quella deve restare immediata, ed è la richiesta con cui la
- * `1.54` ha portato [MENU_IN] a 120.
+ * 75 ms, la durata con cui Material fa sparire i propri menu (`OutTransitionDuration`), su
+ * richiesta dell'utente (riscontro del giro della `1.66`: una dissolvenza veloce).
+ * ⚠️ **Conta il tempo passato in scena**: le voci che navigano fanno comporre e animare una
+ * schermata nuova mentre il menu esce, e un'uscita lunga lascerebbe il pannello a mezza opacità
+ * sopra la schermata d'arrivo, a scatti. A 75 ms il pannello è già andato quando la schermata
+ * arriva.
+ * La curva è lineare: a quattro fotogrammi una curva non si vede, e una che parte piano sotto
+ * carico si legge come un pannello che si inceppa.
  */
 private const val MENU_OUT_MS = 75
 private val MENU_OUT: Easing = LinearEasing
 
 /**
- * Quanto è grande **adesso** il pannello, in frazione della sua misura a riposo.
+ * Quanto è grande adesso il pannello, in frazione della sua misura a riposo.
  *
- * ⚠️⚠️ **IN USCITA VALE UNO, DALLA `1.67`, ED È L'ALTRA METÀ DELLA SEMPLIFICAZIONE CHIESTA.**
- * Questo numero non muove soltanto una scala: lo leggono il `layout` del pannello, che al suo
- * cambiare **rimisura tutto il contenuto del menu**, e [Growing], che rimisura e riposiziona la
- * **finestra**. Quindi ogni fotogramma dell'uscita costava una misura completa più due giri dal
- * gestore delle finestre, e li costava proprio mentre una voce che naviga fa comporre una
- * schermata nuova. Fermo a uno, dell'uscita resta la sola opacità, che si legge nella fase di
- * **disegno**: nessuna misura, nessun giro di finestra.
- * ⚠️ **Il pannello si chiude alla sua misura piena e non c'è nessun salto**: una chiusura chiesta
- * a menu aperto trova questo numero già a uno. ⚠️ **L'unico caso che salta è chiudere mentre il
- * menu sta ancora ENTRANDO**, e sono i quattro centesimi di [MENU_SMALL] in un fotogramma solo:
- * sta scritto invece di essere nascosto, perché l'alternativa è il difetto qui sopra.
+ * ⚠️ **In uscita vale uno**: questo numero lo leggono il `layout` del pannello, che rimisura
+ * tutto il contenuto, e [Growing], che rimisura e riposiziona la finestra. Fermo a uno,
+ * dell'uscita resta la sola opacità, letta nella fase di disegno, mentre una voce che naviga fa
+ * comporre una schermata nuova.
+ * Una chiusura a menu aperto trova già uno, quindi nessun salto; salta solo chiudere mentre il
+ * menu sta ancora entrando, di quattro centesimi in un fotogramma.
  */
 private fun grown(state: MenuState): Float =
     if (!state.wanted) 1f else MENU_SMALL + (1f - MENU_SMALL) * state.show.value
 
 /**
- * Il posizionatore che mette la finestra **rimpicciolita** dove starebbe quella intera.
+ * Il posizionatore che mette la finestra rimpicciolita al posto di quella intera.
  *
- * ⚠️⚠️ **NASCE PER TOGLIERE LA CORNICE SFUMATA, e il meccanismo va capito o sembra un giro
- * inutile** (riscontro dell'utente, giro della `1.51`, voce `sfocatura-segue`). La sfocatura è
- * un attributo della **finestra**: copre il rettangolo della finestra e nient'altro, e non sa
- * niente di quello che il pannello dentro sta disegnando. Finché la finestra era grande quanto
- * il pannello **a riposo**, mentre il disegno era al 96% restava una fascia sfocata larga il 2%
- * per lato, con un bordo netto di fuori: quella fascia **è** la cornice. La `1.50` l'aveva
- * attenuata dosando la sfocatura insieme al pannello, che era la cura del sintomo. Adesso la
- * finestra si stringe col disegno, e la fascia non esiste in nessun fotogramma.
+ * ⚠️ **Toglie la cornice sfumata** (voce `sfocatura-segue`): la sfocatura copre il rettangolo
+ * della finestra, e con la finestra grande quanto il pannello a riposo, mentre il disegno è al
+ * 96%, resterebbe una fascia sfocata con un bordo netto. La finestra si stringe col disegno, e
+ * la fascia non esiste in nessun fotogramma.
  *
- * ⚠️⚠️ **E LA POLITICA DEL POSTO LAVORA SULLA MISURA INTERA, non su quella del fotogramma**:
- * altrimenti un candidato che non sta a riposo potrebbe starci al 96%, e il menu salterebbe da
- * un posto all'altro mentre entra. Quindi si chiede a [MenuSpot] dove andrebbe il pannello
- * intero, e la finestra rimpicciolita si centra **dentro** quel rettangolo: il pannello cresce
- * dal proprio centro, che è la cosa che l'utente ha scelto sul mockup, e finisce esattamente
- * dove finiva prima.
- *
- * ⚠️ **La misura intera si ricava dividendo, e l'errore è di un pixel**: `popupContentSize`
- * arriva già scalata, e il fattore non scende sotto [MENU_SMALL]. A riposo la divisione è per
- * uno, quindi la posizione finale è quella di prima **alla lettera**.
- *
- * ⚠️ **Il costo è dichiarato, ed è il secondo della stessa specie**: la finestra si rimisura e si
- * riposiziona a ogni fotogramma dell'animazione, come già si ridosa la sfocatura. È la stessa
- * spesa e la stessa durata, cioè [MENU_IN] in entrata, e la via che le eviterebbe entrambe
- * (dipingere la sfocatura sulla vista dell'app con un `RenderEffect`) è il rifacimento di cui
- * parla la nota in fondo a `Veil.kt`.
+ * Il posto si sceglie sulla misura intera, o un candidato che a riposo non entra potrebbe
+ * entrare al 96% e il menu salterebbe mentre entra. La finestra rimpicciolita si centra dentro
+ * quel rettangolo: il pannello cresce dal proprio centro, come ha scelto l'utente sul mockup.
+ * La misura intera si ricava dividendo, con un errore di un pixel; a riposo la divisione è per
+ * uno.
+ * Costa un riposizionamento della finestra a ogni fotogramma dell'entrata (vedi la nota in fondo
+ * a `Veil.kt`).
  */
 private class Growing(
     private val dove: PopupPositionProvider,
@@ -606,12 +395,10 @@ private class Growing(
 }
 
 /**
- * Su un asse, da dove nasce il menu.
+ * Su un asse, da dove si apre il menu.
  *
  * ⚠️ **'Comincia' e 'finisce' seguono il verso di scrittura**: in arabo, persiano e urdu
- * cominciano a **destra**, e il manifesto dichiara `supportsRtl`. Senza lo scambio il menu
- * nascerebbe dall'angolo sbagliato in tre delle lingue dell'app, e in italiano non si
- * vedrebbe.
+ * cominciano a destra, e il manifesto dichiara `supportsRtl`.
  */
 enum class MenuSide {
     /** Comincia dove comincia l'ancora, cioè allineato al suo bordo iniziale. */
@@ -621,10 +408,8 @@ enum class MenuSide {
     AFTER_ANCHOR,
 
     /**
-     * Centrato sull'ancora: il cursore della luminosità del Disegno, che dalla `4.50` copre la fila
-     * dei tondi (sua nota su `4.49-02`).
-     * ⚠️ **Il posto 'prima dell'ancora' (`BEFORE_ANCHOR`) c'è stato due volte**, fino alla `1.78` e
-     * nella `4.49`, per lo stesso cursore aperto sopra la fila: tolto quando nessuno lo chiedeva.
+     * Centrato sull'ancora: il cursore della luminosità del Disegno, che copre la fila dei tondi
+     * (nota dell'utente su `4.49-02`).
      */
     ANCHOR_CENTRE,
 
@@ -636,22 +421,12 @@ enum class MenuSide {
 }
 
 /**
- * Il posizionatore di **ogni** menu: una politica per asse e una sola regola di bordo.
+ * Il posizionatore di ogni menu: una politica per asse e una sola regola di bordo.
  *
- * ⚠️⚠️ **LA COLLISIONE COL BORDO SI SCRIVE UNA VOLTA, ed è la sola cosa che il posizionatore
- * di Material faceva e i due di casa no.** Fino alla `1.46` i menu di casa avevano
- * `MenuCenter` e `MenuAbove`, che centravano e basta: un menu più alto dello schermo usciva
- * dal bordo e non lo si poteva raggiungere. Questa regola è quella di
- * `DropdownMenuPositionProvider` trascritta dal bytecode di `material3` in uso, coi suoi
- * candidati, i suoi margini e il suo ripiego, non una inventata che le somiglia.
- * ⚠️ **La prova è un confronto**: la regola vecchia e questa sono state calcolate su cinque
- * densità per sei finestre nei due versi di scrittura, sulle misure vere dei menu dell'app, e
- * danno la stessa posizione dappertutto tranne dove quella vecchia lasciava sforare.
- *
- * ⚠️ **QUI C'ERA UN `gap` FINO ALLA `1.78`**, cioè quanti pixel staccare il menu dall'ancora,
- * e nessuno dei posizionatori costruiti nell'app lo passava: valeva zero in tutti e quattro.
- * Un parametro che nessuno usa non è una possibilità in più, è una riga che chi legge deve
- * verificare.
+ * ⚠️ **La collisione col bordo si scrive una volta**: è la regola di
+ * `DropdownMenuPositionProvider`, trascritta dal bytecode di `material3` in uso, coi suoi
+ * candidati, i suoi margini e il suo ripiego. Senza, un menu più alto dello schermo uscirebbe
+ * dal bordo e non lo si potrebbe raggiungere.
  *
  * @param across la politica sull'asse orizzontale.
  * @param along la politica sull'asse verticale.
@@ -668,40 +443,25 @@ class MenuSpot(
      * Entro quanti pixel dal bordo di finestra la distanza del pannello si **uniforma** a
      * [flushTo].
      *
-     * ⚠️⚠️ **NASCE DA UN DIFETTO CHE SI VEDEVA SOLO CON LA SFOCATURA, dalla `1.68`** (riscontro
-     * del giro della `1.67`, con schermata: *a prescindere dal numero di colonne della griglia,
-     * il bordo destro della colonna di destra è sempre vicinissimo al bordo destro del menu del
-     * FAB ... la vicinanza tra i due bordi genera un effetto 'linea sfocata' assai fastidioso*).
-     * Il menu si ancora al FAB, quindi il suo fianco cade a [HUB_PAD] dal vetro: questa soglia
+     * ⚠️ **Il fianco del menu non deve essere vicino al bordo della colonna** (riscontro
+     * dell'utente: i due bordi vicini, con la sfocatura, si leggono come una linea sfocata).
+     * Il menu si ancora al FAB, quindi il suo fianco cade al margine del FAB: questa soglia
      * riconosce quel caso, e [flushTo] dice dove portarlo.
-     * ⚠️⚠️ **SI SCRIVE COME UNA SOGLIA E NON COME UN MARGINE, ed è misurato**: un margine è un
-     * **minimo**, quindi non muove un candidato che lo rispetta già, e il candidato naturale di
-     * un menu ancorato lo rispetta sempre. La `1.91` ci ha provato e la prova del banco lo ha
-     * preso: col margine il pannello restava a 32 dal bordo invece dei 24 voluti.
-     * ⚠️ **Interviene solo dove il difetto esiste**: un menu centrato non arriva mai a meno di
-     * [HUB_PAD] dal bordo, quindi non la incontra.
-     * ⚠️ **Vale sui due lati e nei due versi di scrittura**, perché guarda la distanza dai due
-     * bordi e non un lato scelto: il difetto è speculare, e lo dice lui (*specularmente il
-     * bordo sinistro della colonna di sinistra se il FAB è a sinistra*).
-     * ⚠️ **Solo in ORIZZONTALE**: in verticale un menu si stacca dal bordo di [edge], e
-     * uniformare là lo farebbe finire sotto la barra di sistema.
+     * ⚠️ **È una soglia e non un margine** (misurato dal banco): un margine è un minimo, e non
+     * muoverebbe il candidato naturale di un menu ancorato, che lo rispetta già.
+     * Vale sui due lati e nei due versi di scrittura: il difetto è speculare. Solo in
+     * orizzontale: in verticale il menu si stacca dal bordo di [edge], e uniformare lo farebbe
+     * finire sotto la barra di sistema.
      */
     private val flush: Int = 0,
     /**
      * Dove si ferma la **finestra** quando [flush] scatta, in pixel dal bordo.
      *
-     * ⚠️⚠️ **DALLA `1.91` VALE [MENU_INSET] MENO L'ARIA, UGUALE PER I TRE EFFETTI, ED È SUO**
-     * (riscontro del giro della `1.89`, voce `menu-bordo` non approvata: *non voglio che il
-     * margine del menu sia a filo con i margini delle colonne ... e in più spostarlo un po' a
-     * sinistra*, e *la stessa soluzione funzionerebbe anche con la sfocatura*). Fino alla `1.90`
-     * dipendeva dalla scelta: zero con la sfocatura, metà del margine del FAB negli altri due.
-     * ⚠️⚠️ **IL DIFETTO DELLA `1.67` NON ERA LA FASCIA, ERANO DUE BORDI VICINI**, e rileggerlo
-     * così è quello che fa cadere i tre numeri di prima: la `1.68` aveva allontanato i due bordi
-     * portando il pannello **al vetro**, e adesso li allontana nell'altro verso, tirando il
-     * pannello **dentro** oltre il margine della griglia. Per questo la stessa distanza va bene
-     * anche con la sfocatura: quello che dava fastidio era la vicinanza, non da che parte fosse.
-     * ⚠️ **Il numero lo calcola il chiamante e non questo posizionatore**, perché dipende da due
-     * cose che qui non ci sono: l'aria dell'ombra e il `Density`. Vedi [rememberMenuSpot].
+     * Vale [MENU_INSET] meno l'aria, uguale con sfocatura, ombra o niente (voce `menu-bordo`):
+     * il pannello è tirato dentro oltre il margine della griglia, lontano dal bordo della
+     * colonna.
+     * Lo calcola il chiamante, perché dipende dall'aria dell'ombra e dal `Density`, che qui non
+     * ci sono. Vedi [rememberMenuSpot].
      */
     private val flushTo: Int = 0
 ) : PopupPositionProvider {
@@ -718,9 +478,8 @@ class MenuSpot(
             ),
             size = popupContentSize.width,
             space = windowSize.width,
-            // ⚠️ Zero, ed è quello che passa `DropdownMenu`: in orizzontale un menu si appoggia
-            // al bordo, e un margine lo staccherebbe da dove Material lo mette. A tirarlo dentro
-            // dove serve ci pensa [flush], che è una soglia e non un minimo.
+            // Zero, come in `DropdownMenu`: in orizzontale un menu si appoggia al bordo. Lo tira
+            // dentro dove serve [flush], che è una soglia e non un minimo.
             margin = 0
         ).let { appoggia(it, popupContentSize.width, windowSize.width, flush, flushTo) },
         y = place(
@@ -736,11 +495,10 @@ class MenuSpot(
 }
 
 /**
- * I posti in cui il menu può stare su un asse, dal preferito all'ultima risorsa.
+ * I posti possibili del menu su un asse, dal preferito all'ultima risorsa.
  *
- * ⚠️ L'ordine di [MenuSide.AT_ANCHOR] e [MenuSide.AFTER_ANCHOR] è quello che Material usa per
- * un menu che si apre sotto la sua ancora, letto nel bytecode: cambiarlo sposta i due menu che
- * fino alla `1.46` Material posizionava da sé.
+ * L'ordine di [MenuSide.AT_ANCHOR] e [MenuSide.AFTER_ANCHOR] è quello che Material usa per un
+ * menu che si apre sotto la sua ancora, letto nel bytecode.
  */
 private fun spots(
     side: MenuSide,
@@ -767,15 +525,10 @@ private fun spots(
  * Porta il pannello a [fino] dal bordo di finestra quando gli manca meno di [entro] per
  * arrivarci.
  *
- * ⚠️ **Il perché vive su `MenuSpot.flush` e su `MenuSpot.flushTo`**: qui c'è solo il conto,
- * che è una soglia sui due lati.
- * ⚠️ **A [entro] zero non fa niente**, e non per caso: `1..0` è un intervallo vuoto, quindi i
- * menu che non passano quel numero non cambiano di un pixel.
- * ⚠️ **La distanza si UNIFORMA e non si riduce soltanto**: un pannello che si fermasse più
- * vicino di [fino] viene portato a [fino] come gli altri, o la stessa scelta darebbe due
- * distanze diverse a seconda di dov'è l'ancora. ⚠️ **Dalla `1.91` è la clausola che conta**,
- * perché adesso [fino] è più grande della distanza naturale invece che più piccola: qui il
- * pannello viene tirato **dentro**, e un margine non lo avrebbe mosso affatto.
+ * Il perché è su `MenuSpot.flush` e `MenuSpot.flushTo`; qui c'è il conto, una soglia sui due
+ * lati. A [entro] zero non fa niente: `1..0` è un intervallo vuoto.
+ * ⚠️ **La distanza si uniforma**: anche un pannello più vicino di [fino] è portato a [fino],
+ * e oggi [fino] è più grande della distanza naturale, quindi il pannello è tirato dentro.
  */
 private fun appoggia(at: Int, size: Int, space: Int, entro: Int, fino: Int): Int = when {
     at in 1..entro -> fino
@@ -784,7 +537,7 @@ private fun appoggia(at: Int, size: Int, space: Int, entro: Int, fino: Int): Int
 }
 
 /**
- * Il posto sull'asse: il primo candidato che ci sta, e se nessuno ci sta l'ultimo riportato
+ * Il posto sull'asse: il primo candidato che entra, e se nessuno entra l'ultimo riportato
  * dentro.
  */
 private fun place(candidates: IntArray, size: Int, space: Int, margin: Int): Int {
@@ -792,10 +545,8 @@ private fun place(candidates: IntArray, size: Int, space: Int, margin: Int): Int
         val at = candidates[i]
         if (at >= margin && at + size <= space - margin) return at
         if (i == candidates.lastIndex) {
-            // ⚠️ Un menu più grande dello spazio fra i margini non ha nessun posto in cui
-            // starci: si centra e sfora dai due lati uguali, invece di appoggiarsi a uno solo
-            // e uscire tutto dall'altro. È il ripiego di Material, e serve al menu del
-            // visualizzatore in orizzontale, dove oggi esce dal bordo alto.
+            // Un menu più grande dello spazio fra i margini si centra e sfora dai due lati
+            // uguali, come nel ripiego di Material.
             return if (size >= space - 2 * margin) (space - size) / 2
             else at.coerceIn(margin, space - margin - size)
         }
@@ -806,22 +557,13 @@ private fun place(candidates: IntArray, size: Int, space: Int, margin: Int): Int
 /**
  * Il menu al centro della finestra: il visualizzatore e il tocco lungo su una cartella.
  *
- * ⚠️ Il margine è una frazione e non pixel, per la ragione scritta su [MenuSpot].
+ * Il margine è una frazione e non pixel: vedi [MENU_AIR].
  */
 val MenuInWindow = MenuSpot(MenuSide.IN_WINDOW, MenuSide.LOWERED_IN_WINDOW, air = MENU_AIR)
 
 /**
- * Il menu **ancorato** al FAB che lo apre: la coppia di lati che i tre menu d'angolo
- * dell'app chiedono tutti uguale.
- *
- * ⚠️⚠️ **NASCE PERCHÉ QUELLA COPPIA ERA SCRITTA TRE VOLTE** (censimento della UI del
- * 2026-09-05), e la difesa scritta accanto a una delle tre era proprio il ragionamento che
- * questo file rifiuta per lo stondamento: *scriverla uguale è quello che rende impossibile che
- * i due menu si comportino in modo diverso*. Il precedente misurato dice il contrario, ed è di
- * casa: fino alla `1.27` ogni menu portava il proprio raggio, ed erano diventati tre numeri
- * diversi. Il criterio è scritto su [MENU_ROUND]: *un parametro è un invito a ridiventare tre*.
- * ⚠️ **Il caso centrato aveva già un nome solo** ([MenuInWindow]), quindi la simmetria mancava
- * proprio dove i chiamanti erano più numerosi.
+ * Il menu ancorato al FAB che lo apre: la coppia di lati che i menu d'angolo dell'app chiedono
+ * tutti uguale, scritta una volta sola come [MenuInWindow] per il caso centrato.
  */
 @Composable
 fun rememberMenuAtAnchor(): MenuSpot =
@@ -830,20 +572,15 @@ fun rememberMenuAtAnchor(): MenuSpot =
 /**
  * Un menu ancorato a un angolo, con la coppia di lati scelta dal chiamante.
  *
- * ⚠️ Ricordato, perché costruirne uno nuovo a ogni ricomposizione farebbe rimisurare la
- * finestra al `Popup` senza che niente sia cambiato.
- * ⚠️ **I tre menu d'angolo dell'app passano da [rememberMenuAtAnchor]** e non da qui: questa
- * resta la forma generale, che serve a chi un domani ne volesse una coppia diversa.
+ * Ricordato: costruirne uno nuovo a ogni ricomposizione farebbe rimisurare la finestra al
+ * `Popup` senza ragione. I menu d'angolo dell'app passano da [rememberMenuAtAnchor]; questa è la
+ * forma generale.
  *
- * ⚠️⚠️ **QUANTO RESTA FRA IL PANNELLO E IL VETRO È [MENU_INSET] DALLA `1.91`, UGUALE PER I TRE
- * EFFETTI**, e prima dipendeva dalla scelta in vigore: con la sfocatura il pannello andava **al
- * vetro** e negli altri due casi a metà del margine del FAB. Il perché del cambio vive su
- * `MenuSpot.sideMargin`, e in breve è che il difetto da cui quel meccanismo nasceva erano **due
- * bordi vicini**, non una fascia.
- * ⚠️⚠️ **E L'ARIA DELL'OMBRA VA SOTTRATTA, perché vive DENTRO la finestra**: con l'ombra il menu
- * si dà `LIFT_ROOM` per lato (il perché è su [MenuShell]), quindi il pannello **disegnato** resta
- * a `LIFT_ROOM` dentro il bordo della finestra. Togliendola dal margine, il pannello cade a
- * [MENU_INSET] dal vetro con tutti e tre gli effetti, che è la cosa che si vede.
+ * Fra il pannello e il vetro restano [MENU_INSET], con sfocatura, ombra o niente: il perché è
+ * su `MenuSpot.flush` e `MenuSpot.flushTo`.
+ * ⚠️ **L'aria dell'ombra va sottratta, perché è dentro la finestra**: con l'ombra il menu si dà
+ * `LIFT_ROOM` per lato (vedi [MenuShell]), e il pannello disegnato è `LIFT_ROOM` dentro il bordo
+ * della finestra.
  */
 @Composable
 fun rememberMenuSpot(across: MenuSide, along: MenuSide): MenuSpot {
@@ -854,9 +591,8 @@ fun rememberMenuSpot(across: MenuSide, along: MenuSide): MenuSpot {
             val aria = if (depth == PanelDepth.SHADOW) LIFT_ROOM.roundToPx() else 0
             MenuSpot(
                 across, along, MENU_KEEP_OUT.roundToPx(),
-                // ⚠️ La soglia è il margine del FAB, perché è là che cade il fianco di un menu
-                // ancorato: vedi `MenuSpot.flush`. Dalla `4.31` il FAB ha il centro sul tondo
-                // ([pillCorner]), quindi il margine è il suo e non più [HUB_PAD].
+                // La soglia è il margine del FAB, dove cade il fianco di un menu ancorato (vedi
+                // `MenuSpot.flush`); il FAB ha il centro sul tondo ([pillCorner]).
                 flush = cornerSide(FAB_SIZE).roundToPx(),
                 flushTo = (MENU_INSET.roundToPx() - aria).coerceAtLeast(0)
             )
@@ -867,42 +603,33 @@ fun rememberMenuSpot(across: MenuSide, along: MenuSide): MenuSpot {
 /**
  * Quanto resta fra il fianco di un menu ancorato e il bordo dello schermo.
  *
- * ⚠️⚠️ **TRE VOLTE IL MARGINE DELLA GRIGLIA, ED È MISURATO SUL SUO MOCKUP** (riscontro del giro
- * della `1.89`, voce `menu-bordo`): nel disegno che ha mandato il pannello si ferma **24** dentro
- * il bordo destro della griglia, che a sua volta sta a [GRID_PAD_X] dal vetro. Le misure del
- * mockup, prese sui pixel: tre celle a 12-181, 185-354, 358-528 su 539 di larghezza, e il
- * pannello da 137 a 504.
- * ⚠️ **Non è un numero tondo scelto a occhio**: legato a [GRID_PAD_X] resta giusto il giorno che
- * il margine della griglia cambia, e scritto come `24.dp` sarebbe una coincidenza che si rompe
- * senza che nessuno se ne accorga.
- * ⚠️ **Vale con tutti e tre gli effetti**, ed è sua istruzione: *a dire il vero, la stessa
- * soluzione funzionerebbe anche con la sfocatura*.
+ * Tre volte il margine della griglia, misurato sul mockup dell'utente (voce `menu-bordo`): il
+ * pannello si ferma 24 dentro il bordo destro della griglia, che è a [GRID_PAD_X] dal vetro
+ * (celle a 12-181, 185-354, 358-528 su 539 di larghezza, pannello da 137 a 504).
+ * Legato a [GRID_PAD_X], resta giusto se il margine della griglia cambia. Vale con sfocatura,
+ * ombra o niente (istruzione dell'utente).
  */
 internal val MENU_INSET = GRID_PAD_X * 3
 
 /**
  * Frazione massima della larghezza finestra per i menu del FAB sul tablet (≥600 dp).
  *
- * ⚠️ **0.35 e non 0.45, dalla `3.39`** (residuo `3.38-02`): il 45 del giro 3.37 era
- * troppo largo; senza tetto stretto in verticale il menu arrivava ~70%.
+ * 0,35 (voce `3.38-02`): 0,45 era troppo largo, e senza tetto in verticale il menu arrivava al
+ * 70% circa.
  */
 internal const val MENU_TABLET_WIDTH = 0.35f
 
 /**
  * La larghezza minima del pannello di un menu ancorato, sopra una griglia di [columns] colonne.
  *
- * ⚠️⚠️ **DUE CELLE PIÙ LO SPAZIO CHE LE SEPARA, PIÙ DUE MARGINI DI GRIGLIA, ED È SUO** (voce
- * `menu-bordo`: *bisogna far sì che con l'ombra attiva il pannello sia più largo di due miniature
- * della griglia più lo spazio che le separa*). Il **più largo** vale i due margini, ed è la
- * misura del suo mockup: 368 pixel contro i 342 di due celle e uno spazio, su un pannello dove
- * un margine ne vale 12.
- * ⚠️⚠️ **IL TETTO NON È UNA PRUDENZA, ED È QUELLO CHE SALVA LA SCHERMATA INIZIALE**: là le
- * colonne sono **due**, quindi 'due celle più lo spazio' è la griglia intera e il conto darebbe
- * un pannello largo quanto la finestra. Limitato, il menu si ferma a [MENU_INSET] dai due lati,
- * cioè comunque **fuori squadra** rispetto ai bordi delle colonne, che è la cosa che ha chiesto.
- * ⚠️ **La finestra e non lo schermo**, e i rientri di lato si tolgono: su un telefono con un
- * ritaglio o in orizzontale la griglia comincia più dentro, e una cella misurata sullo schermo
- * intero sarebbe più larga del vero.
+ * Due celle più lo spazio che le separa, più due margini di griglia (voce `menu-bordo`: con
+ * l'ombra il pannello più largo di due miniature e del loro spazio; i due margini sono la misura
+ * del mockup).
+ * ⚠️ **Il tetto serve all'elenco iniziale**: là le colonne sono due, e il conto darebbe un
+ * pannello largo quanto la finestra. Limitato, il menu si ferma a [MENU_INSET] dai due lati,
+ * comunque fuori squadra rispetto ai bordi delle colonne.
+ * La finestra e non lo schermo, meno i rientri di lato: con un ritaglio o in orizzontale la
+ * griglia comincia più dentro.
  */
 @Composable
 fun menuFloor(columns: Int, gap: Dp): Dp {
@@ -915,8 +642,7 @@ fun menuFloor(columns: Int, gap: Dp): Dp {
     val cell = (usable - gap * (columns - 1)) / columns
     val floor = cell * 2 + gap + GRID_PAD_X * 2
     val insetCap = window - MENU_INSET * 2
-    // ⚠️ **Su tablet max ~35%** (collaudo `3.38-02`: 45 era troppo; in verticale
-    // senza tetto stretto arrivava ~70%). Stesso tetto in orizzontale e in verticale.
+    // Sul tablet al più [MENU_TABLET_WIDTH], in orizzontale e in verticale.
     val cap =
         if (window.value >= Adaptive.PHONE_MAX) {
             minOf(insetCap, window * MENU_TABLET_WIDTH)
@@ -929,11 +655,9 @@ fun menuFloor(columns: Int, gap: Dp): Dp {
 /**
  * Quanta aria resta comunque sotto un menu centrato, in frazione dell'altezza della finestra.
  *
- * ⚠️ **Una frazione e non pixel**, perché qui la densità non c'è: `calculatePosition` riceve
- * misure in pixel e nessun `Density`, quindi un numero fisso sarebbe otto volte più grande su
- * un telefono di dieci anni fa che su uno di adesso. ⚠️ **Ed è la ragione per cui questo
- * numero non è `LOWER_AIR`**, che invece è in dp perché là il `Density` c'è: sono la stessa
- * idea misurata in due unità, e unirle vorrebbe dire toglierne una a chi non può usarla.
+ * Una frazione e non pixel: `calculatePosition` non riceve un `Density`, e un numero fisso in
+ * pixel varierebbe molto fra un telefono vecchio e uno di oggi. Per questo non è `LOWER_AIR`,
+ * che è in dp perché là il `Density` c'è.
  */
 private const val MENU_AIR = 0.02f
 
@@ -941,16 +665,12 @@ private const val MENU_AIR = 0.02f
 private val MENU_KEEP_OUT = 48.dp
 
 /**
- * Lo stato di un menu: se deve stare in scena, e se ci sta ancora perché si sta chiudendo.
+ * Lo stato di un menu: se deve essere in scena, e se lo è ancora perché si sta chiudendo.
  *
- * ⚠️⚠️ **NON È UN BOOLEANO DEL CHIAMANTE, E QUESTO È TUTTO IL PUNTO**: finché la presenza del
- * menu era un `if` di chi lo apre, l'**uscita non poteva esistere**, perché al primo fotogramma
- * dell'animazione la finestra era già stata tolta dalla composizione. Qui la presenza la decide
- * [visible], che resta vero per tutta la discesa. È la stessa forma dei due tempi con cui si
- * chiude una bottomsheet, e la stessa idea con cui Material tiene in vita il proprio popup.
- * ⚠️ **E il tipo è quello che trova i chiamanti dimenticati**: una voce che chiudesse il menu
- * assegnando `false` a una variabile sua adesso non compila, mentre prima saltava l'uscita e il
- * difetto si vedeva solo provando quella voce.
+ * ⚠️ **Non è un booleano del chiamante**: con un `if` di chi lo apre l'uscita non potrebbe
+ * esistere, perché la finestra sparirebbe dalla composizione al primo fotogramma. La presenza
+ * la decide [visible], vero per tutta l'uscita, come fa Material col proprio popup. Una voce che
+ * chiudesse il menu assegnando `false` a una sua variabile non compila.
  */
 class MenuState internal constructor() {
     var wanted by mutableStateOf(false)
@@ -959,35 +679,20 @@ class MenuState internal constructor() {
     internal val show = Animatable(0f)
 
     /**
-     * Se il **pannello** si vede adesso, chiusura in corso compresa. Con lui vive la finestra, e
-     * con lui vivono la sfocatura e il livello scuro.
-     *
-     * ⚠️⚠️ **ERANO DUE FINO ALLA `1.66`, E DALLA `1.67` TORNANO A ESSERE UNO.** Il secondo si
-     * chiamava `veiling` e diceva che l'app era ancora velata a pannello già sparito, cioè
-     * esisteva solo perché la patina aveva una coda più lunga dell'uscita (`1.61`). Con l'uscita
-     * di [MENU_OUT_MS] quella coda non c'è più, quindi 'il pannello si vede', 'la finestra esiste'
-     * e 'l'app è velata' sono di nuovo la stessa cosa. ⚠️ **Chi trova `veiling` in una nota
-     * vecchia sappia che i suoi due chiamanti** (il FAB, che deve restare staccato sopra il velo,
-     * e il cancello del menu del visualizzatore) **adesso leggono questo**.
+     * Se il pannello si vede adesso, chiusura compresa. Coincide con la vita della finestra,
+     * della sfocatura e del velo scuro: lo leggono anche il FAB, che resta staccato sopra il
+     * velo, e il cancello del menu del visualizzatore.
      */
     val visible: Boolean get() = visto
 
     /*
-     * ⚠️⚠️ **DERIVATO E NON CALCOLATO A OGNI LETTURA**: questa condizione legge il **valore**
-     * dell'animazione, quindi letta in composizione invalidava chi la legge a ogni fotogramma, per
-     * tutta la durata. Quello che conta è il suo esito, che cambia due volte in tutto, e
-     * `derivedStateOf` invalida solo quando cambia lui.
-     *
-     * ⚠️⚠️ **C'ERA UN TERZO TERMINE, `show.isRunning`, E DALLA `1.76` NON C'È PIÙ: DICEVA SÌ
-     * QUANDO NON C'ERA NIENTE IN SCENA.** Non aggiungeva niente ai due che restano, perché
-     * aprendo è vero [wanted] e chiudendo il valore è sopra zero fino alla fine; l'unico caso in
-     * cui parlava da solo era quello sbagliato, cioè un'animazione che corre **mentre il valore
-     * è zero**. E quel caso esisteva a ogni prima composizione: vedi la guardia in [MenuShell].
-     * ⚠️ **Il difetto che ne veniva è misurato sul banco** (`CambioSchermataTest`): per sei
-     * fotogrammi dopo l'arrivo di una schermata questo stato diceva 'menu in scena', quindi il
-     * FAB si staccava in una finestra sua e il cancello dei tocchi entrava in scena. Il perché
-     * si vedesse proprio tornando da una cartella sta in `Rules.md`, § '🎬 Le animazioni
-     * dentro una schermata che arriva'.
+     * ⚠️ **Derivato**: la condizione legge il valore dell'animazione, e letta in composizione
+     * invaliderebbe chi la legge a ogni fotogramma; `derivedStateOf` invalida solo quando cambia
+     * l'esito.
+     * ⚠️ **Niente `show.isRunning`**: direbbe 'in scena' anche con un'animazione che corre a
+     * valore zero, come alla prima composizione (vedi la guardia in [MenuShell]). Presidiato da
+     * `CambioSchermataTest`; il contesto è in `Rules.md`, § '🎬 Le animazioni dentro una
+     * schermata che arriva'.
      */
     private val visto by derivedStateOf { wanted || show.value > 0f }
 
@@ -1001,8 +706,8 @@ class MenuState internal constructor() {
 }
 
 /**
- * @param keys quello che, cambiando, deve far nascere uno stato nuovo (e quindi un menu
- *   chiuso): nel visualizzatore è l'immagine in scena.
+ * @param keys quello che, cambiando, crea uno stato nuovo (e quindi un menu chiuso): nel
+ *   visualizzatore è l'immagine in scena.
  */
 @Composable
 fun rememberMenuState(vararg keys: Any?): MenuState = remember(*keys) { MenuState() }
@@ -1011,37 +716,22 @@ fun rememberMenuState(vararg keys: Any?): MenuState = remember(*keys) { MenuStat
 /**
  * Una voce di menu a tutta larghezza: icona, testo, e un tocco lungo se serve.
  *
- * ⚠️⚠️ **DALLA 1.28 LA USANO TUTTE, e prima no: era la causa dell'ALLINEAMENTO SBAGLIATO**
- * (mockup dell'utente, 2026-09-02, con la riga rossa che lo mostra: *'Modifica' non è
- * allineato alle altre voci scritte per esteso*). 'Modifica' era l'unica voce scritta a mano,
- * perché ha due gesti, e le altre erano `DropdownMenuItem`: due implementazioni diverse della
- * stessa fila. Material dispone la sua voce con un `Layout` suo, che riserva all'icona uno
- * spazio proprio (`LeadingIconLayoutId`, letto nel bytecode di `MenuKt`), mentre questa
- * metteva icona e testo in una `Row`, dove il testo comincia dove finisce l'icona.
- * ⚠️⚠️ **La cura NON è stata copiare il numero di Material, ed è la parte da tenere**: un
- * numero copiato allinea finché la libreria non lo cambia, e allora si scolla in silenzio.
- * Adesso **tutte** le voci a tutta larghezza dei menu passano di qui, quindi si allineano
- * **per costruzione**: qualunque numero abbia questa funzione, ce l'hanno tutte.
+ * ⚠️ **Tutte le voci a tutta larghezza dei menu passano di qui**, quindi si allineano per
+ * costruzione (mockup dell'utente, 1.28): con due implementazioni della stessa fila i testi
+ * cominciavano in due posti diversi.
  *
- * ⚠️⚠️ **NON PUÒ ESSERE UN `DropdownMenuItem`, e non si poteva usare quello**: il suo
- * `clickable` sta **dentro**, in fondo alla propria catena di modificatori, quindi un
- * `combinedClickable` passato nel `modifier` gli finisce prima e non vede mai la pressione.
- * Nella passata `Main` il nodo più interno riceve per primo e consuma il down. È lo stesso
- * meccanismo per cui [TapHoldFab] non è un `SmallFloatingActionButton`, ed è la stessa
- * conclusione: per avere due gesti su un comando, il nodo che ascolta dev'essere **uno**.
+ * ⚠️ **Non può essere un `DropdownMenuItem`**: il suo `clickable` è in fondo alla sua catena, e
+ * un `combinedClickable` passato nel `modifier` non vedrebbe mai la pressione, perché nella
+ * passata `Main` il nodo più interno riceve per primo. Come per [TapHoldFab]: per due gesti su
+ * un comando, il nodo che ascolta dev'essere uno.
  *
- * ⚠️ **LE MISURE SONO LETTE NEL BYTECODE DI `MenuKt`, NON RICORDATE** (`material3`
- * `1.5.0-alpha26`, uguali nei sorgenti della beta01), perché queste voci sono in mezzo al resto
- * e due pixel si vedono:
- * altezza minima **48dp**, rientro orizzontale **12dp**, spazio fra icona e testo **8dp**
- * (`DropdownMenuIconTextPadding`, che diventa 12 solo con la resa da puntatore di precisione,
- * cioè col mouse), corpo **labelLarge**.
- * ⚠️ **I colori invece si CHIEDONO a Material** (`MenuDefaults.itemColors()`) invece di
- * essere copiati: quelli cambiano con la tavolozza, e una copia si scollerebbe al primo tema
- * diverso.
+ * Le misure sono lette nel bytecode di `MenuKt` (`material3` `1.5.0-alpha26`): altezza minima
+ * 48dp, spazio fra icona e testo 8dp (`DropdownMenuIconTextPadding`, 12 solo col mouse), corpo
+ * `labelLarge`; i rientri sono su [MENU_ITEM_SIDE] e [MENU_ITEM_LEFT]. I colori si chiedono a
+ * Material (`MenuDefaults.itemColors()`), perché cambiano con la tavolozza.
  *
- * @param holdLabel che cosa fa il tocco lungo, per il lettore di schermo. ⚠️ Senza, il gesto
- *   esiste solo per chi lo scopre per caso. Va insieme a [onHold]: o tutti e due o nessuno.
+ * @param holdLabel che cosa fa il tocco lungo, per il lettore di schermo: senza, il gesto lo
+ *   scopre solo chi ci arriva per caso. Va insieme a [onHold]: o tutti e due o nessuno.
  */
 @Composable
 fun MenuRow(
@@ -1049,19 +739,9 @@ fun MenuRow(
     /**
      * Il glifo davanti al testo, e `null` per un menu che non ne ha.
      *
-     * ⚠️⚠️ **PUÒ ESSERE NULLO, dalla `1.46`, E LA REGOLA È PER MENU E NON PER VOCE**: dentro un
-     * menu le voci si allineano fra loro, quindi o l'hanno tutte o nessuna. Con icone su alcune
-     * e non su altre i testi cominciano in due posti diversi, ed è esattamente il
-     * disallineamento che la `1.28` ha corretto.
-     * ⚠️⚠️ **DALLA `1.51` NESSUN MENU LE PASSA NULLE, e il parametro resta comunque**: fino a
-     * lì era il menu del FAB della schermata iniziale a non averne, perché due delle sue
-     * voci ('Apri un indirizzo' e 'Cestino') volevano un disegno che in Material non c'è e che
-     * qui non si inventa, dato che i disegni li manda l'utente. Sono arrivati, e quel menu le
-     * ha prese senza che si toccasse altro, che era esattamente quello che questa riga
-     * prometteva.
-     * ⚠️ **Il nullo non si toglie**, perché la regola che lo giustifica non è cambiata: se un
-     * domani nasce un menu le cui voci un disegno non ce l'hanno, deve poterlo dire per il
-     * menu intero invece di mettere un glifo qualunque su una riga.
+     * ⚠️ **La regola è per menu e non per voce**: dentro un menu le voci si allineano, quindi
+     * l'icona o ce l'hanno tutte o nessuna. Oggi nessun menu la passa nulla, ma il nullo resta
+     * per un menu le cui voci non hanno un disegno.
      */
     icon: ImageVector?,
     onTap: () -> Unit,
@@ -1072,34 +752,21 @@ fun MenuRow(
     /**
      * Se la voce fa una cosa da cui non si torna indietro, e va scritta in colore d'errore.
      *
-     * ⚠️ **Da spenta non cambia niente**, ed è voluto: il colore dello spento è un'altra
-     * chiave della tavolozza, quindi una voce pericolosa e inattiva resta il grigio di sempre
-     * invece di essere un rosso smorto che si legge come un errore in corso.
+     * Da spenta non cambia niente: il colore dello spento è un'altra chiave della tavolozza, e
+     * un rosso smorto si leggerebbe come un errore in corso.
      */
     danger: Boolean = false
 ) {
-    /*
-     * ⚠️⚠️ **I COLORI SI CHIEDONO A MATERIAL, E LO SPENTO PURE**: `disabledTextColor` e
-     * `disabledLeadingIconColor` esistono, e ricopiarne l'opacità a mano è esattamente
-     * l'errore che il riquadro delle azioni ha fatto scrivendosi il proprio 0,38, che è lo
-     * stesso numero della libreria copiato in casa.
-     */
+    // Anche i colori dello spento si chiedono a Material (`disabledTextColor`,
+    // `disabledLeadingIconColor`): un'opacità copiata a mano si scollerebbe dalla libreria.
     val colors = MenuDefaults.itemColors(
         textColor = if (danger) MaterialTheme.colorScheme.error else Color.Unspecified,
         leadingIconColor = if (danger) MaterialTheme.colorScheme.error else Color.Unspecified
     )
     /*
-     * ⚠️⚠️ **UNA CATENA SOLA, DALLA `1.81`, E PRIMA ERANO DUE RAMI OPPOSTI** (censimento della
-     * UI del 2026-09-05): `combinedClickable` con un tocco lungo, `clickable` senza. L'unica
-     * differenza tecnica era [withHaptics], che vuole una funzione non nulla, e siccome è una
-     * funzione componibile chiamabile dentro un `let` inline non impediva niente.
-     * ⚠️ **`onLongClick` nullo non installa nessun gesto lungo**, quindi una voce senza tocco
-     * lungo si comporta come prima: quello che cambia è che il nodo che ascolta è **uno** in
-     * tutti e due i casi, che è la regola già scritta in testa a questa funzione e su
-     * [TapHoldFab] (*per avere due gesti su un comando, il nodo che ascolta dev'essere uno*).
-     * ⚠️ **La prova vive nel banco** (`MenuRowTest`), perché una modifica alla gerarchia dei
-     * tocchi può essere valida e non fare niente: là si tocca una voce e si verifica che
-     * arrivino il tocco breve e quello lungo, con e senza il secondo gesto.
+     * Una catena sola, con o senza tocco lungo: `onLongClick` nullo non installa nessun gesto
+     * lungo, e il nodo che ascolta è sempre uno. Presidiato da `MenuRowTest`, che verifica il
+     * tocco breve e quello lungo, con e senza il secondo gesto.
      */
     val gestures = Modifier.combinedClickable(
         enabled = enabled,
@@ -1111,12 +778,8 @@ fun MenuRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            /*
-             * ⚠️ **Le due larghezze sono di Material, lette in `MenuKt`**, e servono da quando
-             * anche le voci del cestino passano di qui: senza il tetto, una voce si allarga
-             * fino alla finestra nelle lingue che scrivono lungo, e fino alla `1.45` a
-             * trattenerla era Material perché quelle voci erano sue.
-             */
+            // Le due larghezze sono di Material, lette in `MenuKt`: senza il tetto una voce si
+            // allargherebbe fino alla finestra nelle lingue che scrivono lungo.
             .sizeIn(
                 minWidth = MENU_ITEM_MIN,
                 maxWidth = MENU_ITEM_MAX,
@@ -1124,21 +787,10 @@ fun MenuRow(
             )
             .then(gestures)
             /*
-             * ⚠️⚠️ **IL RIENTRO DI SINISTRA È PIÙ LARGO DI QUELLO DI DESTRA, dalla 1.38, e la
-             * causa è il glifo che SPORGE** (riscontro `icona-copia`, 2026-09-02: *l'estremità
-             * sinistra dell'icona 'Copia immagine' adesso è un po' troppo vicina al margine
-             * sinistro -> sposta il contenuto delle tre righe delle azioni (e anche i due zoom
-             * nascosti) di 2/3 pixel apparenti a destra*). `Glyphs.PhotoPair` esce dalla tela di
-             * 1dp a sinistra (il perché sta su `Glyphs.COPY_IMAGE`), quindi con un rientro
-             * uguale ai due lati quella sola voce cominciava un punto più in là delle altre e a
-             * 11dp dal bordo della scheda.
-             * ⚠️ **Si sposta il contenuto di TUTTE le voci e non la sola icona che sporge**, ed
-             * è quello che lui ha chiesto: le voci di un menu si allineano fra loro, e mettere a
-             * posto la sola 'Copia immagine' avrebbe rotto l'allineamento che la 1.28 aveva
-             * appena costruito.
+             * Il rientro di sinistra è più largo, per il glifo che sporge (voce `icona-copia`, vedi
+             * [MENU_ITEM_LEFT]): si sposta il contenuto di tutte le voci, come ha chiesto
+             * l'utente, così restano allineate fra loro. Senza icona il rientro in più non serve.
              */
-            // ⚠️ Senza icona il rientro in più non serve: quei tre punti esistono per il
-            // glifo che sporge, e senza glifo sposterebbero il testo per niente.
             .padding(
                 start = if (icon != null) MENU_ITEM_LEFT else MENU_ITEM_SIDE,
                 end = MENU_ITEM_SIDE
@@ -1146,21 +798,16 @@ fun MenuRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MENU_ITEM_GAP)
     ) {
-        // ⚠️ L'icona non porta descrizione e il testo sì: il modificatore di gesto fonde le
-        // semantiche dei figli, quindi TalkBack legge una voce sola. Vedi `PadButton`.
+        // L'icona non ha descrizione e il testo sì: il modificatore di gesto fonde le semantiche
+        // dei figli, e TalkBack legge una voce sola. Vedi `PadButton`.
         /*
-         * ⚠️⚠️ **LO SLOT È SEMPRE 24dp E IL DISEGNO PUÒ ESSERE PIÙ GRANDE, dalla 1.37**:
-         * `Glyphs.PhotoPair` è 25dp perché il suo foglio dietro esce dalla tela (il perché
-         * sta su `Glyphs.COPY_IMAGE`), e quel dp in più deve **sporgere** invece di entrare
-         * nel conto della fila. Se entrasse, quella voce avrebbe l'icona larga 25 e il suo
-         * testo comincerebbe 1dp più a destra delle altre, che è il disallineamento dei
-         * testi già visto e corretto nella 1.28.
-         * ⚠️ **`requiredSize` e non `size`**: `size` negozia col genitore, quindi lo slot da
-         * 24 schiaccerebbe il disegno da 25 e il quadrato-base tornerebbe 17,28 invece di 18.
-         * La differenza fra i due è misurata e sta in `Identity.kt`, su `LAUNCHER_ZOOM`.
-         * ⚠️ **In basso a destra**, così quello che sporge va a sinistra e in alto, che è da
-         * dove esce quel glifo. Per i glifi da 24, che sono tutti gli altri, questo `Box` non
-         * cambia niente: 24 in uno slot da 24 sta fermo qualunque allineamento si dia.
+         * ⚠️ **Lo slot è sempre 24dp e il disegno può essere più grande**: `Glyphs.PhotoPair` è
+         * 25dp (il perché è su `Glyphs.COPY_IMAGE`), e quel dp in più deve sporgere, o il testo
+         * di quella voce comincerebbe più a destra delle altre.
+         * `requiredSize` e non `size`: `size` negozia col genitore, e lo slot da 24 schiaccerebbe
+         * il disegno da 25 (misura in `Identity.kt`, su `LAUNCHER_ZOOM`).
+         * In basso a destra, così quello che sporge va a sinistra e in alto, da dove esce quel
+         * glifo; per i glifi da 24 l'allineamento non cambia niente.
          */
         if (icon != null) {
             Box(
@@ -1192,84 +839,59 @@ private val MENU_ITEM_HEIGHT = 48.dp
 private val MENU_ITEM_MIN = 112.dp
 private val MENU_ITEM_MAX = 280.dp
 /**
- * ⚠️ **16 e non 12, dalla `1.57`** (riscontro dell'utente, giro della `1.56`: *allarga un po'
- * il pannello popup, perché la parola 'Cestino' è molto vicina al bordo*). Il rientro vale per
- * i due fianchi, quindi il menu si allarga di otto in tutto e nessuna parola arriva a filo.
+ * Il rientro dei due fianchi di una voce: 16 e non i 12 di Material, perché le parole non
+ * arrivino a filo del bordo (riscontro dell'utente, giro della `1.56`).
  */
 private val MENU_ITEM_SIDE = 16.dp
 private val MENU_ITEM_GAP = 8.dp
 
 /**
- * Il rientro di **sinistra** di una voce, che è quello di Material più tre punti.
- *
- * ⚠️ **3 e non 2, e la scelta sta dentro il '2/3' che ha detto lui**: il glifo che sporge esce
- * di **1dp** oltre lo slot, quindi con 2 il suo bordo si sposterebbe di 2 ma resterebbe a 13dp
- * dalla scheda, cioè ancora meno del rientro di Material che tutte le altre voci hanno. Con 3
- * il bordo di quel glifo cade a 14 e le altre icone a 15: il glifo largo continua a sporgere,
- * come deve, ma non tocca più il margine.
- * ⚠️ **A destra resta [MENU_ITEM_SIDE]**, perché è la sinistra che aveva il difetto: lo
- * spostamento è del **contenuto**, non un allargamento simmetrico della scheda.
+ * Il rientro di sinistra di una voce: [MENU_ITEM_SIDE] più tre punti, per il glifo che sporge
+ * di 1dp oltre lo slot (l'utente ha chiesto 2 o 3 pixel apparenti: con 3 quel glifo non tocca il
+ * margine). A destra resta [MENU_ITEM_SIDE]: si sposta il contenuto, la scheda non si allarga
+ * in modo simmetrico.
  */
 private val MENU_ITEM_LEFT = MENU_ITEM_SIDE + 3.dp
 
 /**
  * Lo slot dell'icona di una voce, e vale per ogni glifo qualunque sia il suo disegno.
  *
- * ⚠️ È la misura di serie di `Icon` scritta a mano, e serve scritta perché adesso c'è un
- * glifo che dichiara 25dp: senza questo numero lo slot lo deciderebbe il disegno più grande.
- * Vedi [MenuRow].
+ * La misura di serie di `Icon`, scritta perché un glifo dichiara 25dp: senza, lo slot lo
+ * deciderebbe il disegno più grande. Vedi [MenuRow].
  */
 private val MENU_ITEM_ICON = 24.dp
 
 /**
- * Dove cade il **centro** dell'icona di una voce, misurato dal fianco del pannello.
+ * Dove cade il centro dell'icona di una voce, misurato dal fianco del pannello.
  *
- * ⚠️⚠️ **ESISTE PERCHÉ IL RIQUADRO A ICONE CI SI DEVE ALLINEARE, dalla `1.59`** (richiesta
- * dell'utente, giro della `1.58`, con una schermata e una riga verticale tracciata sopra:
- * *sarebbe bello se le icone delle voci in lista si allineassero perfettamente in verticale
- * con la prima colonna di icone nella griglia*). Prima i due rientri erano indipendenti e si
- * incontravano **per caso**: misurato sulla sua schermata, la lista cadeva a 31dp e la prima
- * colonna a 31,33dp, cioè due pixel.
- * ⚠️⚠️ **E DUE PIXEL ERANO LA FORTUNA, NON LA REGOLA**: il rientro della lista è un numero
- * fisso, quello della prima colonna era una **frazione della larghezza del pannello**, e quella
- * larghezza la fa la voce di testo più lunga. Nelle lingue con parole lunghe lo stesso conto
- * dava sette o otto dp di scarto. Adesso il riquadro parte da qui e lo scarto è zero per
- * costruzione, in tutte e ventotto.
+ * ⚠️ **Il riquadro a icone si allinea qui** (richiesta dell'utente, giro della `1.58`): le icone
+ * delle voci e la prima colonna della griglia di icone devono cadere sulla stessa verticale. Un
+ * rientro calcolato a parte, in frazione della larghezza del pannello, si scosterebbe nelle
+ * lingue con parole lunghe.
  */
 val MENU_ICON_MID = MENU_ITEM_LEFT + MENU_ITEM_ICON / 2
 
 /**
- * Lo stondamento di **ogni** menu.
- *
- * ⚠️⚠️ **UNO SOLO PER TUTTI, dalla 1.28**: prima erano tre numeri in tre file (8 nel
- * visualizzatore, 8 nel navigatore, 16 nella selezione), e l'utente li ha visti diversi
- * prima di noi. Stanno qui, accanto alla superficie che li usa, e non passano più come
- * parametro: un parametro è un invito a ridiventare tre.
- * ⚠️ **20 e non 28**: le bottomsheet stanno a 28 e vanno bene così (parole sue), e un menu
- * che le raggiungesse smetterebbe di distinguersi da loro. 20 è il gradino sopra il 16 della
- * selezione, cioè quello che era già il più morbido dei tre.
- * ⚠️ **Questa costante governava anche la striscia d'accento**, uscita di scena con la 1.38:
- * il perché sta nella nota di [MenuShell]. Lo stondamento resta, ed è indipendente da lei.
+ * Lo stondamento di ogni menu, uno solo per tutti e non un parametro (richiesta dell'utente,
+ * 1.28): un parametro inviterebbe a ridiventare tre numeri diversi.
+ * 20 e non 28: le schede in fondo hanno 28 (`PANEL_ROUND`), e un menu con lo stesso raggio non si
+ * distinguerebbe da loro.
  */
 val MENU_ROUND = 20.dp
 
 /**
- * Chi è in scena adesso fra i menu, e serve a una cosa sola: **far sapere all'app che deve
- * stare zitta**.
+ * Quali menu sono in scena: serve a dire all'app di ignorare i tocchi ([MenuGuard]).
  *
- * ⚠️⚠️ **NON SI PUÒ RIUSARE `VeilStage` PER QUESTO, ed è la ragione per cui questo oggetto
- * esiste**: quella mappa è vuota quando 'Sfocatura dietro i pannelli' è spenta, cioè nel caso
- * di fabbrica, e legare a lei il tocco che non deve passare renderebbe la correzione una
- * funzione facoltativa. Qui dentro un menu entra sempre, acceso o spento che sia
- * l'interruttore.
- * ⚠️ **Una mappa di richiedenti e non un numero**, per la stessa ragione scritta su
- * `VeilStage`: due menu possono sovrapporsi per il tratto di un'uscita, e con un contatore
- * solo il primo che se ne va spegnerebbe anche il secondo.
+ * ⚠️ **Non si può riusare `VeilStage`**: quella mappa è vuota quando la Sfocatura dietro i
+ * pannelli è spenta, e il tocco che non deve passare dipenderebbe da un'impostazione. Qui un
+ * menu entra sempre.
+ * Una mappa di richiedenti e non un numero, come `VeilStage`: due menu possono sovrapporsi
+ * durante un'uscita, e con un contatore il primo che esce toglierebbe anche il secondo.
  */
 internal object MenuScene {
     private val aperti = mutableStateMapOf<Any, Unit>()
 
-    /** Se c'è almeno un menu in scena. Si legge **nel giro dei tocchi**, non in composizione. */
+    /** Se c'è almeno un menu in scena. Si legge in composizione, da [MenuGuard]. */
     val open: Boolean get() = aperti.isNotEmpty()
 
     fun enter(chi: Any) {
@@ -1287,49 +909,23 @@ internal object MenuScene {
 }
 
 /**
- * Il velo che, mentre un menu è aperto, **impedisce al tocco di arrivare anche all'app**.
+ * Il cancello che, mentre un menu è aperto, impedisce al tocco di arrivare anche all'app.
  *
- * ⚠️⚠️ **IL DIFETTO CHE TOGLIE È MISURATO SUL BYTECODE DI COMPOSE**: `createFlags` di
- * `AndroidPopup_androidKt` parte da `FLAG_WATCH_OUTSIDE_TOUCH` e non mette mai
- * `FLAG_NOT_TOUCH_MODAL`, quindi da Android 12 la finestra di un popup **non è modale al
- * tocco**: un dito fuori dal pannello arriva a tutte e due le finestre. Il popup lo legge come
- * 'fuori' e si chiude, e l'app lo legge come un tocco suo: nella vista ad albero apriva la riga
- * sotto il dito, nella testata della griglia la miniatura, nella schermata iniziale la cartella.
- * ⚠️⚠️ **UNO SOLO E NON UNO PER SCHERMATA, ED È IL PUNTO DI QUESTA FORMA.** Fino alla `1.69` il
- * rimedio era un `Box` con `detectTapGestures` scritto **dentro una schermata**, e viveva in
- * una schermata su cinque: gli altri quattro chiamanti di [MenuShell] non l'avevano, e in una
- * di quelle lo stato del menu non era nemmeno raggiungibile da fuori. Ripeterlo quattro volte
- * avrebbe risolto quattro casi e lasciato in piedi il modo di sbagliare il quinto; qui sta
- * sopra tutto quello che l'app disegna, quindi vale per ogni menu che esiste e per ogni menu
- * che nascerà.
- * ⚠️ **Consuma nella passata `Initial`**, cioè prima di chiunque altro: quello che deve
- * rispondere a quel tocco è il popup, e il popup vive in un'altra finestra, dove questo nodo
- * non arriva.
+ * ⚠️ **La finestra di un popup non è modale al tocco** (misurato sul bytecode di Compose):
+ * `createFlags` di `AndroidPopup_androidKt` parte da `FLAG_WATCH_OUTSIDE_TOUCH` e non mette mai
+ * `FLAG_NOT_TOUCH_MODAL`, quindi da Android 12 un dito fuori dal pannello arriva a tutte e due
+ * le finestre: il popup si chiude, e l'app apre quello che c'è sotto il dito.
+ * Uno solo, in `AivTheme`, sopra tutto quello che l'app disegna: vale per ogni menu, presente e
+ * futuro. Consuma nella passata `Initial`, prima di chiunque altro; al tocco risponde il popup,
+ * che è in un'altra finestra.
  *
- * ⚠️⚠️ **A MENU CHIUSO NON ESISTE, E NON BASTAVA CHE NON CONSUMASSE: la `1.70` ha bloccato
- * l'intera app**, che si avviava e non rispondeva a nulla (riscontro dell'utente, 2026-09-05:
- * *l'app si avvia e appare la griglia delle cartelle, ma nulla risponde ai comandi*). ⚠️ **La
- * causa non è il consumo: è la HIT-TEST**, che in Compose sceglie **a chi mandare** l'evento
- * prima che un solo `awaitPointerEvent` giri. Fra fratelli sovrapposti quel giro va dall'ultimo
- * disegnato al primo e **si ferma sul primo ramo che colpisce**: un `Box` con `pointerInput`
- * grande quanto lo schermo e disegnato dopo `content()` è quel ramo, quindi la griglia sotto
- * non veniva nemmeno interpellata. Non consumare vuol dire 'lascio decidere anche agli altri
- * che hanno ricevuto l'evento', non 'lo lascio passare a chi sta sotto': quelli sotto l'evento
- * non lo ricevono affatto.
- * - ⚠️⚠️ **Il fatto era già scritto tre volte in questo file**, sul cancello di [MenuShell]
- *   (*un popup sempre presente e trasparente in più si mangerebbe i tocchi*): la stessa
- *   trappola, presa da un `Popup` invece che da un `Box`. Una nota che descrive il difetto non
- *   impedisce di rifarlo con un altro strumento.
- * - **Il rimedio è l'ASSENZA, non una condizione più furba**: finché nessun menu è in scena il
- *   nodo non è nell'albero, quindi non c'è niente che possa intercettare un tocco. Una guardia
- *   dentro il giro dei tocchi lascerebbe in piedi il nodo, cioè la causa.
- * - ⚠️ **Il prezzo è una ricomposizione della radice** a ogni apertura e a ogni chiusura di un
- *   menu, che è quello che la `1.70` voleva evitare leggendo [MenuScene] dentro il giro dei
- *   tocchi. Costa un `Box` vuoto: si paga.
+ * ⚠️ **A menu chiuso non esiste, e non basterebbe che non consumasse**: un nodo con
+ * `pointerInput` grande quanto lo schermo ferma la prova del tocco, che fra fratelli sovrapposti
+ * si ferma sul primo ramo colpito, e l'app intera non risponderebbe più. Il rimedio è l'assenza:
+ * costa una ricomposizione della radice a ogni apertura e chiusura di un menu.
  *
- * ⚠️ **I DIALOGHI non hanno bisogno di lui**: la finestra di un `Dialog` è modale al tocco, e
- * quello che si tocca fuori non arriva mai all'app. Il loro caso gemello è un'altra cosa e vive
- * in `Centred.kt`, sull'aria dichiarata sopra il pannello.
+ * I dialoghi non ne hanno bisogno: la finestra di un `Dialog` è modale al tocco. Il loro caso
+ * gemello è in `Centred.kt`, sull'aria dichiarata sopra il pannello.
  */
 @Composable
 fun MenuGuard(modifier: Modifier = Modifier) {

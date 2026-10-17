@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material: Icons.Filled.PushPin 1.7.8 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="evenOdd"
+        android:pathData="M16,9L16,4L17,4C17.55,4,18,3.55,18,3L18,3C18,2.45,17.55,2,17,2L7,2C6.45,2,6,2.45,6,3L6,3C6,3.55,6.45,4,7,4L8,4L8,9C8,10.66,6.66,12,5,12L5,12L5,14L10.969999,14L10.969999,21L11.969999,22L12.969999,21L12.969999,14L19,14L19,12L19,12C17.34,12,16,10.66,16,9Z" />
+</vector>

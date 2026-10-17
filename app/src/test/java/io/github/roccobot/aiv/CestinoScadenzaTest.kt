@@ -52,7 +52,7 @@ class CestinoScadenzaTest {
      * rimasto con la versione di prima della modifica.
      */
     @Test
-    fun `una copia di sicurezza non scade nemmeno se l'originale è sparito`() {
+    fun `una copia di sicurezza non scade nemmeno senza l'originale`() {
         val righe = listOf(
             Bin.Record("copia.jpg", ADESSO - GIORNO * 400, "/foto/copia.jpg", Bin.KIND_KEPT)
         )

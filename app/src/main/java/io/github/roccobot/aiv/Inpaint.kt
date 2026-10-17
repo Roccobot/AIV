@@ -8,30 +8,28 @@ import kotlin.math.sqrt
 import kotlin.random.Random
 
 /**
- * Deterministic multi-scale exemplar reconstruction (Wexler-style EM with PatchMatch search).
- * Donors must be completely outside the original selection: generated pixels are never
- * mistaken for new evidence. All reads are from the supplied local image crop.
+ * Ricostruzione deterministica per esempi, su più scale (EM alla Wexler con la ricerca
+ * PatchMatch). I donatori sono tutti fuori dalla selezione originale: un pixel generato non è mai
+ * preso per un dato nuovo. Tutte le letture sono dal ritaglio locale ricevuto.
  *
- * ⚠️⚠️ **Since `3.52`** the hole is filled on a pyramid. The coarsest level holds a hole a few
- * patches wide, so a 7x7 patch already sees the structure around it; it is seeded by the greedy
- * fill that was the whole algorithm up to `3.42` ([seed]). Every finer level upsamples the
- * field of chosen donors, rebuilds the hole with its own pixels and refines it with PatchMatch.
- * Measured on four synthetic scenes (diagonal, bricks, grass, sky with horizon), holes 40-220
- * px: the greedy fill alone broke brick joints and the horizon, and its Poisson blend left dark
- * dots and light dashes along sharp edges; the pyramid keeps both straight.
- * ⚠️ Rejected on the way: upsampling the pixels instead of the donor field (the hole turns into
- * a flat mean, because blurred pixels match flat donors best), and seeding with the adaptive
- * radius 5-9 on a 35 px coarse level (a bump on the diagonal, kept by every finer level).
- * ⚠️ Known limit: soft cloud-like texture becomes smooth sky, with a faint visible edge.
+ * ⚠️⚠️ **Il buco si riempie su una piramide**: al livello più grossolano è largo poche toppe,
+ * quindi una toppa 7x7 vede già la struttura intorno; lì lo semina il riempimento avido ([seed]).
+ * Ogni livello più fine ingrandisce il campo dei donatori scelti, ricostruisce il buco coi propri
+ * pixel e lo rifinisce con PatchMatch. Misurato su quattro scene sintetiche (diagonale, mattoni,
+ * erba, cielo con orizzonte), buchi da 40 a 220 px: il solo riempimento avido spezzava le fughe
+ * dei mattoni e l'orizzonte, la piramide le tiene dritte.
+ * ⚠️ **Si ingrandisce il campo dei donatori, non i pixel**: ingrandendo i pixel il buco diventa
+ * una media piatta, perché i pixel sfocati somigliano di più ai donatori piatti.
+ * Limite noto: una trama morbida come le nuvole diventa cielo liscio, con un bordo appena visibile.
  */
 internal object Inpaint {
-    /** Patch radius of the search and of the vote: 7x7. */
+    /** Il raggio della toppa della ricerca e del voto: 7x7. */
     private const val RADIUS = 3
 
-    /** Patch radius of the greedy seed on the coarsest level. */
+    /** Il raggio della toppa del riempimento avido sul livello più grossolano. */
     private const val SEED_RADIUS = 3
 
-    /** The pyramid stops when the hole is this many pixels wide, or the crop this narrow. */
+    /** La piramide si ferma quando il buco è largo tanti pixel, o il ritaglio è così stretto. */
     private const val COARSE_SPAN = 4 * RADIUS
     private const val COARSE_SIDE = 24
     private const val COARSE_EM = 8
@@ -39,27 +37,27 @@ internal object Inpaint {
     private const val SEARCH_ROUNDS = 4
 
     /**
-     * ⚠️ A level with more target patches than this only rebuilds from the upsampled field,
-     * without searching again: the cost of a large selection on a high-resolution photo stays
-     * bounded, and the texture still comes from real pixels of that level.
+     * ⚠️ Un livello con più toppe da riempire di così ricostruisce solo dal campo ingrandito,
+     * senza cercare di nuovo: il costo di una selezione grande su un'immagine ad alta risoluzione
+     * resta limitato, e la trama viene comunque dai pixel veri di quel livello.
      */
     private const val SEARCH_BUDGET = 120_000
 
-    /** [blocked] is the hole plus the nearly transparent pixels, whose colour is no evidence. */
+    /** [blocked] è il buco più i pixel quasi trasparenti, il cui colore non è un dato. */
     private class Level(val width: Int, val height: Int, val image: FloatArray, val hole: BooleanArray, val blocked: BooleanArray)
 
     /**
-     * Width in pixels of the feathered edge for a selection [span] pixels wide.
-     * ⚠️ Since `3.53` (the user's verdict on `3.52-01`: the corrected area had edges too sharp,
-     * and would work if they faded): a tenth of the selection, between 3 and 24 pixels.
+     * La larghezza in pixel del bordo sfumato per una selezione larga [span] pixel: un decimo
+     * della selezione, fra 3 e 24 pixel (riscontro dell'utente sulla voce `3.52-01`: bordi troppo
+     * netti).
      */
     fun feather(span: Int): Int = (span / 10).coerceIn(3, 24)
 
     /**
-     * Repairs [mask] and fades the result into the untouched image over [feather] pixels
-     * outside it. The band is rebuilt with the hole, then mixed with the original from all
-     * reconstruction at the selection to none at the outer edge, along a smoothstep: inside the
-     * selection nothing of the defect comes back. With [feather] 0 the edge stays sharp.
+     * Ripara [mask] e sfuma il risultato nell'immagine intatta per [feather] pixel fuori dalla
+     * selezione. La fascia si ricostruisce insieme al buco, poi si mescola con l'originale, da
+     * tutta ricostruzione sulla selezione a niente sul bordo esterno, lungo uno smoothstep: dentro
+     * la selezione il difetto non torna. Con [feather] a 0 il bordo resta netto.
      */
     fun repair(
         pixels: IntArray,
@@ -73,7 +71,7 @@ internal object Inpaint {
         if (feather == 0) return fill(pixels, width, height, mask, checkpoint)
         val distance = distanceFrom(mask, width, height)
         val grown = BooleanArray(mask.size) { mask[it] || distance[it] <= feather }
-        // A band that leaves no donor falls back to the sharp edge rather than to nothing.
+        // Una fascia che non lascia donatori ripiega sul bordo netto, che è meglio di niente.
         val healed = fill(pixels, width, height, grown, checkpoint) ?: return fill(pixels, width, height, mask, checkpoint)
         val result = pixels.copyOf()
         for (index in result.indices) {
@@ -95,7 +93,7 @@ internal object Inpaint {
         return result
     }
 
-    /** Euclidean-like distance (chamfer 1 and square root of 2) from the nearest selected pixel. */
+    /** Distanza quasi euclidea (chamfer 1 e radice di 2) dal pixel selezionato più vicino. */
     private fun distanceFrom(
         mask: BooleanArray,
         width: Int,
@@ -173,9 +171,9 @@ internal object Inpaint {
             val h = level.height
             val valid = validCentres(level.blocked, w, h)
             val validList = valid.indices.filter { valid[it] }.toIntArray()
-            // ⚠️ A hole that fills most of the crop leaves no whole patch outside it on a small
-            // level: the start moves one scale up instead of giving up (found by the bench, a
-            // 200 px square in a 400 px image).
+            // ⚠️ Un buco che occupa gran parte del ritaglio non lascia toppe intere fuori di sé su
+            // un livello piccolo: la partenza sale di una scala (caso del banco: un quadrato di
+            // 200 px in un'immagine di 400).
             if (validList.isEmpty()) {
                 if (field == null && depth > 0) continue
                 return null
@@ -191,7 +189,7 @@ internal object Inpaint {
                 }
             }
             val targets = target.indices.filter { target[it] }.toIntArray()
-            // A fixed seed per level: the same selection always gives the same pixels.
+            // Un seme fisso per livello: la stessa selezione dà sempre gli stessi pixel.
             val random = Random(depth * 7919 + w)
             val next = IntArray(w * h) { -1 }
             val distances = FloatArray(w * h)
@@ -218,7 +216,7 @@ internal object Inpaint {
                     }
                     next[p] = if (candidate >= 0) candidate else validList[random.nextInt(validList.size)]
                 }
-                // Rebuild the hole from the upsampled field with this level's own pixels.
+                // Ricostruisce il buco dal campo ingrandito coi pixel di questo livello.
                 vote(image, level.hole, w, h, targets, next, distances)
             }
             val rounds =
@@ -269,7 +267,7 @@ internal object Inpaint {
             ((image[3 * index + 1] + 0.5f).toInt().coerceIn(0, 255) shl 8) or
             (image[3 * index + 2] + 0.5f).toInt().coerceIn(0, 255)
 
-    /** At full size the seed keeps the original alpha, which its donor test reads. */
+    /** A piena misura il seme tiene l'alfa originale, che la sua prova dei donatori legge. */
     private fun toInts(
         image: FloatArray,
         full: Boolean,
@@ -280,7 +278,7 @@ internal object Inpaint {
             if (full) (pixels[it] and 0xff000000.toInt()) or (rgb and 0x00ffffff) else rgb
         }
 
-    /** Halves a level; a coarse pixel is a hole, or blocked, as soon as one of its four is. */
+    /** Dimezza un livello; un pixel grossolano è buco, o bloccato, appena lo è uno dei suoi quattro. */
     private fun shrink(level: Level): Level {
         val w = max(1, level.width / 2)
         val h = max(1, level.height / 2)
@@ -318,7 +316,7 @@ internal object Inpaint {
         return Level(w, h, image, hole, blocked)
     }
 
-    /** Centres whose whole patch is inside the crop and outside the blocked pixels. */
+    /** I centri la cui toppa intera è dentro il ritaglio e fuori dai pixel bloccati. */
     private fun validCentres(
         blocked: BooleanArray,
         w: Int,
@@ -349,7 +347,7 @@ internal object Inpaint {
         return valid
     }
 
-    /** Sum of squared differences, cut short as soon as it passes [limit]. */
+    /** La somma dei quadrati delle differenze, interrotta appena supera [limit]. */
     private fun distance(
         image: FloatArray,
         w: Int,
@@ -381,7 +379,7 @@ internal object Inpaint {
         return sum
     }
 
-    /** PatchMatch: propagation from the visited neighbours, then random search at halving radii. */
+    /** PatchMatch: propagazione dai vicini già visitati, poi ricerca casuale a raggi dimezzati. */
     private fun search(
         image: FloatArray,
         w: Int,
@@ -433,9 +431,9 @@ internal object Inpaint {
     }
 
     /**
-     * Every hole pixel becomes the weighted mean of the donor pixels that the patches covering
-     * it propose. Patches that match their surroundings better count more; the scale is the
-     * third quartile of the distances, so the weights do not depend on the image contrast.
+     * Ogni pixel del buco diventa la media pesata dei pixel donatori proposti dalle toppe che lo
+     * coprono. Le toppe che somigliano di più ai dintorni contano di più; la scala è il terzo
+     * quartile delle distanze, quindi i pesi non dipendono dal contrasto dell'immagine.
      */
     private fun vote(
         image: FloatArray,
@@ -481,8 +479,9 @@ internal object Inpaint {
 
 
     /**
-     * Greedy fill of the coarsest level, from the boundary inwards: whole donor patches are
-     * copied instead of averaged, so the centre of a large hole does not turn into a flat mean.
+     * Il riempimento avido del livello più grossolano, dal bordo verso l'interno: le toppe
+     * donatrici si copiano intere, non si mediano, perché il centro di un buco grande non diventi
+     * una media piatta.
      */
     private fun seed(
         pixels: IntArray,
@@ -570,7 +569,7 @@ internal object Inpaint {
                 val nx = unknown(x + 1, y) - unknown(x - 1, y)
                 val ny = unknown(x, y + 1) - unknown(x, y - 1)
                 val norm = sqrt(nx * nx + ny * ny).coerceAtLeast(1f)
-                // ⚠️ Peso isofota alzato (`3.29`): continua meglio orli e linee spezzate.
+                // ⚠️ Il peso dell'isofota è alto perché continua meglio orli e linee spezzate.
                 val priority = (sum / samples) * (0.012f + abs(-gy * nx + gx * ny) / norm * 1.25f)
                 if (priority > bestPriority) {
                     bestPriority = priority
@@ -580,8 +579,8 @@ internal object Inpaint {
             if (target < 0) return null
             val tx = target % width
             val ty = target / width
-            // Known samples carry their confidence, so early reconstructions do not
-            // outweigh intact evidence at the opposite side of a narrow interrupted line.
+            // I campioni noti pesano per la loro fiducia, così le prime ricostruzioni non
+            // prevalgono sui dati intatti dall'altra parte di una linea sottile interrotta.
             val offsets = ArrayList<Int>()
             val weights = ArrayList<Float>()
             var confidenceSum = 0f
@@ -620,11 +619,11 @@ internal object Inpaint {
                     if (cost > error) return
                 }
                 /*
-                 * ⚠️⚠️ **Termine di struttura dalla `3.29`, rinforzato in `3.40`**: oltre al
-                 * centro, confronta il gradiente su fino a quattro campioni noti del patch.
-                 * Senza, un orlo poteva essere riempito con pezzi di tessuto che spezzavano
-                 * la piega. ⚠️ Il bilanciamento di luminanza sul SSD e stato ritirato: su un
-                 * orlo scuro su campo chiaro lavava il bordo (banco `hem-like`).
+                 * ⚠️⚠️ **Il termine di struttura**: oltre al centro, confronta il gradiente su
+                 * fino a quattro campioni noti della toppa. Senza, un orlo si riempirebbe con
+                 * pezzi di tessuto che spezzano la piega. ⚠️ Niente bilanciamento di luminanza
+                 * sulla somma dei quadrati: su un orlo scuro in campo chiaro schiarisce il bordo
+                 * (banco `hem-like`).
                  */
                 fun localGx(base: Int, from: IntArray): Float =
                     (greyOf(from[base + 1]) - greyOf(from[base - 1])) * 0.5f
@@ -659,8 +658,8 @@ internal object Inpaint {
                 if (ty + radius < height - 1 && !missing[target + width]) {
                     cost += structureAt(target + width, candidate + width) * 0.35
                 }
-                // Only break otherwise equal matches by distance; texture/structure
-                // must dominate the preference for a nearby source patch.
+                // La distanza decide solo fra corrispondenze altrimenti uguali: trama e struttura
+                // devono prevalere sulla preferenza per un donatore vicino.
                 cost += 0.00001 * (abs(candidate % width - tx) + abs(candidate / width - ty))
                 if (cost < error) {
                     error = cost
@@ -702,10 +701,10 @@ internal object Inpaint {
                 }
             }
         }
-        // A small screening term keeps donor texture while the fixed outside boundary
-        // reconciles its lighting. No pixel outside the original selection is written.
-        // ⚠️ `3.40`: screening un filo più basso lascia piu trama del donatore; iterazioni
-        // extra chiudono meglio i gradienti sui bordi senza AI.
+        // Un piccolo termine di schermatura tiene la trama del donatore mentre il bordo esterno,
+        // fisso, ne accorda la luce. Nessun pixel fuori dalla selezione originale è scritto.
+        // ⚠️ Una schermatura bassa lascia più trama del donatore, e molte iterazioni chiudono
+        // meglio i gradienti sui bordi.
         val screen = 0.20f
         for (channel in 0..2) {
             val levels = FloatArray(pixels.size) { value(it, channel).toFloat() }

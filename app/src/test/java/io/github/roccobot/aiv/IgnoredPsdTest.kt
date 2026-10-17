@@ -17,8 +17,15 @@ import org.robolectric.shadows.ShadowContentResolver
 import java.io.File
 
 @RunWith(AndroidJUnit4::class)
-@Config(shadows = [ArchivioAperto::class])
+@Config(shadows = [OmbraArchivio::class])
 class IgnoredPsdTest {
+
+    /** Il permesso sui file concesso: vedi [OmbraArchivio.granted]. */
+    @Before
+    fun archivioAperto() {
+        OmbraArchivio.granted = true
+    }
+
     private val app = ApplicationProvider.getApplicationContext<android.content.Context>()
 
     @Before fun prepare() {

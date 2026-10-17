@@ -26,15 +26,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ControlPointDuplicate
-import androidx.compose.material.icons.filled.Flip
-import androidx.compose.material.icons.filled.FlipToBack
-import androidx.compose.material.icons.filled.FlipToFront
-import androidx.compose.material.icons.filled.FormatPaint
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -92,33 +83,20 @@ import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.zIndex
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 /**
- * Le operazioni sui file, come riquadro di icone a tre colonne.
+ * Le operazioni sui file, come riquadro di icone.
  *
- * ⚠️⚠️ **NASCE PER DUE POSTI INSIEME, e questa è la ragione per cui è un file a sé**: le
- * azioni della selezione nella griglia e quelle del tocco lungo nel visualizzatore sono le
- * **stesse sei**, e l'utente le ha chieste nella stessa forma. Due copie divergerebbero al
- * primo ritocco, e l'ordine dei tasti è precisamente la cosa che non deve cambiare fra una
- * schermata e l'altra: chi impara dov'è 'sposta' lo impara una volta.
- *
- * ⚠️ **L'ordine è quello dell'utente** (richiesta del 2026-08-30: *copia, sposta, elimina /
- * rinomina, condividi, info*) e non uno mio, quindi non si riordina 'per sicurezza': chi
- * volesse spostare 'elimina' lontano da 'sposta' cambierebbe una scelta, non un difetto.
- * ⚠️⚠️ **Ed è per QUELL'ordine che il colore dell'errore non è decorativo**: 'elimina' sta
- * accanto a 'sposta' invece di stare in fondo dopo una riga di separazione, come nel menu
- * che c'era prima, quindi il colore è l'unica cosa che la distingue dalla vicina. Chi lo
- * togliesse lascerebbe l'unica voce irreversibile identica a quelle che si possono disfare.
- *
- * ⚠️ **Icona più parola, e la parola non è un ripensamento**: l'utente ha chiesto icone, e
- * l'icona è quello che si riconosce a colpo d'occhio, ma 'copia' e 'sposta' hanno due glifi
- * che si somigliano, e fra sei tasti la parola minuta è quello che impedisce di sbagliare
- * mirando. Costa una riga di testo e non un tocco.
+ * ⚠️ **Un pezzo solo per i due posti che lo usano**, la selezione nella griglia e il tocco lungo
+ * nel visualizzatore: l'ordine dei tasti non deve cambiare fra una schermata e l'altra.
+ * L'ordine di fabbrica è quello dell'utente, e non si cambia 'per sicurezza'.
+ * ⚠️ **Il colore dell'errore su 'Elimina' non è decorativo**: la voce è accanto a 'Sposta', e il
+ * colore è l'unica cosa che distingue la voce irreversibile dalle vicine.
+ * Icona più parola: 'Copia' e 'Sposta' hanno glifi simili, e la parola evita di sbagliare tasto.
  */
 @Composable
 fun ActionPad(
@@ -128,30 +106,23 @@ fun ActionPad(
     /**
      * Se le celle si dividono tutta la larghezza invece di misurare [PAD_CELL].
      *
-     * ⚠️ **Serve alla bottomsheet della selezione, che è larga quanto lo schermo**: là
-     * cinque celle da 76dp lascerebbero un vuoto a destra su un telefono largo e
-     * sforerebbero su uno stretto. Nel menu del tocco lungo, che si apre attorno a un
-     * FAB, la larghezza fissa resta quella giusta: là è il riquadro a doversi
-     * adattare al contenuto, non il contrario.
+     * Serve alla scheda della selezione, larga quanto lo schermo. Nel menu del tocco lungo la
+     * larghezza fissa è quella giusta: là il riquadro si adatta al contenuto.
      */
     stretch: Boolean = false,
     /**
-     * Se sotto ogni icona si legge la parola.
+     * Se sotto ogni icona si legge la parola ('Etichette sotto le icone').
      *
-     * ⚠️ **Arriva da [LocalPadLook] e non da un parametro obbligatorio**, per la stessa ragione
-     * del velo: questi riquadri vivono dentro finestre che le impostazioni non ricevono, e la
-     * catena per portarci un booleano attraversa cinque schermate. Chi ha una ragione per
-     * ignorare l'interruttore lo passa a mano.
+     * Arriva da [LocalPadLook]: questi riquadri vivono in finestre che le impostazioni non
+     * ricevono. Chi ha una ragione per ignorare l'interruttore lo passa a mano.
      */
     labels: Boolean = LocalPadLook.current.labels
 ) {
     /*
-     * ⚠️⚠️ **IL RIQUADRO DISTESO SI MISURA PRIMA DI DISEGNARSI, DALLA `2.02`**: gli serve la
-     * larghezza vera per sapere se le sue colonne ci stanno (vedi [cella] in [PadBody]).
-     * ⚠️⚠️ **E IL RAMO A LARGHEZZA FISSA NON PASSA DI QUI, di proposito**: `BoxWithConstraints`
-     * è un `SubcomposeLayout`, e una subcomposizione dentro una misura **intrinseca** non si
-     * può fare. I menu chiedono proprio quella (la loro larghezza la fanno le voci di testo
-     * sopra il riquadro), quindi là si va dritti al corpo, con la cella piena di sempre.
+     * Il riquadro disteso si misura prima di disegnarsi, per sapere se le colonne entrano (vedi
+     * `cella` in [PadBody]).
+     * ⚠️ **Il ramo a larghezza fissa non passa di qui**: `BoxWithConstraints` è un
+     * `SubcomposeLayout`, e dentro una misura intrinseca, quella dei menu, non si può fare.
      */
     if (stretch) {
         BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
@@ -160,8 +131,7 @@ fun ActionPad(
                 columns = columns,
                 stretch = true,
                 labels = labels,
-                // ⚠️ **Al netto dei due fianchi**, che il corpo mette come padding: è la
-                // larghezza che le celle possono davvero dividersi.
+                // Al netto dei due fianchi, che il corpo mette come padding.
                 room = maxWidth - PAD_EDGE * 2
             )
         }
@@ -192,39 +162,19 @@ private fun PadBody(
     modifier: Modifier = Modifier
 ) {
     /*
-     * ⚠️⚠️ **IL FIANCO SINISTRO NON È PIÙ [PAD_EDGE], dalla `1.59`: È DERIVATO DALLA COLONNA
-     * DELLE ICONE DELLA LISTA** ([MENU_ICON_MID]), perché sopra questo riquadro, nei menu, ci
-     * sono voci in lista e le loro icone devono cadere sulla stessa verticale della prima
-     * colonna (richiesta dell'utente con una schermata e una riga tracciata sopra). Il conto è
-     * quello e non un numero a occhio: il centro della cella dista mezza cella dal suo bordo,
-     * quindi il bordo va messo mezza cella prima del punto in cui il centro deve cadere.
-     * ⚠️ **Col riquadro a etichette il conto darebbe un rientro NEGATIVO** (la cella è 76 e il
-     * punto è a 31, quindi servirebbero -7), cioè la cella dovrebbe cominciare fuori dal
-     * pannello: là il pavimento riporta a [PAD_EDGE] e le due colonne restano quelle di prima.
-     * Non è una rinuncia mascherata: con le parole sotto il riquadro è una griglia di
-     * piastrelle, e una piastrella non ha nessun motivo di allinearsi all'icona di una riga.
-     * ⚠️⚠️ **E VALE SOLO NEI MENU, DALLA `1.81`: nelle due schede il fianco torna [PAD_EDGE]**
-     * (censimento della UI del 2026-09-05). Il conto esiste per allinearsi alle icone delle
-     * **righe in lista sopra il riquadro**, e quelle ci sono nei due menu; nella scheda della
-     * selezione e nelle due file dell'editor sopra non c'è nessuna lista, quindi con le parole
-     * spente il riquadro veniva 7dp da sinistra e 4 da destra, cioè un'asimmetria visibile che
-     * non allineava niente. ⚠️ **La distinzione è [stretch] e non [labels]**: in un menu con le
-     * parole spente l'allineamento serve ancora, ed è là che è stato chiesto.
+     * ⚠️ **Nei menu il fianco sinistro è derivato dalla colonna delle icone della lista**
+     * ([MENU_ICON_MID]), perché le icone delle voci sopra cadano sulla stessa verticale della
+     * prima colonna (richiesta dell'utente): il bordo va mezza cella prima del centro voluto.
+     * Col riquadro a etichette il conto darebbe un rientro negativo, e il pavimento riporta a
+     * [PAD_EDGE]. Nelle schede (`stretch`) sopra non c'è nessuna lista, e il fianco è [PAD_EDGE].
+     * La distinzione è [stretch] e non [labels]: in un menu senza parole l'allineamento serve.
      */
     val piena = if (labels) PAD_CELL else PAD_CELL_BARE
     /*
-     * ⚠️⚠️ **LA CELLA SI STRINGE SE LE COLONNE NON CI STANNO, DALLA `2.02`, E IL CONTO È
-     * QUELLO DELLA REPLICA** ([PadArrange], che lo faceva da sempre): cinque celle da 76dp più
-     * i distacchi fanno 412dp, cioè più di uno schermo da 360, e senza questa riga la fila
-     * usciva dal vetro invece di restringersi. Si vedeva già oggi nella scheda della selezione
-     * con le parole accese, e la prima fila dell'editor lo avrebbe fatto sempre da quando ha
-     * cinque tasti.
-     * ⚠️ **Non cambia niente dove c'è posto**, perché il tetto resta [PAD_CELL]: una fila che
-     * entra è larga come prima, cifra per cifra.
-     * ⚠️⚠️ **VALE SOLO CON [stretch], e non è una prudenza**: là il riquadro riempie la
-     * larghezza, quindi il vincolo che arriva è quello vero. Dove la larghezza è **intrinseca**
-     * (i menu) il vincolo può essere illimitato, e un conto fatto su quello darebbe una cella
-     * infinita: là si tiene la misura piena, che è quella che il pannello usa per dimensionarsi.
+     * ⚠️ **La cella si stringe se le colonne non entrano**, con lo stesso conto di [PadArrange]:
+     * cinque celle da 76dp più i distacchi fanno 412dp, più di uno schermo da 360. Il tetto resta
+     * [PAD_CELL]. Vale solo con [stretch]: dove la larghezza è intrinseca (i menu) il vincolo può
+     * essere illimitato, e il conto darebbe una cella infinita.
      */
     val cella = if (stretch && room != Dp.Unspecified) {
         ((room - PAD_GAP * (columns - 1)) / columns).coerceAtMost(piena)
@@ -238,45 +188,20 @@ private fun PadBody(
         verticalArrangement = Arrangement.spacedBy(PAD_GAP)
     ) {
         /*
-         * ⚠️⚠️ **SENZA LE PAROLE LA CELLA SI STRINGE, e senza questa riga il riquadro
-         * compatto non sarebbe compatto**: [PAD_CELL] è larga quanto serve a una PAROLA, non a
-         * un glifo, e con le sole icone lascerebbe due terzi di aria fra l'una e l'altra. Il
-         * perché di quei 76dp sta sulla costante.
-         * ⚠️ **Riguarda solo i riquadri a larghezza fissa**: dove le celle si dividono la
-         * larghezza (`stretch`) non c'è niente da stringere, e a stringersi è la scheda.
-         */
-        /*
-         * ⚠️⚠️ **SENZA ETICHETTE LE CELLE SI DISTRIBUISCONO SULLA LARGHEZZA, dalla `1.57`**
-         * (riscontro dell'utente, giro della `1.56`, con schermata: *lì vanno ridistribuite
-         * sullo spazio disponibile, o va ristretto il popup*). Il difetto era di misura, non di
-         * disegno: la larghezza del menu la fanno le righe di testo sopra il riquadro, e con le
-         * sole icone le celle scendevano a 48dp e restavano ammucchiate a sinistra con mezzo
-         * pannello di aria a destra.
-         * ⚠️ **Distribuire è la metà che costa zero**; stringere il menu è l'altra metà, e
-         * quella costa: la larghezza è l'intrinseca delle voci di testo, quindi tagliarla manda
-         * a capo 'Copia immagine' nelle lingue lunghe. Il riquadro compatto si ottiene lo
-         * stesso, e il menu resta leggibile in tutte e ventotto.
-         * ⚠️⚠️ **A DISTRIBUIRE È LO SPAZIO FRA LE CELLE E NON LA CELLA, dalla `1.59`, e il
-         * cambio serve all'allineamento**: con celle a peso uguale il centro della prima è una
-         * **frazione** della larghezza del pannello, quindi si sposta con la lingua e non può
-         * stare su una verticale fissa. Con celle di misura fissa e il vuoto in mezzo che
-         * cresce, il centro della prima dipende solo dal fianco, che è quello che [avvio]
-         * fissa.
-         * ⚠️ **Le colonne restano allineate fra le righe** perché i vuoti sono tutti uguali, e
-         * lo restano anche nell'ultima riga corta, dove i posti mancanti li tengono degli
-         * spaziatori larghi come una cella: `SpaceBetween` distribuisce fra **tutti** i figli,
-         * e figli tutti della stessa larghezza cadono sulle stesse colonne.
+         * Senza le parole la cella è [PAD_CELL_BARE]: [PAD_CELL] è larga quanto una parola, e
+         * con le sole icone lascerebbe troppa aria.
+         * ⚠️ **Senza etichette, e nelle schede, lo spazio fra le celle si distribuisce sulla
+         * larghezza** (riscontro dell'utente): la larghezza del menu la fanno le voci di testo
+         * sopra, e le celle resterebbero ammucchiate a sinistra. Si distribuisce lo spazio e non
+         * la cella, così il centro della prima dipende solo dal fianco ([avvio]) e non dalla
+         * lingua. I vuoti sono tutti uguali, quindi le colonne restano allineate fra le righe.
          */
         val disteso = stretch || !labels
-        // ⚠️ Il minimo resta la misura naturale del riquadro: dentro una colonna a larghezza
-        // intrinseca un figlio che chiede tutta la larghezza non ne dichiara nessuna, e senza
-        // questo pavimento un menu di sole icone si accartoccerebbe.
+        // ⚠️ Il minimo è la misura naturale del riquadro: in una colonna a larghezza intrinseca
+        // un figlio che chiede tutta la larghezza non ne dichiara nessuna.
         val minimo = cella * columns + PAD_GAP * (columns - 1)
-        // ⚠️ Le righe si ricavano a gruppi invece di essere scritte a mano: con sei azioni
-        // fanno le due righe di tre del menu, con dieci le due da cinque della
-        // bottomsheet, e con cinque l'ultima riga ne tiene due invece di lasciare un buco
-        // da riempire con un tasto finto. Serve al cestino, dove 'rinomina' diventa
-        // 'ripristina' e le voci possono non essere sei.
+        // Le righe si ricavano a gruppi: il numero delle azioni cambia (nel cestino, per
+        // esempio), e l'ultima riga può essere corta.
         for (row in actions.chunked(columns)) {
             Row(
                 modifier = if (disteso) Modifier.fillMaxWidth().widthIn(min = minimo) else Modifier,
@@ -287,14 +212,9 @@ private fun PadBody(
                     PadButton(action = action, modifier = Modifier.width(cella), labels = labels)
                 }
                 /*
-                 * ⚠️⚠️ **L'ULTIMA RIGA CORTA SI RIEMPIE DI POSTI VUOTI, o le sue celle si
-                 * spargono sulla larghezza e le colonne non si allineano più con la riga
-                 * sopra.** Succede dove le voci non sono un multiplo delle colonne, cioè nel
-                 * cestino, che ne ha cinque su tre.
-                 * ⚠️ **Larghi come una cella e non elastici**: `SpaceBetween` mette lo stesso
-                 * vuoto fra tutti i figli, quindi figli tutti uguali cadono sulle colonne di
-                 * sopra. Uno spaziatore elastico se le prenderebbe tutto lo spazio avanzato e
-                 * spingerebbe le celle vere ai due estremi.
+                 * ⚠️ L'ultima riga corta si riempie di posti vuoti larghi come una cella, o le
+                 * sue celle si spargerebbero e non cadrebbero sulle colonne di sopra. Non
+                 * elastici: si prenderebbero tutto lo spazio avanzato.
                  */
                 if (disteso) {
                     repeat(columns - row.size) { Spacer(Modifier.width(cella)) }
@@ -305,58 +225,25 @@ private fun PadBody(
 }
 
 /**
- * Lo stesso riquadro, ma per **cambiare l'ordine invece di eseguire**: la replica che vive
- * nelle impostazioni.
+ * Lo stesso riquadro, ma per cambiare l'ordine: la replica nelle impostazioni.
  *
- * ⚠️⚠️ **NASCE DA UNA BOCCIATURA, E LA RAGIONE VALE PIÙ DELLA CORREZIONE** (riscontro
- * dell'utente, giro della `1.56`: *i tasti sono disposti in orizzontale nella vera UI, non mi
- * piace dover ragionare con un trascinamento verticale ... voglio agire su un oggetto che
- * somiglia al vero menu*). La `1.56` metteva un **elenco** di righe, e un elenco chiede di
- * tradurre a mente 'terzo dall'alto' in 'seconda colonna della prima riga'. La cosa che si
- * riordina è un riquadro a griglia, quindi lo strumento per riordinarlo è quel riquadro.
+ * ⚠️ **Si riordina un riquadro a griglia con lo stesso riquadro** (riscontro dell'utente): un
+ * elenco di righe chiederebbe di tradurre a mente 'terzo dall'alto' in 'seconda colonna'.
+ * Le celle sono tutte uguali, quindi il posto d'arrivo è la posizione del dito divisa per il
+ * passo e arrotondata. La larghezza si stringe se non entra, come il riquadro vero con
+ * `stretch`.
+ * Mentre si trascina, il riquadro si ricompone a ogni pixel col tasto preso già al posto
+ * d'arrivo: quello che si vede è il risultato, andata a capo compresa (richiesta dell'utente).
+ * Niente maniglia, su sua indicazione: il gesto è il tocco lungo, e la riga di istruzioni sopra
+ * lo scrive.
  *
- * ⚠️⚠️ **LE CELLE SONO TUTTE UGUALI, ED È QUELLO CHE RENDE IL CONTO ESATTO**: sapendo il passo
- * di una colonna e di una riga, il posto d'arrivo è la posizione del dito divisa per il passo
- * e arrotondata. Con celle di misure diverse servirebbe misurarle una per una a ogni pixel di
- * trascinamento.
- * ⚠️ **La larghezza si stringe se non ci sta**: dieci tasti in cinque colonne da 76dp fanno
- * 412dp, che su un telefono non entrano. È la stessa cosa che fa il riquadro vero nella scheda
- * della selezione (`stretch`), quindi la replica somiglia al modello anche in questo.
+ * Le parole ci sono anche con 'Etichette sotto le icone' spenta: qui un tasto si nomina per
+ * spostarlo, la cella ha un'altezza fissa ([ARRANGE_HIGH]) che serve al passo, e la somiglianza
+ * chiesta riguarda la disposizione. Un riquadro che nel modello non ha parole (la fila dei moduli
+ * dell'editor completo) non le ha neanche qui: il nome resta nel `contentDescription` dell'icona,
+ * e le due azioni parlate restano.
  *
- * ⚠️⚠️ **IL RIFLUSSO È LA COSA CHE SI GUARDA MENTRE SI TRASCINA** (sua richiesta: *se sposto un
- * pulsante in posizione 2 i successivi devono scorrere in avanti, e uno andrà a capo*). Non è
- * uno scambio fra due caselle: la lista si ricompone a ogni pixel con il tasto preso tolto e
- * rimesso al posto d'arrivo, quindi quello che si vede **è già** il risultato, andata a capo
- * compresa.
- *
- * ⚠️ **Niente maniglia** (sua indicazione: *non credo che serva*): il gesto è il tocco lungo,
- * che è già quello con cui si apre il riquadro vero, e ogni tasto porta il fondo tondo che
- * dice 'questo si prende'. La riga di istruzioni sopra il riquadro lo scrive comunque, perché
- * un gesto senza segno visibile non lo prova nessuno.
- *
- * ⚠️⚠️ **LE PAROLE QUI CI SONO SEMPRE, ANCHE A 'Etichette sotto le icone' SPENTA, ED È UNA
- * SCELTA CHE FINO ALLA `1.80` NON ERA SCRITTA** (censimento della UI del 2026-09-05, dove il
- * rilievo chiede l'argomento). Le tre ragioni, in ordine di peso:
- * - **Qui un tasto lo si NOMINA per spostarlo**, e la parola è la sola cosa che dice quale si
- *   sta prendendo. È anche lo stesso testo che alimenta le azioni parlate di questa pagina e i
- *   testi con cui la ricerca delle impostazioni la trova.
- * - **La cella ha un'altezza fissa** ([ARRANGE_HIGH]), che serve al conto del passo: senza le
- *   parole resterebbe un glifo in mezzo all'aria, cioè una cella che somiglia **meno** al
- *   riquadro vero, non più.
- * - **La somiglianza che ha chiesto riguarda la DISPOSIZIONE**: griglia orizzontale, riflusso
- *   sotto il dito, andata a capo dove va a capo il modello (*voglio agire su un oggetto che
- *   somiglia al vero menu*, giro della `1.56`). Di quella non si perde niente.
- *
- * ⚠️⚠️ **E DALLA `2.34` UN RIQUADRO PUÒ ESSERE DI SOLE ICONE, ED È IL CRITERIO QUI SOPRA
- * APPLICATO, non una deroga**: la fila dei moduli dell'editor completo le parole non le ha, per
- * sua richiesta (la `2.31` le ha tolte perché sette nomi non entrano in nessuna larghezza).
- * Scriverle qui darebbe una replica che somiglia **meno** al modello, e per giunta su sette
- * colonne le troncherebbe tutte. ⚠️ **Il nome non si perde**: è il `contentDescription`
- * dell'icona, cioè quello che un lettore di schermo annuncia, esattamente come nel gettone vero,
- * e le due azioni parlate che spostano la cella restano.
- *
- * @param columns quante colonne ha il riquadro **vero**, non quante ne stanno qui: la replica
- *   deve rompere le righe dove le rompe il modello.
+ * @param columns quante colonne ha il riquadro vero: la replica va a capo dove va a capo lui.
  * @param labels se sotto il glifo si scrive la parola, cioè se il riquadro vero ce l'ha.
  */
 @Composable
@@ -372,10 +259,8 @@ fun PadArrange(
     val dopo = stringResource(R.string.settings_buttons_after)
     val righe = (order.size + columns - 1) / columns
     /*
-     * ⚠️ **L'altezza della cella si RICAVA dal suo contenuto e non è un secondo numero**: senza
-     * la parola resta il solo glifo, quindi la cella vale quanto lui più l'aria che il gettone
-     * vero gli lascia ([MODULE_PAD], di là). Tenendo [ARRANGE_HIGH] si vedrebbe un'icona in
-     * mezzo al vuoto, cioè una replica che somiglia meno al modello.
+     * Senza la parola la cella vale il glifo più l'aria che il tasto vero gli lascia
+     * ([MODULE_PAD]), non [ARRANGE_HIGH].
      */
     val alta = if (labels) ARRANGE_HIGH else PAD_ICON + MODULE_PAD * 2
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
@@ -390,11 +275,9 @@ fun PadArrange(
         fun posto(i: Int) = Offset((i % columns) * passoX, (i / columns) * passoY)
 
         /*
-         * ⚠️⚠️ **SI LEGGE DALLO STATO VIVO, e questa funzione esiste per quello**: la chiamano
-         * sia la composizione (per disegnare il riflusso) sia la fine del trascinamento, che
-         * vive dentro un `pointerInput` ricordato. Un indice calcolato una volta e chiuso
-         * dentro quel blocco resterebbe quello del primo fotogramma, ed è il difetto che il
-         * riordino a elenco ha già avuto una volta.
+         * ⚠️ **Si legge dallo stato vivo**: la chiamano la composizione e la fine del
+         * trascinamento, dentro un `pointerInput` ricordato. Un indice calcolato una volta
+         * resterebbe quello del primo fotogramma.
          */
         fun bersaglio(da: Int): Int {
             if (da < 0) return -1
@@ -413,10 +296,9 @@ fun PadArrange(
                 val suo = chiave == preso
                 val meta = if (suo) posto(da) + scarto else posto(visto.indexOf(chiave))
                 /*
-                 * ⚠️ **Un `Animatable` e non un `animate*AsState`**: quello insegue sempre, e
-                 * al rilascio il tasto salterebbe dal dito alla casella. Qui mentre il dito è
-                 * giù si fa `snapTo`, e appena si stacca l'animazione parte **da dove il dito
-                 * l'ha lasciato**, che è la differenza fra un riordino fluido e uno a scatti.
+                 * ⚠️ Un `Animatable`: mentre il dito è giù si fa `snapTo`, e al rilascio
+                 * l'animazione parte da dove il dito l'ha lasciato. Un `animate*AsState`
+                 * inseguirebbe sempre, e il tasto salterebbe.
                  */
                 val moto = remember(chiave) { Animatable(posto(order.indexOf(chiave)), Offset.VectorConverter) }
                 LaunchedEffect(meta, suo) {
@@ -425,14 +307,9 @@ fun PadArrange(
                 }
                 val tinta = MaterialTheme.colorScheme.primary
                 /*
-                 * ⚠️⚠️ **IL TASTO IRREVERSIBILE PORTA IL COLORE DELL'ERRORE ANCHE QUI, DALLA
-                 * `1.81`** (censimento della UI del 2026-09-05): nel riquadro vero quel colore
-                 * è l'unica cosa che distingue 'elimina' dalla vicina 'sposta' (vedi la nota in
-                 * testa a [ActionPad]), e una replica che lo perde smette di somigliare al
-                 * modello proprio sulla voce in cui somigliare conta.
-                 * ⚠️ **Il rosso si legge, ed è misurato e non supposto**: il fondo della cella
-                 * è l'accento al 10% ([ARRANGE_BED]) sopra la superficie del pannello, non una
-                 * tinta piena, quindi non c'era nessun conflitto da evitare.
+                 * Il tasto irreversibile ha il colore dell'errore anche qui, come nel riquadro
+                 * vero (vedi [ActionPad]). Il rosso si legge: il fondo della cella è l'accento
+                 * al 10% ([ARRANGE_BED]).
                  */
                 val inchiostro =
                     if (chiave.danger()) MaterialTheme.colorScheme.error
@@ -440,8 +317,8 @@ fun PadArrange(
                 Box(
                     modifier = Modifier
                         .offset { IntOffset(moto.value.x.roundToInt(), moto.value.y.roundToInt()) }
-                        // ⚠️ Il tasto preso sta sopra gli altri, o passerebbe sotto il vicino
-                        // proprio nel momento in cui lo scavalca.
+                        // Il tasto preso è sopra gli altri, o passerebbe sotto il vicino che
+                        // scavalca.
                         .zIndex(if (suo) 1f else 0f)
                         .size(width = larga, height = alta)
                         .clip(RoundedCornerShape(PAD_CORNER))
@@ -473,19 +350,22 @@ fun PadArrange(
                             )
                         }
                         .semantics {
-                            // ⚠️ Il trascinamento con un lettore di schermo non si fa: queste
-                            // due azioni sono l'unica via al riordino per chi non vede, ed è
-                            // la stessa rete che ha l'elenco dei campi delle info.
-                            customActions = listOf(
-                                CustomAccessibilityAction(prima) {
+                            // ⚠️ Con un lettore di schermo non si trascina: queste due azioni
+                            // sono l'unica via al riordino, come nell'elenco dei campi della
+                            // scheda Info. Si offre solo quella che sposta davvero: la prima
+                            // cella non va più indietro, l'ultima non va più avanti, e
+                            // un'azione che non fa niente sarebbe annunciata come disponibile.
+                            val qui = order.indexOf(chiave)
+                            customActions = buildList {
+                                if (qui > 0) add(CustomAccessibilityAction(prima) {
                                     val i = order.indexOf(chiave)
                                     onOrder(order.moved(i, i - 1)); true
-                                },
-                                CustomAccessibilityAction(dopo) {
+                                })
+                                if (qui < order.lastIndex) add(CustomAccessibilityAction(dopo) {
                                     val i = order.indexOf(chiave)
                                     onOrder(order.moved(i, i + 1)); true
-                                }
-                            )
+                                })
+                            }
                         },
                     contentAlignment = Alignment.Center
                 ) {
@@ -496,9 +376,8 @@ fun PadArrange(
                     ) {
                         Icon(
                             imageVector = chiave.glyph(),
-                            // ⚠️ Senza la parola il nome deve stare da qualche parte, e il posto
-                            // è questo: col testo sotto sarebbe invece una seconda lettura della
-                            // stessa cosa per chi ascolta.
+                            // Senza la parola il nome va qui; col testo sotto sarebbe letto due
+                            // volte a chi ascolta.
                             contentDescription = if (labels) null else nome,
                             tint = inchiostro,
                             modifier = Modifier.size(PAD_ICON)
@@ -521,25 +400,14 @@ fun PadArrange(
 }
 
 /**
- * Le stesse operazioni, ma come **pannello che entra dal basso**: la selezione multipla.
+ * Le stesse operazioni, come pannello che entra dal basso: la selezione multipla.
  *
- * ⚠️⚠️ **NON È UNA `ModalBottomSheet`, ed è la richiesta a imporlo** (utente, 2026-08-31:
- * *mentre la bottomsheet è attiva, si deve poter agire sia sui suoi tasti che sulla
- * selezione*). Quella di Material mette un velo davanti a tutto il resto e si prende i
- * tocchi, quindi con lei aperta non si potrebbe più aggiungere una fotografia alla
- * selezione: sarebbe la contraddizione esatta della cosa chiesta. Qui è una `Surface`
- * appoggiata in fondo al `Box` della schermata, che occupa il posto suo e basta.
- * ⚠️ **Il FAB della selezione se n'è andato con lei** (stessa istruzione: *il FAB di
- * selezione non serve più*), e la ragione l'ha trovata l'utente: se il menu si apre da sé,
- * un FAB che lo apre non ha più niente da fare.
- * ⚠️⚠️ **LA MANIGLIA NON C'È PIÙ, dalla 1.42, e la regola che l'ha tolta è generale**
- * (riscontro `niente-ombre`: *togli anche il tratto-manopola, a meno che non sia interattivo,
- * lo si può trascinare*). Questa non si trascinava: era un segno che diceva 'qui c'è un
- * pannello', cioè una promessa di gesto che il pannello non manteneva. ⚠️ **La ragione per cui
- * non si trascinava resta valida** e va saputa da chi pensasse di renderla vera invece di
- * togliere il segno: un trascinamento qui competerebbe con lo scorrimento della griglia sotto,
- * che con questa scheda aperta deve restare tutto disponibile. Il pannello si chiude col tasto
- * Indietro e si riapre da sé quando la selezione riparte.
+ * ⚠️ **Non è una `ModalBottomSheet`** (richiesta dell'utente): quella si prende i tocchi di tutto
+ * il resto, e con lei aperta non si potrebbe più cambiare la selezione. Qui è una `Surface` in
+ * fondo al `Box` della schermata. Il FAB della selezione non serve più: il pannello si apre da sé.
+ * ⚠️ **Niente maniglia**: un segno di trascinamento promette un gesto che il pannello non ha, e un
+ * trascinamento qui competerebbe con lo scorrimento della griglia sotto (riscontro
+ * `niente-ombre`). Si chiude col tasto Indietro e si riapre quando la selezione riparte.
  */
 @Composable
 fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (Int) -> Unit = {}) {
@@ -547,127 +415,53 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
     AnimatedVisibility(
         visible = visible,
         /*
-         * ⚠️⚠️ **L'ENTRATA HA I NUMERI DELL'ALTRA SCHEDA, dalla 1.43, e la dissolvenza è
-         * nuova** (istruzione dell'utente, 2026-09-03, sulla scheda delle informazioni:
-         * *arriva dal basso con un'animazione fluida ed entra decelerando, ma al tempo stesso
-         * c'è una mini dissolvenza*). Lui parlava di quella, che dal basso non arrivava
-         * affatto: qui la salita c'era già.
-         * ⚠️⚠️ **QUINDI PERCHÉ TOCCARE ANCHE QUESTA: perché quello che c'era NON era una
-         * scelta.** Era la molla di fabbrica di `AnimatedVisibility`, cioè un valore che
-         * nessuno aveva deciso, e da adesso 'arrivare dal basso' in questa app ha una
-         * definizione. Allineare un valore di fabbrica a una decisione non ribalta niente;
-         * lasciarle diverse avrebbe fatto due movimenti per lo stesso gesto, in due schermate
-         * che si aprono a un tocco di distanza.
-         * ⚠️⚠️ **E DALLA 1.44 ANCHE L'USCITA È SUA** (istruzione dell'utente: *le bottomsheet
-         * devono sparire nello stesso modo in cui entrano, ma con animazione speculare*):
-         * scende con [ACCELERA], che è la molla dell'entrata letta all'indietro, e la
-         * dissolvenza sta **in coda** invece che in testa. Nella `1.43` questa uscita era
-         * ancora la molla di fabbrica, e la nota di allora diceva che l'utente aveva descritto
-         * come una scheda **entra**: era vero quel giorno.
-         */
-        /*
-         * ⚠️ **La forma del gesto vive in `Sheet.kt`**, come i suoi quattro numeri: fino alla
-         * `1.80` era scritta qui parola per parola, e in altri due posti uguale.
+         * Entrata e uscita sono quelle di tutte le schede che arrivano dal basso (istruzione
+         * dell'utente: l'uscita è l'entrata speculare); la forma del gesto vive in `Sheet.kt`.
          */
         enter = arrivaDalBasso(),
         exit = vaGiu(),
         modifier = Modifier.align(Alignment.BottomCenter)
     ) {
         /*
-         * ⚠️⚠️ **QUANTO LA SCHEDA COPRE DAL FONDO SI DICHIARA A OGNI FOTOGRAMMA, DALLA `2.11`,
-         * E NON È LA STESSA COSA DI [onHeight]** (punto C del campo libero del giro accorpato:
-         * *in alcune circostanze (es. si inizia una selezione dopo un 'copia', 'sposta' o
-         * 'elimina'), la bottomsheet della selezione va a finire sotto la notifica in basso*).
-         * Quel parametro dice quanto è alto il **contenuto**, e serve alla griglia per lasciargli
-         * il posto; questo dice quanta parte di schermo la scheda **occupa adesso**, cioè un
-         * numero che cambia mentre sale e mentre scende.
-         * ⚠️⚠️ **A SALIRE È LA NOTIFICA E NON LA SCHEDA, ed è una scelta contro la sua proposta**
-         * (*finché è visibile l'avviso la bottomsheet arriva più in alto e poi si abbassa?*):
-         * muovere la scheda sposterebbe i **comandi** mentre il dito sta per toccarli, che è la
-         * stessa famiglia del difetto della griglia che scorre sotto un dito appoggiato (la nota
-         * della `1.78` sull'intestazione). Una notifica invece non si tocca quasi mai, e quando
-         * la si tocca è per disfare, cioè prima che la selezione ricominci.
-         * ⚠️⚠️ **SI MISURA LA POSIZIONE E NON SI ANIMA NIENTE, e qui sta il valore**: la scheda
-         * entra ed esce con le sue curve, e chi la legge le segue **per costruzione**, senza una
-         * seconda animazione da tenere allineata alla prima. Due animazioni scritte in due posti
-         * divergono al primo ritocco, ed è un difetto che questo repository ha già pagato.
-         * ⚠️ **Sul contenitore e non sul contenuto**: la scheda arriva al vetro e il rientro di
-         * sistema ce l'ha dentro, quindi quello che copre parte dal bordo dello schermo.
+         * ⚠️ **Quanto la scheda copre dal fondo si dichiara a ogni fotogramma** in [FootStage], e
+         * non è [onHeight]: quello è l'altezza del contenuto, che serve alla griglia; questo è lo
+         * spazio occupato adesso, che cambia mentre la scheda sale e scende.
+         * A salire è la notifica e non la scheda: muovere la scheda sposterebbe i comandi mentre
+         * il dito sta per toccarli. Si misura la posizione senza una seconda animazione, quindi
+         * chi la legge segue le curve della scheda per costruzione. Si misura sul contenitore,
+         * che arriva al bordo dello schermo.
          */
         val quota = remember { Any() }
         DisposableEffect(quota) { onDispose { FootStage.off(quota) } }
         Surface(
-            /*
-             * ⚠️⚠️ **IL BORDO D'ACCENTO CE L'HA ANCHE LEI, dalla `1.55`, ed è una decisione
-             * dell'utente contro il criterio che l'aveva esclusa** (giro della `1.54`: *sì,
-             * voglio la riga anche lì: in realtà dappertutto. Capisco che quella fa eccezione
-             * perché non è in sovrapposizione e non ha sfocatura o velo ... Ma per coerenza deve
-             * avere il tratto intorno come tutti gli altri elementi simili*). L'esenzione dal
-             * **velo** resta, e la ragione è sua: quella scheda non copre la griglia, perché con
-             * lei aperta si deve poter continuare a scegliere.
-             * ⚠️ **Quindi il bordo e il velo non hanno più lo stesso elenco**, e chi legge
-             * `Edge.kt` lo sappia: il velo dice 'mi apro sopra qualcosa', il bordo dice 'sono
-             * una superficie di questa app'. La seconda cosa vale anche per chi non copre niente.
-             * ⚠️ **Tre lati come l'altra scheda**: è appoggiata al bordo di sotto, e una riga
-             * sull'ultima fila di pixel si legge come un taglio.
-             * ⚠️⚠️ **E DALLA `1.56` LA RIGA CORRE DI FUORI** (sua prova, giro della `1.55`:
-             * *le bottomsheet non stanno bene con la riga intorno*): resta la cima con i due
-             * archi, e i fianchi finiscono fuori dallo schermo. Il perché sta su `edgedTop`.
-             */
             modifier = Modifier
-                .edgedTop(PANEL_ROUND)
                 .onGloballyPositioned {
                     FootStage.cover(quota, finestra - it.positionInWindow().y.roundToInt())
                 },
             shape = RoundedCornerShape(topStart = PANEL_ROUND, topEnd = PANEL_ROUND),
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
             /*
-             * ⚠️⚠️ **NIENTE OMBRA DALLA 1.40, e il difetto era misurabile** (richiesta
-             * dell'utente, 2026-09-03: *evita le ombreggiature in basso, altrimenti il
-             * risultato è brutto*). Un'ombra si dipinge tutto attorno alla superficie, ma
-             * questa è appoggiata al bordo dello schermo: sopra non si vede (la copre la
-             * scheda stessa), ai lati nemmeno, e resta la sola striscia **di sotto**, cioè
-             * quella che finisce sull'angolo stondato del vetro.
-             * ⚠️ **Misurata sullo screenshot dell'utente**: quattro gradini di grigio sotto la
-             * scheda, da `208,207,203` a `248,247,243`, prima della barra di sistema.
-             * ⚠️⚠️ **E IL RILIEVO TONALE NON C'È PIÙ NEMMENO LUI, DALLA `1.78`: NON FACEVA
-             * NIENTE.** Fino alla `1.77` qui c'era un `tonalElevation` di 6dp e la nota diceva
-             * che *stacca la scheda dalla griglia dietro*. Misurato sul comportamento di
-             * `Surface`: il rilievo tonale cambia il colore **solo** quando il colore ricevuto è
-             * `surface`, e qui è `surfaceContainerHigh`, cioè la superficie tornava intatta.
-             * L'unica via che restava, l'elevazione che si propaga ai figli, non ha nessun
-             * lettore: nessuna `Surface` dentro la scheda chiede il colore `surface`.
-             * ⚠️ **A staccare la scheda ci pensano il colore e il bordo d'accento**, che sono
-             * scelte dichiarate qui sopra: una nota che attribuisce l'effetto a un parametro
-             * spento manda chi ritocca l'aspetto a girare la manopola sbagliata.
+             * ⚠️ **Niente ombra né rilievo tonale** (richiesta dell'utente): appoggiata al bordo,
+             * dell'ombra resterebbe solo la striscia di sotto, sull'angolo del vetro; il rilievo
+             * tonale cambia il colore solo quando il colore è `surface`, e qui non lo è. A
+             * staccare la scheda è il colore.
              */
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     /*
-                     * ⚠️⚠️ **IL RIENTRO DI SISTEMA STA QUI, e la scheda arriva al bordo**
-                     * (stessa richiesta: *fa' in modo che la barra multi-attività in basso
-                     * assuma lo stesso colore dello sfondo*). Il fondo della scheda passa
-                     * **sotto** la barra, il contenuto no: le due file di icone restano dove
-                     * sono e a cambiare è la sola striscia in fondo, che prende il colore
-                     * della scheda invece di quello della pagina.
-                     * ⚠️⚠️ **PERCIÒ QUESTA SCHEDA VIVE NEL `Box` DI RADICE DELLA SCHERMATA, e
-                     * non dentro la colonna**: là il rientro di sistema è già stato applicato
-                     * e **consumato**, quindi questa riga non aggiungerebbe niente e la
-                     * scheda si fermerebbe sopra la barra come prima.
+                     * ⚠️ **Il rientro di sistema è qui**: il fondo della scheda passa sotto la
+                     * barra di navigazione, che prende il suo colore (richiesta dell'utente), e il
+                     * contenuto no. Per questo la scheda vive nel `Box` di radice della
+                     * schermata: dentro la colonna il rientro è già consumato.
                      */
                     .navigationBarsPadding()
                     /*
-                     * ⚠️⚠️ **L'ALTEZZA SI MISURA, e serve alla griglia sotto**:
-                     * senza il numero vero, l'ultima fila di fotografie resterebbe sotto il
-                     * pannello e nessuno scorrimento la porterebbe fuori. Una costante scritta
-                     * a mano sbaglierebbe il giorno che un'etichetta va a capo in una lingua
-                     * lunga, che è esattamente il caso in cui il pannello cresce.
-                     * ⚠️⚠️ **SI MISURA DOPO IL RIENTRO DI SISTEMA, cioè il solo contenuto**, e
-                     * l'ordine di queste due righe è la ragione: la griglia vive in uno spazio
-                     * che il rientro lo ha già tolto, quindi un'altezza che lo comprendesse
-                     * lascerebbe sotto l'ultima fila un buco alto quanto la barra.
+                     * ⚠️ **L'altezza si misura, dopo il rientro**: serve alla griglia per non
+                     * lasciare l'ultima fila sotto il pannello, anche quando un'etichetta va a
+                     * capo. La griglia vive in uno spazio già senza la barra, e un'altezza che la
+                     * comprendesse lascerebbe un buco.
                      */
                     .onSizeChanged { onHeight(it.height) },
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -679,70 +473,43 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
 }
 
 /**
- * Quanta parte del fondo dello schermo è già occupata, **in questo fotogramma**.
+ * Quanta parte del fondo dello schermo è occupata, in questo fotogramma.
  *
- * ⚠️⚠️ **ESISTE PERCHÉ CHI DEVE SAPERLO NON VIVE DENTRO LA SCHERMATA**: la notifica di casa e la
- * fascia della copertina vivono sopra la transizione fra schermate (`ViewerActivity`), cioè in un
- * ramo che non discende da [PickSheet]. Un `CompositionLocal` va dall'alto in basso e qui il verso
- * è il contrario, quindi la via è la stessa di [Notices] e di [VeilStage]: un oggetto di processo
- * che una superficie scrive e le altre leggono.
- * ⚠️⚠️ **A SCRIVERCI SONO IN DUE DALLA `2.24`, E IL SECONDO È IL FAB** (segnalazione dell'utente,
- * punto A1 del campo libero del giro della `2.23`: *la notifica inferiore con 'Annulla' (es. per
- * 'Sposta') a volte va sopra il FAB (su qualunque lato sia)*). Fino alla `2.23` il solo chiedente
- * era la scheda della selezione, e la notifica la copriva: quel tasto è in un angolo, la notifica
- * è larga quasi tutto lo schermo, e a disegnarla è la radice dell'app, cioè dopo di lui.
- * ⚠️ **Il FAB della griglia si stacca in una finestra sua a menu aperto, e la misura regge lo
- * stesso**: là resta un segnaposto della stessa misura (vedi [TapHoldFab]), che vive nella
- * finestra dell'app ed è quello che si misura.
- * ⚠️⚠️ **SI LEGGE IN COMPOSIZIONE, E LA VIA PIÙ ECONOMICA NON FUNZIONA: È MISURATO.** La prima
- * stesura lo leggeva dentro `Modifier.offset { }`, cioè nella fase di layout, che è la strada che
- * costa zero ricomposizioni; col banco alla mano quel lambda è stato valutato **una volta sola**,
- * con lo zero di partenza, e non è più tornato quando il valore è salito a 94. Perché non torni
- * non si sa, e si scrive così invece di inventare una causa: il sospetto è che a scriverlo sia un
- * `onGloballyPositioned`, cioè la stessa passata di layout che dovrebbe rileggerlo.
- * ⚠️ **Il costo si paga e si dichiara**: la notifica si ricompone a ogni fotogramma nei due terzi
- * di secondo in cui la scheda sale o scende, ed è un nodo con dentro una frase e un tasto.
+ * ⚠️ **Chi deve saperlo non vive dentro la schermata**: la notifica di casa e la fascia della
+ * copertina sono sopra la transizione fra schermate (`ViewerActivity`), in un ramo che non
+ * discende da [PickSheet]. Quindi, come [Notices] e [VeilStage], è un oggetto di processo che una
+ * superficie scrive e le altre leggono. Scrivono la scheda della selezione e il FAB (voce
+ * `avviso-fab`); il FAB della griglia, staccato in una finestra sua a menu aperto, lascia un
+ * segnaposto della stessa misura ([TapHoldFab]), ed è quello che si misura.
+ * ⚠️ **Si legge in composizione**: letto dentro `Modifier.offset { }` il valore è stato valutato
+ * una volta sola sul banco, con lo zero di partenza, e la causa non è nota. Il costo è una
+ * ricomposizione della notifica a ogni fotogramma mentre la scheda sale o scende.
  */
 internal object FootStage {
     /*
-     * ⚠️⚠️ **UNA MAPPA E NON UN NUMERO, DALLA `2.24`, E LA RAGIONE È CHE ADESSO I CHIEDENTI SONO
-     * DUE**: la scheda della selezione e il FAB. Con un numero solo, il secondo a scrivere
-     * cancellerebbe la richiesta del primo, e chi se ne va porterebbe via anche l'ingombro
-     * dell'altro. È la stessa forma di [VeilStage], e per la stessa ragione.
-     * ⚠️ **Vale il massimo e non la somma**: le due superfici sono appoggiate allo stesso bordo,
-     * quindi quella che sta più in alto le comprende tutte.
+     * Una mappa per chiedente, perché chi se ne va non tolga l'ingombro dell'altro (come
+     * [VeilStage]). Vale il massimo e non la somma: le superfici sono appoggiate allo stesso bordo.
      */
     private val coprono = mutableStateMapOf<Any, Int>()
 
     /*
-     * ⚠️⚠️ **E DALLA `2.25` UN COMANDO PUÒ OCCUPARE UN FIANCO INVECE DI UNA FASCIA, ED È IL SUO
-     * RISCONTRO** (giro della `2.24`, voce `avviso-fab` approvata con una richiesta, e risposta
-     * **`stringe`** a `d-avviso-forma`: *non si potrebbe fare lo stesso avviso meno largo di quel
-     * tanto che basta a stare a fianco del FAB?*). La `2.24` faceva **salire** la notifica sopra il
-     * FAB, che è la risposta giusta per una scheda larga tutto lo schermo e quella sbagliata per un
-     * tasto che vive in un angolo: là accanto lo spazio c'è.
-     * ⚠️ **Due mappe e non una firmata**: il lato di un comando può cambiare (la scelta di
-     * `fabSide`), quindi chi scrive deve togliersi dall'altra parte, e con un numero col segno
-     * quella riga sarebbe un trucco da rileggere ogni volta.
+     * Un comando in un angolo occupa un fianco invece di una fascia: accanto a lui la notifica si
+     * stringe invece di salire (risposta `stringe` dell'utente a `d-avviso-forma`). Due mappe e
+     * non un numero col segno: il lato può cambiare (`fabSide`), e chi scrive si toglie
+     * dall'altra.
      */
     private val aDestra = mutableStateMapOf<Any, Int>()
     private val aSinistra = mutableStateMapOf<Any, Int>()
 
     /*
-     * ⚠️⚠️ **E DALLA `2.86` UN FIANCO DICE ANCHE QUANTO È ALTO, ED È SUA SEGNALAZIONE** (2026-09-21:
-     * *l'avviso dal basso deve evitare di coprire il FAB anche nel cestino*). Fino alla `2.85` la
-     * notifica si stringeva solo a terra, cioè con la salita a zero, e nei fotogrammi in cui scende
-     * dietro la scheda che se ne va passava **sopra** il FAB rientrato, larga tutto lo schermo
-     * (misurato sul banco: tre fotogrammi, da 320 a 352 millisecondi). A decidere se una notifica in
-     * salita incontra il FAB è quanto lui sale dal bordo, e quel numero lo sa solo lui.
+     * Fin dove sale chi occupa un fianco: decide se una notifica che scende dietro la scheda
+     * incontra il FAB (segnalazione dell'utente, nel cestino). Quel numero lo sa solo il FAB.
      */
     private val alti = mutableStateMapOf<Any, Int>()
 
     /*
-     * ⚠️⚠️ And since 4.46 a side occupant also says where its centre is (his note D on the 4.45
-     * round: *adesso che in teoria tutti i pulsanti bassi hanno lo stesso centro di riferimento,
-     * probabilmente si può far sì che gli avvisi appaiano centrati anch'essi*): a notice beside a
-     * key lines its centre up with the key's, while one that climbs over a sheet does not.
+     * Dov'è il centro di chi occupa un fianco: una notifica accanto a un tasto si centra sul tasto
+     * (nota D dell'utente sul giro della 4.45), una che sale sopra una scheda no.
      */
     private val mezzi = mutableStateMapOf<Any, Int>()
 
@@ -759,9 +526,9 @@ internal object FootStage {
     val tall: Int get() = alti.values.maxOrNull() ?: 0
 
     /**
-     * Where the centre of whoever holds a side is, counted from the bottom edge of the window: `0`
-     * when nobody does. The keys at the bottom share one centre since 4.31, so the highest wins
-     * only during a change.
+     * Dov'è il centro di chi occupa un fianco, contato dal bordo di sotto della finestra: `0` se
+     * nessuno. I tasti in fondo hanno un centro comune, quindi il più alto vince solo durante un
+     * cambio.
      */
     val mid: Int get() = mezzi.values.maxOrNull() ?: 0
 
@@ -798,59 +565,26 @@ internal object FootStage {
 }
 
 /**
- * Tiene una superficie appoggiata in fondo **sopra** quello che il fondo dello schermo già porta.
+ * Tiene una superficie appoggiata in fondo sopra quello che il fondo dello schermo già ha.
  *
- * ⚠️⚠️ **LO CHIAMANO LE DUE COSE CHE VIVONO IN FONDO SOPRA LA TRANSIZIONE**, cioè la notifica di
- * casa e la fascia della copertina: sono le sole due superfici che possono finire sopra qualcosa,
- * perché tutto il resto o vive dentro una schermata o è una finestra sua. Una riga sola per tutte
- * e due, così una terza che nascesse non ha un secondo modo con cui sbagliare.
- * ⚠️⚠️ **CHI SI SCANSA È SEMPRE QUESTA, E NON CHI LE È SOTTO**: là ci sono i **comandi** (la scheda
- * della selezione, il FAB), e muoverli vorrebbe dire spostarli mentre il dito sta per toccarli,
- * che è la stessa famiglia del difetto della griglia che scorre sotto un dito appoggiato. Una
- * notifica invece si tocca di rado, e quando la si tocca è per disfare.
- * ⚠️⚠️ **SI SOTTRAE IL RIENTRO DI SISTEMA, e senza quel termine la notifica salirebbe troppo**:
- * chi chiama si è già scansato dalla barra di navigazione, e quello che dichiara l'ingombro conta
- * dal bordo della **finestra**, quindi alzarsi di tutto quello che copre conterebbe quella
- * striscia due volte.
- * ⚠️ **Uno spostamento e non un rientro**: la superficie resta larga e alta com'era, e a muoversi
- * è solo dove viene posata. Un `padding` la rimisurerebbe a ogni fotogramma della salita.
+ * Lo chiamano la notifica di casa e la fascia della copertina, le sole superfici che possono
+ * finire sopra qualcosa: un modo solo per tutte e due.
+ * ⚠️ **A scansarsi è sempre questa, non i comandi sotto** (la scheda della selezione, il FAB):
+ * spostarli vorrebbe dire muoverli mentre il dito sta per toccarli.
+ * ⚠️ **Si sottrae la barra di navigazione**: chi chiama se n'è già scansato, e l'ingombro dichiarato
+ * conta dal bordo della finestra. La salita è uno spostamento e non un `padding`, che rimisurerebbe
+ * la superficie a ogni fotogramma.
  *
- * ⚠️⚠️ **E DALLA `2.25` DAVANTI A UN COMANDO DI FIANCO SI STRINGE INVECE DI SALIRE, ED È LA SUA
- * RISPOSTA `stringe`**: accanto a un tasto che vive in un angolo lo spazio c'è, e salirgli sopra
- * lascia una striscia vuota larga tutto lo schermo. Il costo lo ha previsto lui (*ci sarebbe meno
- * spazio per il testo*), e le due cose convivono: si sale sopra chi occupa una fascia, si stringe
- * accanto a chi occupa un fianco.
- * ⚠️ **Qui il rientro è la scelta giusta, al contrario della salita**: la larghezza di un comando
- * non cambia mentre lo si guarda (il FAB che se ne va si rimpicciolisce in un `graphicsLayer`,
- * quindi il suo riquadro resta), e una rimisurazione si paga solo quando quel comando compare o
- * sparisce.
- * ⚠️ **Il lato lo dichiara chi occupa lo spazio e non lo legge questa riga**: `fabSide` è una
- * preferenza, e leggerla qui vorrebbe dire un secondo posto che decide dov'è il FAB.
- *
- * ⚠️⚠️ **E CHI SALE NON SI STRINGE, DALLA `2.26`, ED È LA SUA RISPOSTA `sempre` A
- * `d-avviso-forma-2`** (giro della `2.25`: *può stare massimizzata il larghezza solo quando (per
- * la presenza della bottomsheet) si sposta sopra*). Sopra una scheda larga tutto lo schermo non
- * c'è nessun comando da schivare di fianco, quindi rientrare là costerebbe spazio al testo senza
- * guadagnare niente. ⚠️ **Oggi i due casi non si incontrano quasi mai** (appena c'è una selezione
- * il FAB lascia il posto alla scheda), ma 'quasi' non è una regola: durante quel cambio le due
- * dichiarazioni convivono per qualche fotogramma, e senza questa riga la notifica salirebbe **e**
- * si stringerebbe insieme.
- *
- * ⚠️⚠️ **MA 'SOPRA' VUOL DIRE SOPRA IL FAB, E DALLA `2.86` LA SOGLIA È LA SUA ALTEZZA E NON LO
- * ZERO** (segnalazione dell'utente, 2026-09-21: *l'avviso dal basso deve evitare di coprire il FAB
- * anche nel cestino*). Con una selezione eliminata o scartata la scheda **scende** e la notifica
- * scende con lei, mentre il FAB è già rientrato: fino alla `2.85` si stringeva solo a terra, quindi
- * negli ultimi fotogrammi della discesa passava sopra il tasto larga tutto lo schermo (misurato sul
- * banco: tre fotogrammi, da 320 a 352 millisecondi, col bordo di sotto già dentro la fascia del
- * FAB). Adesso resta larga finché la salita la tiene sopra quella fascia, e si stringe appena ci
- * entra.
- * ⚠️ **La barra si toglie da tutte e due le parti**: la salita conta dal posto a terra, che è già
- * sopra la barra, e l'altezza del FAB conta dal bordo della finestra.
- * ⚠️ **È un poco più larga del necessario, di proposito**: la soglia non conosce il margine che la
- * notifica si porta dentro, quindi si stringe qualche pixel prima di toccare il tasto. Il verso
- * dell'errore è quello che non copre niente.
- * ⚠️ **Il cambio di larghezza è uno scatto e non una corsa**, come quello che c'era già a terra: la
- * notifica si stringe nel fotogramma in cui entra nella fascia, mentre sta ancora scendendo.
+ * Sopra chi occupa una fascia si sale; accanto a chi occupa un fianco ci si stringe (risposta
+ * `stringe` dell'utente). Il rientro qui va bene, perché la larghezza di un comando non cambia
+ * mentre lo si guarda. Il lato lo dichiara chi occupa lo spazio: leggere `fabSide` qui sarebbe un
+ * secondo posto che decide dov'è il FAB.
+ * Chi sale sopra il FAB non si stringe (risposta `sempre` a `d-avviso-forma-2`): durante il
+ * cambio fra FAB e scheda le due dichiarazioni convivono per qualche fotogramma.
+ * ⚠️ **'Sopra' vuol dire sopra l'altezza del FAB** ([FootStage.tall]), non sopra lo zero: una
+ * notifica che scende con la scheda passerebbe sopra il FAB già rientrato (segnalazione
+ * dell'utente, nel cestino). La barra si toglie da tutte e due le parti. Si stringe qualche pixel
+ * prima del necessario, nel verso che non copre niente, e il cambio di larghezza è uno scatto.
  */
 @Composable
 internal fun Modifier.aboveFoot(): Modifier {
@@ -862,12 +596,10 @@ internal fun Modifier.aboveFoot(): Modifier {
     val destra = with(density) { (if (stretta) FootStage.right else 0).toDp() }
     val posata = padding(start = sinistra, end = destra).offset { IntOffset(0, -su) }
     /*
-     * ⚠️⚠️ **Beside a key the notice is centred on the key, since 4.46** (his note D on the 4.45
-     * round, with a screenshot: the notice beside the round key sat higher than the key's centre).
-     * Only on the ground: over a sheet there is no key beside it, and his note says so (*ciò non si
-     * applica quando devono apparire sopra una bottomsheet*).
-     * ⚠️ The centre is the notice's own, without the system bar under it: the caller pads the bar
-     * at the bottom only, so the surface's centre sits half the bar above the box's.
+     * ⚠️ **Accanto a un tasto la notifica si centra sul tasto** (nota D dell'utente sul giro della
+     * 4.45), solo a terra: sopra una scheda non c'è un tasto accanto.
+     * Il centro è quello della notifica senza la barra di sistema sotto: chi chiama aggiunge la
+     * barra solo in basso, quindi il centro della superficie è mezza barra sopra quello del box.
      */
     val mezzo = FootStage.mid
     if (su != 0 || mezzo <= 0 || (FootStage.left == 0 && FootStage.right == 0)) return posata
@@ -883,14 +615,10 @@ internal fun Modifier.aboveFoot(): Modifier {
 /**
  * I tasti che possono comparire in un riquadro, con il gettone con cui si salvano.
  *
- * ⚠️⚠️ **UN SOLO ELENCO PER CINQUE RIQUADRI, e non cinque elenchi**: le sei azioni sui file,
- * le quattro della selezione, le due file dell'editor e i sette moduli di quello completo vivono
- * qui insieme perché il gettone deve essere unico nell'archivio. Quale riquadro porta quali tasti
- * lo dice il **suo ordine di fabbrica** in `Settings`, non questo elenco.
- *
- * ⚠️ **[RENAME] è una sola voce e nel cestino diventa 'Ripristina'**: cambia icona, etichetta e
- * azione, ma è lo stesso posto nel riquadro, e un secondo gettone lo spezzerebbe in due righe
- * da riordinare per una cosa sola.
+ * ⚠️ **Un elenco solo per tutti i riquadri**, perché il gettone sia unico nell'archivio. Quali
+ * tasti ha un riquadro lo dice il suo ordine di fabbrica in `Settings`.
+ * [RENAME] nel cestino diventa 'Ripristina': cambia icona, etichetta e azione, ma è lo stesso
+ * posto nel riquadro.
  */
 enum class PadKey(override val token: String) : Choice {
     // Le sei azioni sui file: il riquadro del visualizzatore e dell'albero, e le prime della
@@ -922,15 +650,10 @@ enum class PadKey(override val token: String) : Choice {
     APPLY("apply"),
 
     /*
-     * ⚠️⚠️ **I SETTE MODULI DELL'EDITOR COMPLETO, DALLA `2.34`, E SONO TASTI COME GLI ALTRI**
-     * (sua richiesta, 2026-09-13: *voglio poter ordinare anche i pulsanti dei moduli*). La loro
-     * fila è un riquadro a tutti gli effetti, quindi entra nel riordino che c'era invece di
-     * avere il proprio: un secondo meccanismo per lo stesso gesto sarebbe una seconda occasione
-     * di divergere, e il criterio è quello scritto in testa a [PadArrange].
-     * ⚠️⚠️ **NOME E GLIFO NON SONO QUI, e per questi sette è l'unica eccezione**: vivono nella
-     * tabella dei moduli (`MODULES`, in `AdvancedEditorScreen.kt`), che è la loro fonte unica e
-     * che gli altri diciannove non hanno. Copiarli in [label] e in [glyph] vorrebbe dire due
-     * disegni per lo stesso modulo, e il primo a cambiare sarebbe quello che nessuno guarda.
+     * I moduli dell'editor completo, tasti come gli altri (richiesta dell'utente): la loro fila si
+     * riordina con [PadArrange].
+     * ⚠️ **Nome e glifo dei moduli non sono qui**: vivono nella tabella `MODULES` di
+     * `AdvancedEditorScreen.kt`, la loro fonte unica, e [label] e [glyph] non li copiano.
      */
     MOD_CROP("mod-crop"),
     MOD_GEOMETRY("mod-geometry"),
@@ -941,31 +664,23 @@ enum class PadKey(override val token: String) : Choice {
     MOD_DETAIL("mod-detail"),
 
     /**
-     * Il nono modulo, gli **Effetti**, dalla `2.53`.
-     *
-     * ⚠️ **La chiave nasce col modulo e non si tocca più**: chi ha già riordinato la fila se lo
-     * ritrova in coda, e un ordine salvato non cambia significato per un tasto in più.
+     * Il modulo Effetti. Una chiave nuova non si tocca più: chi ha già riordinato la fila la
+     * ritrova in coda.
      */
     MOD_EFFECTS("mod-effects"),
 
-    /**
-     * L'ottavo modulo, gli **stili**, dalla `2.50`.
-     *
-     * ⚠️ **È un tasto come gli altri sette**, quindi si riordina e si salva con loro: fino alla
-     * `2.40` gli stili erano un pannello che si apriva sopra la scheda, e un pannello nella fila
-     * dei moduli non c'era.
-     */
+    /** Il modulo Stili, un tasto come gli altri moduli. */
     MOD_PRESET("mod-preset"),
 
-    /** The Disegno module, from 4.40: last of the factory order (his note D on the 4.36 round). */
+    /** Il modulo Disegno, ultimo nell'ordine di fabbrica (nota D dell'utente sul giro della 4.36). */
     MOD_DRAW("mod-draw"),
 
     /*
-     * ⚠️ The menu of an element of the Disegno module, from 4.70 (his note E on the 4.60 round and
-     * his answers on `4.64-03` and `4.64-04`). Its order is his and is not saved, so these keys are
-     * never reordered: they are here because a key is what a pad's action is made of. 'Elimina'
-     * is [DELETE], the same action as everywhere else. [DRAW_STYLE] is 'Copia' or 'Incolla', and
-     * [DRAW_TURN] is 'Ruota' or 'Trasforma': one place each, like [RENAME] in the bin.
+     * Il menu di un elemento del modulo Disegno (nota E dell'utente sul giro della 4.60, risposte
+     * su `4.64-03` e `4.64-04`). Il suo ordine è dell'utente e non si salva, quindi questi tasti
+     * non si riordinano: sono qui perché l'azione di un riquadro è fatta di un tasto. 'Elimina' è
+     * [DELETE]; [DRAW_STYLE] è 'Copia' o 'Incolla', [DRAW_TURN] è 'Ruota' o 'Trasforma', un posto
+     * solo ciascuno come [RENAME] nel cestino.
      */
     DRAW_RAISE("draw-raise"),
     DRAW_STYLE("draw-style"),
@@ -975,29 +690,23 @@ enum class PadKey(override val token: String) : Choice {
 }
 
 /**
- * Come si chiama un tasto, quando lo si deve nominare fuori dal suo riquadro.
+ * Se il tasto è quello irreversibile, cioè quello col colore dell'errore.
  *
- * ⚠️⚠️ **STA QUI E NON IN UN `when` DELLA SCHERMATA DELLE IMPOSTAZIONI**, per la stessa ragione
- * di `FactField`: serve in **due** posti (la pagina che riordina e i testi che la ricerca
- * confronta), e un `when` da diciotto rami scritto due volte è il posto in cui le due copie
- * prima o poi diranno due parole diverse per la stessa cosa.
- * ⚠️ **Sono le stringhe che i tasti già portano**, quindi la pagina che riordina non costa
- * nessuna traduzione nuova.
- * ⚠️ **'Rinomina' e non 'Ripristina'**: nel cestino quel tasto cambia nome, ma qui si riordina
- * un posto e non un contesto, e il nome che si legge è quello che si vede quasi sempre.
- */
-/**
- * Se il tasto è quello **irreversibile**, cioè quello che porta il colore dell'errore.
- *
- * ⚠️⚠️ **VIVE QUI PER LO STESSO MOTIVO DI [label] E [glyph]: serve in due posti**, il riquadro
- * vero (dove diventa il valore di serie di `PadAction.danger`) e la **replica** che si riordina,
- * che di `PadAction` non ne ha nessuna e lavora sulle sole chiavi. Fino alla `1.80` là il tasto
- * che elimina era identico agli altri, e la replica esiste per somigliare al modello.
- * ⚠️ **Irreversibile e non 'importante'**: vale per l'eliminazione, e per niente che si possa
- * disfare con l'operazione contraria. Chi aggiunge una voce da cui non si torna la nomina qui.
+ * Serve in due posti, come [label] e [glyph]: il riquadro vero (valore di serie di
+ * `PadAction.danger`) e la replica che si riordina, che lavora sulle sole chiavi.
+ * ⚠️ **Irreversibile, non 'importante'**: vale per l'eliminazione e per niente che si possa
+ * annullare. Una voce nuova da cui non si torna si aggiunge qui.
  */
 fun PadKey.danger(): Boolean = this == PadKey.DELETE
 
+/**
+ * Come si chiama un tasto, quando lo si nomina fuori dal suo riquadro.
+ *
+ * È qui e non in un `when` delle impostazioni, come per `FactField`: serve in due posti (la
+ * pagina che riordina e i testi che la ricerca confronta). Sono le stringhe dei tasti, quindi
+ * nessuna traduzione nuova. Per [PadKey.RENAME] il nome è 'Rinomina', quello che si vede quasi
+ * sempre, anche se nel cestino il tasto diventa 'Ripristina'.
+ */
 @StringRes
 fun PadKey.label(): Int = when (this) {
     PadKey.COPY -> R.string.menu_copy_here
@@ -1019,9 +728,8 @@ fun PadKey.label(): Int = when (this) {
     PadKey.UNDO -> R.string.editor_undo
     PadKey.REDO -> R.string.editor_redo
     PadKey.APPLY -> R.string.editor_apply
-    // ⚠️ I sette dell'editor completo leggono dalla tabella dei moduli, che è la loro fonte
-    // unica: qui ci sono i nomi dei tasti, là quelli dei moduli, e ricopiarli vorrebbe dire
-    // due posti in cui un modulo si chiama.
+    // I moduli dell'editor completo leggono il nome dalla tabella dei moduli, la loro fonte
+    // unica.
     PadKey.MOD_CROP, PadKey.MOD_GEOMETRY, PadKey.MOD_LIGHT, PadKey.MOD_COLOUR,
     PadKey.MOD_MIX, PadKey.MOD_TONE, PadKey.MOD_DETAIL, PadKey.MOD_EFFECTS,
     PadKey.MOD_PRESET, PadKey.MOD_DRAW -> modName(this)
@@ -1035,119 +743,89 @@ fun PadKey.label(): Int = when (this) {
 /**
  * Il disegno di un tasto, per la riga che lo fa riordinare.
  *
- * ⚠️ **È composabile perché quattro di questi glifi vivono in `res/`**, e una risorsa si legge
- * solo da dentro una composizione.
- * ⚠️ **Le due frecce di rotazione sono quelle DISEGNATE DALL'UTENTE**, come nell'editor: un
- * glifo di sistema qui e il suo là farebbe sembrare due tasti diversi.
+ * È composabile perché molti di questi glifi vivono in `res/`, e una risorsa si legge solo
+ * dentro una composizione. I glifi sono gli stessi dei tasti veri, o sembrerebbero tasti diversi.
  */
 @Composable
 fun PadKey.glyph(): ImageVector = when (this) {
     PadKey.COPY -> Glyphs.FolderPair
     PadKey.MOVE -> Glyphs.FolderPairDashed
-    PadKey.SHARE -> Icons.Default.Share
+    PadKey.SHARE -> Glyphs.Material.Share
     PadKey.RENAME -> Glyphs.TextCursor
     PadKey.DELETE -> Glyphs.PickDelete
-    PadKey.INFO -> Icons.Outlined.Info
-    PadKey.LIST -> Icons.AutoMirrored.Outlined.FormatListBulleted
+    PadKey.INFO -> Glyphs.Material.InfoOutlined
+    PadKey.LIST -> Glyphs.Material.FormatListBulletedOutlined
     PadKey.ALL -> Glyphs.PickAll
     PadKey.NONE -> Glyphs.PickNone
     PadKey.INVERT -> Glyphs.PickInvert
-    // ⚠️ Le due frecce sue, come nell'editor, dalla 1.63: il verso di un giro è fisico e
-    // non segue la lettura, quindi non si specchiano (vedi la nota là).
+    // Le due frecce disegnate dall'utente, come nell'editor: il verso di un giro è fisico, e
+    // non si specchiano (vedi `Glyphs`).
     PadKey.TURN_LEFT -> Glyphs.TurnLeft
     PadKey.TURN_RIGHT -> Glyphs.TurnRight
     PadKey.CENTRE_ACROSS -> Glyphs.AlignAcross
     PadKey.CENTRE_DOWN -> Glyphs.AlignDown
-    PadKey.FLIP -> Icons.Filled.Flip
+    PadKey.FLIP -> Glyphs.Material.Flip
     PadKey.ORIGINAL -> Glyphs.EditReset
     PadKey.UNDO -> Glyphs.EditUndo
     PadKey.REDO -> Glyphs.EditRedo
     PadKey.APPLY -> Glyphs.EditApply
-    // ⚠️ Come il nome: il segno di un modulo vive nella sua tabella, e qui si chiede a lei.
+    // Come il nome: il glifo di un modulo vive nella sua tabella.
     PadKey.MOD_CROP, PadKey.MOD_GEOMETRY, PadKey.MOD_LIGHT, PadKey.MOD_COLOUR,
     PadKey.MOD_MIX, PadKey.MOD_TONE, PadKey.MOD_DETAIL, PadKey.MOD_EFFECTS,
     PadKey.MOD_PRESET, PadKey.MOD_DRAW -> modGlyph(this)
-    PadKey.DRAW_RAISE -> Icons.Filled.FlipToFront
-    PadKey.DRAW_STYLE -> Icons.Filled.FormatPaint
-    PadKey.DRAW_DUPLICATE -> Icons.Filled.ControlPointDuplicate
-    PadKey.DRAW_LOWER -> Icons.Filled.FlipToBack
+    PadKey.DRAW_RAISE -> Glyphs.Material.FlipToFront
+    PadKey.DRAW_STYLE -> Glyphs.Material.FormatPaint
+    PadKey.DRAW_DUPLICATE -> Glyphs.Material.ControlPointDuplicate
+    PadKey.DRAW_LOWER -> Glyphs.Material.FlipToBack
     PadKey.DRAW_TURN -> Glyphs.TurnRight
 }
 
 /**
  * Rimette una lista di azioni nell'ordine che l'utente ha scelto.
  *
- * ⚠️⚠️ **UN TASTO CHE L'ORDINE NON NOMINA NON SPARISCE: finisce in coda.** Qui è una rete e non
- * la garanzia vera, che sta a monte: l'ordine arriva da [padOrderOf], che ai gettoni salvati
- * aggiunge **tutti** quelli mancanti al posto che hanno di fabbrica. Quindi una versione futura
- * che aggiunge un'azione la vede comparire dove l'ha messa, e non in fondo. Se qualcosa arriva
- * qui senza posto, è un riquadro che porta un tasto non suo, cioè un difetto: la coda lo rende
- * visibile invece di farlo sparire.
- * ⚠️ **L'ordinamento è STABILE**, quindi fra due tasti senza posto resta quello di partenza.
- * ⚠️ **Si ordina la lista VERA e non i gettoni**: chi chiama costruisce le sue azioni con le
- * loro chiusure, e qui si spostano soltanto.
+ * ⚠️ **Un tasto che l'ordine non nomina finisce in coda, non sparisce.** È una rete: l'ordine
+ * arriva da [padOrderOf], che aggiunge i gettoni mancanti al loro posto di fabbrica. Un tasto
+ * senza posto qui è un riquadro con un tasto non suo, e la coda lo rende visibile.
+ * Si ordinano le azioni vere, con le loro chiusure, e non i gettoni.
  */
 fun List<PadAction>.inOrder(order: List<PadKey>): List<PadAction> {
     if (order.isEmpty()) return this
     val posto = order.withIndex().associate { (i, k) -> k to i }
-    // ⚠️ `sortedBy` è STABILE, ed è quello che tiene fermi i tasti che l'ordine non nomina:
-    // fra due sconosciuti resta l'ordine di partenza.
+    // `sortedBy` è stabile: fra due tasti senza posto resta l'ordine di partenza.
     return sortedBy { posto[it.key] ?: Int.MAX_VALUE }
 }
 
 /**
  * Un'azione del riquadro: l'icona, la parola, e se è quella da cui non si torna.
  *
- * ⚠️ [danger] non è 'importante': è **irreversibile**. Vale per l'eliminazione, e per
- * niente che si possa disfare con l'operazione contraria.
- * ⚠️⚠️ **[onHold] È NULL PER QUASI TUTTE, dalla 0.79**: il tocco lungo su un tasto del
- * riquadro è una scorciatoia in più, e per adesso ce l'ha la sola 'Copia' (duplica dove sei).
- * Una scorciatoia su ogni tasto sarebbe sei gesti nascosti da imparare, e nessuno li scopre.
+ * [onHold] è `null` per quasi tutte: il tocco lungo è una scorciatoia in più, e una su ogni
+ * tasto sarebbe un gesto nascosto da imparare per ciascuno.
  */
 class PadAction(
     /**
-     * Chi è questo tasto, per l'archivio.
-     *
-     * ⚠️⚠️ **NASCE PERCHÉ L'ORDINE SI SALVA, dalla `1.56`**: prima un'azione era solo
-     * un'icona e uno `@StringRes`, cioè non aveva identità, e un ordine salvato ha bisogno di
-     * sapere **quale** tasto sta in quale posto. La prova che non bastava guardare l'icona: nel
-     * cestino 'Rinomina' diventa 'Ripristina' cambiando disegno, etichetta e azione, e resta lo
-     * stesso posto nel riquadro.
-     * ⚠️ **Il gettone non è il nome della costante**, come per ogni [Choice]: rinominare una
-     * costante non deve azzerare l'ordine salvato su un telefono.
+     * Chi è questo tasto, per l'archivio: l'ordine salvato deve sapere quale tasto è in quale
+     * posto, anche quando nel cestino 'Rinomina' diventa 'Ripristina'. Il gettone non è il nome
+     * della costante, come per ogni [Choice].
      */
     val key: PadKey,
     val icon: ImageVector,
     @StringRes val label: Int,
     /**
-     * Se è quella da cui non si torna.
-     *
-     * ⚠️⚠️ **SI RICAVA DALLA CHIAVE, DALLA `1.81`, E PRIMA ERA UN `false` CHE OGNI CHIAMANTE
-     * DOVEVA SMENTIRE** (censimento della UI del 2026-09-05). I quattro riquadri passavano
-     * `danger = true` sulla stessa voce, quindi il vincolo era scritto quattro volte e chi
-     * apriva un riquadro nuovo poteva dimenticarlo senza che niente lo segnalasse: il tasto
-     * irreversibile sarebbe uscito identico ai vicini. Adesso il colore arriva per
-     * costruzione, com'è per il velo di `lowered()`.
-     * ⚠️ **Resta un parametro e non diventa una lettura**: un chiamante che avesse una ragione
-     * per spegnerlo lo passa, e la ragione la scrive accanto.
+     * Se è quella da cui non si torna. Si ricava dalla chiave ([PadKey.danger]), quindi un
+     * riquadro nuovo ha il colore per costruzione; un chiamante con una ragione per spegnerlo lo
+     * passa, e scrive la ragione accanto.
      */
     val danger: Boolean = key.danger(),
     /**
      * Se il tasto si può premere adesso.
      *
-     * ⚠️⚠️ **SPENTO E NON NASCOSTO, ed è la ragione per cui è nato** (bottomsheet dell'editor,
-     * 1.17): 'Applica' e 'Annulla' non hanno sempre qualcosa da fare, e una fila che perde e
-     * riacquista tasti si riordina sotto le dita, cioè sposta gli altri proprio mentre li si
-     * mira. Spento, il posto resta suo e si vede che esiste.
-     * ⚠️ **Nelle sei azioni sui file non lo usa nessuno**, e va bene: là un'operazione o c'è
-     * per tutta la selezione o non c'è la voce.
+     * ⚠️ **Spento e non nascosto**: una fila che perde e riacquista tasti li sposta sotto le dita.
+     * Spento, il posto resta suo.
      */
     val enabled: Boolean = true,
     /**
-     * Che cosa fa il tocco lungo, e `null` quando non fa niente.
-     *
-     * ⚠️ Va **insieme** a [holdLabel]: un gesto che il lettore di schermo non annuncia esiste
-     * solo per chi lo scopre per caso.
+     * Che cosa fa il tocco lungo, e `null` quando non fa niente. Va insieme a [holdLabel], che il
+     * lettore di schermo annuncia.
      */
     val onHold: (() -> Unit)? = null,
     @StringRes val holdLabel: Int? = null,
@@ -1157,20 +835,12 @@ class PadAction(
 /**
  * Un tasto del riquadro.
  *
- * ⚠️ **Con la parola in scena, l'icona non porta descrizione e il testo sì**: `clickable`
- * fonde le semantiche dei figli, quindi TalkBack legge una voce sola. Descrivendo anche
- * l'icona la leggerebbe due volte, che è il difetto già evitato nelle copertine delle
- * cartelle.
- * ⚠️⚠️ **SENZA LA PAROLA, LA DESCRIZIONE PASSA ALL'ICONA, e non è un dettaglio di
- * cortesia**: il nome parlato del tasto **è** quel testo, quindi togliendolo senza spostare
- * la descrizione il tasto resterebbe muto, cioè inservibile con un lettore di schermo. Non
- * costa nessuna stringa nuova: è la stessa [PadAction.label].
- * ⚠️ **Il tocco sta sull'intera colonna**, non sull'icona: un bersaglio di 24dp si manca,
- * e qui i tasti sono sei e vicini.
- * ⚠️⚠️ **E L'ALTEZZA MINIMA SI DICHIARA, perché senza la parola la colonna non ci arriva
- * più**: con l'etichetta la cella è alta icona più parola, cioè oltre i 48dp che Material
- * chiede a un bersaglio; senza, sarebbero icona più due respiri, quaranta. [PAD_TAP] tiene
- * il pavimento, e il riquadro compatto lo è di disegno e non di area toccabile.
+ * ⚠️ **Con la parola, l'icona non ha descrizione**: `clickable` fonde le semantiche dei figli, e
+ * TalkBack la leggerebbe due volte. Senza la parola la descrizione passa all'icona, o il tasto
+ * sarebbe muto.
+ * Il tocco è sull'intera colonna: un bersaglio di 24dp si manca.
+ * ⚠️ **L'altezza minima si dichiara** ([PAD_TAP]): senza la parola la cella sarebbe alta 40dp,
+ * sotto i 48dp che Material chiede a un bersaglio.
  */
 @Composable
 private fun PadButton(
@@ -1190,29 +860,21 @@ private fun PadButton(
     val full =
         if (action.danger) MaterialTheme.colorScheme.error
         else MaterialTheme.colorScheme.onSurface
-    // ⚠️ Lo spento è il colore di sempre a un terzo, che è il valore di Material per un
-    // comando inattivo: un grigio scritto a mano andrebbe bene in un tema e non nell'altro.
+    // Lo spento è il colore di sempre a [OFF_INK], il valore di Material per un comando
+    // inattivo: un grigio scritto a mano andrebbe bene in un tema solo.
     val tint = if (action.enabled) full else full.copy(alpha = OFF_INK)
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(PAD_CORNER))
-            // ⚠️⚠️ **`combinedClickable` SEMPRE, anche senza tocco lungo**: con
-            // `onLongClick` a null si comporta come un `clickable`, quindi un `if` fra i due
-            // modificatori sarebbe due catene da tenere d'accordo per niente.
+            // `combinedClickable` sempre: con `onLongClick` a null si comporta come `clickable`.
             .combinedClickable(
                 enabled = action.enabled,
-                /*
-                 * ⚠️⚠️ **IL RUOLO SI DICHIARA, e fino alla `1.80` questi tasti non lo
-                 * facevano** (censimento della UI del 2026-09-05): il KDoc qui sopra cura con
-                 * precisione la **voce** del tasto, cioè chi porta la descrizione fra icona e
-                 * testo, e sul ruolo taceva, quindi un lettore di schermo leggeva un
-                 * contenitore con dentro un testo. Il FAB dello stesso file lo dichiarava
-                 * già, e la differenza correva fra due comandi della stessa superficie.
-                 */
+                // Il ruolo si dichiara, o un lettore di schermo leggerebbe un contenitore con un
+                // testo dentro.
                 role = Role.Button,
                 onLongClickLabel = action.holdLabel?.let { stringResource(it) },
-                // ⚠️ Qui il gesto può non esserci, quindi la vibrazione si compone a mano
-                // invece di passare da [withHaptics]: vedi la sua nota.
+                // Qui il gesto può mancare, quindi la vibrazione si compone a mano (vedi
+                // [withHaptics]).
                 onLongClick = hold,
                 hapticFeedbackEnabled = false,
                 onClick = action.onClick
@@ -1234,11 +896,8 @@ private fun PadButton(
             style = padLabel(),
             color = tint,
             textAlign = TextAlign.Center,
-            // ⚠️ Due righe e non una: fra le lingue che stanno per arrivare ce ne sono
-            // di più lunghe dell'italiano, e una parola tagliata a metà in un tasto di
-            // icone lascia il tasto senza nome. Le celle di una riga si allineano in
-            // alto, quindi una parola che va a capo allunga la sua colonna e non
-            // scompagina le icone.
+            // Due righe: in molte lingue la parola è più lunga che in italiano. Una parola che va
+            // a capo allunga la sua colonna senza spostare le icone.
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
@@ -1248,39 +907,15 @@ private fun PadButton(
 /**
  * Il vestito dell'etichetta di un tasto, per il modello e per la sua replica.
  *
- * ⚠️⚠️ **UN GRADINO SOTTO `labelSmall`, DALLA `2.03`, ED È UNA MISURA E NON UN GUSTO** (sua
- * segnalazione, con schermata: *riduci leggermente la dimensione delle etichette di testo
- * delle funzioni dell'editor, in modo che ci stia l'intero contenuto senza tagliare
- * 'orizzontale'*). Nella fila da cinque dell'editor la cella vale [PAD_CELL], cioè 76dp, e
- * 'Centra in orizzontale' va a capo sulla parola più lunga: misurata sulla sua schermata,
- * quella parola a 11sp chiede **77dp**, cioè un punto più di quanto ce n'è, e l'ellissi si
- * mangiava le ultime tre lettere.
- * - ⚠️⚠️ **IL BANCO NON POTEVA VEDERLO, ed è la ragione per cui il numero viene dai suoi
- *   pixel**: con la grafica di Robolectric la stessa parola a 11sp entra in 64dp, perché là
- *   il carattere è più stretto di quello del telefono. È il caso dichiarato in
- *   `Rules.md` § '🧪 Quando si scrive una prova, e quando no', cioè quello che dipende
- *   dall'apparecchio: una prova che lo misurasse sarebbe verde con e senza la correzione.
- * - **Perché 10sp e non 10,5**: a 10,5 la stessa parola viene 73dp, cioè tre punti di
- *   margine, e con un carattere di sistema un po' più largo si torna a tagliare. A 10sp ne
- *   restano sei, e la riduzione resta quella che ha chiesto, cioè leggera.
- * - ⚠️ **Vale per TUTTE le file e non per la sola riga di mezzo**: il tasto è uno solo
- *   ([PadButton]), e due corpi diversi sotto due icone identiche si vedrebbero prima nella
- *   scheda della selezione, dove le due file stanno una sopra l'altra.
- *
- * ⚠️⚠️ **E DALLA `2.80` LE DUE RIGHE SI STRINGONO E LE LETTERE SI AVVICINANO, ED È IL PUNTO D DEL
- * SUO CAMPO LIBERO** (giro dalla `2.75` alla `2.77`: *riduci un po' l'interlinea delle etichette
- * dei tasti 'centra', 'rifletti' e 'ruota', e riduci leggermente spaziatura o corpo del carattere
- * per far stare l'intera parola 'orizzontale'*). Sono due numeri e rispondono a due metà diverse
- * della sua frase:
- * - **[PAD_LABEL_LINE] è l'interlinea**, e `labelSmall` la porta a 16sp su un corpo di 11: a 10sp
- *   quel valore lascia un'aria che si vede solo dove la parola va a capo, cioè proprio nei tre
- *   tasti che ha nominato. A 12sp le due righe stanno vicine e nessuna lettera si tocca, perché
- *   il carattere alto al massimo, coi suoi tratti sopra e sotto, chiede poco più del corpo.
- * - ⚠️⚠️ **E LA SPAZIATURA VA A ZERO INVECE DI TOGLIERE UN ALTRO MEZZO PUNTO AL CORPO**, che è la
- *   scelta fra le due vie che lui ha lasciato aperte: `labelSmall` mette mezzo punto fra una
- *   lettera e l'altra, e su 'orizzontale', che ne ha undici, sono **5,5 punti** di larghezza che
- *   si recuperano senza rimpicciolire niente. Il corpo era già sceso con la `2.03` e scendere
- *   ancora si vedrebbe su tutte le file, mentre la spaziatura si vede sulla sola parola lunga.
+ * ⚠️ **10sp, un gradino sotto `labelSmall`, per una misura** (richiesta dell'utente): nella fila
+ * da cinque dell'editor la cella è 76dp ([PAD_CELL]), e 'orizzontale' a 11sp ne chiede 77 sul suo
+ * telefono. A 10,5 il margine sarebbe di tre punti, a 10 è di sei.
+ * ⚠️ **Il banco non lo vede**: con Robolectric il carattere è più stretto, e la stessa parola entra
+ * in 64dp (`Rules.md` § '🧪 Quando si scrive una prova, e quando no').
+ * Vale per tutte le file, perché il tasto è uno solo ([PadButton]).
+ * L'interlinea è [PAD_LABEL_LINE], 12sp: la 16sp di `labelSmall` lascerebbe troppa aria fra le
+ * due righe di un'etichetta che va a capo. La spaziatura va a zero, che su 'orizzontale' recupera
+ * 5,5 punti senza rimpicciolire il corpo (punto D dell'utente sul giro della 2.77).
  */
 @Composable
 private fun padLabel(): TextStyle =
@@ -1293,23 +928,13 @@ private fun padLabel(): TextStyle =
 /**
  * Lo stesso gesto, con la vibrazione del tocco lungo davanti.
  *
- * Richiesta dell'utente, 2026-09-01: *feedback aptico in tutti gli eventi a pressione lunga*.
- * ⚠️⚠️ **E OGNI `combinedClickable` SPEGNE LA VIBRAZIONE SUA (`hapticFeedbackEnabled = false`),
- * dalla 5.92.** Quando questa funzione è nata `combinedClickable` arrivava muto; oggi (Compose
- * Foundation 1.12.0, letto nel bytecode) vibra da sé con `LongPress`, e sopra questa funzione
- * aggiungeva la sua: due colpi per un gesto, mentre i tocchi lunghi scritti con `pointerInput`
- * ne davano uno leggero. La differenza l'ha sentita lui (*leggerissimo, diverso da altre
- * vibrazioni*). Una vibrazione sola, sempre da [HOLD_BUZZ]: lo presidia `VibrazioneTest`, che
- * legge anche i sorgenti, perché il prossimo `combinedClickable` scritto senza il parametro non
- * lo vedrebbe nessuno.
- * ⚠️ **Sta qui e non in dieci punti**, ed è la ragione per cui è una funzione: i tocchi
- * lunghi dell'app sono sette in cinque file, e il giorno che ne nasce l'ottavo lo prende
- * anche lui se passa di qui. Un `performHapticFeedback` copiato sette volte se lo dimentica
- * l'ottavo.
- * ⚠️ **Prende un gesto che C'È**: l'unico punto in cui il tocco lungo è opzionale è
- * [PadButton], e là la vibrazione si scrive sul posto. Una funzione nullabile in entrata e in
- * uscita avrebbe costretto tutti gli altri, che il gesto ce l'hanno, a spiegare al
- * compilatore che non è nullo.
+ * Ogni pressione lunga vibra, per richiesta dell'utente.
+ * ⚠️ **Ogni `combinedClickable` spegne la propria vibrazione** (`hapticFeedbackEnabled = false`):
+ * Compose Foundation vibra da sé con `LongPress`, e con questa funzione sarebbero due colpi per
+ * un gesto. Una vibrazione sola, sempre da [HOLD_BUZZ]: lo presidia `VibrazioneTest`, che legge
+ * anche i sorgenti.
+ * Una funzione sola, così un tocco lungo nuovo la prende passando di qui. Prende un gesto che
+ * c'è: dove il tocco lungo è opzionale ([PadButton]) la vibrazione si scrive sul posto.
  */
 @Composable
 fun withHaptics(action: () -> Unit): () -> Unit {
@@ -1325,46 +950,32 @@ fun withHaptics(action: () -> Unit): () -> Unit {
 /**
  * La vibrazione di **ogni** pressione lunga dell'app, scritta in un posto solo.
  *
- * ⚠️⚠️ **DALLA 5.92 È `LongPress`, la vibrazione piena di Android, per sua scelta B1**
- * (2026-10-14). Dalla 1.21 era `TextHandleMove`, il colpetto leggero delle maniglie del testo
- * (*morbida e discreta*); ma i tocchi lunghi fatti con `combinedClickable` vibravano anche con
- * il `LongPress` di Compose (nota di [withHaptics]), quindi lui sentiva quello pieno quasi
- * dappertutto e il leggero solo dove il gesto è scritto con `pointerInput`, come l'ingresso
- * nella selezione della griglia, che gli risultava *leggerissimo*. Fra le tre vie proposte ha
- * scelto la vibrazione piena ovunque.
- * ⚠️⚠️ **Mai `SegmentTick` o `ToggleOn`**: quelle costanti sono arrivate con **Android 14**, e
- * Compose passa il numero grezzo a `performHapticFeedback` **senza nessun ripiego** (verificato
- * sul bytecode di `DefaultHapticFeedback`). Sotto Android 14 il telefono riceve una costante
- * che non conosce e **non vibra affatto**, e il minSdk qui è 28.
- * ⚠️ **Entrare nella selezione e muoversi dentro vibrano uguale**, come dalla 1.21: il giorno che
- * l'ingresso dovesse distinguersi, si riparte da qui.
+ * È `LongPress`, la vibrazione piena di Android, ovunque (scelta B1 dell'utente, 5.92).
+ * ⚠️ **Mai `SegmentTick` o `ToggleOn`**: esistono da Android 14, e Compose passa il numero grezzo
+ * a `performHapticFeedback` senza ripiego; sotto Android 14 il telefono non vibrerebbe, e il
+ * `minSdk` è 28.
+ * Entrare nella selezione e muoversi dentro vibrano uguale.
  */
 val HOLD_BUZZ = HapticFeedbackType.LongPress
 
 
 /**
- * Quante colonne ha il riquadro: tre, come l'utente le ha chieste.
- *
- * ⚠️ **Non è privata perché la legge anche la pagina che RIORDINA i tasti**, come già
- * [SHEET_COLUMNS]: quella replica il riquadro, e un 3 scritto una seconda volta sarebbe il
- * numero che un giorno diverge da questo.
+ * Quante colonne ha il riquadro: tre, come le ha chieste l'utente. Non è privata perché la legge
+ * anche la pagina che riordina i tasti, come [SHEET_COLUMNS].
  */
 internal const val PAD_COLUMNS = 3
 
 /**
- * How wide a menu made of a pad of six actions is: the viewer's long press menu, and since 4.70
- * the menu of an element of the Disegno module (his answer on `4.64-03`: *Lo stile del menu 3×2 è
- * come quello della pressione lunga sulla foto nel visualizzatore*). Until 4.64 it lived in
- * `ViewerScreen.kt`, where it had one reader.
+ * Quanto è largo un menu fatto di un riquadro di sei azioni: il menu del tocco lungo nel
+ * visualizzatore e quello di un elemento del modulo Disegno (risposta dell'utente su `4.64-03`).
  */
 internal val PAD_MENU_WIDTH = 252.dp
 
 /**
  * Quanto è alta una cella della replica che si riordina.
  *
- * ⚠️ **Fissa, e non quella del riquadro vero**: là l'altezza la fa il contenuto, quindi una
- * parola che va a capo allunga la sua riga. Qui il passo di riga deve essere un numero, o il
- * conto del posto d'arrivo non torna. 72dp tengono un glifo da 24 e due righe di parola.
+ * Fissa, a differenza del riquadro vero: il passo di riga deve essere un numero per il conto del
+ * posto d'arrivo. 72dp contengono un glifo da 24 e due righe di parola.
  */
 private val ARRANGE_HIGH = 72.dp
 
@@ -1378,8 +989,8 @@ private const val ARRANGE_HELD = 0.24f
 /**
  * La larghezza di una cella.
  *
- * ⚠️ Tre celle più i distacchi fanno poco meno di 250dp, che sta dentro uno schermo da
- * 360dp con il margine del menu: è il vincolo che decide questo numero, non l'estetica.
+ * Tre celle più i distacchi fanno poco meno di 250dp, che entrano in uno schermo da 360dp col
+ * margine del menu: è questo vincolo a decidere il numero.
  */
 private val PAD_CELL = 76.dp
 
@@ -1395,42 +1006,25 @@ private val PAD_LABEL_GAP = 2.dp
 /** Il corpo dell'etichetta di un tasto. Il perché di questo numero vive su [padLabel]. */
 private val PAD_LABEL_SIZE = 10.sp
 
-/**
- * L'interlinea di un'etichetta che va a capo, dalla `2.80`.
- *
- * ⚠️ **Poco più del corpo, e non il doppio**: il perché, e la sua richiesta, vivono su [padLabel].
- */
+/** L'interlinea di un'etichetta che va a capo, poco più del corpo: il perché è su [padLabel]. */
 private val PAD_LABEL_LINE = 12.sp
 
 /**
  * Il margine laterale del riquadro dentro il menu che lo contiene.
  *
- * ⚠️ **Dalla `1.59` è il PAVIMENTO del fianco sinistro e non più il fianco**: quello lo decide
- * la colonna delle icone della lista, e questo numero interviene solo dove quel conto darebbe
- * un rientro negativo. A destra resta il margine di sempre.
+ * Nei menu è il pavimento del fianco sinistro, che decide la colonna delle icone della lista
+ * (vedi [PadBody]); a destra e nelle schede è il margine.
  */
 private val PAD_EDGE = 4.dp
 
 /**
  * Il rimbalzo del FAB al tocco: di quanto si stringe, e in quanto tempo scende e risale.
  *
- * ⚠️⚠️ **DALLA `1.68` IL FAB NON HA PIÙ NÉ OMBRA NÉ SFOCATURA NÉ UNA TINTA CHE SI SPOSTA, ED È
- * UNA SUA ISTRUZIONE** (riscontro del giro della `1.67`: *elimina tutte le animazioni e gli
- * effetti applicati finora al FAB, che comunque non stavano funzionando bene*, e sulla voce
- * dell'ombra *togli del tutto l'ombra*). Tre versioni di fila avevano provato a farsi vedere
- * **aumentando una quantità**: mezzo punto di rientro, poi due, poi quattro, e ogni volta il
- * riscontro è stato lo stesso, *non vedo nulla*.
- * ⚠️⚠️ **PERCHÉ NON SI VEDEVA, ed è la cosa da non rifare**: quattro punti su un lato di
- * [FAB_SIZE] sono il 10% della misura, ma una piastrella isolata non ha accanto niente con cui
- * confrontarsi, e senza un riferimento l'occhio non legge una dimensione. Quello che mancava non
- * era la quantità: era il **confronto**. Un movimento, un simbolo diverso e un colore diverso si
- * vedono da soli, perché ognuno confronta il tasto con se stesso di un attimo prima.
- * ⚠️ **Il 30% e i due tempi sono suoi, alla lettera**: *rimpicciolisce del 30% in 30 ms, torna
- * alla dimensione iniziale in 60 ms, tutto con ease-in/ease-out*.
- * ⚠️ **È una SCALA e non una misura in punti**, al contrario di quello che faceva la `1.62`: là
- * il glifo doveva restare fermo mentre la piastrella si stringeva, e per escluderlo serviva una
- * misura sul solo fondo; qui rimbalza il **tasto intero**, glifo compreso, quindi la scala è la
- * cosa giusta e costa un livello grafico invece di una rimisurazione.
+ * Il FAB non ha ombra, sfocatura né tinte che si spostano (istruzione dell'utente): un rientro
+ * di pochi punti su una piastrella isolata non si vede, perché non c'è un riferimento; un
+ * movimento, un simbolo e un colore che cambiano si vedono da soli.
+ * Il 30% e i due tempi sono dell'utente, con ease-in/ease-out. È una scala sul tasto intero,
+ * glifo compreso: costa un livello grafico e nessuna rimisurazione.
  */
 private const val RIMBALZO = 0.30f
 private const val RIMBALZO_GIU_MS = 30
@@ -1439,15 +1033,10 @@ private const val RIMBALZO_SU_MS = 60
 /**
  * In quanto tempo il glifo dell'app diventa una ×, e in quanto il fondo cambia accento.
  *
- * ⚠️ **I 90 ms del simbolo sono la somma dei due tempi del rimbalzo**, ed è la sua richiesta:
- * *contemporaneamente, con zoom-in/zoom-out e crossfade, negli stessi 90 ms*. Così il simbolo
- * finisce di cambiare nell'istante in cui il tasto torna alla sua misura, e i due movimenti si
- * leggono come uno.
- * ⚠️ **Il colore è più corto, e anche questo è suo**: *in meno di 90 ms: un crossfade pressoché
- * istantaneo*. Un colore che sfuma piano si legge come un'animazione a sé; uno che salta si
- * legge come lo stato nuovo del tasto, che è quello che deve dire.
- * ⚠️ **Non si scrive come frazione di [MORPH_MS]**: sono due numeri che lui ha dato separati, e
- * legarli vorrebbe dire che cambiando l'uno cambia l'altro senza che nessuno l'abbia chiesto.
+ * I 90 ms del simbolo sono la somma dei due tempi del rimbalzo (richiesta dell'utente): il
+ * simbolo finisce di cambiare quando il tasto torna alla sua misura. Il colore è più corto,
+ * quasi istantaneo, anche questo per sua richiesta: si legge come lo stato nuovo del tasto. I
+ * due numeri sono indipendenti, come li ha dati lui.
  */
 private const val MORPH_MS = RIMBALZO_GIU_MS + RIMBALZO_SU_MS
 private const val TINTA_MS = 55
@@ -1455,37 +1044,25 @@ private const val TINTA_MS = 55
 /**
  * In quanto tempo il FAB si rimpicciolisce fino a sparire, andando dove non c'è.
  *
- * ⚠️⚠️ **IL NUMERO VIENE DALLA DISSOLVENZA DI SCHERMATA, E IL CONTO È MISURATO**: quei 180 ms
- * scendono con la curva di serie di `tween`, che è ripida in mezzo, e l'opacità della schermata
- * che se ne va vale 0,54 a 60 ms, 0,30 a 80 e 0,16 a 100. Cioè tutto quello che il FAB fa dopo il
- * primo decimo di secondo lo fa dietro un velo che non lascia passare quasi niente.
- * ⚠️ **Con questi cento millisecondi e una curva che parte veloce**, a 40 ms il tasto è già sotto
- * la metà e la schermata è ancora al 72%: il rimpicciolimento si vede quando c'è da vederlo, e
- * l'ultimo tratto se ne va insieme a tutto il resto.
- * ⚠️ **Allungarlo peggiora invece di migliorare**, ed è la lezione della `1.73` letta al
- * rovescio: là un'animazione di entrata giocata sotto la dissolvenza si vedeva solo per la coda.
+ * ⚠️ **Il numero viene dalla dissolvenza di schermata**: nei suoi 180 ms l'opacità della
+ * schermata che se ne va vale 0,54 a 60 ms, 0,30 a 80 e 0,16 a 100, quindi dopo un decimo di
+ * secondo non si vede quasi niente. Con 100 ms e una curva che parte veloce, a 40 ms il tasto è
+ * già sotto la metà con la schermata ancora al 72%. Allungarlo non servirebbe.
  */
 private const val VIA_MS = 100
 
 /**
  * Il lato della × che prende il posto del glifo, e quanto zoom fanno i due simboli.
  *
- * ⚠️ **Più piccola del glifo dell'app**, come ha chiesto (*il simbolo × centrato e piccolo*):
- * [PAD_ICON] è la misura di un glifo di comando, e questa sta un gradino sotto.
- * ⚠️⚠️ **È `Icons.Default.Close` E NON UN DISEGNO NUOVO**: la regola di casa dice che un file che
- * arriva si misura contro quello che Compose già porta e a zero scarto vince Material
- * (`Rules.md`, § '🖌️ Come entra un disegno'). Qui non è arrivato nessun file: lui ha chiesto
- * *il simbolo ×*, che è esattamente quel glifo, e disegnarlo a mano vorrebbe dire tenere in
- * `res/` una seconda copia di una croce.
- * ⚠️ **Lo zoom è una FRAZIONE e non una misura**: il glifo dell'app non è quadrato (nella
- * schermata iniziale è il marchio, più largo che alto), quindi una misura in punti lo
- * schiaccerebbe su un asse.
- * ⚠️ **Chi entra parte piccolo e chi esce finisce piccolo**, cioè lo stesso numero letto nei due
- * versi: a metà strada i due simboli hanno la stessa misura, e la dissolvenza non ha nessun
- * salto di scala da nascondere.
+ * La × è più piccola del glifo dell'app, come ha chiesto l'utente, un gradino sotto [PAD_ICON].
+ * È la croce di Material, [Glyphs.Material.Close] (`Rules.md` § '🖌️ Come entra un disegno').
+ * Lo zoom è una frazione e non una misura: il glifo dell'app può non essere quadrato (il
+ * marchio), e una misura lo schiaccerebbe. Chi entra parte piccolo e chi esce finisce piccolo,
+ * quindi a metà strada i due simboli hanno la stessa misura. Lo zoom lo legge anche lo scambio
+ * dei simboli nella pillola a scomparsa, che deve muoversi come il FAB.
  */
 private val CHIUDI_LATO = 20.dp
-private const val GLIFO_ZOOM = 0.35f
+internal const val GLIFO_ZOOM = 0.35f
 
 /** Lo smusso dell'alone del tocco su una cella. */
 private val PAD_CORNER = 10.dp
@@ -1493,33 +1070,26 @@ private val PAD_CORNER = 10.dp
 /**
  * La larghezza di una cella quando le parole sono spente.
  *
- * ⚠️ **Nasce dal bersaglio e non dal glifo**: [PAD_TAP] è il pavimento in altezza, e una cella
- * più stretta di così sarebbe un tasto alto e sottile, cioè difficile da centrare col pollice.
- * Un glifo da 24 in una cella da 48 lascia dodici punti d'aria per lato, che è il rapporto con
- * cui Material disegna un `IconButton`.
+ * Viene dal bersaglio e non dal glifo: [PAD_TAP] è il pavimento in altezza, e una cella più
+ * stretta sarebbe difficile da centrare. È il rapporto di un `IconButton` di Material.
  */
 private val PAD_CELL_BARE = 48.dp
 
 /**
  * L'altezza minima di una cella, con o senza parola.
  *
- * ⚠️⚠️ **48dp È IL BERSAGLIO MINIMO DI MATERIAL, e senza questa riga il riquadro compatto ci
- * andava sotto**: con la parola la colonna misura da sé oltre i cinquanta (respiro, glifo,
- * distacco, riga di testo, respiro); togliendola resterebbero quaranta, cioè un tasto che si
- * manca. La compattezza chiesta è di **disegno**, non di area toccabile.
+ * 48dp è il bersaglio minimo di Material: senza la parola la cella sarebbe alta 40dp. Il
+ * riquadro compatto lo è di disegno, non di area toccabile.
  */
 private val PAD_TAP = 48.dp
 
 /**
- * Come si presentano i riquadri di questa app: le parole e i quattro ordini.
+ * Come si presentano i riquadri di questa app: le parole, gli ordini dei tasti e il lato del FAB.
  *
- * ⚠️⚠️ **STA IN UN `CompositionLocal` PER LA STESSA RAGIONE DEL VELO** (vedi `LocalAivDepth`):
- * queste cose le chiedono superfici che vivono in **finestre**, e le finestre le impostazioni
- * non le ricevono. La catena per portarci quattro liste e un booleano attraversa il
- * visualizzatore, la griglia con i suoi tre richiami, la scheda della selezione, l'albero e
- * l'editor: cinque schermate per un dato che non cambia mai durante un gesto.
- * ⚠️ **Il valore di fabbrica è quello che l'app aveva prima**, quindi una finestra che
- * nascesse fuori dall'albero della composizione si comporta come sempre invece di sparire.
+ * ⚠️ **È in un `CompositionLocal`, come `LocalAivDepth`**: lo chiedono superfici che vivono in
+ * finestre, che le impostazioni non ricevono, e la catena di parametri attraverserebbe cinque
+ * schermate. Il valore di fabbrica vale per una finestra nata fuori dall'albero della
+ * composizione.
  */
 class PadLook(
     val labels: Boolean = true,
@@ -1531,22 +1101,11 @@ class PadLook(
     val turn: List<PadKey> = TURN_KEYS,
     /** La seconda fila dell'editor: la cronologia e la conferma. */
     val step: List<PadKey> = STEP_KEYS,
-    /**
-     * La fila dei sette moduli dell'editor completo, dalla `2.34`.
-     *
-     * ⚠️ **Viaggia di qui come gli altri quattro ordini**, e non è una scelta di comodo: quella
-     * fila vive in una scheda che le impostazioni non attraversa, ed è lo stesso motivo per cui
-     * le due file dell'editor semplice sono qui.
-     */
+    /** La fila dei moduli dell'editor completo, che vive in una scheda come le file sopra. */
     val mods: List<PadKey> = MOD_KEYS,
     /**
-     * Da che parte dello schermo sta il FAB.
-     *
-     * ⚠️⚠️ **VIAGGIA QUI E NON PER PARAMETRO, ed è la stessa ragione delle altre cinque**: i
-     * FAB vivono in tre schermate e in un velo di onboarding, e la catena per portarci un
-     * valore dalle impostazioni le attraversa tutte. ⚠️ **E sta con l'aspetto dei riquadri
-     * invece che per conto suo** perché il FAB apre il riquadro: chi sposta l'uno sposta
-     * anche dove si apre l'altro.
+     * Da che parte dello schermo è il FAB. È qui per la stessa ragione degli ordini, e insieme
+     * all'aspetto dei riquadri perché il FAB apre il riquadro.
      */
     val hand: Hand = Hand.RIGHT
 )
@@ -1555,18 +1114,10 @@ class PadLook(
 val LocalPadLook = compositionLocalOf { PadLook() }
 
 /**
- * Da che angolo in basso sta il FAB, secondo l'impostazione.
- *
- * ⚠️⚠️ **NASCE NELLA `1.57` E PRENDE IL POSTO DELLA SPECCHIATURA** (tappa del piano d'azione,
- * e decisione dell'utente: *la specchiatura se ne va del tutto*). Prima l'impostazione diceva
- * quale **mano** si usa e rovesciava le file di un riquadro; adesso dice da che parte sta il
- * FAB, e con lui si sposta tutto quello che gli gira intorno.
- * ⚠️ **La chiave sull'archivio non cambia**, quindi chi aveva scelto la sinistra ritrova la
- * sinistra: la domanda ha cambiato forma ma non verso, ed è il caso in cui una chiave si
- * tiene invece di scriverne una nuova.
- * ⚠️ **`End` e `Start` e non 'destra' e 'sinistra' vere**: in arabo, persiano e urdu tutta
- * l'interfaccia si specchia, e un FAB inchiodato a destra sarebbe l'unico pezzo a non
- * seguirla. Nelle venticinque lingue che si leggono da sinistra le due cose coincidono.
+ * In quale angolo in basso è il FAB, secondo l'impostazione; con lui si sposta tutto quello che
+ * gli gira intorno. La chiave nell'archivio è quella della vecchia scelta della mano.
+ * ⚠️ **`End` e `Start`, non destra e sinistra**: nelle lingue da destra a sinistra l'interfaccia
+ * si specchia, e il FAB la segue.
  */
 @Composable
 fun fabSide(): Alignment =
@@ -1575,31 +1126,17 @@ fun fabSide(): Alignment =
 /**
  * Lo stesso lato, per chi allinea una fila invece di posare un tasto in un angolo.
  *
- * ⚠️⚠️ **NASCE NELLA `1.89` PER LE PASTIGLIE DELL'INTESTAZIONE** (sua richiesta, con schermata:
- * *quando le pastiglie vanno a capo, voglio che quella nella seconda ... sia centrata a destra o
- * a sinistra a seconda del lato in cui si trova il FAB. È un'impostazione trasparente ma molto
- * comoda*): la riga che va a capo si trova sotto il pollice invece che dalla parte opposta.
- * ⚠️ **Legge lo stesso valore di [fabSide] e non l'impostazione una seconda volta**: due letture
- * della stessa scelta sono due posti che divergono il giorno che la domanda cambia forma, come
- * è già successo alla specchiatura nella `1.57`.
+ * Serve alle pastiglie dell'intestazione (richiesta dell'utente): la riga che va a capo si
+ * allinea dalla parte del FAB, sotto il pollice. Legge lo stesso valore di [fabSide].
  */
 @Composable
 fun fabEdge(): Alignment.Horizontal =
     if (LocalPadLook.current.hand == Hand.RIGHT) Alignment.End else Alignment.Start
 
 /**
- * Quante colonne ha la bottomsheet della selezione: **cinque**, come chieste.
- *
- * ⚠️ Cinque e non tre come il menu, e non è simmetria: le azioni là sono dieci, e a tre
- * colonne verrebbero quattro file, cioè un pannello alto quanto mezzo schermo sopra le
- * fotografie che si stanno scegliendo.
- * ⚠️ **Non è privata perché la legge anche la pagina che RIORDINA i tasti** (`SettingsScreen`):
- * quella replica la scheda, e un 5 scritto una seconda volta sarebbe il numero che un giorno
- * diverge da questo.
- * ⚠️ **Fino alla `1.78` la ragione scritta era un'altra e non esisteva più**: diceva che la
- * leggeva chi rovesciava le file per la mano sinistra, e quella specchiatura è uscita del tutto
- * nella `1.57` (lo dichiara `GridScreen`). Il criterio regge identico, a cambiare era il
- * lettore.
+ * Quante colonne ha la scheda della selezione: cinque, come chieste. Le azioni sono dieci, e a
+ * tre colonne il pannello coprirebbe mezzo schermo. Non è privata perché la legge anche la pagina
+ * che riordina i tasti (`SettingsScreen`).
  */
 internal const val SHEET_COLUMNS = 5
 
@@ -1607,18 +1144,15 @@ internal const val SHEET_COLUMNS = 5
 /**
  * Lo smusso del FAB quadrato, uguale in tutte le schermate.
  *
- * ⚠️ Quadrato ma non tagliente: il tondo pieno griderebbe 'azione principale', e in questa
- * app l'azione principale sono sempre le fotografie. ⚠️ **Sta qui e non in una schermata**
- * perché i FAB sono due, quello delle cartelle e quello della selezione, e due numeri
- * uguali scritti in due file sono un numero che prima o poi diverge.
+ * Quadrato ma non tagliente: il tondo pieno direbbe 'azione principale', e qui l'azione
+ * principale sono le immagini. È qui perché la usano tutti i FAB.
  */
 val FAB_CORNER = 12.dp
 
 /**
  * La misura di `SmallFloatingActionButton`, che [TapHoldFab] rifà a mano.
  *
- * ⚠️ È anche l'altezza che [FAB_REACH] somma al margine: i due numeri descrivono lo stesso
- * FAB, e slegati si sarebbero mossi uno per volta.
+ * È anche l'altezza che [FAB_REACH] somma al margine.
  */
 val FAB_SIZE = 40.dp
 
@@ -1626,84 +1160,52 @@ val FAB_SIZE = 40.dp
 /**
  * Il margine del FAB quadrato dalle due sponde della schermata delle cartelle.
  *
- * ⚠️ Sta qui e non là perché [FAB_REACH] lo somma: il giorno che il FAB si sposta di un
- * dp, il conto che tiene le cartelle sopra di lui deve muoversi con lui.
+ * È qui perché lo somma [FAB_REACH].
  */
 val HUB_PAD = 16.dp
 
-/** The FAB's glyph on the translucent look, on the light theme: his `#ecfff7`. */
+/** Il glifo del FAB col vetro, nel tema chiaro: il `#ecfff7` dell'utente. */
 internal val FAB_GLASS_INK_LIGHT = Color(0xFFECFFF7)
 
-/** The FAB's glyph on the translucent look, on the dark theme: his `#004247`. */
+/** Il glifo del FAB col vetro, nel tema scuro: il `#004247` dell'utente. */
 internal val FAB_GLASS_INK_DARK = Color(0xFF004247)
 
 /**
  * Quanto arriva in su il FAB quadrato delle cartelle, misurato dal fondo dello schermo:
  * il suo margine ([HUB_PAD]) più la sua altezza.
  *
- * ⚠️⚠️ **È LA Y DA CUI PARTE LA SFUMATURA che inghiotte quello che sta sotto** (richiesta
- * dell'utente, dalla `0.77`). Comincia dove comincia il **FAB**, non dove finisce lo
- * spazio che gli si lascia, che è [BELOW_FAB] e vale una ventina di dp in più: la differenza
- * fra i due numeri è l'aria che al riposo resta fra l'ultima cartella e il FAB, e la
- * sfumatura deve trovarla vuota.
- * ⚠️ L'altezza è [FAB_SIZE], cioè la misura che Material dà a un FAB piccolo senza
- * esporla come costante pubblica: è un dato suo, non una nostra scelta.
+ * ⚠️ **È l'altezza da cui parte la sfumatura in fondo allo schermo** (richiesta dell'utente):
+ * comincia dove comincia il FAB, non a [BELOW_FAB], che ha una ventina di dp in più d'aria.
+ * L'altezza è [FAB_SIZE], la misura che Material dà a un FAB piccolo.
  */
 val FAB_REACH = HUB_PAD + FAB_SIZE
 
 /**
- * Quanto spazio resta sotto l'ultimo elemento di una griglia, perché il FAB non gli si
- * sieda sopra.
- *
- * ⚠️ Serve **solo** quando il FAB c'è: nella griglia delle foto compare con la
- * selezione, quindi il fondo cresce da quel momento. Senza, la fotografia in basso a
- * destra resterebbe coperta proprio mentre si sta scegliendo, cioè quando la si deve poter
- * toccare.
- * ⚠️ **Scritto come [FAB_REACH] più aria** dalla `0.77`, e prima era 76dp nudi: i due numeri
- * descrivono la stessa cosa a due altezze diverse, e slegati si sarebbero mossi uno per
- * volta.
+ * Quanto spazio resta sotto l'ultimo elemento di una griglia, perché il FAB non lo copra: [FAB_REACH]
+ * più aria.
  */
 val BELOW_FAB = FAB_REACH + 20.dp
 
 /**
- * Se questa schermata sta uscendo verso una **senza FAB**.
+ * Se questa schermata sta uscendo verso una senza FAB: il FAB si rimpicciolisce fino a sparire
+ * (richiesta dell'utente).
  *
- * ⚠️⚠️ **LO FORNISCE `AivApp`, DENTRO LA TRANSIZIONE FRA SCHERMATE, ED È L'UNICO POSTO CHE SA
- * DOVE SI STA ANDANDO** (punto A del campo libero del giro accorpato: *quando dal menu del FAB
- * approdo ad una schermata senza FAB (esempio → Impostazioni), il pulsante deve sparire
- * rimpicciolendosi fino a sparire*). Una schermata non sa dove porta una voce del proprio menu,
- * e il FAB meno che mai: quello che sa tutti e due gli stati è chi li mette in scena.
- * ⚠️ **Lo legge [TapHoldFab] e non i suoi chiamanti**, così un FAB nuovo prende l'uscita per
- * costruzione: è lo stesso criterio per cui `lowered()` porta con sé il velo.
- * ⚠️ **Fuori dalla transizione vale `false`**, che è il valore giusto per chi non sta andando da
- * nessuna parte: una prova che monta il solo FAB lo trova fermo, com'è a riposo nell'app.
+ * Lo fornisce `AivApp`, dentro la transizione fra schermate, l'unico posto che sa dove si va. Lo
+ * legge [TapHoldFab], così un FAB nuovo prende l'uscita per costruzione. Fuori dalla transizione
+ * vale `false`.
  */
 internal val LocalSenzaFab = compositionLocalOf { false }
 
 /**
  * Un FAB con **due** gesti: tocco breve e tocco lungo.
  *
- * ⚠️⚠️ **NON È `SmallFloatingActionButton`, e non è un capriccio**: quel composabile prende
- * un `onClick` solo, e il `modifier` che gli si passa finisce **fuori** dal suo `clickable`,
- * cioè come genitore. Un `combinedClickable` messo là non vedrebbe mai il tocco lungo, perché
- * nella passata `Main` il figlio consuma il down per primo: è esattamente il meccanismo che
- * aveva rotto il tocco lungo sulla griglia. Per avere due gesti su un FAB bisogna che di
- * nodo che ascolta ce ne sia **uno**.
- * ⚠️ **La misura è quella di Material**, [FAB_SIZE], e da lì non si scosta.
- * ⚠️⚠️ **MA 'LA RESA NON CAMBIA' NON È PIÙ VERO, E FINO ALLA `1.78` ERA SCRITTO QUI**: la nota
- * garantiva `primaryContainer` e 6dp d'ombra, cioè quello che `SmallFloatingActionButton` dà, e
- * di quelle tre cose ne resta una. L'ombra è a zero dalla `1.68` (il perché sta sulla costante
- * che la portava), e i due colori arrivano **dai chiamanti**, che passano le risorse dell'icona
- * dell'app: qui dentro la parola `primaryContainer` non compare. Chi legge la firma incontrava
- * prima questa nota e dopo i fatti che la smentiscono.
- * ⚠️ Il gesto sta **dentro** la `Surface` e non sul suo modificatore, così l'increspatura
- * prende il colore del contenuto ([ink]) invece di quello che c'era fuori.
- *
- * ⚠️⚠️ **STA QUI, CONDIVISO, DALLA 0.78**: i FAB col tocco lungo sono diventati **due**,
- * quello della selezione e quello quadrato delle cartelle, e differiscono per il **glifo** e
- * per quello che i due gesti fanno. Tutto il resto (misura, smusso, ombra, il nodo unico che
- * ascolta, l'etichetta del tocco lungo per il lettore di schermo) è la stessa cosa scritta
- * una volta.
+ * ⚠️ **Non è `SmallFloatingActionButton`**: quello prende un `onClick` solo, e il `modifier`
+ * finisce fuori dal suo `clickable`; un `combinedClickable` là non vedrebbe mai il tocco lungo,
+ * perché il figlio consuma il down per primo. Per due gesti il nodo che ascolta dev'essere uno.
+ * La misura è quella di Material ([FAB_SIZE]); senza ombra (vedi [RIMBALZO]), e i colori li
+ * passano i chiamanti.
+ * Il gesto è dentro la `Surface`, così l'increspatura prende il colore del contenuto ([ink]).
+ * È condiviso da tutti i FAB col tocco lungo: cambiano solo il glifo e quello che fanno i gesti.
  */
 @Composable
 fun TapHoldFab(
@@ -1712,115 +1214,71 @@ fun TapHoldFab(
     container: Color,
     ink: Color,
     /**
-     * Che cosa fa il tocco lungo, per il lettore di schermo.
-     *
-     * ⚠️ **Si DICHIARA, o resta una scorciatoia che esiste solo per chi vede**: l'etichetta la
-     * legge il lettore di schermo fra le azioni disponibili sul FAB.
-     * ⚠️ Arriva da fuori perché il gesto fa cose diverse a seconda della schermata e di dove si
-     * è dentro di lei, e un'etichetta fissa ne annuncerebbe una mentre succede l'altra.
+     * Che cosa fa il tocco lungo, per il lettore di schermo, che lo annuncia fra le azioni del
+     * FAB. Arriva da fuori perché il gesto cambia con la schermata.
      */
     holdLabel: String,
     /**
-     * Il FAB si stacca in una **finestra sua**, per restare sopra la sfocatura del suo menu.
+     * Il FAB si stacca in una finestra sua, per restare sopra la Sfocatura dietro i pannelli del
+     * suo menu (richiesta dell'utente).
      *
-     * ⚠️⚠️ **RICHIESTA DELL'UTENTE, 1.39** (2026-09-03: *quando la sfocatura si applica dove c'è
-     * un FAB, questo deve rimanere SOPRA l'area sfocata e velata*). Col velo di finestra (vedi
-     * `WindowVeil`) non si può ritagliare un buco: quel velo sta **dietro** la finestra che lo
-     * chiede, e tutto quello che è più in basso ci finisce sotto, FAB compreso. La sola via
-     * per tenerlo fuori è metterlo in una finestra **più in alto** di quella che vela.
-     * ⚠️ **Vale solo per il menu che il FAB stesso apre**, e chi lo accende è il suo `open`.
-     * Un dialogo di Material è una finestra di **altro tipo**, sempre sopra le finestre dei menu,
-     * quindi con un dialogo aperto il FAB resta velato: ed è giusto, perché un modale deve
-     * restare modale.
-     * ⚠️⚠️ **IL MENU VA COMPOSTO PRIMA DEL FAB**, o questo non serve a niente: fra finestre
-     * dello stesso tipo l'ordine è quello in cui sono state aggiunte, e la composizione decide
-     * quell'ordine. I due posti che lo usano hanno il menu scritto sopra.
-     * ⚠️⚠️ **DA STACCATO IL FAB È SOLO DA GUARDARE**, e la sua finestra lascia passare le
-     * dita: il perché sta su [untouchable], ed è quello che tiene in piedi la chiusura del menu
-     * al tocco, che è del giro della `1.06`.
+     * La sfocatura di finestra (`WindowVeil`) è dietro la finestra che la chiede, e tutto quello
+     * che è più in basso ci finisce sotto: l'unica via è una finestra più in alto. Vale solo per il
+     * menu che il FAB apre: un dialogo di Material è sempre sopra i menu, e con lui il FAB resta
+     * sfocato, come si conviene a un modale.
+     * ⚠️ **Il menu va composto prima del FAB**: fra finestre dello stesso tipo l'ordine è quello
+     * in cui sono aggiunte.
+     * ⚠️ **Staccato, il FAB è solo da guardare**: la sua finestra lascia passare le dita (vedi
+     * [untouchable]), e così il tocco fuori chiude il menu.
      */
     lifted: Boolean = false,
     /**
-     * Se il FAB deve mostrarsi **premuto**, cioè col rimbalzo fatto, la × al posto del glifo
-     * e l'accento dell'altro tema.
+     * Se il FAB si mostra premuto: rimbalzo fatto, × al posto del glifo e accento dell'altro tema.
      *
-     * ⚠️⚠️ **È UN SEGNALE A SÉ E NON [lifted], DALLA `1.60`, PERCHÉ I DUE NON FINISCONO
-     * INSIEME** (riscontro del giro della `1.59`: *niente rimbalzo, solo un movimento unico*).
-     * [lifted] dice se il FAB vive nella sua finestra, quindi resta vero per tutta la
-     * **discesa** del menu (`MenuState.visible`); e legandoci lo stato premuto, il ritorno del
-     * FAB cominciava solo dopo che il menu era sparito del tutto. Erano due movimenti con una
-     * pausa in mezzo, ed è quello che si legge come un secondo tempo.
-     * ⚠️ **Chi apre un menu passa `wanted`**, che è il verso opposto: cade nell'istante in cui si
-     * chiede la chiusura, quindi il FAB torna al suo colore **insieme** al menu che se ne va.
-     * ⚠️ **Il valore di serie è [lifted]** perché per chi non ha un menu i due coincidono, e un
-     * FAB senza menu non ha nessun secondo tempo da evitare.
+     * ⚠️ **È un segnale a sé e non [lifted]**: [lifted] resta vero per tutta la discesa del menu
+     * (`MenuState.visible`), e il FAB tornerebbe solo a menu sparito, in un secondo tempo
+     * (riscontro dell'utente). Chi apre un menu passa `wanted`, che cade quando si chiede la
+     * chiusura. Il valore di serie è [lifted], che per un FAB senza menu coincide.
      */
     pressed: Boolean = lifted,
     /**
-     * Se il FAB è il tasto tondo della pillola ([PhonePill.SLIDE]) invece del quadrato.
-     *
-     * ⚠️ **Lo chiede solo la copia che un velo d'aiuto illumina**: il tasto tondo vero lo disegna
-     * la pillola, e la copia deve avere la sua forma e la sua misura, o il velo indicherebbe un
-     * tasto che non c'è.
+     * Se il FAB è il tasto tondo della pillola ([PhonePill.SLIDE]) invece del quadrato. Lo chiede
+     * solo la copia che un velo d'aiuto illumina, che deve avere la forma del tasto vero.
      */
     round: Boolean = false,
     /**
      * Quello che il vetro sfoca, o `null` dove non c'è niente da sfocare. Vedi [Backdrop].
-     *
-     * ⚠️ **Da staccato il vetro non legge lo sfondo**: il FAB vive in un'altra finestra, sopra
-     * il velo del suo menu, e là sotto c'è già la sfocatura. Resta la tinta.
+     * Staccato, il FAB è sopra la sfocatura del suo menu, e resta la tinta.
      */
     backdrop: Backdrop? = null,
     onTap: () -> Unit,
     onHold: () -> Unit,
     /**
-     * Che cosa si vede sul FAB, con la descrizione da dare al lettore di schermo.
-     *
-     * ⚠️⚠️ **È UNA FESSURA E NON UN `ImageVector`, dalla `1.55`**: il FAB della schermata
-     * iniziale porta il **marchio dell'app**, che è un disegno più largo che alto e va messo in
-     * scena con una misura sua e uno spostamento suo (vedi `Marchio` in `FolderScreen.kt`). Un
-     * `ImageVector` obbligava a una scatola quadrata da 24dp, che quel disegno schiaccia.
+     * Che cosa si vede sul FAB, con la descrizione per il lettore di schermo. È una fessura e non
+     * un `ImageVector` perché il FAB della schermata iniziale ha il marchio dell'app, più largo
+     * che alto (vedi `Marchio` in `FolderScreen.kt`).
      */
     glyph: @Composable (descrizione: String?) -> Unit
 ) {
     /*
-     * ⚠️⚠️ **IL FAB CAMBIA TRE COSE AL TOCCO, DALLA `1.68`, E NESSUNA DELLE TRE È UNA
-     * QUANTITÀ** (istruzione dell'utente, giro della `1.67`): rimbalza, il suo glifo diventa una
-     * ×, e il fondo prende l'accento dell'**altro** tema. Il perché di questo cambio di strada,
-     * dopo tre versioni che alzavano un numero senza mai farsi vedere, sta su [RIMBALZO].
-     * ⚠️ **La × dice che cosa fa adesso il tasto**, e sono sue parole: *indicando che la sua
-     * nuova funzione è chiudere il menu*. Quindi non è una decorazione: è l'unica cosa sul
-     * FAB che comunichi un'azione diversa da quella di prima.
-     * ⚠️⚠️ **DUE ANIMAZIONI SI LEGGONO NEL DISEGNO E UNA IN COMPOSIZIONE, ed è una scelta
-     * misurata**: il rimbalzo e la dissolvenza dei simboli stanno dentro `graphicsLayer`, cioè
-     * costano un ridisegno per fotogramma; il colore invece arriva a `Surface`, che lo vuole in
-     * composizione. Costa [TINTA_MS] di ricomposizioni, cioè tre o quattro fotogrammi, ed è il
-     * prezzo per avere l'increspatura del tocco e il `contentColor` che Material dà da sé.
-     * ⚠️ **Il primo giro non anima**: `LaunchedEffect` parte anche alla prima composizione, e
-     * senza questa guardia il FAB rimbalzerebbe ogni volta che la sua schermata entra in scena.
+     * Al tocco il FAB rimbalza, il glifo diventa una × (che dice che ora il tasto chiude il menu)
+     * e il fondo prende l'accento dell'altro tema (istruzione dell'utente; vedi [RIMBALZO]).
+     * Rimbalzo e simboli sono in `graphicsLayer`, un ridisegno per fotogramma; il colore va a
+     * `Surface` in composizione, per [TINTA_MS], per avere l'increspatura e il `contentColor`.
+     * ⚠️ **Il primo giro non anima**: `LaunchedEffect` parte anche alla prima composizione, e il
+     * FAB rimbalzerebbe a ogni ingresso della schermata.
      */
     val morph = remember { Animatable(if (pressed) 1f else 0f) }
     val tinta = remember { Animatable(if (pressed) 1f else 0f) }
     val rimbalzo = remember { Animatable(1f) }
     var primo by remember { mutableStateOf(true) }
     /*
-     * ⚠️⚠️ **L'USCITA VERSO UNA SCHERMATA SENZA FAB, DALLA `2.11`, ED È LA VARIANTE 1 DELLE DUE
-     * CHE HA DESCRITTO** (punto A del campo libero: *1) si rimpicciolisce tutto, incluso il glifo.
-     * 2) si rimpicciolisce il pulsante, il glifo resta identico ma il pulsante fa da maschera*).
-     * La scelta è dichiarata perché ha detto *decidi tu*: la seconda taglia il glifo mentre il
-     * cerchio si stringe, cioè fa vedere per qualche fotogramma un disegno mutilato, mentre la
-     * scala uniforme è già il linguaggio con cui questo tasto si muove (il rimbalzo, l'entrata
-     * del cestino).
-     * ⚠️⚠️ **SI MOLTIPLICA AL RIMBALZO INVECE DI SOSTITUIRLO, e i due possono capitare insieme**:
-     * toccando una voce del menu il FAB sta ancora tornando su dal suo rimbalzo, e due scale
-     * scritte su due nodi darebbero un tasto che si stringe mentre un altro lo allarga.
-     * ⚠️⚠️ **PIÙ CORTA DELLA DISSOLVENZA DI SCHERMATA, E IL CONTO È QUELLO DELLA `1.73`**: le
-     * opacità si moltiplicano, quindi quello che il FAB fa in quei 180 ms lo fa dietro un velo
-     * che cala. A [VIA_MS] la scala è a zero quando l'opacità è ancora sopra i due terzi, cioè il
-     * rimpicciolimento si vede tutto e quello che sparisce dopo è un tasto già sparito.
-     * ⚠️ **Non c'è un ritorno da animare**: la schermata che rientra compone un FAB nuovo, che
-     * nasce a uno. Lo `snapTo` copre il caso in cui la navigazione venga annullata, dove il tasto
-     * deve tornare intero senza una seconda animazione che non racconta niente.
+     * L'uscita verso una schermata senza FAB rimpicciolisce tutto, glifo compreso (la prima delle
+     * due varianti descritte dall'utente, che ha lasciato la scelta): una maschera taglierebbe il
+     * glifo. Si moltiplica al rimbalzo, che può essere ancora in corso. È più corta della
+     * dissolvenza di schermata (vedi [VIA_MS]).
+     * Non c'è un ritorno da animare: la schermata che rientra compone un FAB nuovo. Lo `snapTo`
+     * copre una navigazione annullata.
      */
     val via = remember { Animatable(1f) }
     val senzaFab = LocalSenzaFab.current
@@ -1842,38 +1300,28 @@ fun TapHoldFab(
         rimbalzo.animateTo(1f, tween(RIMBALZO_SU_MS, easing = FastOutSlowInEasing))
     }
     /*
-     * ⚠️⚠️ **DALLA `1.86` I DUE ESTREMI SONO SCAMBIATI, ED È SUO** (riscontro del giro della
-     * `1.85`, campo libero punto A: *il FAB di tutte le pagine incluso il cestino deve avere il
-     * FAB del colore del tema scuro, che poi diventa chiaro quando premuto*, e al rovescio sul
-     * tema scuro). Fino alla `1.85` il FAB stava nell'accento **di questo** tema e passava a
-     * quello dell'altro da premuto; adesso a riposo porta l'altro e da premuto torna a questo.
-     * La sua ragione è scritta: *dà uno stacco maggiore, e un accento opposto mette più in
-     * risalto il pulsante flottante*.
-     * ⚠️ **Il colore a riposo lo passa il chiamante** ([container]), perché non è sempre quello
-     * dell'app: i due FAB che un mini-onboarding evidenzia portano l'arancione. Quello che
-     * questa funzione decide è il **secondo** estremo, cioè dove va il colore quando si preme.
-     * ⚠️ **Anche l'inchiostro cambia**, e senza di lui il contrasto cadrebbe: sull'accento scuro
-     * (`#00727B`) l'inchiostro del tema chiaro (`#00382F`) misura 2,05, cioè illeggibile. Le due
-     * coppie sono quelle di Material e stanno insieme per costruzione.
+     * A riposo il FAB ha l'accento dell'altro tema, e da premuto torna a quello del tema in
+     * vigore (riscontro dell'utente: più stacco). Il colore a riposo lo passa il chiamante
+     * ([container]), perché le copie di un velo d'aiuto sono arancioni; qui si decide il secondo
+     * estremo.
+     * ⚠️ **Cambia anche l'inchiostro** ([aivOnAccent]): quello del tema chiaro sull'accento scuro
+     * misura 2,05.
      */
     val light = LocalAivLight.current
     val fondo = lerp(container, aivAccent(light), tinta.value)
     /*
-     * ⚠️⚠️ **COL TRASLUCIDO IL GLIFO HA UN COLORE FISSO, DALLA `4.30`, ED È SUO** (nota F del giro
-     * della `4.25`, coi due valori corretti in chat: *quelli corretti sono #ecfff7 per il chiaro e
-     * #004247 per lo scuro*): sul vetro l'inchiostro dell'accento non regge il contrasto. Fisso
-     * vuol dire anche da premuto.
-     * ⚠️ **Solo per il FAB vero, quello che ha uno sfondo da sfocare** ([backdrop]): le copie che
-     * un velo d'aiuto illumina portano il loro arancione.
+     * Col vetro il glifo ha un colore fisso, anche da premuto (nota F dell'utente sul giro della
+     * 4.25): sul vetro l'inchiostro dell'accento non regge il contrasto. Solo per il FAB vero,
+     * quello con uno sfondo da sfocare ([backdrop]).
      */
     val glassInk = backdrop != null && LocalPillLook.current.fill == PillFill.GLASS
-    // ⚠️ Since 4.34 a glass colour of his picks its own ink (answer A1): see [ownGlassInk].
+    // Un colore del vetro scelto dall'utente sceglie il proprio inchiostro (risposta A1): vedi
+    // [ownGlassInk].
     val segno = if (glassInk) ownGlassInk() ?: (if (light) FAB_GLASS_INK_LIGHT else FAB_GLASS_INK_DARK)
     else lerp(ink, aivOnAccent(light), tinta.value)
     /*
-     * ⚠️ **I due simboli stanno uno sopra l'altro in una scatola sola**, e la scatola si misura
-     * sul più grande: così il tasto non si rimisura mentre la dissolvenza va, e il glifo che sta
-     * uscendo non trascina il posto di quello che entra.
+     * I due simboli sono uno sopra l'altro in una scatola sola, misurata sul più grande: il tasto
+     * non si rimisura durante la dissolvenza.
      */
     val simboli = @Composable { descrizione: String? ->
         Box(contentAlignment = Alignment.Center) {
@@ -1896,20 +1344,15 @@ fun TapHoldFab(
                 }
             ) {
                 Icon(
-                    imageVector = Icons.Default.Close,
-                    // ⚠️ Muta: a parlare è il glifo dell'app, e due descrizioni sullo stesso
-                    // tasto dànno due voci per un tasto solo.
+                    imageVector = Glyphs.Material.Close,
+                    // Muta: a parlare è il glifo dell'app.
                     contentDescription = null,
                     modifier = Modifier.size(CHIUDI_LATO)
                 )
             }
         }
     }
-    /*
-     * ⚠️ **Il rimbalzo sta sul nodo che contiene tutto**, fondo e simboli: è il tasto che
-     * rimbalza, e scalare il solo fondo lascerebbe il glifo fermo in mezzo a una piastrella che
-     * si muove.
-     */
+    /* Il rimbalzo è sul nodo che contiene fondo e simboli: rimbalza il tasto intero. */
     val lato = if (round) PILL_KEY else FAB_SIZE
     val forma = if (round) CircleShape else RoundedCornerShape(FAB_CORNER)
     val tasto = @Composable { muto: Boolean ->
@@ -1922,15 +1365,13 @@ fun TapHoldFab(
                     scaleY = k
                 }
                 /*
-                 * ⚠️⚠️ **IL FONDO LO DIPINGE `buttonFill`, DALLA `4.10`, ED È SUA** (nota E del
-                 * giro della `4.04`: 'Aspetto dei pulsanti principali' *vale anche per il FAB*):
-                 * pieno, all'80% o di vetro, come le pillole. La `Surface` resta per il colore
-                 * del contenuto e per la forma dell'increspatura, e il suo fondo è trasparente.
+                 * Il fondo lo dipinge `buttonFill`: 'Aspetto dei pulsanti principali' vale anche
+                 * per il FAB (nota E dell'utente sul giro della 4.04). La `Surface` resta per il
+                 * colore del contenuto e la forma dell'increspatura, con fondo trasparente.
                  */
                 .buttonFill(if (lifted) null else backdrop, fondo, forma)
-                // ⚠️ Da staccato il FAB non prende i tocchi ([untouchable]), quindi non è
-                // più un comando: annunciarlo darebbe un tasto che il lettore di schermo trova e
-                // che non fa niente.
+                // Staccato, il FAB non prende i tocchi ([untouchable]): il lettore di schermo non
+                // deve annunciarlo.
                 .then(if (muto) Modifier.clearAndSetSemantics { } else Modifier),
             shape = forma,
             color = Color.Transparent,
@@ -1953,27 +1394,11 @@ fun TapHoldFab(
     }
 
     /*
-     * ⚠️⚠️ **IL FAB DICHIARA QUANTO OCCUPA DEL FONDO DELLO SCHERMO, COSÌ LA NOTIFICA NON GLI FINISCE
-     * SOPRA** (segnalazione dell'utente, punto A1 del giro della `2.23`): il perché a scansarsi sia
-     * la notifica e non questo tasto vive su [Modifier.aboveFoot].
-     * ⚠️⚠️ **DALLA `2.25` DICHIARA UN FIANCO E NON UNA FASCIA, ED È IL SUO RISCONTRO** (giro della
-     * `2.24`, voce `avviso-fab`, e risposta `stringe` a `d-avviso-forma`): la `2.24` faceva salire
-     * la notifica sopra di lui, e lui ha chiesto che si stringa e resti in fondo, perché *di
-     * fianco* al FAB lo spazio c'è.
-     * ⚠️⚠️ **DA CHE PARTE STA SI MISURA E NON SI LEGGE DA UNA PREFERENZA**: il nodo sa dov'è nella
-     * finestra, quindi il lato si ricava dal suo centro e la larghezza da occupare è il pezzo che
-     * lo separa dal bordo, margine compreso. Leggendo `fabSide` ci sarebbero due posti a decidere
-     * dov'è il FAB, e il giorno che uno dei due cambia la notifica si stringerebbe dalla parte
-     * sbagliata.
-     * ⚠️ **Vive QUI e non nei due chiamanti**, così un FAB nuovo lo dichiara per costruzione: è lo
-     * stesso criterio per cui `lowered()` si porta dietro il velo, e per cui l'uscita verso una
-     * schermata senza FAB la legge questa funzione invece dei suoi chiamanti.
-     * ⚠️ **Una chiave per ogni FAB in scena**: durante la dissolvenza fra due schermate ce ne sono
-     * due, e con una chiave sola il secondo cancellerebbe la misura del primo.
-     * ⚠️⚠️ **E DALLA `2.86` DICHIARA ANCHE FIN DOVE ARRIVA IN ALTEZZA**, contato dal bordo di sotto
-     * della finestra come la scheda della selezione conta il suo: è quello che dice alla notifica
-     * che sta scendendo **quando** entra nella fascia di questo tasto (il perché su
-     * [Modifier.aboveFoot]).
+     * ⚠️ **Il FAB dichiara quanto occupa del fondo dello schermo** ([FootStage]), così la notifica
+     * non gli finisce sopra (vedi [Modifier.aboveFoot]): un fianco, la sua altezza e il suo centro.
+     * Il lato si misura dalla posizione nella finestra, non da `fabSide`, per non avere due posti
+     * che decidono dov'è il FAB. È qui, così ogni FAB lo dichiara per costruzione, con una chiave
+     * per FAB: durante la dissolvenza fra due schermate sono due.
      */
     val misura = Modifier.declaresFoot()
 
@@ -1982,38 +1407,20 @@ fun TapHoldFab(
         return
     }
     /*
-     * ⚠️ **Il posto resta occupato da una scatola della stessa misura**, e non è un dettaglio:
-     * una finestra non occupa spazio nel genitore, quindi senza questa scatola il riquadro si
-     * stringerebbe e il menu, che si ancora a lui, salterebbe altrove proprio mentre si apre.
-     * ⚠️ **`Alignment.TopStart` mette la finestra sull'angolo dell'ancora**, cioè esattamente
-     * dove il FAB sarebbe stato: il FAB non si muove, cambia solo la finestra che lo
-     * disegna.
+     * ⚠️ **Il posto resta occupato da una scatola della stessa misura**: una finestra non occupa
+     * spazio nel genitore, e senza la scatola il menu, ancorato al FAB, salterebbe altrove.
+     * `Alignment.TopStart` mette la finestra dove il FAB sarebbe stato.
      *
-     * ⚠️⚠️ **IL SOSIA C'È SOLO FINCHÉ LA FINESTRA NON DISEGNA, DALLA `1.68`, ED È UNA SUA
-     * ISTRUZIONE** (giro della `1.67`: *a menu aperto, deve esistere SOLO il FAB ricolorato SOPRA
-     * la sfocatura (se presente); nel livello della sfocatura non dev'esserci nessun FAB*). Prima
-     * il sosia restava per tutto il tempo, e con la sfocatura accesa si vedeva un FAB sfocato
-     * dietro quello nitido: due FAB invece di uno.
-     * ⚠️⚠️ **MA NON SI PUÒ TOGLIERE DEL TUTTO, o torna il lampo della `1.46`** (*il tastino FAB
-     * fa un flash*): passare da 'disegnato qui' a 'disegnato in una finestra sua' vuol dire
-     * togliere un nodo e chiedere al gestore delle finestre di aggiungerne una, e le due cose non
-     * capitano nello stesso fotogramma. Per quel fotogramma il FAB non ci sarebbe da nessuna
-     * parte. Quindi il sosia riempie **solo** quel buco, e se ne va appena la finestra ha
-     * disegnato.
-     * ⚠️ **`withFrameNanos` e non un semplice effetto**: un `DisposableEffect` dentro il `Popup`
-     * si esegue quando la sua composizione finisce, che è prima che quella finestra abbia
-     * disegnato; aspettare un fotogramma è la cosa più corta che garantisca che ci sia qualcosa
-     * da vedere sopra.
-     * ⚠️ **IL SOSIA NON È UNA `Surface`, e non è pigrizia**: una `Surface` di Material si mangia i
-     * tocchi (ha un `pointerInput` suo anche senza `onClick`), e qui sotto i tocchi devono
-     * **passare**, perché è il velo trasparente della schermata a raccoglierli e a chiudere il
-     * menu. È la chiusura al tocco del giro della `1.06`, la stessa che [untouchable] protegge
-     * dall'altra parte.
-     *
-     * ⚠️⚠️ **IL SOSIA SI CENTRA CON `align` E NON COL `contentAlignment` DELLA SCATOLA, dalla
-     * `1.62`**: un `Popup` emette un nodo di misura zero e ricava da **dove quel nodo atterra** il
-     * rettangolo a cui ancorarsi. Un `contentAlignment` centrato sposterebbe anche quel nodo, e la
-     * finestra del FAB vero nascerebbe mezza scatola più in là.
+     * ⚠️ **Il sosia c'è solo finché la finestra non disegna**: a menu aperto deve esistere solo il
+     * FAB sopra la sfocatura (istruzione dell'utente). Ma non si può togliere del tutto: togliere
+     * il nodo e aggiungere la finestra non avviene nello stesso fotogramma, e il FAB lampeggerebbe.
+     * Si aspetta un fotogramma con `withFrameNanos`: un effetto dentro il `Popup` scatta prima
+     * che la finestra abbia disegnato.
+     * ⚠️ **Il sosia non è una `Surface`**, che si prende i tocchi anche senza `onClick`: qui i
+     * tocchi devono passare alla schermata, che chiude il menu (come [untouchable] dall'altra
+     * parte).
+     * ⚠️ **Il sosia si centra con `align`, non col `contentAlignment` della scatola**: il `Popup`
+     * si ancora a dove atterra il suo nodo di misura zero, e un `contentAlignment` lo sposterebbe.
      */
     var suo by remember { mutableStateOf(false) }
     Box(modifier = Modifier.size(lato)) {
@@ -2031,10 +1438,8 @@ fun TapHoldFab(
                 contentAlignment = Alignment.Center
             ) {
                 /*
-                 * ⚠️ **La tinta si dà col `CompositionLocal` e non a mano**: qui non c'è la
-                 * `Surface` che nel FAB vero porta `contentColor`, e la fessura disegna un
-                 * `Icon` che quel colore lo legge da lì. Passarlo come parametro vorrebbe dire
-                 * chiedere a chi riempie la fessura di saperlo, e i due disegni divergerebbero.
+                 * La tinta si dà col `CompositionLocal`, come fa la `Surface` del FAB vero: la
+                 * fessura disegna un `Icon` che il colore lo legge da lì.
                  */
                 CompositionLocalProvider(LocalContentColor provides segno) { simboli(null) }
             }
@@ -2054,10 +1459,8 @@ fun TapHoldFab(
 /**
  * Dichiara a [FootStage] quanto del fondo dello schermo occupa il nodo: il fianco e l'altezza.
  *
- * ⚠️⚠️ **È LA MISURA CHE [TapHoldFab] SI FACEVA DA SÉ, ESTRATTA NELLA `4.00`**: dalla pillola del
- * telefono in verticale i tasti in fondo sono due, e la notifica deve scansare l'uno e l'altro
- * con lo stesso conto. Il perché del fianco, dell'altezza e della chiave per ogni tasto vive
- * nella nota dentro [TapHoldFab].
+ * La usano tutti i tasti in fondo, il FAB e quelli della pillola: la notifica li scansa con lo
+ * stesso conto. Il perché è nella nota dentro [TapHoldFab].
  */
 @Composable
 fun Modifier.declaresFoot(): Modifier {
@@ -2074,9 +1477,9 @@ fun Modifier.declaresFoot(): Modifier {
             if (destra) finestra.width - da else fino,
             destra,
             tall = finestra.height - dove.y.roundToInt(),
-            // ⚠️ From the bottom of the composition's root, not of the window: the notice is laid
-            // at the root's bottom, and the two differ wherever the root does not fill the window
-            // (on the bench by 8 dp, measured).
+            // ⚠️ Dal fondo della radice della composizione, non della finestra: la notifica è
+            // posata in fondo alla radice, e le due differiscono dove la radice non riempie la
+            // finestra (sul banco di 8 dp, misurato).
             mid = it.findRootCoordinates().size.height -
                 (it.positionInRoot().y + it.size.height / 2f).roundToInt()
         )
@@ -2084,23 +1487,15 @@ fun Modifier.declaresFoot(): Modifier {
 }
 
 /**
- * Rende la finestra che ospita questa vista **trasparente al tocco**: le dita ci passano
- * attraverso e arrivano a quello che sta sotto.
+ * Rende la finestra che ospita questa vista trasparente al tocco: le dita arrivano a quello che
+ * è sotto.
  *
- * ⚠️⚠️ **SENZA QUESTA RIGA IL FAB STACCATO ROMPEREBBE LA CHIUSURA DEL MENU, dalla 1.06**
- * (*tutti i menu di tutti i FAB devono andarsene se si tocca un punto qualsiasi fuori dal
- * popup, incluso il FAB stesso*). Quel tocco oggi lo raccoglie il velo trasparente della
- * schermata, che vive nella finestra dell'app: un FAB in una finestra **più alta** se lo
- * prenderebbe per primo e il menu resterebbe aperto, con l'aggravante che il suo `onTap` lo
- * riaprirebbe subito dopo. È il lampeggio che la `1.06` aveva chiuso.
- * ⚠️ **Quindi il FAB staccato è solo da guardare**, ed è giusto così: mentre il suo menu
- * è aperto l'unica cosa che il suo tocco deve fare è chiudere quel menu, e a chiuderlo pensa
- * chi lo faceva già.
- * ⚠️ **Si passa dai `LayoutParams` della radice**, come il velo dei popup: un `Popup` non ha
- * un `Window` suo, e la sua finestra sono i parametri della vista che Compose ha aggiunto al
- * gestore. La nota per esteso sta in `Veil.kt`.
- * ⚠️ **Niente da rimettere a posto all'uscita**: la finestra muore col popup, e questa esiste
- * solo finché il FAB sta per conto suo.
+ * ⚠️ **Senza, il FAB staccato impedirebbe la chiusura del menu**: un tocco fuori dal menu, FAB
+ * compreso, deve chiuderlo (richiesta dell'utente), e lo raccoglie la schermata nella finestra
+ * dell'app. Un FAB in una finestra più alta lo prenderebbe per primo, e il suo `onTap` riaprirebbe
+ * il menu. Staccato, il FAB è solo da guardare.
+ * Si passa dai `LayoutParams` della radice: un `Popup` non ha un `Window` suo (vedi `Veil.kt`).
+ * All'uscita non c'è niente da rimettere: la finestra si chiude col popup.
  */
 @Composable
 private fun untouchable() {
@@ -2118,28 +1513,13 @@ private fun untouchable() {
 }
 
 /**
- * Il **marchio dell'app** sul FAB, al posto dei tre puntini.
+ * Il marchio dell'app sul FAB, centrato otticamente (richiesta dell'utente).
  *
- * ⚠️⚠️ **RICHIESTA DELL'UTENTE, giro della `1.54`** (*sostituisci i tre pallini del FAB
- * principale con il glifo dell'app ... Il glifo è da centrare OTTICAMENTE*). I tre puntini non
- * sono spariti: sono scesi sul FAB del cestino, dove c'era un disco ancora più generico.
- *
- * ⚠️⚠️ **DALLA `4.30` IN ORIZZONTALE NON VALE PIÙ IL BARICENTRO** (nota C del giro della `4.25`:
- * *il FAB ha il glifo fuori centro in orizzontale ... è il triangolo a dover essere centrato, e il
- * tondo di conseguenza*): lo spostamento a destra del 5% qui sotto è caduto, e resta quello
- * verticale. Quello che segue racconta la misura di allora.
- * ⚠️⚠️ **CENTRATO OTTICAMENTE VOLEVA DIRE CHE IL SUO BARICENTRO STA AL CENTRO, e i due numeri
- * sono MISURATI e non scelti**: reso il disegno in Chromium a 700 x 600 e pesato l'inchiostro
- * pixel per pixel, il baricentro cade al 5,0% della larghezza a **sinistra** del centro del
- * riquadro e al 9,4% dell'altezza **sotto** di lui. Lo spostamento è quello, cambiato di segno.
- * - **Perché cade lì, e conviene saperlo**: la A è un triangolo, quindi ha la massa in basso, e
- *   il disco solare sta in alto a **sinistra**. Sono due cose che tirano da parti diverse, e a
- *   occhio non si indovinano.
- * - ⚠️ **La misura si rifà se il disegno cambia**: `ic_aiv_mark.xml` è l'inchiostro nudo (la
- *   tela è esattamente il riquadro dei due tracciati), quindi basta rendere quel file e pesarlo.
- *
- * ⚠️ **Si dà la larghezza e l'altezza segue**, come nella barra delle info: il glifo è 70 x 60,
- * e una misura sola lo schiaccerebbe.
+ * In orizzontale è la A a essere al centro (nota C dell'utente sul giro della 4.25), e la A occupa
+ * tutta la larghezza della tela. In verticale vale il baricentro dell'inchiostro, misurato
+ * rendendo il disegno a 700 x 600: cade al 9,4% dell'altezza sotto il centro, perché la A ha la
+ * massa in basso ([MARK_DY]). Se `ic_aiv_mark.xml` cambia, la misura si rifà.
+ * Si dà la larghezza e l'altezza segue: il glifo è 70 x 60.
  */
 @Composable
 internal fun Marchio(descrizione: String?) {
@@ -2151,64 +1531,47 @@ internal fun Marchio(descrizione: String?) {
         contentDescription = descrizione,
         modifier = Modifier
             .offset(
-                // ⚠️ In orizzontale è la A a stare al centro, nel tondo e dalla `4.30` anche nel
-                // quadrato (nota C del giro della `4.25`: *è il triangolo a dover essere
-                // centrato, e il tondo di conseguenza*): la A occupa tutta la larghezza della tela.
+                // In orizzontale non si sposta: la A, che è al centro, occupa tutta la tela.
                 x = 0.dp,
                 y = if (tondo) alto * MARK_DY_ROUND - MARK_LIFT_ROUND else alto * MARK_DY
             )
             .size(width = largo, height = alto)
-            // The bench finds the mark by this, wherever it is drawn (PillolaTest).
+            // Il banco trova il marchio da qui, ovunque sia disegnato (`PillolaTest`).
             .testTag(MARK_TAG)
     )
 }
 
-/** The test tag of [Marchio]. */
+/** Il tag di prova di [Marchio]. */
 internal const val MARK_TAG = "aiv-mark"
 
 /**
- * Se il glifo è disegnato nel tasto tondo della pillola a scomparsa ([PhonePill.SLIDE]): lo forniscono
- * i due posti che disegnano quel tondo, [TapHoldFab] (la copia dell'onboarding) e `SlidePill` (il
- * tasto vero). ⚠️ Nella `4.02` lo forniva solo il primo, e sul telefono non cambiava niente.
+ * Se il glifo è disegnato nel tasto tondo della pillola a scomparsa ([PhonePill.SLIDE]): lo
+ * forniscono i due posti che disegnano quel tondo, [TapHoldFab] (la copia dell'onboarding) e
+ * `SlidePill` (il tasto vero).
  */
 internal val LocalRoundKey = compositionLocalOf { false }
 
-/**
- * Quanto è largo il marchio nel tasto tondo: 22dp contro 24, cioè l'8% in meno.
- *
- * ⚠️ **Sua richiesta, giro della `4.01`** (*il glifo dev'essere un 5-10% più piccolo*): il numero
- * sta in mezzo alla forbice che ha dato.
- */
+/** Quanto è largo il marchio nel tasto tondo: 22dp, l'8% in meno (richiesta dell'utente). */
 private val MARK_WIDE_ROUND = 22.dp
 
 /**
- * Lo spostamento del marchio nel tasto tondo: è la **A** a stare al centro, e il disco la segue.
- *
- * ⚠️⚠️ **NEL TONDO NON VALE IL BARICENTRO DEL QUADRATO** (sua richiesta, giro della `4.01`: *è il
- * TRIANGOLO del glifo a dover essere centrato sui due assi rispetto al tondo contenitore*). Il
- * riquadro della A, letto dal tracciato di `ic_aiv_mark.xml`, va da 0 a 70 in larghezza (cioè
- * tutta la tela, quindi in orizzontale non si sposta niente) e da 6 a 60 in altezza: il suo
- * centro cade a 33 su 60, il 5% sotto il centro della tela, e lo spostamento è quello cambiato
- * di segno. Lettura dichiarata nel DF: centrata vuol dire il centro del riquadro della A.
+ * Lo spostamento del marchio nel tasto tondo, dove è centrata la A sui due assi (richiesta
+ * dell'utente). Il riquadro della A in `ic_aiv_mark.xml` va da 6 a 60 in altezza: il suo centro
+ * è il 5% sotto quello della tela.
  */
 private const val MARK_DY_ROUND = -0.050f
 
 /**
- * Quanto il marchio sale ancora nel tondo, oltre al centro geometrico della A.
- *
- * ⚠️ **È una correzione ottica, sua** (nota del giro della `4.04`: *l'allineamento verticale
- * (ottico) non è ancora a posto: prova a spostare in su di 1,5dp*). Il riquadro della A è centrato,
- * ma il triangolo ha la massa in basso, quindi a occhio cade sotto il centro.
+ * Quanto il marchio sale ancora nel tondo: una correzione ottica dell'utente, perché la A ha la
+ * massa in basso.
  */
 private val MARK_LIFT_ROUND = 1.5.dp
 
 /**
- * Quanto è largo il marchio sul FAB.
- *
- * ⚠️ **24dp è la scatola che avevano i tre puntini**, cioè la misura standard di un glifo di
- * Material: il FAB è 40dp, quindi restano otto punti d'aria per lato. Chi lo volesse più
- * discreto muove questo numero e basta: l'altezza e lo spostamento lo seguono.
+ * Quanto è largo il marchio sul FAB: 24dp, la misura standard di un glifo di Material su un FAB
+ * da 40. Altezza e spostamento lo seguono.
  */
 private val MARK_WIDE = 24.dp
 
+/** Lo spostamento verticale del marchio sul FAB quadrato: vedi [Marchio]. */
 private const val MARK_DY = -0.094f

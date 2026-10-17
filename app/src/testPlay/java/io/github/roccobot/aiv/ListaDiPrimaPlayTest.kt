@@ -4,12 +4,13 @@ import android.app.Application
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import java.time.Duration
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
-import java.time.Duration
 
 /**
  * La lista della schermata nuova nella `6.27` (rilievo C30 della revisione della 6.25): una
@@ -28,6 +29,10 @@ import java.time.Duration
  */
 @RunWith(AndroidJUnit4::class)
 class ListaDiPrimaPlayTest {
+
+    /** I modelli costruiti dalle prove, chiusi alla fine di ognuna (`ModelliChiusi`). */
+    @get:Rule
+    val modelli = ModelliChiusi()
 
     private val main get() = shadowOf(Looper.getMainLooper())
 
@@ -54,7 +59,7 @@ class ListaDiPrimaPlayTest {
      */
     @Test
     fun `la ricerca lasciata non sostituisce la lista nuova`() {
-        val model = ViewerViewModel(ApplicationProvider.getApplicationContext<Application>())
+        val model = modelli.nuovo(ApplicationProvider.getApplicationContext<Application>())
         aspetta { model.settings != null }
         assertNotNull("Le impostazioni non sono arrivate", model.settings)
 

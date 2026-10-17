@@ -2,7 +2,6 @@
 <!-- id. Tradotto da AIV: la fonte di verità resta values/strings.xml, e ogni chiave nuova va aggiunta anche qui. -->
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
-    <string name="app_short_name">AIV</string>
     <string name="no_image">Tidak ada yang bisa ditampilkan</string>
     <string name="open_failed">Berkas ini tidak dapat dibuka</string>
     <string name="open_cleartext">Alamat tanpa enkripsi (http): Android memblokirnya, dan lewat https juga tidak menjawab</string>
@@ -21,11 +20,7 @@
     <string name="save_name_date">Tanggal</string>
     <string name="menu_convert">Ekspor dan konversi</string>
     <string name="convert_format">Format</string>
-    <string name="convert_jpeg">JPEG</string>
-    <string name="convert_png">PNG</string>
-    <string name="convert_webp">WebP</string>
     <string name="convert_webp_lossless">WebP tanpa kehilangan</string>
-    <string name="convert_quality">Kualitas</string>
     <string name="convert_quality_at">Kualitas\u0020\u0020\u0020%1$d%%</string>
     <string name="convert_percent">%1$d%%</string>
     <string name="convert_pixels">%1$d x %2$d</string>
@@ -35,7 +30,7 @@
     <string name="convert_elsewhere">Format lain</string>
     <string name="convert_elsewhere_desc">Android hanya bisa menulis format di atas. Untuk selebihnya ada layanan berikut, yang terbuka di peramban: gambar dipilih di sana, dari memori ponsel.</string>
     <string name="convert_clean">Bersihkan</string>
-    <string name="convert_clean_why">Menghapus header, metadata, komentar, skrip, C2PA, dan sisa-sisa editor, yaitu data paling berat (sampai 99% isi berkas) dan jarang dibutuhkan.</string>
+    <string name="convert_clean_why" formatted="false">Menghapus header, metadata, komentar, skrip, C2PA, dan sisa-sisa editor, yaitu data paling berat (sampai 99% isi berkas) dan jarang dibutuhkan.</string>
     <string name="convert_clean_keeps">Isi gambar tidak diubah (jalur, bentuk, garis, gambar, teks…): ilustrasinya tetap utuh 100%.</string>
     <string name="convert_clean_c2pa">⚠️ PERHATIAN: asal-usul C2PA juga hilang, yaitu bagian yang menyebut siapa yang membuat berkas. Simpan salinan jika kamu membutuhkannya.</string>
     <string name="clean_now">Bersihkan</string>
@@ -45,11 +40,8 @@
     <string name="clean_not_svg">Berkas ini bukan SVG yang bisa dibaca.</string>
     <string name="convert_open">Buka</string>
     <string name="convert_export">Ekspor</string>
-    <string name="convert_ezgif">EzGif</string>
     <string name="convert_ezgif_why">Mengonversi dari dan ke hampir apa saja, termasuk GIF animasi.</string>
-    <string name="convert_squoosh">Squoosh</string>
     <string name="convert_squoosh_why">Buatan Google, bekerja di peramban: gambar tidak diunggah ke mana pun.</string>
-    <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">Daftar format terpanjang, termasuk AVIF dan TIFF.</string>
     <string name="toast_image_copied">Gambar disalin</string>
     <string name="toast_name_copied">Nama berkas disalin</string>
@@ -106,7 +98,6 @@
     <string name="front_tint">Warna header</string>
     <string name="front_tint_none">Warna bawaan</string>
     <string name="folder_cover">Pilih sampul</string>
-    <string name="folder_cover_auto">Sampul bawaan</string>
     <string name="folder_cover_pick">Pilih sampul untuk \'%1$s\'</string>
     <string name="folder_cover_done">Sampul diperbarui</string>
     <string name="folder_cover_fail">Gambar ini tidak bisa dipakai sebagai sampul</string>
@@ -165,7 +156,7 @@
     <string name="settings_info_position">Posisi</string>
     <string name="settings_zoom_menu">Zoom di menu penampil</string>
     <string name="settings_zoom_menu_desc">Menambahkan \'Sesuaikan ke layar\' dan \'100%\' ke menu konteks penampil.</string>
-    <string name="hint_zoom_tap">Zoom cepat: ketuk dua kali gambar agar pas di layar, ketuk dua kali lagi untuk piksel asli. Terus ketuk untuk berganti antara pas dan 100%.</string>
+    <string name="hint_zoom_tap" formatted="false">Zoom cepat: ketuk dua kali gambar agar pas di layar, ketuk dua kali lagi untuk piksel asli. Terus ketuk untuk berganti antara pas dan 100%.</string>
     <string name="hint_ext_warn">⚠️ Mengubah ekstensi berkas tidak sama dengan mengubah format: untuk itu ada \'Ekspor dan konversi\'.\n\n⚠️ Kalau gambar atau video diberi ekstensi yang bukan milik berkas media, item itu akan hilang dari tampilan kisi dan daftar.</string>
     <string name="settings_anim_counter">Penghitung bingkai</string>
     <string name="settings_anim_counter_desc">Muncul di bilah kontrol gambar bergerak.</string>
@@ -185,9 +176,9 @@
     <string name="folders_permission_media">Mendaftar folder memerlukan akses ke gambar dan video.</string>
     <string name="folders_none">Tidak ada folder yang berisi apa pun untuk ditampilkan.</string>
     <string name="folders_tablet_pick">Pilih folder dari bilah navigasi</string>
-    <string name="folders_rail_search">Search in folders</string>
-    <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move the folder list</string>
+    <string name="folders_rail_search">Cari di folder</string>
+    <string name="folders_rail_search_in">Cari di %1$s</string>
+    <string name="folders_rail_move">Pindahkan daftar folder</string>
     <string name="hub_open">Lainnya</string>
     <string name="hub_view_list">Tampilan daftar</string>
     <string name="hub_view_grid">Tampilan kisi</string>
@@ -211,7 +202,6 @@
     <string name="show_folder_desc">Folder akan tampil normal lagi di antara folder pada tampilan kisi dan daftar.</string>
     <string name="hide_folder_do">Sembunyikan</string>
     <string name="settings_hidden">Folder tersembunyi</string>
-    <string name="settings_hidden_desc">Tekan lama sebuah folder untuk menyembunyikannya. Folder ini tidak lagi muncul di daftar, tetapi di ponsel tetap utuh.</string>
     <string name="settings_hidden_show">Tampilkan</string>
     <string name="search_hint">Cari pada nama berkas</string>
     <string name="search_clear">Bersihkan</string>
@@ -273,8 +263,6 @@
     <string name="facts_duration">Durasi</string>
     <string name="facts_colour_grey">Skala abu-abu</string>
     <string name="facts_colour_indexed">Warna terindeks</string>
-    <string name="facts_colour_rgb">RGB</string>
-    <string name="facts_colour_rgba">RGBA</string>
     <string name="facts_colour_bits">%1$s %2$d bit</string>
     <string name="facts_colour_channel">%1$d bit/kanal</string>
     <string name="facts_colour_alpha">dengan transparansi</string>
@@ -363,7 +351,6 @@
     <string name="settings_facts_down">Turunkan</string>
     <string name="settings_group_look">Tampilan</string>
     <string name="settings_group_viewer">Penampil</string>
-    <string name="settings_group_input">Kendali dan indikator</string>
     <string name="settings_group_files">Pengelolaan file</string>
     <string name="settings_group_browse">File dan folder</string>
     <string name="settings_group_start">Permulaan</string>
@@ -386,9 +373,6 @@
     <string name="settings_thumbs_gen_title">Membuat miniatur</string>
     <string name="settings_thumbs_gen_done">Miniatur berhasil dibuat.</string>
     <string name="settings_hidden_none">Tidak ada folder tersembunyi</string>
-    <plurals name="settings_hidden_count">
-        <item quantity="other">%1$d folder</item>
-    </plurals>
     <plurals name="settings_facts_count">
         <item quantity="other">%1$d data ditampilkan</item>
     </plurals>
@@ -465,7 +449,6 @@
     <string name="look_vibrance">Vibrance</string>
     <string name="look_filter">Filter B/W</string>
     <string name="look_bw">Hitam putih</string>
-    <string name="look_mix">HSL</string>
     <string name="look_hue">Rona</string>
     <string name="look_lum">Luminans</string>
     <string name="look_band_red">Merah</string>
@@ -490,7 +473,6 @@
     <string name="look_grain_lift">Sorotan</string>
     <string name="look_vignette_feather">Pelunakan</string>
     <string name="look_tone">Kurva</string>
-    <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Kurva nada</string>
     <string name="look_target">Tertarget</string>
     <string name="look_auto">Otomatis</string>
@@ -736,8 +718,8 @@
     <string name="folder_add">Tambah folder</string>
     <string name="folder_authorize">Izinkan folder</string>
     <string name="folder_authorize_title">Tambahkan ke folder yang ditampilkan</string>
-    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
-    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_list_remove_title">Yakin hapus folder ini dari daftar?</string>
+    <string name="folder_list_remove_do">Hapus</string>
     <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">Cabut izin</string>
     <string name="folder_remove_desc">Hapus folder ini dari daftar yang diizinkan? Isinya akan hilang dari mode kisi dan daftar.</string>

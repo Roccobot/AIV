@@ -44,6 +44,11 @@ vivono in disegni già approvati, e toglierli è una decisione di chi li ha fatt
 ricava da nessuna misura, quindi vive scritta qui: il verificatore lo **dichiara** escluso invece
 di contarne le punte, perché un numero accanto al suo nome si legge come un lavoro da fare.
 
+⚠️⚠️ **E DALLA `6.30` SONO ESCLUSI ANCHE I GLIFI DI MATERIAL PORTATI COSÌ COME SONO** (`ic_m_*`,
+scelta H1a dell'utente): sono entrati in `res/` quando la libreria delle icone è uscita dalle
+dipendenze, col disegno identico, e un raccordo li cambierebbe. Li riconosce il commento
+`<!-- Material: ... -->` in testa al file, e l'uscita li dichiara esclusi, come il logo.
+
 Modi:
   icon-round.py                elenca quante punte vive ha ogni disegno di `res/drawable`
   icon-round.py -v [FILE ...]  scrive anche dove sono, con l'angolo e il raggio da usare
@@ -51,6 +56,7 @@ Modi:
 import importlib.util
 import math
 import pathlib
+import re
 import sys
 import xml.etree.ElementTree as ET
 
@@ -76,6 +82,17 @@ CORTO = 1e-3
 # ⚠️⚠️ **IL LOGO PERSONALE NON SI TOCCA MAI, ED È UNA SUA REGOLA**: non è un'esclusione tecnica,
 # quindi non si ricava da nessuna misura e resta scritta qui, come in testa al file stesso.
 INTOCCABILI = {'ic_tian.xml'}
+# ⚠️⚠️ **I GLIFI DI MATERIAL PORTATI NEL PROGETTO NON SI RACCORDANO, ED È UNA SUA SCELTA** (H1a,
+# 6.30): quando la libreria delle icone è uscita, i glifi che l'app usava sono entrati in `res/`
+# col disegno identico, a zero pixel. Raccordarli vorrebbe dire cambiarli. Si riconoscono dal
+# commento che ne dichiara l'origine, in testa al file, e non dal nome: è il commento a dire che il
+# disegno è di Material così com'è.
+RE_MATERIAL = re.compile(r'<!-- Material: Icons\.[A-Za-z.]+ [0-9.]+ -->')
+
+
+def di_material(percorso):
+    """Se il file è un glifo di Material portato così com'è, col commento della sua origine."""
+    return RE_MATERIAL.search(percorso.read_text(encoding='utf-8')) is not None
 # ⚠️⚠️ **QUANTO LONTANO PUÒ CADERE UN GIRO DAL PROPRIO PUNTO DI PARTENZA E RESTARE CHIUSO**: i
 # tracciati sono scritti a due decimali, quindi un giro arrotondato torna a un centesimo di unità
 # dal punto della `M` e la chiusura implicita diventa una rettina che svolta. Misurato su
@@ -262,7 +279,15 @@ def tangenti_arco(p0, n):
     return tang(t1 + dt), tang(t1)
 
 
-def versi(sotto):
+def chiuso(ps, scala):
+    """Se il giro torna sul proprio punto di partenza, con la tolleranza riportata alla tela.
+
+    Un valore in un posto solo dalla `6.30` (rilievo G27): `versi` usava `CHIUSA` senza la scala e
+    `spigoli` con, e su una tela più grande di 24 i due davano risposte diverse sullo stesso giro."""
+    return len(ps) >= 3 and math.hypot(ps[-1][0] - ps[0][0], ps[-1][1] - ps[0][1]) < CHIUSA * scala
+
+
+def versi(sotto, scala):
     """Per ogni vertice: la tangente con cui ci si arriva e quella con cui si riparte.
 
     ⚠️⚠️ **LE CURVE SMOOTH (`S` E `T`) SONO TANGENTI PER COSTRUZIONE, E TRATTARLE COME LE ALTRE
@@ -300,7 +325,7 @@ def versi(sotto):
             fuori.append(d)
     # ⚠️ Un giro che torna sul proprio punto di partenza ha DUE vertici sullo stesso punto: la
     # chiusura è lunga zero, e senza questa riga lo spigolo vero fra i due sparisce.
-    if len(ps) >= 3 and math.hypot(ps[-1][0] - ps[0][0], ps[-1][1] - ps[0][1]) < CHIUSA:
+    if chiuso(ps, scala):
         dentro[0] = dentro[-1]
         fuori[0] = fuori[1]
     return dentro, fuori
@@ -326,8 +351,8 @@ def spigoli(sotto, scala):
     if len(ps) < 3:
         return []
     verso = 1.0 if area(ps) > 0 else -1.0
-    entra, esce = versi(sotto)
-    doppio = math.hypot(ps[-1][0] - ps[0][0], ps[-1][1] - ps[0][1]) < CHIUSA * scala
+    entra, esce = versi(sotto, scala)
+    doppio = chiuso(ps, scala)
     fuori = []
     for i in range(len(ps)):
         if doppio and i == len(ps) - 1:
@@ -373,10 +398,18 @@ def lavora(percorso, dettaglio):
     """Guarda un file di disegno e torna quanti spigoli esterni vivi ha."""
     albero = ET.fromstring(percorso.read_text(encoding='utf-8'))
     lato = albero.get(f'{{{ANDROID}}}viewportWidth')
-    scala = float(lato) / 24.0 if lato else 1.0
+    tela = float(lato) / 24.0 if lato else 1.0
     vivi = []
-    # ⚠️ Gli elementi non portano il namespace di Android: quello è sugli ATTRIBUTI.
-    for path in albero.iter('path'):
+    for path, sopra in _check.con_gruppi(albero):
+        # ⚠️ Le misure sono in unità della griglia da 24 riportate al TRACCIATO, quindi un gruppo
+        # che scala il disegno le divide per la sua scala (rilievo G25, `6.30`: prima si usava la
+        # sola tela, e su `ic_launcher_foreground`, che scala di 0,65, raggi e tolleranze erano
+        # misurati sul disegno ingrandito).
+        scala = tela
+        for g in sopra:
+            sx = _check.numero(g, 'scaleX')
+            sy = _check.numero(g, 'scaleY')
+            scala /= math.sqrt(abs((1.0 if sx is None else sx) * (1.0 if sy is None else sy))) or 1.0
         d = path.get(f'{{{ANDROID}}}pathData')
         if not d:
             continue
@@ -402,11 +435,18 @@ def main():
     nomi = [a for a in argomenti if not a.startswith('-')]
     file = [pathlib.Path(n) for n in nomi] if nomi else sorted(DRAWABLE.glob('*.xml'))
     fuori = [f for f in file if f.name in INTOCCABILI]
-    guardati = [f for f in file if f.name not in INTOCCABILI]
+    material = [f for f in file if f.name not in INTOCCABILI and di_material(f)]
+    guardati = [f for f in file if f.name not in INTOCCABILI and f not in material]
     totale = sum(lavora(f, dettaglio) for f in guardati)
     print(f'{len(guardati)} disegni, {totale} punte vive')
     for f in fuori:
         print(f'{f.name}: escluso per regola, il logo personale non si tocca')
+    if material:
+        print(f'{len(material)} glifi di Material esclusi per regola: il disegno resta identico '
+              f'a quello della libreria (scelta H1a)')
+        if dettaglio:
+            for f in material:
+                print(f'    {f.name}')
     return 0
 
 

@@ -181,6 +181,53 @@ class SaltiTest {
     }
 
     /**
+     * **Un tocco della pillola mentre il glifo rientra non lo lascia a metà** (rilievo C22).
+     *
+     * ⚠️ I due tasti della pillola estesa chiamano `leapToward`, che alla fine alza `tick` senza
+     * passare da `pull`: il congedo annullava il rientro a metà, e il nuovo congedo usciva subito
+     * perché la fase era ancora `BACK`. Il glifo restava mezzo chevron, e il primo trascinamento,
+     * anche lento, armava il salto, contro la regola della `4.34`.
+     * ⚠️ **Le due stime a zero** fanno della corsa un tocco istantaneo: così `tick` sale dentro i
+     * 250 ms del rientro, che è il caso del difetto.
+     */
+    @Test
+    fun `un tocco durante il rientro non lascia il glifo a meta`() {
+        banco.mainClock.autoAdvance = false
+        var arm: JumpArm? = null
+        var tocca: () -> Unit = {}
+        banco.setContent {
+            val state = rememberLazyListState()
+            val a = rememberJumpArm(state = state, up = { 0f }, down = { 0f })
+            val scope = rememberCoroutineScope()
+            arm = a
+            tocca = { scope.launch { a.leapToward(1, null) }; Unit }
+            Box(Modifier.fillMaxSize().nestedScroll(a.watch)) {
+                LazyColumn(state = state, modifier = Modifier.fillMaxSize()) {
+                    items(RIGHE) { n -> Text("riga $n", modifier = Modifier.height(RIGA.dp)) }
+                }
+            }
+        }
+        banco.mainClock.advanceTimeBy(NASCITA)
+        scorri(su = true)
+        assertTrue("Dopo un lancio il tasto deve essere armato", arm!!.armed)
+
+        // Si aspetta che il rientro cominci, e lo si coglie a metà strada.
+        var attesa = 0L
+        while (arm!!.shown > 0.8f && attesa < ATTESA_RIENTRO) {
+            banco.mainClock.advanceTimeBy(FOTOGRAMMA)
+            attesa += FOTOGRAMMA
+        }
+        assertTrue("Il rientro non è cominciato", arm!!.shown in 0.05f..0.8f)
+
+        banco.runOnIdle { tocca() }
+        banco.mainClock.advanceTimeBy(FINE_RIENTRO)
+        assertEquals("Il glifo è rimasto a metà del rientro", 0f, arm!!.shown, 0.001f)
+
+        trascina()
+        assertFalse("Dopo il rientro un trascinamento lento ha armato il salto", arm!!.armed)
+    }
+
+    /**
      * **Nella schermata vera il FAB annuncia il salto solo quando il salto è quello che fa.**
      *
      * ⚠️⚠️ **MISURA IL LEGAME, che è la cosa che un chiamante può sbagliare in silenzio**: il
@@ -318,6 +365,15 @@ class SaltiTest {
     }
 }
 
+/** Un fotogramma, in millisecondi, per cogliere il rientro del glifo a metà. */
+private const val FOTOGRAMMA = 16L
+
+/** Quanto si aspetta al più che il rientro cominci: il lancio, la sua inerzia e il secondo d'attesa. */
+private const val ATTESA_RIENTRO = 8_000L
+
+/** Più del rientro intero (250 ms), perché uno ripartito arrivi in fondo. */
+private const val FINE_RIENTRO = 600L
+
 /** Quanto è alta la fascia finta della prova, in pixel. */
 private const val FASCIA = 300f
 
@@ -335,12 +391,6 @@ private const val RIGA = 48
  * misurerebbe la stima invece del meccanismo.
  */
 private const val LONTANO = 100_000f
-
-/** Quanto si lascia respirare la scena dopo un gesto, col clock fermo. */
-private const val RESPIRO = 100L
-
-/** Quanto la scena si compone prima che la prova la tocchi. */
-private const val NASCITA = 1_000L
 
 /**
  * Quanto il dito resta fermo prima di staccarsi, in millisecondi.

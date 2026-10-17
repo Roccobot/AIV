@@ -3,14 +3,14 @@ package io.github.roccobot.aiv
 import android.content.Context
 import android.content.pm.Signature
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import java.io.File
 
 /**
  * L'aggiornamento automatico di AIV GitHub (5.60, sue scelte C1 e D1): che cosa si propone e che
@@ -21,7 +21,7 @@ import java.io.File
  * qui: proporre l'APK di AIV Play, proporre una versione più vecchia, installare un file senza
  * digest, controllare due volte nello stesso giorno, accettare una firma diversa.
  */
-@RunWith(RobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 class UpdaterTest {
 
     /** La risposta dell'API per una release con i due APK, come la scrive `release.yml`. */
@@ -95,7 +95,7 @@ class UpdaterTest {
      * ⚠️ **Controprovata** senza la pulizia: tutti i file restavano.
      */
     @Test
-    fun `la cache degli aggiornamenti tiene solo quello che si può installare`() {
+    fun `la cache degli aggiornamenti tiene solo gli APK ancora installabili`() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val dir = File(context.cacheDir, "updates").apply { mkdirs() }
         val vecchia = Updater.apkName("1.00")
@@ -112,7 +112,7 @@ class UpdaterTest {
     }
 
     @Test
-    fun `AIV GitHub si aggiorna da sé`() {
+    fun `AIV GitHub si aggiorna da solo`() {
         assertTrue(Store.updates)
     }
 }

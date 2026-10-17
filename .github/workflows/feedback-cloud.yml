@@ -3,11 +3,11 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['cloud/feedback/**', 'publish/**', 'tools/feedback-cloud-check.py', 'tools/feedback-check.py', 'tools/feedback-interactive-check.py', 'tools/feedback-build.py', 'tools/feedback-page.html.in', 'tools/feedback-read*.mjs', '.github/workflows/feedback-cloud.yml']
+    paths: ['cloud/feedback/**', 'publish/**', 'tools/browser.py', 'tools/feedback-cloud-check.py', 'tools/feedback-check.py', 'tools/feedback-interactive-check.py', 'tools/feedback-build.py', 'tools/feedback-page.html.in', 'tools/feedback-read*.mjs', '.github/workflows/feedback-cloud.yml']
   # The local checks of the Worker also on a pull request, so a broken Worker is red before the
   # merge; the deploy job below never runs on one.
   pull_request:
-    paths: ['cloud/feedback/**', 'publish/**', 'tools/feedback-cloud-check.py', 'tools/feedback-check.py', 'tools/feedback-interactive-check.py', 'tools/feedback-build.py', 'tools/feedback-page.html.in', 'tools/feedback-read*.mjs', '.github/workflows/feedback-cloud.yml']
+    paths: ['cloud/feedback/**', 'publish/**', 'tools/browser.py', 'tools/feedback-cloud-check.py', 'tools/feedback-check.py', 'tools/feedback-interactive-check.py', 'tools/feedback-build.py', 'tools/feedback-page.html.in', 'tools/feedback-read*.mjs', '.github/workflows/feedback-cloud.yml']
 permissions:
   contents: read
 concurrency:
@@ -37,7 +37,7 @@ jobs:
       - name: Prepara il browser di prova
         run: |
           python3 -m venv /tmp/aiv-cloud-tests
-          /tmp/aiv-cloud-tests/bin/pip install playwright==1.55.0
+          /tmp/aiv-cloud-tests/bin/pip install playwright==1.64.0
           /tmp/aiv-cloud-tests/bin/python -m playwright install --with-deps chromium
       - name: Verifica due dispositivi sul Worker locale con Supabase e PostgreSQL
         env:

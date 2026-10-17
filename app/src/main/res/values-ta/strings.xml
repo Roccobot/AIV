@@ -2,7 +2,6 @@
 <!-- ta. Tradotto da AIV: la fonte di verità resta values/strings.xml, e ogni chiave nuova va aggiunta anche qui. -->
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
-    <string name="app_short_name">AIV</string>
     <string name="no_image">காட்ட எதுவும் இல்லை</string>
     <string name="open_failed">இந்தக் கோப்பைத் திறக்க முடியவில்லை</string>
     <string name="open_cleartext">மறையாக்கம் இல்லாத முகவரி (http): Android அதைத் தடுக்கிறது, https இலும் பதில் இல்லை</string>
@@ -21,11 +20,7 @@
     <string name="save_name_date">தேதி</string>
     <string name="menu_convert">ஏற்றுமதி செய்து மாற்று</string>
     <string name="convert_format">வடிவம்</string>
-    <string name="convert_jpeg">JPEG</string>
-    <string name="convert_png">PNG</string>
-    <string name="convert_webp">WebP</string>
     <string name="convert_webp_lossless">WebP இழப்பற்றது</string>
-    <string name="convert_quality">தரம்</string>
     <string name="convert_quality_at">தரம்\u0020\u0020\u0020%1$d%%</string>
     <string name="convert_percent">%1$d%%</string>
     <string name="convert_pixels">%1$d x %2$d</string>
@@ -35,7 +30,7 @@
     <string name="convert_elsewhere">பிற வடிவங்கள்</string>
     <string name="convert_elsewhere_desc">மேலே உள்ள வடிவங்களை மட்டுமே Android எழுத முடியும். மற்றவற்றுக்கு இந்தச் சேவைகள் உள்ளன, அவை உலாவியில் திறக்கும்: படத்தை அங்கேயே, தொலைபேசி நினைவகத்திலிருந்து தேர்ந்தெடுக்கவும்.</string>
     <string name="convert_clean">சுத்தம் செய்</string>
-    <string name="convert_clean_why">தலைப்புத் தரவு, மேனிலைத் தரவு, குறிப்புகள், ஸ்க்ரிப்ட்கள், C2PA மற்றும் திருத்திகளின் எச்சங்களை நீக்குகிறது; இவை மிகக் கனமான தரவு (கோப்பின் 99% வரை) மற்றும் அரிதாகவே தேவைப்படும்.</string>
+    <string name="convert_clean_why" formatted="false">தலைப்புத் தரவு, மேனிலைத் தரவு, குறிப்புகள், ஸ்க்ரிப்ட்கள், C2PA மற்றும் திருத்திகளின் எச்சங்களை நீக்குகிறது; இவை மிகக் கனமான தரவு (கோப்பின் 99% வரை) மற்றும் அரிதாகவே தேவைப்படும்.</string>
     <string name="convert_clean_keeps">படத்தின் உள்ளடக்கம் மாறாது (பாதைகள், வடிவங்கள், கோடுகள், வரைபடங்கள், உரை…): ஓவியம் 100% அப்படியே இருக்கும்.</string>
     <string name="convert_clean_c2pa">⚠️ எச்சரிக்கை: கோப்பை யார் உருவாக்கியது என்று சொல்லும் C2PA மூலத் தகவலும் போய்விடும். தேவைப்பட்டால் ஒரு நகலை வைத்துக்கொள்.</string>
     <string name="clean_now">சுத்தம் செய்</string>
@@ -45,11 +40,8 @@
     <string name="clean_not_svg">இந்தக் கோப்பு படிக்கக்கூடிய SVG அல்ல.</string>
     <string name="convert_open">திற</string>
     <string name="convert_export">ஏற்றுமதி செய்</string>
-    <string name="convert_ezgif">EzGif</string>
     <string name="convert_ezgif_why">கிட்டத்தட்ட எல்லாவற்றிலிருந்தும் எல்லாவற்றுக்கும் மாற்றுகிறது, அசையும் GIF உட்பட.</string>
-    <string name="convert_squoosh">Squoosh</string>
     <string name="convert_squoosh_why">Google உருவாக்கியது, உலாவியிலேயே இயங்குகிறது: படம் எங்கும் பதிவேற்றப்படுவதில்லை.</string>
-    <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">வடிவங்களின் மிக நீண்ட பட்டியல், AVIF மற்றும் TIFF உட்பட.</string>
     <string name="toast_image_copied">படம் நகலெடுக்கப்பட்டது</string>
     <string name="toast_name_copied">கோப்பின் பெயர் நகலெடுக்கப்பட்டது</string>
@@ -106,7 +98,6 @@
     <string name="front_tint">தலைப்பின் நிறம்</string>
     <string name="front_tint_none">இயல்புநிலை நிறம்</string>
     <string name="folder_cover">அட்டைப் படத்தைத் தேர்வுசெய்</string>
-    <string name="folder_cover_auto">இயல்புநிலை அட்டைப் படம்</string>
     <string name="folder_cover_pick">\'%1$s\' இன் அட்டைப் படத்தைத் தேர்வுசெய்</string>
     <string name="folder_cover_done">அட்டைப் படம் புதுப்பிக்கப்பட்டது</string>
     <string name="folder_cover_fail">இந்தப் படத்தை அட்டைப் படமாகப் பயன்படுத்த முடியாது</string>
@@ -165,7 +156,7 @@
     <string name="settings_info_position">இடம்</string>
     <string name="settings_zoom_menu">காட்டி மெனுவில் பெரிதாக்கம்</string>
     <string name="settings_zoom_menu_desc">\'திரைக்கு பொருத்து\' மற்றும் \'100%\' ஐ காட்டியின் சூழல் மெனுவில் சேர்க்கிறது.</string>
-    <string name="hint_zoom_tap">விரைவு பெரிதாக்கல்: படத்தில் இருமுறை தட்டினால் காட்சிக்கு ஏற்ப பொருந்தும், மீண்டும் இருமுறை தட்டினால் உண்மையான பிக்சல்கள் தெரியும். தொடர்ந்து தட்டினால் பொருந்தியதுக்கும் 100% க்கும் இடையே மாறும்.</string>
+    <string name="hint_zoom_tap" formatted="false">விரைவு பெரிதாக்கல்: படத்தில் இருமுறை தட்டினால் காட்சிக்கு ஏற்ப பொருந்தும், மீண்டும் இருமுறை தட்டினால் உண்மையான பிக்சல்கள் தெரியும். தொடர்ந்து தட்டினால் பொருந்தியதுக்கும் 100% க்கும் இடையே மாறும்.</string>
     <string name="hint_ext_warn">⚠️ கோப்பின் நீட்டிப்பை மாற்றுவது ஒரு வடிவத்திலிருந்து இன்னொன்றுக்கு மாற்றுவது அல்ல: அதற்கு \'ஏற்றுமதி செய்து மாற்று\' உள்ளது.\n\n⚠️ ஒரு படத்துக்கோ காணொளிக்கோ ஊடகக் கோப்புக்கு உரியதல்லாத நீட்டிப்பைக் கொடுத்தால், அது கட்டம் மற்றும் பட்டியல் காட்சிகளிலிருந்து மறைந்துவிடும்.</string>
     <string name="settings_anim_counter">சட்டக எண்ணிக்கை</string>
     <string name="settings_anim_counter_desc">அசையும் படங்களின் கட்டுப்பாட்டுப் பட்டையில் தோன்றும்.</string>
@@ -185,9 +176,9 @@
     <string name="folders_permission_media">கோப்புறைகளைப் பட்டியலிட படங்கள் மற்றும் வீடியோக்களுக்கான அணுகல் தேவை.</string>
     <string name="folders_none">எந்தக் கோப்புறையிலும் காட்ட எதுவும் இல்லை.</string>
     <string name="folders_tablet_pick">வழிசெலுத்தல் பட்டியிலிருந்து ஒரு கோப்புறையைத் தேர்ந்தெடுக்கவும்</string>
-    <string name="folders_rail_search">Search in folders</string>
-    <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move the folder list</string>
+    <string name="folders_rail_search">கோப்புறைகளில் தேடு</string>
+    <string name="folders_rail_search_in">%1$s இல் தேடு</string>
+    <string name="folders_rail_move">கோப்புறைப் பட்டியலை நகர்த்து</string>
     <string name="hub_open">மேலும்</string>
     <string name="hub_view_list">பட்டியல் காட்சி</string>
     <string name="hub_view_grid">கட்டக் காட்சி</string>
@@ -211,7 +202,6 @@
     <string name="show_folder_desc">கட்டக் காட்சியிலும் பட்டியல் காட்சியிலும் கோப்புறைகளுக்கு இடையே அது மீண்டும் வழக்கம் போல் தெரியும்.</string>
     <string name="hide_folder_do">மறை</string>
     <string name="settings_hidden">மறைந்த கோப்புறைகள்</string>
-    <string name="settings_hidden_desc">ஒரு கோப்புறையை அழுத்திப் பிடித்தால் மறையும். இவை இனி பட்டியலில் தெரியாது, ஆனால் கைபேசியில் தொடப்படாமல் இருக்கும்.</string>
     <string name="settings_hidden_show">காட்டு</string>
     <string name="search_hint">கோப்புப் பெயரில் தேடு</string>
     <string name="search_clear">அழி</string>
@@ -276,8 +266,6 @@
     <string name="facts_duration">கால அளவு</string>
     <string name="facts_colour_grey">சாம்பல் அளவு</string>
     <string name="facts_colour_indexed">அட்டவணை வண்ணம்</string>
-    <string name="facts_colour_rgb">RGB</string>
-    <string name="facts_colour_rgba">RGBA</string>
     <string name="facts_colour_bits">%1$s %2$d பிட்</string>
     <string name="facts_colour_channel">%1$d பிட்/சேனல்</string>
     <string name="facts_colour_alpha">ஒளிஊடுருவலுடன்</string>
@@ -378,7 +366,6 @@
     <string name="settings_facts_down">கீழே நகர்த்து</string>
     <string name="settings_group_look">தோற்றம்</string>
     <string name="settings_group_viewer">காட்சியாளர்</string>
-    <string name="settings_group_input">கட்டுப்பாடுகளும் காட்டிகளும்</string>
     <string name="settings_group_files">கோப்பு மேலாண்மை</string>
     <string name="settings_group_browse">கோப்புகளும் கோப்புறைகளும்</string>
     <string name="settings_group_start">தொடக்கம்</string>
@@ -401,10 +388,6 @@
     <string name="settings_thumbs_gen_title">சிறுபடங்கள் உருவாக்கப்படுகின்றன</string>
     <string name="settings_thumbs_gen_done">சிறுபடங்கள் வெற்றிகரமாக உருவாக்கப்பட்டன.</string>
     <string name="settings_hidden_none">மறைக்கப்பட்ட கோப்புறைகள் இல்லை</string>
-    <plurals name="settings_hidden_count">
-        <item quantity="one">%1$d கோப்புறை</item>
-        <item quantity="other">%1$d கோப்புறைகள்</item>
-    </plurals>
     <plurals name="settings_facts_count">
         <item quantity="one">%1$d தகவல் காட்டப்படுகிறது</item>
         <item quantity="other">%1$d தகவல்கள் காட்டப்படுகின்றன</item>
@@ -482,7 +465,6 @@
     <string name="look_vibrance">உயிர்ப்பு</string>
     <string name="look_filter">B/W வடிகட்டி</string>
     <string name="look_bw">கருப்பு வெள்ளை</string>
-    <string name="look_mix">HSL</string>
     <string name="look_hue">நிறச்சாயல்</string>
     <string name="look_lum">ஒளிர்வு</string>
     <string name="look_band_red">சிவப்பு</string>
@@ -507,7 +489,6 @@
     <string name="look_grain_lift">ஒளிப்பகுதி</string>
     <string name="look_vignette_feather">மென்விளிம்பு</string>
     <string name="look_tone">வளைவு</string>
-    <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">தொனி வளைவு</string>
     <string name="look_target">இலக்கு</string>
     <string name="look_auto">தானியங்கு</string>
@@ -754,8 +735,8 @@
     <string name="folder_add">கோப்புறையைச் சேர்</string>
     <string name="folder_authorize">கோப்புறையை அனுமதி</string>
     <string name="folder_authorize_title">காட்டப்படும் கோப்புறைகளில் சேர்</string>
-    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
-    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_list_remove_title">இந்தக் கோப்புறையைப் பட்டியலிலிருந்து உண்மையில் நீக்கவா?</string>
+    <string name="folder_list_remove_do">நீக்கு</string>
     <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">அனுமதியை நீக்கு</string>
     <string name="folder_remove_desc">இந்தக் கோப்புறையை அனுமதிப் பட்டியலிலிருந்து நீக்கவா? அதன் உள்ளடக்கம் கட்டம் மற்றும் பட்டியல் பயன்முறைகளிலிருந்து மறையும்.</string>

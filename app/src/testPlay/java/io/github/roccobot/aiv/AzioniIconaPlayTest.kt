@@ -5,13 +5,14 @@ import android.content.Intent
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import java.time.Duration
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
-import java.time.Duration
 
 /**
  * Le azioni dell'icona sulla schermata Home mandate da un'altra app, dalla `6.29` (rilievi C29 ed
@@ -25,6 +26,10 @@ import java.time.Duration
  */
 @RunWith(AndroidJUnit4::class)
 class AzioniIconaPlayTest {
+
+    /** I modelli costruiti dalle prove, chiusi alla fine di ognuna (`ModelliChiusi`). */
+    @get:Rule
+    val modelli = ModelliChiusi()
 
     private val main get() = shadowOf(Looper.getMainLooper())
 
@@ -47,7 +52,7 @@ class AzioniIconaPlayTest {
     @Test
     fun `una cartella sconosciuta non si apre`() {
         val app = ApplicationProvider.getApplicationContext<Application>()
-        val model = ViewerViewModel(app)
+        val model = modelli.nuovo(app)
         aspetta { model.settings != null }
         assertNotNull("Le impostazioni non sono arrivate", model.settings)
         val intento = Intent(Shortcuts.FOLDER)
@@ -67,7 +72,7 @@ class AzioniIconaPlayTest {
      */
     @Test
     fun `l'albero resta dentro le memorie`() {
-        val model = ViewerViewModel(ApplicationProvider.getApplicationContext<Application>())
+        val model = modelli.nuovo(ApplicationProvider.getApplicationContext<Application>())
         val memoria = Tree.roots(ApplicationProvider.getApplicationContext()).firstOrNull()
         assertNotNull("Il banco non ha nessuna memoria", memoria)
         val base = memoria!!.file.absolutePath

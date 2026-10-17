@@ -5,10 +5,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.Public
-import androidx.compose.material.icons.filled.Search
+import androidx.annotation.DrawableRes
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.VectorGroup
@@ -24,95 +21,91 @@ import java.io.File
 import kotlin.math.roundToInt
 
 /**
- * The actions of the long press on the app icon in the launcher, from 6.10 (his request: *voglio
- * aggiungere delle azioni utili alla pressione lunga dell'icona sulla homescreen*, choices A1, A2,
- * A4 and B1): 'Feed', 'Cerca', 'Apri un indirizzo' and the last folder opened.
+ * Le azioni della pressione lunga sull'icona dell'app nel launcher: 'Feed', 'Cerca', 'Apri un
+ * indirizzo' e l'ultima cartella aperta (scelte A1, A2, A4 e B1 dell'utente, 6.10).
  *
- * ⚠️⚠️ **All four are DYNAMIC, published from the code, and none is in a `shortcuts.xml`**: a
- * static shortcut names the package of its activity in the XML, and the app has four of them
- * (`.play` and `.debug` suffixes), so the file would need a copy per variant. From the code the
- * intent names the activity by class and holds for all of them. The cost is that the menu appears
- * after the first launch, which is when there is something to show.
- * ⚠️ **They are written at every launch** ([publish]): the labels are resolved in the language in
- * force, and a published shortcut keeps the words it was given.
- * ⚠️ **No 'Mostra nascoste'**: from the home screen it would show the hidden folders to whoever
- * holds the phone. **No 'Impostazioni'**: rarely used, and the launcher shows about four.
- * ⚠️ **The same in both variants**: the Feed, the search and the address exist in both.
+ * ⚠️⚠️ **Sono tutte e quattro dinamiche, pubblicate dal codice, e nessuna è in un `shortcuts.xml`**:
+ * una scorciatoia statica nomina nell'XML il pacchetto della sua attività, e l'app ne ha quattro
+ * (suffissi `.play` e `.debug`), quindi servirebbe una copia del file per variante. Dal codice
+ * l'intent nomina l'attività per classe e vale per tutte. Il prezzo è che il menu compare dopo il
+ * primo avvio.
+ * ⚠️ **Si riscrivono a ogni avvio** ([publish]): le etichette si risolvono nella lingua in vigore,
+ * e una scorciatoia pubblicata tiene le parole che ha ricevuto.
+ * Niente 'Mostra nascoste', che dalla schermata Home mostrerebbe le cartelle nascoste a chiunque
+ * abbia il telefono in mano; niente 'Impostazioni', poco usata, e il launcher ne mostra circa
+ * quattro. Le azioni sono uguali nelle due varianti.
  *
  * Author: Rocco Casadei, a.k.a. Roccobot
  */
 object Shortcuts {
 
-    /** Opens the Feed for this time only: the view saved in the settings does not change. */
+    /** Apre il Feed per questa volta sola: la vista salvata nelle impostazioni non cambia. */
     const val FEED = "io.github.roccobot.aiv.action.FEED"
     const val SEARCH = "io.github.roccobot.aiv.action.SEARCH"
     const val ADDRESS = "io.github.roccobot.aiv.action.ADDRESS"
-    /** Opens the grid of the folder in [BUCKET], named [NAME]. */
+    /** Apre la griglia della cartella [BUCKET], di nome [NAME]. */
     const val FOLDER = "io.github.roccobot.aiv.action.FOLDER"
     const val BUCKET = "bucket"
     const val NAME = "name"
 
-    /** Opens the disk folder in [PATH] in 'Cartelle di sistema': a folder pinned with 'Faro'. */
+    /** Apre la cartella del disco [PATH] in 'Cartelle di sistema': una cartella fissata con 'Faro'. */
     const val TREE = "io.github.roccobot.aiv.action.TREE"
     const val PATH = "path"
 
-    /** The actions this object answers, for [ViewerViewModel.handleIntent]. */
+    /** Le azioni a cui risponde questo oggetto, per [ViewerViewModel.handleIntent]. */
     val actions = setOf(FEED, SEARCH, ADDRESS, FOLDER, TREE)
 
     private const val ID_FOLDER = "folder"
 
-    /** The beginning of the identifier of a folder pinned with 'Faro': the path follows. */
+    /** L'inizio dell'identificativo di una cartella fissata con 'Faro': segue il percorso. */
     private const val ID_PINNED = "faro:"
 
-    /** The share of the icon's side the AIV folder takes: larger than an action's glyph, it is the icon. */
+    /** La parte del lato dell'icona occupata dalla cartella AIV: più del glifo di un'azione, perché è l'icona. */
     private const val FOLDER_SHARE = 0.45f
 
     /**
-     * How far the AIV folder sits below the icon's centre, in dp of the 108 of the icon, since 6.29.
+     * Di quanto la cartella AIV scende sotto il centro dell'icona, in dp dei 108 dell'icona.
      *
-     * ⚠️⚠️ **HIS CHOICE, ON PREVIEWS, AND THE NUMBER IS HIS** (2026-10-16, `Cartellina`: *fa' in modo
-     * che risulti la stessa centratura (bilanciamento ottico tra cartella e glifo interno)*, then
-     * *1,5dp: VAI!* on three previews). Centred as a 64-unit square, the folder's body is at the
-     * centre and the tab adds weight above it, so the folder reads high. He started from an eighth of
-     * the drawing's side (6.075 dp) and raised it by 1.5 dp: 4.575. His SVG is not touched; the
-     * whole drawing moves, as one object.
-     * ⚠️ **What it comes to, measured** (`CartellinaTest`): the folder's whole box, tab included,
-     * centred in the icon to a tenth of a dp; at 6.28 it sat 4.5 dp above. A drawing with another
-     * outline would need its own number, so the number stays his and is not derived from the box.
+     * ⚠️⚠️ **Il numero è dell'utente**, scelto su tre anteprime (`Cartellina`, 6.29). Centrata come
+     * quadrato di 64 unità, la cartella ha il corpo al centro e la linguetta aggiunge peso sopra,
+     * quindi si legge alta: si sposta tutto il disegno, come un oggetto solo, e il suo SVG non si
+     * tocca. Il risultato, presidiato da `CartellinaTest`: il riquadro intero della cartella,
+     * linguetta compresa, centrato nell'icona al decimo di dp. Un disegno con un altro contorno
+     * vorrebbe un numero suo, quindi il numero non si ricava dal riquadro.
      */
     internal const val FOLDER_DROP_DP = 4.575f
 
-    /** The opacity of the AIV folder in white and in black, out of 255: *in semitrasparenza*. */
+    /** L'opacità della cartella AIV in bianco e in nero, su 255: la semitrasparenza che ha chiesto l'utente. */
     private const val INK_WHITE = 217
     private const val INK_DARK = 140
 
-    /** The contrast a graphic that is not text must hold on its ground. */
+    /** Il contrasto che una grafica che non è testo deve tenere sul suo fondo. */
     private const val CONTRAST_MIN = 3.0
 
     /**
-     * The share of the icon's side the glyph's viewport takes: a third of 108 dp is 36, so the
-     * ink of a Material glyph (20 units of 24) is 30 dp inside the 72 dp the launcher shows.
+     * La parte del lato dell'icona occupata dal riquadro del glifo: un terzo di 108 dp è 36, quindi
+     * l'inchiostro di un glifo Material (20 unità su 24) misura 30 dp nei 72 che il launcher mostra.
      */
     private const val GLYPH_SHARE = 1f / 3f
 
-    /** The side of an adaptive icon, in dp: the launcher crops it to its own shape. */
+    /** Il lato di un'icona adattiva, in dp: il launcher la ritaglia nella sua forma. */
     private const val ICON_DP = 108
 
-    /** The three fixed actions, in the order the launcher shows them, nearest to the icon first. */
+    /** Le tre azioni fisse, nell'ordine in cui le mostra il launcher, dalla più vicina all'icona. */
     fun publish(context: Context) {
         val fixed = listOf(
-            entry(context, "feed", FEED, R.string.view_feed, R.string.view_feed, feedGlyph(context), 0),
-            entry(context, "search", SEARCH, R.string.hub_search, R.string.hub_search, Icons.Filled.Search, 1),
-            entry(context, "address", ADDRESS, R.string.start_url, R.string.hub_url, Icons.Filled.Public, 2)
+            entry(context, "feed", FEED, R.string.view_feed, R.string.view_feed, glyph(context, R.drawable.ic_feed), 0),
+            entry(context, "search", SEARCH, R.string.hub_search, R.string.hub_search, glyph(context, R.drawable.ic_m_search), 1),
+            entry(context, "address", ADDRESS, R.string.start_url, R.string.hub_url, glyph(context, R.drawable.ic_m_public), 2)
         )
         ShortcutManagerCompat.addDynamicShortcuts(context, fixed)
     }
 
     /**
-     * The last folder opened becomes the fourth action, under the three fixed ones.
+     * L'ultima cartella aperta diventa la quarta azione, sotto le tre fisse.
      *
-     * ⚠️ **One entry, replaced every time**: the same identifier, so a folder opened after another
-     * takes its place and does not add a fifth line.
+     * ⚠️ **Una voce sola, sostituita ogni volta**: l'identificativo è lo stesso, quindi una cartella
+     * aperta dopo un'altra ne prende il posto e non aggiunge una quinta riga.
      */
     fun lastFolder(context: Context, bucket: Long, name: String) {
         if (name.isBlank()) return
@@ -123,7 +116,7 @@ object Shortcuts {
         val info = ShortcutInfoCompat.Builder(context, ID_FOLDER)
             .setShortLabel(name)
             .setLongLabel(name)
-            .setIcon(icon(context, Icons.Filled.Folder))
+            .setIcon(icon(context, glyph(context, R.drawable.ic_m_folder)))
             .setIntent(intent)
             .setRank(3)
             .build()
@@ -131,31 +124,30 @@ object Shortcuts {
     }
 
     /**
-     * Takes the last folder out of the menu.
+     * Toglie l'ultima cartella dal menu.
      *
-     * ⚠️ **Called when the hidden folders change**: the action shows the folder's name, and a name
-     * that was hidden must not stay on the home screen. The next folder opened puts one back.
+     * ⚠️ **Si chiama quando cambiano le cartelle nascoste**: l'azione mostra il nome della cartella,
+     * e un nome nascosto non deve restare nella schermata Home. La prossima cartella aperta ne
+     * rimette una.
      */
     fun dropFolder(context: Context) {
         ShortcutManagerCompat.removeDynamicShortcuts(context, listOf(ID_FOLDER))
     }
 
-    /** Whether the launcher takes an icon pinned by the app: not all of them do. */
+    /** Se il launcher accetta un'icona fissata dall'app: non tutti lo fanno. */
     fun canPin(context: Context): Boolean = ShortcutManagerCompat.isRequestPinShortcutSupported(context)
 
     /**
-     * 'Faro', from the 6.20: a disk folder becomes an icon of its own on the home screen (his note C
-     * on the giro of the 6.10, after his answer C of the same day).
+     * 'Faro': una cartella del disco diventa un'icona sua nella schermata Home (nota C dell'utente
+     * sul giro della 6.10).
      *
-     * ⚠️⚠️ **HIS ICON, TO THE LETTER**: *adattiva, avere il nome della cartella, lo sfondo del colore
-     * della cartella (se applicato) e il glifo della cartella AIV sovrapposto in semitrasparenza,
-     * lasciato bianco o colorato per avere un minimo di contrasto come da norme*. So the ground is the
-     * folder's colour, or the app's green without one; the glyph is his `ic_folder_home.xml`, and
-     * [folderInk] picks white or the ground darkened, whichever keeps 3 to 1.
-     * ⚠️ **The light variant of the colour**: the home screen does not follow the theme chosen inside
-     * the app, and the light variants are the ones with more body.
-     * ⚠️ **One icon per folder**: the identifier is the path, so pinning it again updates it (a new
-     * colour, a new name) instead of asking for a second one. Android asks where to put it.
+     * ⚠️ **L'icona è quella che ha descritto l'utente**: adattiva, col nome della cartella, il fondo
+     * del colore della cartella (o il verde dell'app senza colore) e il glifo `ic_folder_home.xml` in
+     * semitrasparenza, bianco o del fondo scurito secondo [folderInk], quello che tiene 3 a 1.
+     * Si usa la variante chiara del colore: la schermata Home non segue il tema scelto dentro l'app,
+     * e le varianti chiare sono quelle con più corpo.
+     * ⚠️ **Un'icona per cartella**: l'identificativo è il percorso, quindi fissarla di nuovo la
+     * aggiorna (colore, nome) e non ne chiede una seconda. Android chiede dove metterla.
      */
     suspend fun pinFolder(context: Context, path: String) {
         val index = Folder.bucketOf(context, path)?.let { FolderTints.of(context, it) }
@@ -171,7 +163,7 @@ object Shortcuts {
         ShortcutManagerCompat.requestPinShortcut(context, info, null)
     }
 
-    /** The picture of a 'Faro' icon on [ground], apart so the test bench can measure it. */
+    /** L'immagine di un'icona 'Faro' su [ground], separata perché il banco di prova la misuri. */
     internal fun folderBitmap(context: Context, ground: Int): Bitmap =
         iconBitmap(
             context, Glyphs.folderHome(context), ground, folderInk(ground), FOLDER_SHARE,
@@ -179,9 +171,9 @@ object Shortcuts {
         )
 
     /**
-     * The colour of the AIV folder on [ground]: white in transparency, or, where white does not hold
-     * 3 to 1, black in transparency, which reads as the ground darkened. 3 to 1 is the contrast of a
-     * graphic that is not text (WCAG 1.4.11), his *minimo di contrasto come da norme*.
+     * Il colore della cartella AIV su [ground]: bianco in trasparenza, o, dove il bianco non tiene
+     * 3 a 1, nero in trasparenza, che si legge come il fondo scurito. 3 a 1 è il contrasto di una
+     * grafica che non è testo (WCAG 1.4.11).
      */
     internal fun folderInk(ground: Int): Int {
         val white = ColorUtils.setAlphaComponent(android.graphics.Color.WHITE, INK_WHITE)
@@ -207,26 +199,30 @@ object Shortcuts {
             .setRank(rank)
             .build()
 
-    /** The Feed's glyph, the same file the app draws ([Glyphs.Feed]), read outside a composition. */
-    private fun feedGlyph(context: Context): ImageVector =
-        ImageVector.vectorResource(context.theme, context.resources, R.drawable.ic_feed)
+    /**
+     * Un glifo dell'app letto fuori da una composizione: lo stesso file che disegna l'app (il Feed è
+     * [Glyphs.Feed], gli altri sono in [Glyphs.Material]), perché le scorciatoie si pubblicano
+     * senza una composizione intorno.
+     */
+    internal fun glyph(context: Context, @DrawableRes id: Int): ImageVector =
+        ImageVector.vectorResource(context.theme, context.resources, id)
 
     /**
-     * The icon of an action: the app's own glyph in the launcher icon's two colours, swapped.
+     * L'icona di un'azione: il glifo dell'app nei due colori dell'icona del launcher, scambiati.
      *
-     * ⚠️⚠️ **The glyph is the SAME ImageVector the app draws, rendered here**, and not a copy in
-     * `res/drawable/`: 'Cerca' and the globe are Material glyphs, and a second file of the same
-     * drawing is what `Glyphs.kt` forbids.
-     * ⚠️ **An adaptive bitmap**, so every launcher crops it to its own shape, like the app icon.
+     * ⚠️ **Il glifo è lo stesso `ImageVector` che disegna l'app, reso qui**: 'Cerca' e il globo sono
+     * glifi Material, e una seconda copia dello stesso disegno in `res/drawable/` è quello che
+     * `Glyphs.kt` vieta. È una bitmap adattiva, quindi ogni launcher la ritaglia nella sua forma,
+     * come l'icona dell'app.
      */
     private fun icon(context: Context, glyph: ImageVector): IconCompat =
         IconCompat.createWithAdaptiveBitmap(iconBitmap(context, glyph))
 
     /**
-     * The picture of an icon, apart so the test bench can read its pixels: [glyph] in [ink] on
-     * [ground], its viewport [share] of the side and centred, then [dropDp] lower. The actions take
-     * the launcher icon's two colours swapped; a folder pinned with 'Faro' its own, and
-     * [FOLDER_DROP_DP].
+     * L'immagine di un'icona, separata perché il banco di prova ne legga i pixel: [glyph] in [ink]
+     * su [ground], col riquadro pari a [share] del lato e centrato, poi [dropDp] più in basso. Le
+     * azioni usano i due colori dell'icona del launcher scambiati; una cartella fissata con 'Faro'
+     * i suoi, e [FOLDER_DROP_DP].
      */
     internal fun iconBitmap(
         context: Context,
@@ -253,10 +249,10 @@ object Shortcuts {
     }
 
     /**
-     * Draws a group with its transformation, the way a vector drawable does.
+     * Disegna un gruppo con la sua trasformazione, come fa un vector drawable.
      *
-     * ⚠️ **Only the filled paths**: the glyphs used here have no strokes and no clip, and a stroke
-     * painted as a fill would be a different drawing.
+     * ⚠️ **Solo i tracciati pieni**: i glifi usati qui non hanno contorni né ritagli, e un contorno
+     * dipinto come riempimento sarebbe un altro disegno.
      */
     private fun draw(canvas: Canvas, group: VectorGroup, ink: Paint) {
         canvas.save()

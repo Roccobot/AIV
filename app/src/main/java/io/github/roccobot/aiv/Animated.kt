@@ -10,40 +10,30 @@ import java.io.InputStream
 /**
  * Un'immagine animata aperta: quanti fotogrammi ha, quanto durano, e come si scorrono.
  *
- * ⚠️⚠️ **UN CONTRATTO SOLO DAVANTI A DUE LETTORI DIVERSI, ed è la scelta che tiene in piedi
- * tutto il resto**: le GIF le legge [AnimatedGif], le WebP animate [AnimatedWebp], e i due
- * non si somigliano affatto (uno è un decodificatore di terze parti, l'altro è un lettore
- * di contenitore scritto qui). Ma i comandi di riproduzione, la cache dei fotogrammi e
- * l'esportazione devono essere **una cosa sola**: se ognuno dei due formati si portasse
- * dietro la sua interfaccia, ci sarebbero due riproduttori da tenere d'accordo, e il secondo
- * prenderebbe le correzioni del primo con mesi di ritardo.
+ * ⚠️ **Un contratto solo per due lettori diversi**: le GIF le legge [AnimatedGif] (un
+ * decodificatore di terze parti), le WebP animate [AnimatedWebp] (un lettore di contenitore scritto
+ * qui). Riproduzione, cache dei fotogrammi ed esportazione sono una cosa sola, o ci sarebbero due
+ * riproduttori da tenere d'accordo.
  *
- * ⚠️⚠️ **I FOTOGRAMMI SI SCORRONO IN AVANTI, e non si salta a piacere**: in tutti e due i
- * formati un fotogramma è una **toppa** disegnata sopra quello di prima, non un'immagine a
- * sé. Per vedere il fotogramma N bisogna aver composto tutti i precedenti, ed è il motivo
- * per cui qui c'è [advance] e non un `frameAt(n)`.
- * ⚠️ **[seek] non è la smentita di quella riga, è la sua conseguenza**: il salto esiste, ma
- * costa la ricostruzione della pila, e sta nel contratto proprio perché farlo bene richiede
- * di sapere come è fatto il lettore. Una cache dei fotogrammi già composti, se un giorno
- * servisse, va **sopra** questo contratto e non dentro i lettori.
+ * ⚠️ **I fotogrammi si scorrono in avanti**: in tutti e due i formati un fotogramma è una toppa
+ * disegnata sopra quello di prima, e per vedere il fotogramma N bisogna aver composto i precedenti.
+ * Per questo c'è [advance] e non un `frameAt(n)`; [seek] salta ricostruendo la pila, e una cache
+ * dei fotogrammi già composti, se servisse, va sopra questo contratto e non nei lettori.
  *
- * ⚠️ **[current] può tornare `null`**, e chi chiama deve reggerlo: un file troncato o un
- * fotogramma che il decodificatore rifiuta non sono un caso raro su immagini prese dal web.
+ * [current] può tornare `null`: un file troncato o un fotogramma rifiutato dal decodificatore sono
+ * frequenti fra le immagini prese dal web.
  */
 interface Animated : Closeable {
 
     val width: Int
     val height: Int
 
-    /** Quanti fotogrammi ha in tutto. Uno solo vuol dire che di animato non c'è niente. */
+    /** Quanti fotogrammi ha in tutto: uno solo vuol dire che non c'è niente di animato. */
     val frameCount: Int
 
     /**
-     * Quante volte l'animazione si ripete, e **zero vuol dire per sempre**.
-     *
-     * ⚠️ Lo zero come infinito non è una nostra invenzione: è così che lo scrivono i due
-     * formati (l'estensione NETSCAPE della GIF e il chunk `ANIM` della WebP), e tradurlo in
-     * qualcos'altro qui vorrebbe dire ritradurlo indietro per mostrarlo.
+     * Quante volte l'animazione si ripete, e zero vuol dire per sempre: lo scrivono così i due
+     * formati (l'estensione NETSCAPE della GIF e il chunk `ANIM` della WebP).
      */
     val loopCount: Int
 
@@ -59,52 +49,25 @@ interface Animated : Closeable {
     /** Va al fotogramma dopo. Dopo l'ultimo si torna al primo. */
     fun advance()
 
-    /*
-     * ⚠️ **`rewind()` NON STA PIÙ QUI, dalla 1.21**: era la sola via per tornare indietro,
-     * e chi la usava doveva poi rifare la pila a mano, che è esattamente l'errore che ha
-     * prodotto la scia. Adesso quel lavoro lo fa [seek], e il riavvolgimento è un dettaglio
-     * interno di chi sa come è fatta la propria tela.
-     */
-
     /**
-     * Porta l'animazione al fotogramma [target], ricostruendo la pila quel tanto che serve.
+     * Porta l'animazione al fotogramma [target], ricostruendo la pila quanto serve.
      *
-     * ⚠️⚠️ **ESISTE PERCHÉ SALTARE NON È RIPETERE `advance`, ed è il difetto della scia**
-     * (riscontro dell'utente, 2026-09-01, con la fotografia della scia: *se muovo all'indietro
-     * i fotogrammi succede questo*). Nella GIF il decodificatore separa lo **spostamento**
-     * dell'indice dalla **composizione** del fotogramma: `advance()` muove e basta, la toppa
-     * la posa la lettura. Un salto scritto come `rewind()` più N `advance()` sposta l'indice
-     * di N caselle **senza comporre nessuno** dei fotogrammi attraversati, e la tela resta
-     * quella di prima: la toppa del fotogramma d'arrivo si posa sopra tutte le altre, e le
-     * palline restano tutte in scena. Era esattamente quello che si vedeva.
-     * ⚠️ **Costa quello che il formato impone**: tornare indietro di uno vuol dire rifare la
-     * pila da capo, cioè decodificare N fotogrammi. Non è una lentezza da togliere: è la
-     * proprietà di un formato in cui il fotogramma N esiste solo come somma dei precedenti.
-     * La cura, se un giorno servisse, è una cache dei fotogrammi già composti **sopra**
-     * questo contratto.
+     * ⚠️ **Saltare non è ripetere `advance`**: nella GIF il decodificatore separa lo spostamento
+     * dell'indice dalla composizione del fotogramma, e N `advance()` di fila spostano l'indice
+     * senza comporre i fotogrammi attraversati. La toppa d'arrivo si posa sulla tela vecchia, e
+     * restano in scena le tracce di tutti i fotogrammi (la scia). Tornare indietro di uno costa la
+     * pila rifatta da capo: è la natura del formato.
      */
     fun seek(target: Int)
-
-    /**
-     * Quanto dura tutta l'animazione, in millisecondi.
-     *
-     * ⚠️ Si somma invece di chiederlo al formato, perché nessuno dei due lo dichiara: la
-     * durata totale **è** la somma dei ritardi, e tenerla in un campo vorrebbe dire un
-     * secondo posto da cui può mentire.
-     */
-    val duration: Int
-        get() = (0 until frameCount).sumOf { delayOf(it) }
 }
 
 /**
  * Come si apre un'immagine animata, e come si riconosce che lo è.
  *
- * ⚠️⚠️ **SI GUARDANO I BYTE, NON L'ESTENSIONE NÉ IL TIPO MIME**: un file chiamato `.gif`
- * può essere una PNG, e il tipo che dichiara il MediaStore viene a sua volta dal nome. Qui
- * la domanda 'è animata?' decide se il visualizzatore mostra un'immagine ferma o accende un
- * riproduttore, quindi sbagliarla si vede subito.
- * ⚠️ **E si guardano POCHI byte**: la firma di una GIF sta nei primi 6, quella di una WebP
- * animata nei primi 21. [SNIFF] è il tetto, e ci sta dentro con abbondanza.
+ * ⚠️ **Si guardano i byte, non l'estensione né il tipo MIME**: un file `.gif` può essere una PNG, e
+ * il tipo del MediaStore viene a sua volta dal nome. La risposta decide se il visualizzatore mostra
+ * un'immagine ferma o accende un riproduttore. Bastano pochi byte: la firma di una GIF è nei primi
+ * 6, quella di una WebP animata nei primi 21.
  */
 object Animations {
 
@@ -116,10 +79,9 @@ object Animations {
     /**
      * Che genere di animazione promettono i primi byte di un file.
      *
-     * ⚠️⚠️ **DICE 'FORSE', NON 'SÌ', e la differenza conta**: una GIF con un fotogramma solo
-     * ha la stessa firma di una animata, e la WebP dichiara l'animazione in un bit che
-     * qualche codificatore mette anche su file di un fotogramma. Il conteggio vero lo sa solo
-     * il lettore aperto, quindi [open] apre e poi **richiude** quello che si rivela fermo.
+     * ⚠️ **Dice 'forse', non 'sì'**: una GIF di un fotogramma ha la stessa firma di una animata, e
+     * alcuni codificatori mettono il bit dell'animazione anche su WebP di un fotogramma. Il conto
+     * vero lo sa il lettore, quindi [open] apre e poi richiude quello che si rivela fermo.
      */
     fun kindOf(head: ByteArray): Kind {
         if (head.size >= 6 && head[0] == 'G'.code.toByte() && head[1] == 'I'.code.toByte() &&
@@ -127,9 +89,9 @@ object Animations {
         ) {
             return Kind.GIF
         }
-        // ⚠️ Una WebP è un contenitore RIFF: 'RIFF' in testa, 'WEBP' all'ottavo byte, e poi
-        // il chunk 'VP8X' con i flag. Il bit 0x02 del primo byte dei flag è quello che dice
-        // 'qui dentro c'è un'animazione'. Senza VP8X la WebP è per forza di un fotogramma.
+        // Una WebP è un contenitore RIFF: 'RIFF' in testa, 'WEBP' all'ottavo byte, poi il chunk
+        // 'VP8X' con i flag, dove il bit 0x02 del primo byte dice che c'è un'animazione. Senza VP8X
+        // la WebP ha un fotogramma solo.
         if (head.size >= 21 &&
             String(head, 0, 4, Charsets.US_ASCII) == "RIFF" &&
             String(head, 8, 4, Charsets.US_ASCII) == "WEBP" &&
@@ -142,15 +104,12 @@ object Animations {
     }
 
     /**
-     * Apre l'immagine animata che sta a [uri], e `null` se non c'è niente da animare.
+     * Apre l'immagine animata a [uri], o `null` se non c'è niente da animare.
      *
-     * ⚠️⚠️ **IL FILE SI LEGGE TUTTO IN MEMORIA, ed è una scelta con un tetto**: tutti e due
-     * i lettori hanno bisogno di tornare indietro nei byte (la GIF per ricomporre dal primo
-     * fotogramma, la WebP per estrarre un fotogramma qualsiasi), e uno `InputStream` che non
-     * si riavvolge non basta. Il tetto è [MAX_BYTES]: oltre, si rinuncia all'animazione e si
-     * mostra l'immagine ferma, che è molto meglio di un'app che si chiude.
-     * ⚠️ **Un fotogramma solo non è un'animazione**: si chiude e si torna `null`, così il
-     * visualizzatore prende la strada normale invece di accendere comandi che non servono.
+     * Il file si legge tutto in memoria, fino a [MAX_BYTES]: tutti e due i lettori tornano indietro
+     * nei byte, e uno `InputStream` non si riavvolge. Oltre il tetto si mostra l'immagine ferma. Un
+     * fotogramma solo non è un'animazione: si chiude e si torna `null`, così il visualizzatore
+     * prende la strada normale.
      */
     fun open(context: Context, uri: Uri): Animated? = runCatching {
         val bytes = bytesOf(context, uri) ?: return null
@@ -167,23 +126,14 @@ object Animations {
     }.getOrNull()
 
     /**
-     * I byte del file che sta a [uri], da qualunque parte arrivi.
+     * I byte del file a [uri], da qualunque parte arrivi.
      *
-     * ⚠️⚠️ **NASCE PERCHÉ UN INDIRIZZO DI RETE NON PASSA DAL `ContentResolver`, E LA GIF
-     * REMOTA NON SI ANIMAVA** (segnalazione dell'utente, 2026-09-03, sulla Terra che gira di
-     * Wikimedia: *se incollo manualmente l'indirizzo si apre, ma non è animata*). Fino alla
-     * `1.44` qui c'era un `openInputStream` solo: su uno `https` quello **va in errore**,
-     * il `runCatching` di [open] lo ingoiava, e il visualizzatore prendeva la strada
-     * dell'immagine ferma. Nessun errore a schermo, nessun log: l'animazione semplicemente
-     * non c'era. È il modo peggiore di sbagliare.
-     * ⚠️ **I byte remoti ci sono già e non si riscaricano**: li ha messi in cache
-     * `ImageSource.loadRemote` mentre apriva l'immagine, quindi qui basta rileggerli. Un
-     * secondo download per animare la stessa fotografia sarebbe la rete pagata due volte.
-     * ⚠️⚠️ **E PUÒ ANCORA ANDARE A VUOTO UNA VOLTA, per una corsa**: questa lettura parte
-     * insieme all'apertura dell'immagine, quindi il primo tentativo può arrivare prima che il
-     * download sia finito. A ritentare pensa [rememberAnimation], che riprova quando
-     * l'immagine è pronta: senza quel secondo giro, la cache mancata di un istante
-     * spegnerebbe l'animazione per sempre.
+     * ⚠️ **Un indirizzo di rete non passa dal `ContentResolver`**: su `https` `openInputStream` va
+     * in errore, il `runCatching` di [open] lo ingoia, e la GIF remota resta ferma senza nessun
+     * errore. I byte remoti li ha già in cache `ImageSource.loadRemote`, quindi si rileggono senza
+     * scaricarli di nuovo.
+     * ⚠️ **Il primo tentativo può arrivare prima che il download sia finito**: a ritentare pensa
+     * [rememberAnimation], che riprova quando l'immagine è pronta.
      */
     private fun bytesOf(context: Context, uri: Uri): ByteArray? =
         when (uri.scheme?.lowercase()) {
@@ -196,24 +146,16 @@ object Animations {
     /**
      * Tutto il flusso, ma solo se può essere un'animazione: altrimenti `null`.
      *
-     * ⚠️⚠️ **I PRIMI BYTE DECIDONO PRIMA CHE SI LEGGA IL RESTO, e fino alla `5.70` era il
-     * contrario** (sua nota sul giro della `5.70`: *un MKV di 250 MB ha fatto andare AIV in
-     * crash*). Il visualizzatore fa questa domanda per ogni pagina, filmati compresi, e il file
-     * si leggeva tutto in memoria prima di guardarne il peso e la firma: 250 MB in un solo
-     * blocco sono più di quanto l'app può tenere. Adesso un file che non è né GIF né WebP costa
-     * [SNIFF] byte, e uno oltre [MAX_BYTES] si scarta appena il flusso lo supera. Lo prova
-     * `AnimazioniGrandiTest`.
-     * ⚠️ **La testa si legge a mano e non con `readNBytes`**, che su Android esiste solo dalla
-     * 33: un `read` può restituire meno byte di quelli chiesti, quindi si ripete.
+     * ⚠️ **I primi byte decidono prima che si legga il resto**: il visualizzatore fa questa domanda
+     * per ogni pagina, filmati compresi, e un MKV di 250 MB letto tutto in memoria chiudeva l'app.
+     * Un file che non è né GIF né WebP costa [SNIFF] byte, e uno oltre [MAX_BYTES] si scarta appena
+     * il flusso lo supera; presidiato da `AnimazioniGrandiTest`. La testa si legge con
+     * [readFully] perché `readNBytes` esiste solo da Android 13, e un `read` può restituire meno
+     * byte di quelli chiesti.
      */
     internal fun candidate(stream: InputStream): ByteArray? {
         val head = ByteArray(SNIFF)
-        var got = 0
-        while (got < SNIFF) {
-            val n = stream.read(head, got, SNIFF - got)
-            if (n < 0) break
-            got += n
-        }
+        val got = stream.readFully(head, SNIFF)
         if (kindOf(head.copyOf(got)) == Kind.NONE) return null
         val out = ByteArrayOutputStream().apply { write(head, 0, got) }
         val buffer = ByteArray(BUFFER)
@@ -229,13 +171,9 @@ object Animations {
     private const val BUFFER = 64 * 1024
 
     /**
-     * Oltre questo peso non si anima.
-     *
-     * ⚠️ **32 MB è il FILE, non i pixel**, e i pixel sono la parte che spaventa: una GIF di
-     * 32 MB compressi può avere migliaia di fotogrammi, ma i lettori ne tengono in memoria
-     * pochi per volta (uno il decodificatore, qualcuno la cache), quindi il file è il numero
-     * giusto da limitare. ⚠️ Chi supera il tetto **vede comunque l'immagine**, ferma: non è
-     * un errore, è una rinuncia all'animazione.
+     * Oltre questo peso non si anima. Il tetto è sul file e non sui pixel: i lettori tengono in
+     * memoria pochi fotogrammi per volta, anche in una GIF che ne ha migliaia. Chi supera il tetto
+     * vede comunque l'immagine, ferma.
      */
     private const val MAX_BYTES = 32 * 1024 * 1024
 }

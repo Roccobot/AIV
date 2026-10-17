@@ -41,35 +41,18 @@ import kotlin.math.min
 import kotlin.math.pow
 
 /*
- * ⚠️⚠️ **DALLA `2.07` I DUE TASTI NON CI SONO PIÙ: A PORTARE IN CIMA E IN FONDO È IL FAB, E IL
- * SUO GLIFO DIVENTA UN CHEVRON** (sua scelta del 2026-09-09, dopo aver guardato due mockup
- * animati: *questo è molto più pulito e fluido ... ho già scelto, appena possibile implementiamo
- * questo*). Il pezzo nuovo non esiste: niente colonna che compare, niente seconda finestra,
- * niente tasto in più da mettere da qualche parte, e il FAB non sparisce mai dallo schermo.
- * Quello che cambia è il **disegno** dentro un tasto che c'era già, con lo stesso incrocio di
- * zoom e dissolvenza con cui oggi diventa la `×` a menu aperto.
+ * Il salto in cima e in fondo è il FAB stesso: scorrendo, il suo glifo diventa un chevron, con lo
+ * stesso incrocio di zoom e dissolvenza con cui diventa la `×` a menu aperto (scelta dell'utente
+ * su un mockup animato, 2.07).
+ * Il verso dello scorrimento decide il tasto: verso il fondo 'Vai alla fine', verso l'alto 'Vai
+ * all'inizio'. I due versi non sono disponibili insieme; chi vuole l'altro scorre un momento
+ * nell'altro senso.
  *
- * ⚠️⚠️ **E IL TASTO È UNO SOLO, DECISO DAL VERSO DELLO SCORRIMENTO** (*se scorro per vedere
- * altre immagini in basso, appare solo il tasto 'giù'*): scorrendo verso il fondo il glifo
- * diventa 'Vai alla fine', scorrendo verso l'alto 'Vai all'inizio'. Le due domande di prima
- * (dove voglio andare, e quale dei due tasti tocco) diventano una sola.
- * ⚠️ **Quello che si perde è dichiarato**: i due versi non sono più disponibili insieme, e chi
- * vuole l'altro scorre un momento nell'altro senso.
+ * ⚠️ **[HAUL], [SWERVE], [QUIET_MS], [BACK_WAIT_MS] e [BACK_MS] sono del mockup approvato**
+ * dall'utente (l'artefatto 'Animazione definitiva tasti su/giù'), non scelte di questo file.
  *
- * ⚠️⚠️ **I CINQUE NUMERI SONO DEL MOCKUP CHE HA APPROVATO GUARDANDOLO**, e non sono scelte di
- * questo file: [HAUL], [SWERVE], [QUIET_MS], [BACK_WAIT_MS] e [BACK_MS]. Chi li ritocca li
- * stacca da quella sorgente, che è l'artefatto 'Animazione definitiva tasti su/giù'.
- *
- * ⚠️⚠️ **CHE COSA DECADE CON LORO, e va saputo per non cercarlo**: i due tempi tarati nella
- * `2.05` (0,8 secondi pieni più 1,6 di dissolvenza) non esistono più, perché non c'è più una
- * colonna che compare e sbiadisce; e la durata della corsa, la sua curva e i due stadi del
- * congedo restano, perché sono del salto e non del tasto.
- *
- * ⚠️⚠️ **DOVE IL FAB NON C'È, IL COMANDO NON C'È PIÙ.** Nelle **impostazioni** è la sua
- * risposta alla lettera (2026-09-09: *lì non serve nessun tasto, in realtà ... le impostazioni
- * che cerco le trovo o con la ricerca o con le sezioni e le sotto-pagine, non scorrendo una
- * lista finché non vedo quello che cerco*); in **'Cartelle di sistema'** è la conseguenza di
- * un tasto che vive sul FAB, e là il FAB non esiste.
+ * Dove il FAB non c'è, il comando non c'è: nelle impostazioni per risposta dell'utente (si cerca
+ * con la ricerca e con le sezioni), e in 'Cartelle di sistema'.
  */
 
 /** La parte fissa della durata, in millisecondi: `280 + |dist| * 0.16`, con tetto a 800. */
@@ -82,61 +65,56 @@ private const val JUMP_PER_PX = 0.16f
 private const val JUMP_MAX_MS = 800f
 
 /**
- * L'easing quintico in uscita: parte rapido e decelera, che è l'inerzia che ha chiesto.
+ * L'easing quintico in uscita: parte rapido e decelera, l'inerzia chiesta dall'utente.
  *
- * ⚠️ **Scritto come `Easing` e non approssimato con una curva di Bézier**: `1 - (1-x)^5` è la
- * riga esatta del sito da cui la corsa è copiata, e una Bézier che le somiglia sarebbe la
- * stessa cosa detta da un'altra parte, cioè un numero che diverge al primo ritocco.
+ * `1 - (1-x)^5` è la riga esatta del sito da cui la corsa è copiata: una Bézier che le somiglia
+ * potrebbe divergere al primo ritocco.
  */
 private val QUINT_OUT = Easing { x -> 1f - (1f - x).pow(5) }
 
 /**
  * La curva del rientro: accelera in mezzo e frena in fondo.
  *
- * ⚠️ **Non è la curva di serie di `tween`**, ed è la stessa scelta del mockup: una curva che
- * accelera fino all'ultimo istante fa arrivare il glifo di schianto, e questo tratto lo si
- * guarda per un quarto di secondo intero.
+ * Non è la curva di serie di `tween`, come nel mockup: una curva che accelera fino all'ultimo
+ * istante fa arrivare il glifo di schianto, e questo tratto dura un quarto di secondo.
  */
 private val SMOOTHER = Easing { x -> x * x * x * (x * (x * 6f - 15f) + 10f) }
 
 /**
- * I pixel di scorrimento che portano il glifo dell'app al chevron: **quarantaquattro**.
+ * I pixel di scorrimento che trasformano il glifo dell'app nel chevron.
  *
- * ⚠️ È la corsa piena, non una soglia: ogni pixel ne sposta una frazione, quindi il disegno
- * segue il dito invece di scattare a un certo punto.
+ * È la corsa piena, non una soglia: ogni pixel ne sposta una frazione, e il disegno segue il dito.
  */
 private const val HAUL = 44f
 
 /**
- * How much of [HAUL] one scroll event may cover: a sixth, so the swap takes at least six frames.
+ * Quanto di [HAUL] può coprire un evento di scorrimento: un sesto, così il cambio dura almeno sei
+ * fotogrammi.
  *
- * ⚠️⚠️ **SINCE 4.34, AND IT IS MEASURED**: since the jump arms only from a fling ([JUMP_SPEED]), the
- * pixels that move the glyph are the fling's, and its first frame alone runs past [HAUL]. The mark
- * turned into the chevron in one frame, which `ScattoGlifoTest` measured as a 5px jump of its top.
- * A finger dragging moved a few pixels per event, so until 4.33 the cap was never reached.
+ * ⚠️ **Il salto si arma solo da un lancio** ([JUMP_SPEED]), e il primo fotogramma di un lancio
+ * da solo supera [HAUL]: senza tetto il glifo diventerebbe chevron in un fotogramma. Presidiato
+ * da `ScattoGlifoTest`.
  */
 private const val HAUL_STEP = 1f / 6f
 
 /**
- * I pixel nel verso opposto che fanno cambiare idea al tasto: **otto**.
+ * I pixel nel verso opposto che fanno cambiare idea al tasto.
  *
- * ⚠️⚠️ **SENZA QUESTA SOGLIA IL GLIFO SFARFALLA**, ed è misurato nel mockup: un dito che scorre
- * non va mai in un verso solo, e un rimbalzo di pochi pixel girerebbe il disegno a ogni gesto.
- * ⚠️ **Cambiare verso non fa ricominciare da capo**: il chevron si gira sul posto e la corsa
- * fatta finora resta, perché il tasto offre sempre la corsa che ha senso adesso.
+ * ⚠️ **Senza questa soglia il glifo sfarfalla** (misurato nel mockup): un dito non va mai in un
+ * verso solo, e un rimbalzo di pochi pixel girerebbe il disegno a ogni gesto.
+ * Cambiare verso non fa ricominciare: il chevron si gira sul posto e la corsa fatta resta.
  */
 private const val SWERVE = 8f
 
 /**
- * Il silenzio che dichiara fermo il dito quando la corsa è **incompleta**: 150 millisecondi.
+ * Il silenzio che dichiara fermo il dito quando la corsa è incompleta.
  *
- * ⚠️ È lo stesso numero con cui i due tasti di prima distinguevano una pausa da un lancio
- * inerziale, e viene di là: un lancio è fatto di tanti eventi ravvicinati, e ognuno rimette il
- * conto a zero.
+ * Distingue una pausa da un lancio inerziale: un lancio è fatto di tanti eventi ravvicinati, e
+ * ognuno rimette il conto a zero.
  */
 private const val QUIET_MS = 150L
 
-/** L'attesa prima che il glifo dell'app rientri a tasto **armato**: un secondo. */
+/** L'attesa prima che il glifo dell'app rientri a tasto armato. */
 private const val BACK_WAIT_MS = 1_000L
 
 /** Quanto dura il rientro del glifo dell'app. */
@@ -145,57 +123,51 @@ private const val BACK_MS = 250
 /**
  * L'esponente delle due opacità incrociate.
  *
- * ⚠️⚠️ **SOTTO UNO, E IL PERCHÉ È MISURATO**: con due opacità **lineari** incrociate, a metà
- * corsa i due glifi sono tutti e due al 9% nello stesso fotogramma, cioè il tasto resta vuoto.
- * A 0,8 la somma non scende mai sotto il pieno. Chi lo scrive con un `Crossfade` di serie si
- * riprende quel buco.
+ * ⚠️ **Sotto uno, ed è misurato**: con due opacità lineari incrociate il tasto a metà corsa
+ * appare quasi vuoto; a 0,8 la somma non scende mai sotto il pieno. Un `Crossfade` di serie
+ * riporterebbe quel buco.
  */
 internal const val JUMP_FULL = 0.8f
 
 /**
  * Quanto si rimpicciolisce il disegno che se ne va, e da quanto arriva quello che entra.
  *
- * ⚠️ **A distinguere i due glifi è la SCALA e non il turno**: si incrociano per tutta la corsa,
- * quindi senza un movimento che li separi si vedrebbe una macchia sola.
+ * A distinguere i due glifi è la scala: si incrociano per tutta la corsa, e senza un movimento
+ * che li separi si vedrebbe una macchia sola.
  */
 internal const val JUMP_ZOOM = 0.45f
 
 /**
- * How the app's mark and its stand-ins fade on the FAB and the round key: the alpha goes to each
- * drawing, without an offscreen buffer.
+ * Come sbiadiscono il marchio dell'app e i suoi sostituti sul FAB e sul tondo: l'opacità va a
+ * ogni disegno, senza un buffer fuori schermo.
  *
- * ⚠️⚠️ **SINCE 4.33, NOTE C ON THE 4.32 ROUND** (*il simbolo quasi del tutto disegnato si ferma per
- * un attimo (visibile) con un pezzo mancante (parte superiore del cerchio) che poi appare con uno
- * scatto unico*). The mark is drawn a few dp above its box (`Marchio`, the optical lift), and with
- * the default strategy a layer below full opacity draws into a buffer as large as the box: the
- * disc's top was cut for the whole fade and came back in one frame at full opacity. Measured by
- * `ScattoGlifoTest`.
- * ⚠️ Fading each drawing on its own is what a buffer avoids when shapes overlap: here a glyph is one
- * vector, so nothing overlaps.
+ * ⚠️ **Il marchio è disegnato qualche dp sopra il suo riquadro** (`Marchio`, il rialzo ottico), e
+ * con la strategia di serie un layer non opaco disegna in un buffer grande quanto il riquadro: la
+ * cima del disco resterebbe tagliata per tutta la dissolvenza e tornerebbe con uno scatto (nota C
+ * dell'utente sul giro della 4.32). Presidiato da `ScattoGlifoTest`.
+ * Il buffer serve quando le forme si sovrappongono; qui un glifo è un vettore solo.
  */
 internal val MARK_FADE = CompositingStrategy.ModulateAlpha
 
 /**
  * Ferma la corsa quando la lista non prende più niente.
  *
- * ⚠️ **Un'eccezione e non una bandierina**: dentro `scroll {}` la lista è bloccata per chiunque
- * altro, quindi girare a vuoto fino alla fine della durata vorrebbe dire un'app che non
- * risponde al dito per mezzo secondo dopo essere arrivata in fondo.
+ * Un'eccezione che interrompe l'animazione: dentro `scroll {}` la lista è bloccata per chiunque
+ * altro, e girare a vuoto fino alla fine della durata lascerebbe il dito senza risposta per
+ * mezzo secondo.
  */
 private class Arrivato : CancellationException("bordo")
 
 /**
- * How fast a fling has to start for the jump to arm, in dp per second.
+ * Quanto veloce deve partire un lancio perché il salto si armi, in dp al secondo.
  *
- * ⚠️⚠️ **SINCE 4.34, HIS NOTE** (note C on the 4.33 round: *voglio che appaiano solo se il gesto di
- * scorrimento è abbastanza veloce ... se le righe di anteprime o gli elementi della lista sono pochi,
- * si scorre di poco e lo si fa lentamente*): until 4.33 every pixel of a drag counted, so a short slow
- * scroll armed the jump after [HAUL] pixels.
- * ⚠️ **The measure is the fling's starting speed**, the one the system computes from the finger's
- * last samples: the gesture of whoever scrolls many items is a fling, and a drag that stops before
- * the finger lifts starts none. Once armed, the glyph follows the scroll as before.
- * ⚠️ **The number is a first estimate, to be tuned on his phone**: Android starts a fling from
- * 50dp/s, and a deliberate one runs to thousands.
+ * Solo uno scorrimento abbastanza veloce arma il salto (nota C dell'utente sul giro della 4.33):
+ * con pochi elementi si scorre poco e piano. La misura è la velocità iniziale del lancio, che il
+ * sistema calcola dagli ultimi campioni del dito: chi scorre molti elementi lancia, e un
+ * trascinamento che si ferma prima di alzare il dito non lancia. Una volta armato, il glifo segue
+ * lo scorrimento.
+ * ⚠️ **È una prima stima, da tarare sul suo telefono**: Android avvia un lancio da 50dp/s, e uno
+ * deciso arriva alle migliaia.
  */
 internal const val JUMP_SPEED = 1_000f
 
@@ -205,29 +177,18 @@ private enum class Phase { IDLE, PULL, READY, BACK }
 /**
  * Lo stato del glifo del FAB: da 0 (il disegno dell'app) a 1 (il chevron).
  *
- * ⚠️⚠️ **LA CORSA DEL TASTO NON PUÒ GIRARE IL CHEVRON, E LA RAGIONE NON È UNA GUARDIA: È IL
- * SEGNO.** Nel mockup c'era una riga che escludeva la corsa dal conto del gesto, con la sua
- * spiegazione (*toccando 'vai all'inizio' la lista sale, cioè scorre nel verso opposto a quello
- * che ha armato il tasto*), e la prima stesura di questo file l'aveva copiata. **Due
- * controprove l'hanno smentita.**
- * ⚠️⚠️ **PRIMA MISURA**: togliendo la guardia, le prove del banco restavano verdi, perché
- * [glide] muove la lista **dentro** `state.scroll {}` e quel movimento non risale la catena dei
- * modificatori: al nodo che guarda il gesto non arriva niente.
- * ⚠️⚠️ **SECONDA MISURA, ed è quella che chiude la questione**: passando alla corsa proprio quel
- * nodo, cioè facendole attraversare il motore, il chevron **non si gira lo stesso**. Una corsa
- * verso l'inizio muove la lista verso l'inizio, che è il verso che il chevron già indica, quindi
- * il segno che ne esce è quello già armato. Il rischio descritto nel mockup non esiste in
- * nessuna delle due strade.
- * ⚠️ **Per questo qui non c'è nessuna bandierina**, ed è scritto perché non la rimetta nessuno:
- * una riga che non ha un caso è codice morto, e una prova che la presidiasse sarebbe verde con
- * e senza di lei.
+ * ⚠️ **La corsa del tasto non può girare il chevron, quindi non serve una guardia** (il mockup ne
+ * aveva una): [glide] muove la lista dentro `state.scroll {}`, e quel movimento non arriva al
+ * nodo che guarda il gesto; e anche passando di lì, una corsa verso l'inizio va nel verso che il
+ * chevron già indica. Una guardia sarebbe codice morto, e una prova che la presidiasse sarebbe
+ * verde con e senza di lei.
  */
 @Stable
 class JumpArm internal constructor(
     private val state: ScrollableState,
     private val up: () -> Float,
     private val down: () -> Float,
-    /** The fling speed that arms the jump, in pixels per second: [JUMP_SPEED] at this density. */
+    /** La velocità di lancio che arma il salto, in pixel al secondo: [JUMP_SPEED] a questa densità. */
     private val fast: Float
 ) {
     /** Quanto il chevron ha preso il posto del disegno dell'app: da 0 a 1. */
@@ -240,7 +201,7 @@ class JumpArm internal constructor(
 
     private var phase by mutableStateOf(Phase.IDLE)
 
-    /** True from a fling fast enough ([fast]) to the glyph's way back: only then a pixel counts. */
+    /** Vero da un lancio abbastanza veloce ([fast]) al rientro del glifo: solo allora un pixel conta. */
     private var flung = false
     private var run = 0f
     private var against = 0f
@@ -255,14 +216,13 @@ class JumpArm internal constructor(
     /**
      * Lo scorrimento annidato da montare sul contenitore della schermata.
      *
-     * ⚠️ **Non consuma niente e non è un secondo `frontScroll`**: guarda il delta del dito
-     * **prima** che qualcuno lo spenda, che è l'unico punto in cui il gesto si legge intero. La
-     * fascia dell'intestazione ne consuma una parte per chiudersi, e quel tratto è gesto come
-     * tutto il resto: nel mockup la fascia si chiude sullo stesso scorrimento che arma il tasto.
+     * Non consuma niente: guarda il delta del dito prima che qualcuno lo spenda, l'unico punto in
+     * cui il gesto si legge intero. L'intestazione ne consuma una parte per chiudersi, e anche
+     * quel tratto arma il tasto, come nel mockup.
      */
     internal val watch = object : NestedScrollConnection {
         override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-            // ⚠️ A slow drag does not arm the jump (note C on the 4.33 round): see [JUMP_SPEED].
+            // Un trascinamento lento non arma il salto: vedi [JUMP_SPEED].
             if (flung || phase != Phase.IDLE) pull(available.y)
             return Offset.Zero
         }
@@ -274,12 +234,11 @@ class JumpArm internal constructor(
     }
 
     /**
-     * Il dito che scorre: ogni pixel porta il glifo un po' più verso il chevron.
+     * Il dito che scorre: ogni pixel avvicina il glifo al chevron.
      *
-     * ⚠️ **I segni sono due mondi**: il puntatore conta positivo verso il basso, cioè verso
-     * l'inizio della lista, mentre `scrollBy` conta positivo verso il fondo. Il verso del
-     * chevron è quello della **lista**, quindi un dito che sale (`y` negativa) arma 'Vai alla
-     * fine'.
+     * ⚠️ **I segni sono opposti**: il puntatore conta positivo verso il basso, cioè verso l'inizio
+     * della lista, `scrollBy` verso il fondo. Il verso del chevron è quello della lista, quindi un
+     * dito che sale (`y` negativa) arma 'Vai alla fine'.
      */
     private fun pull(dy: Float) {
         val px = abs(dy)
@@ -296,7 +255,7 @@ class JumpArm internal constructor(
             against = 0f
         }
         phase = Phase.PULL
-        // ⚠️ At most [HAUL_STEP] of the haul per event: see there.
+        // Al più [HAUL_STEP] della corsa per evento: il perché è là.
         run = min(HAUL, run + min(px, HAUL * HAUL_STEP))
         shown = run / HAUL
         if (shown >= 1f) phase = Phase.READY
@@ -306,12 +265,14 @@ class JumpArm internal constructor(
     /**
      * Il rientro del disegno dell'app.
      *
-     * ⚠️ **La corsa accumulata non si azzera prima della fine**: un pixel che arriva mentre il
-     * glifo rientra riprende da dov'era invece di ricominciare, ed è il comportamento del
-     * mockup.
+     * La corsa accumulata si azzera solo alla fine: un pixel che arriva mentre il glifo rientra
+     * riprende da dov'era, come nel mockup.
+     * ⚠️ **Un rientro annullato a metà riparte da dov'è** ([shown]): lo annulla ogni `tick`, anche
+     * quello di una corsa della pillola, che non passa da [pull]. Lasciato in `BACK`, il glifo
+     * restava mezzo chevron, e il primo trascinamento anche lento armava il salto.
      */
     private suspend fun retreat() {
-        if (phase == Phase.IDLE || phase == Phase.BACK) return
+        if (phase == Phase.IDLE) return
         phase = Phase.BACK
         animate(shown, 0f, animationSpec = tween(BACK_MS, easing = SMOOTHER)) { v, _ ->
             shown = v
@@ -324,12 +285,16 @@ class JumpArm internal constructor(
         phase = Phase.IDLE
     }
 
-    /** Il congedo, con i suoi due tempi: uno a corsa incompleta, l'altro a tasto armato. */
+    /**
+     * Il congedo, con i suoi due tempi: uno a corsa incompleta, l'altro a tasto armato. Un rientro
+     * interrotto si completa subito: vedi [retreat].
+     */
     internal suspend fun idle() {
         when (phase) {
             Phase.PULL -> delay(QUIET_MS)
             Phase.READY -> delay(BACK_WAIT_MS)
-            else -> return
+            Phase.BACK -> {}
+            Phase.IDLE -> return
         }
         retreat()
     }
@@ -337,8 +302,8 @@ class JumpArm internal constructor(
     /**
      * La corsa verso un capo scelto: `-1` l'inizio, `+1` la fine.
      *
-     * ⚠️ **Nasce con la pillola estesa della `4.00`**, che ha due tasti e non un chevron solo
-     * (risposta C2): il capo lo sceglie il tasto, non il verso dell'ultimo scorrimento.
+     * Serve alla pillola estesa, che ha due tasti e non un chevron solo (risposta C2 dell'utente,
+     * 4.00): il capo lo sceglie il tasto, non il verso dell'ultimo scorrimento.
      */
     internal suspend fun leapToward(capo: Int, nested: NestedScrollConnection?) {
         val quanti = if (capo > 0) down() else -up()
@@ -355,7 +320,7 @@ class JumpArm internal constructor(
         try {
             glide(state, nested, quanti)
         } finally {
-            // ⚠️ Finita la corsa ricomincia l'attesa: il glifo rientra un secondo dopo.
+            // Finita la corsa ricomincia l'attesa: il glifo rientra un secondo dopo.
             tick++
         }
     }
@@ -375,18 +340,17 @@ fun rememberJumpArm(
     down: () -> Float
 ): JumpArm {
     /*
-     * ⚠️ **Le due lambda si leggono VIVE**: l'oggetto nasce una volta sola, quindi quella
-     * catturata sarebbe la lambda del primo giro. Chi passa una stima che dipende da un valore
-     * ricalcolato a ogni ricomposizione se la troverebbe congelata, e non darebbe nessun errore.
+     * ⚠️ **Le due lambda si leggono vive**: l'oggetto si crea una volta sola, e una lambda
+     * catturata resterebbe quella del primo giro, congelata senza nessun errore.
      */
     val alto by rememberUpdatedState(up)
     val basso by rememberUpdatedState(down)
     val fast = with(LocalDensity.current) { JUMP_SPEED.dp.toPx() }
     val arm = remember(state, fast) { JumpArm(state, { alto() }, { basso() }, fast) }
     /*
-     * ⚠️ **`collectLatest` è il modo in cui il congedo si rimette a zero**: ogni pixel alza
-     * `tick`, quindi l'attesa precedente viene annullata e ne parte una nuova. Senza, un lancio
-     * inerziale lascerebbe in coda un rientro già programmato.
+     * `collectLatest` rimette a zero il congedo: ogni pixel alza `tick`, l'attesa precedente è
+     * annullata e ne parte una nuova. Senza, un lancio lascerebbe in coda un rientro già
+     * programmato.
      */
     LaunchedEffect(arm) {
         snapshotFlow { arm.tick }.collectLatest { arm.idle() }
@@ -397,14 +361,12 @@ fun rememberJumpArm(
 /**
  * Il glifo del FAB: il disegno dell'app e il chevron, incrociati per tutta la corsa.
  *
- * ⚠️⚠️ **I DUE DISEGNI NON SI DÀNNO IL CAMBIO A METÀ**: sfasandoli il FAB resta quasi vuoto
- * nell'istante in cui uno è finito e l'altro non è ancora arrivato. A distinguerli ci pensa la
- * **scala**, non il turno, ed è la stessa forma della transizione verso la `×`.
- * ⚠️ **Una descrizione sola**: a parlare è il tasto, e due descrizioni sullo stesso nodo dànno
- * due voci per un comando solo. Quella giusta la passa il chiamante a `TapHoldFab`, perché a
- * tasto armato il FAB fa un'altra cosa.
+ * I due disegni non si danno il cambio a metà: sfasati, il FAB resterebbe quasi vuoto fra l'uno e
+ * l'altro. Li distingue la scala ([JUMP_ZOOM]), come nella transizione verso la `×`.
+ * Una descrizione sola, quella del tasto: la passa il chiamante a `TapHoldFab` ([jumpLabel]),
+ * perché a tasto armato il FAB fa un'altra cosa.
  *
- * @param home il disegno di sempre, cioè quello che il FAB porta a riposo.
+ * @param home il disegno del FAB a riposo.
  */
 @Composable
 fun JumpGlyph(arm: JumpArm, home: @Composable () -> Unit) {
@@ -413,18 +375,15 @@ fun JumpGlyph(arm: JumpArm, home: @Composable () -> Unit) {
         Box(
             modifier = Modifier.graphicsLayer {
                 alpha = (1f - q).pow(JUMP_FULL)
-                // ⚠️ Without a buffer: see [MARK_FADE].
+                // Senza buffer: vedi [MARK_FADE].
                 compositingStrategy = MARK_FADE
                 val s = 1f - JUMP_ZOOM * q
                 scaleX = s
                 scaleY = s
             }
         ) { home() }
-        /*
-         * ⚠️ **A riposo il chevron non è nell'albero**, e non è un risparmio: un nodo
-         * trasparente riceve comunque i tocchi e conta per il lettore di schermo, e questo ne
-         * porterebbe uno dentro il FAB che ne ha già uno suo.
-         */
+        // A riposo il chevron non è nell'albero: un nodo trasparente riceve comunque i tocchi e
+        // conta per il lettore di schermo.
         if (q > 0f) {
             Box(
                 modifier = Modifier.graphicsLayer {
@@ -454,16 +413,13 @@ fun jumpLabel(arm: JumpArm, home: String): String = when {
 /**
  * La corsa, con la durata e la decelerazione del sito.
  *
- * ⚠️⚠️ **IL DELTA PASSA DALLO SCORRIMENTO ANNIDATO, ESATTAMENTE COME UN DITO**: prima
- * `onPreScroll` (che chiude l'intestazione scendendo), poi la lista, poi `onPostScroll` (che la
- * riapre salendo). Muovendo la sola lista, il tasto 'su' si sarebbe fermato con la fascia
- * ancora chiusa, e lui ha chiesto il contrario (*fa scorrere in cima fino alla visualizzazione
- * piena dell'intestazione*). Scritto così quel comportamento non è una riga in più: è quello
- * che già succede col dito.
+ * ⚠️ **Il delta passa dallo scorrimento annidato, come un dito**: prima `onPreScroll` (che chiude
+ * l'intestazione scendendo), poi la lista, poi `onPostScroll` (che la riapre salendo). Così 'Vai
+ * all'inizio' arriva fino all'intestazione piena, come ha chiesto l'utente.
  *
- * @param quanti pixel di lista, positivi verso il fondo. La stima serve solo alla **durata**:
- *   la corsa finisce quando nessuno prende più niente, quindi una stima lunga non porta oltre
- *   il bordo e una corta arriva lo stesso, con meno decelerazione.
+ * @param quanti pixel di lista, positivi verso il fondo. La stima serve solo alla durata: la
+ *   corsa finisce quando nessuno prende più niente, quindi una stima lunga non va oltre il bordo
+ *   e una corta arriva lo stesso, con meno decelerazione.
  */
 internal suspend fun glide(
     state: ScrollableState,
@@ -496,9 +452,8 @@ internal suspend fun glide(
 /**
  * Spende un pezzo di corsa fra l'intestazione e la lista, e dice quanti pixel sono andati.
  *
- * ⚠️ **I segni sono due mondi**: `scrollBy` conta positivo verso il fondo, il puntatore conta
- * positivo verso il basso, cioè verso l'inizio. Il `-` davanti a ogni passaggio è la
- * conversione, e toglierne uno solo fa un tasto che va dalla parte sbagliata.
+ * ⚠️ **I segni sono opposti** (vedi `pull`): il `-` davanti a ogni passaggio è la conversione, e
+ * toglierne uno solo manda il tasto dalla parte sbagliata.
  */
 private fun ScrollScope.spend(nested: NestedScrollConnection?, delta: Float): Float {
     val hand = Offset(0f, -delta)
@@ -517,10 +472,9 @@ private fun ScrollScope.spend(nested: NestedScrollConnection?, delta: Float): Fl
 /**
  * Quanti pixel mancano per arrivare in cima a una griglia.
  *
- * ⚠️⚠️ **È UNA STIMA, E NON PUÒ ESSERE ALTRO**: una lista pigra non sa quanto è alto quello che
- * non ha ancora composto, quindi l'altezza di una riga si ricava da quelle in scena. Serve alla
- * sola **durata** della corsa, che è un numero con un tetto: sbagliarla di un fattore due
- * cambia i millisecondi, non dove si arriva.
+ * È una stima: una lista pigra non sa quanto è alto quello che non ha ancora composto, e
+ * l'altezza di una riga si ricava da quelle in scena. Serve alla sola durata della corsa:
+ * sbagliarla cambia i millisecondi, non dove si arriva.
  */
 fun LazyGridState.jumpUpPixels(): Float {
     val seen = layoutInfo.visibleItemsInfo

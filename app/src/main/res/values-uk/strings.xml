@@ -2,7 +2,6 @@
 <!-- uk. Tradotto da AIV: la fonte di verità resta values/strings.xml, e ogni chiave nuova va aggiunta anche qui. -->
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
-    <string name="app_short_name">AIV</string>
     <string name="no_image">Немає чого показати</string>
     <string name="open_failed">Не вдалося відкрити цей файл</string>
     <string name="open_cleartext">Адреса без шифрування (http): Android її блокує, а через https вона не відповідає</string>
@@ -21,11 +20,7 @@
     <string name="save_name_date">Дата</string>
     <string name="menu_convert">Експортувати й перетворити</string>
     <string name="convert_format">Формат</string>
-    <string name="convert_jpeg">JPEG</string>
-    <string name="convert_png">PNG</string>
-    <string name="convert_webp">WebP</string>
     <string name="convert_webp_lossless">WebP без втрат</string>
-    <string name="convert_quality">Якість</string>
     <string name="convert_quality_at">Якість\u0020\u0020\u0020%1$d%%</string>
     <string name="convert_percent">%1$d%%</string>
     <string name="convert_pixels">%1$d x %2$d</string>
@@ -35,7 +30,7 @@
     <string name="convert_elsewhere">Інші формати</string>
     <string name="convert_elsewhere_desc">Android уміє записувати лише формати вище. Для решти є ці служби, вони відкриваються у браузері: зображення вибирається там, з пам\'яті телефона.</string>
     <string name="convert_clean">Очистити</string>
-    <string name="convert_clean_why">Прибирає заголовки, метадані, коментарі, скрипти, C2PA і залишки редакторів, тобто найважчі дані (до 99% файлу), які потрібні рідко.</string>
+    <string name="convert_clean_why" formatted="false">Прибирає заголовки, метадані, коментарі, скрипти, C2PA і залишки редакторів, тобто найважчі дані (до 99% файлу), які потрібні рідко.</string>
     <string name="convert_clean_keeps">Вміст зображення не змінюється (контури, форми, лінії, малюнки, текст…): ілюстрація залишається недоторканою на 100%.</string>
     <string name="convert_clean_c2pa">⚠️ УВАГА: зникає й походження C2PA, тобто частина, яка каже, хто зробив файл. Збережіть копію, якщо вона потрібна.</string>
     <string name="clean_now">Очистити</string>
@@ -45,11 +40,8 @@
     <string name="clean_not_svg">Цей файл не є читабельним SVG.</string>
     <string name="convert_open">Відкрити</string>
     <string name="convert_export">Експортувати</string>
-    <string name="convert_ezgif">EzGif</string>
     <string name="convert_ezgif_why">Перетворює майже з усього і майже на все, разом з анімованими GIF.</string>
-    <string name="convert_squoosh">Squoosh</string>
     <string name="convert_squoosh_why">Від Google, працює у браузері: зображення нікуди не надсилається.</string>
-    <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">Найдовший список форматів, разом з AVIF і TIFF.</string>
     <string name="toast_image_copied">Зображення скопійовано</string>
     <string name="toast_name_copied">Ім\'я файлу скопійовано</string>
@@ -106,7 +98,6 @@
     <string name="front_tint">Колір заголовка</string>
     <string name="front_tint_none">Типовий колір</string>
     <string name="folder_cover">Вибрати обкладинку</string>
-    <string name="folder_cover_auto">Типова обкладинка</string>
     <string name="folder_cover_pick">Виберіть обкладинку для \'%1$s\'</string>
     <string name="folder_cover_done">Обкладинку оновлено</string>
     <string name="folder_cover_fail">Це зображення не можна використати як обкладинку</string>
@@ -165,7 +156,7 @@
     <string name="settings_info_position">Розташування</string>
     <string name="settings_zoom_menu">Масштаб у меню перегляду</string>
     <string name="settings_zoom_menu_desc">Додає \'Вписати в екран\' і \'100%\' до контекстного меню переглядача.</string>
-    <string name="hint_zoom_tap">Швидке масштабування: подвійний дотик підганяє зображення під екран, ще один показує справжні пікселі. Торкайтеся далі, щоб перемикати між підігнаним і 100%.</string>
+    <string name="hint_zoom_tap" formatted="false">Швидке масштабування: подвійний дотик підганяє зображення під екран, ще один показує справжні пікселі. Торкайтеся далі, щоб перемикати між підігнаним і 100%.</string>
     <string name="hint_ext_warn">⚠️ Зміна розширення файла не те саме, що перетворення з одного формату в інший: для цього є \'Експортувати й перетворити\'.\n\n⚠️ Якщо надати зображенню чи відео розширення, яке не належить медіафайлу, елемент зникне з вигляду сіткою та списком.</string>
     <string name="settings_anim_counter">Лічильник кадрів</string>
     <string name="settings_anim_counter_desc">З\'являється на панелі керування анімованих зображень.</string>
@@ -185,9 +176,9 @@
     <string name="folders_permission_media">Для списку тек потрібен доступ до зображень і відео.</string>
     <string name="folders_none">У жодній теці немає нічого для показу.</string>
     <string name="folders_tablet_pick">Виберіть теку на панелі навігації</string>
-    <string name="folders_rail_search">Search in folders</string>
-    <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move the folder list</string>
+    <string name="folders_rail_search">Пошук у теках</string>
+    <string name="folders_rail_search_in">Пошук у %1$s</string>
+    <string name="folders_rail_move">Перемістити список тек</string>
     <string name="hub_open">Ще</string>
     <string name="hub_view_list">Вигляд списком</string>
     <string name="hub_view_grid">Вигляд сіткою</string>
@@ -211,7 +202,6 @@
     <string name="show_folder_desc">Тека знову звично відображатиметься серед тек у вигляді сітки та списку.</string>
     <string name="hide_folder_do">Сховати</string>
     <string name="settings_hidden">Сховані теки</string>
-    <string name="settings_hidden_desc">Довге натискання на теку ховає її. Ці більше не з\'являються у списку, але на телефоні вони недоторкані.</string>
     <string name="settings_hidden_show">Показати</string>
     <string name="search_hint">Шукати в імені файлу</string>
     <string name="search_clear">Очистити</string>
@@ -282,8 +272,6 @@
     <string name="facts_duration">Тривалість</string>
     <string name="facts_colour_grey">Відтінки сірого</string>
     <string name="facts_colour_indexed">Індексований колір</string>
-    <string name="facts_colour_rgb">RGB</string>
-    <string name="facts_colour_rgba">RGBA</string>
     <string name="facts_colour_bits">%1$s %2$d біт</string>
     <string name="facts_colour_channel">%1$d біт/канал</string>
     <string name="facts_colour_alpha">з прозорістю</string>
@@ -408,7 +396,6 @@
     <string name="settings_facts_down">Нижче</string>
     <string name="settings_group_look">Вигляд</string>
     <string name="settings_group_viewer">Перегляд</string>
-    <string name="settings_group_input">Керування та індикатори</string>
     <string name="settings_group_files">Керування файлами</string>
     <string name="settings_group_browse">Файли й теки</string>
     <string name="settings_group_start">Запуск</string>
@@ -431,12 +418,6 @@
     <string name="settings_thumbs_gen_title">Створення ескізів</string>
     <string name="settings_thumbs_gen_done">Ескізи успішно створено.</string>
     <string name="settings_hidden_none">Немає прихованих тек</string>
-    <plurals name="settings_hidden_count">
-        <item quantity="one">%1$d тека</item>
-        <item quantity="few">%1$d теки</item>
-        <item quantity="many">%1$d тек</item>
-        <item quantity="other">%1$d теки</item>
-    </plurals>
     <plurals name="settings_facts_count">
         <item quantity="one">%1$d поле показано</item>
         <item quantity="few">%1$d поля показано</item>
@@ -516,7 +497,6 @@
     <string name="look_vibrance">Барвистість</string>
     <string name="look_filter">Фільтр Ч/Б</string>
     <string name="look_bw">Чорно-біле</string>
-    <string name="look_mix">HSL</string>
     <string name="look_hue">Відтінок</string>
     <string name="look_lum">Яскравість</string>
     <string name="look_band_red">Червоний</string>
@@ -541,7 +521,6 @@
     <string name="look_grain_lift">Світлі</string>
     <string name="look_vignette_feather">Розтушовка</string>
     <string name="look_tone">Крива</string>
-    <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Тонова крива</string>
     <string name="look_target">Точково</string>
     <string name="look_auto">Авто</string>
@@ -790,8 +769,8 @@
     <string name="folder_add">Додати теку</string>
     <string name="folder_authorize">Дозволити папку</string>
     <string name="folder_authorize_title">Додати до відображуваних папок</string>
-    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
-    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_list_remove_title">Справді прибрати цю теку зі списку?</string>
+    <string name="folder_list_remove_do">Прибрати</string>
     <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">Скасувати дозвіл</string>
     <string name="folder_remove_desc">Видалити цю папку зі списку дозволених? Її вміст зникне з режимів сітки та списку.</string>

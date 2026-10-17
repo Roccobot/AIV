@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Le lingue di AIV per la pagina 'Lingua dell'app' di Android 13 e successivi, dove il sistema
+     sceglie la lingua di un'app sola (dalla 6.30, rilievo F15 della revisione Setaccio). Una riga
+     per ogni cartella values-* con le traduzioni. Scritto a mano perché la versione generata dalla
+     build elencava l'indonesiano due volte: la cartella values-in la copia la build da values-id
+     (scelta Q1). LingueAppTest lo confronta con le cartelle, così una lingua nuova non resta fuori. -->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="en" />
+    <locale android:name="ar" />
+    <locale android:name="bn" />
+    <locale android:name="de" />
+    <locale android:name="es" />
+    <locale android:name="es-419" />
+    <locale android:name="fa" />
+    <locale android:name="fr" />
+    <locale android:name="hi" />
+    <locale android:name="id" />
+    <locale android:name="it" />
+    <locale android:name="ja" />
+    <locale android:name="ko" />
+    <locale android:name="mr" />
+    <locale android:name="nl" />
+    <locale android:name="pl" />
+    <locale android:name="pt" />
+    <locale android:name="pt-PT" />
+    <locale android:name="ru" />
+    <locale android:name="sw" />
+    <locale android:name="ta" />
+    <locale android:name="te" />
+    <locale android:name="th" />
+    <locale android:name="tr" />
+    <locale android:name="uk" />
+    <locale android:name="ur" />
+    <locale android:name="vi" />
+    <locale android:name="zh-CN" />
+    <locale android:name="zh-TW" />
+</locale-config>

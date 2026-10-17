@@ -73,7 +73,7 @@ class RampeTest {
      * dieci gradienti.
      */
     @Test
-    fun `l'ombra della selezione che scorre non rifà il gradiente`() {
+    fun `l'ombra della selezione che scorre riusa il gradiente`() {
         var giu by mutableIntStateOf(0)
         banco.setContent {
             Column {

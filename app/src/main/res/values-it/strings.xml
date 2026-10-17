@@ -6,7 +6,6 @@
          deliberate. Hence: always add them in pairs.
          Full stops follow the ROLE of the string, as in the English file. -->
     <string name="app_name">Astonishing Image Viewer</string>
-    <string name="app_short_name">AIV</string>
 
     <string name="no_image">Niente da mostrare</string>
     <string name="open_failed">Non riesco ad aprire questo file</string>
@@ -31,11 +30,7 @@
     <string name="save_name_date">Data</string>
     <string name="menu_convert">Esporta/Converti</string>
     <string name="convert_format">Formato</string>
-    <string name="convert_jpeg">JPEG</string>
-    <string name="convert_png">PNG</string>
-    <string name="convert_webp">WebP</string>
     <string name="convert_webp_lossless">WebP senza perdita</string>
-    <string name="convert_quality">Qualità</string>
     <string name="convert_quality_at">Qualità\u0020\u0020\u0020%1$d%%</string>
     <string name="convert_percent">%1$d%%</string>
     <string name="convert_pixels">%1$d x %2$d</string>
@@ -45,7 +40,7 @@
     <string name="convert_elsewhere">Altri formati</string>
     <string name="convert_elsewhere_desc">Android sa scrivere solo i formati qui sopra. Per gli altri ci sono questi servizi, che si aprono nel browser: l\'immagine si sceglie da lì, dalla memoria del telefono.</string>
     <string name="convert_clean">Pulisci</string>
-    <string name="convert_clean_why">Rimuove intestazioni, metadati, commenti, script, C2PA e residui degli editor, che sono i dati più pesanti (fino al 99% del file) e servono raramente.</string>
+    <string name="convert_clean_why" formatted="false">Rimuove intestazioni, metadati, commenti, script, C2PA e residui degli editor, che sono i dati più pesanti (fino al 99% del file) e servono raramente.</string>
     <string name="convert_clean_keeps">Non modifica il contenuto dell\'immagine (tracciati, forme, linee, disegni, testi…): l\'illustrazione rimane intatta al 100%.</string>
     <string name="convert_clean_c2pa">⚠️ ATTENZIONE: va via anche la provenienza C2PA, quella che dice chi ha fatto il file. Se ti serve, tienine una copia.</string>
     <string name="clean_now">Pulisci</string>
@@ -55,11 +50,8 @@
     <string name="clean_not_svg">Questo file non è un SVG leggibile.</string>
     <string name="convert_open">Apri</string>
     <string name="convert_export">Esporta</string>
-    <string name="convert_ezgif">EzGif</string>
     <string name="convert_ezgif_why">Converte da e verso quasi tutto, GIF animate comprese.</string>
-    <string name="convert_squoosh">Squoosh</string>
     <string name="convert_squoosh_why">Di Google, lavora nel browser: l\'immagine non viene caricata da nessuna parte.</string>
-    <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">L\'elenco di formati più lungo, AVIF e TIFF compresi.</string>
     <string name="menu_edit">Modifica</string>
     <string name="menu_edit_hold">Scegli l\'app</string>
@@ -76,7 +68,6 @@
     <string name="look_vibrance">Vividezza</string>
     <string name="look_filter">Filtro BN</string>
     <string name="look_bw">Bianco e nero</string>
-    <string name="look_mix">HSL</string>
     <string name="look_hue">Tonalità</string>
     <string name="look_lum">Luminanza</string>
     <string name="look_band_red">Rosso</string>
@@ -101,7 +92,6 @@
     <string name="look_grain_lift">Luci</string>
     <string name="look_vignette_feather">Sfumatura</string>
     <string name="look_tone">Curve</string>
-    <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Curva tonale</string>
     <string name="look_target">Mirato</string>
     <string name="look_corners">Angoli</string>
@@ -329,7 +319,6 @@
     <string name="front_tint">Colore dell\'intestazione</string>
     <string name="front_tint_none">Colore predefinito</string>
     <string name="folder_cover">Scegli la copertina</string>
-    <string name="folder_cover_auto">Copertina predefinita</string>
     <string name="folder_cover_pick">Scegli la copertina di \'%1$s\'</string>
     <string name="folder_cover_done">Copertina aggiornata</string>
     <string name="folder_cover_fail">Questa immagine non si può usare come copertina</string>
@@ -398,7 +387,7 @@
     <string name="settings_info_position">Posizione</string>
     <string name="settings_zoom_menu">Zoom nel menu del visualizzatore</string>
     <string name="settings_zoom_menu_desc">Aggiunge \'Adatta alla vista\' e \'100%\' al menu contestuale del visualizzatore.</string>
-    <string name="hint_zoom_tap">Zoom rapido: doppio tocco sull\'immagine per adattare alla vista, altro doppio tocco per passare ai pixel reali. Ripeti ancora per passare ciclicamente da adattata a 100%.</string>
+    <string name="hint_zoom_tap" formatted="false">Zoom rapido: doppio tocco sull\'immagine per adattare alla vista, altro doppio tocco per passare ai pixel reali. Ripeti ancora per passare ciclicamente da adattata a 100%.</string>
     <string name="hint_ext_warn">⚠️ Modificare l\'estensione di un file non equivale a passare da un formato all\'altro: per quello c\'è \'Esporta/Converti\'.\n\n⚠️ Se cambi l\'estensione di un\'immagine o video assegnandone una nuova non associata a un file multimediale, l\'elemento sparirà dalle viste griglia e lista.</string>
     <string name="settings_anim_counter">Contatore dei fotogrammi</string>
     <string name="settings_anim_counter_desc">Compare nella fila dei comandi delle immagini animate.</string>
@@ -449,7 +438,6 @@
     <string name="show_folder_desc">La cartella tornerà ad essere visibile normalmente tra le cartelle in modalità griglia e lista.</string>
     <string name="hide_folder_do">Nascondi</string>
     <string name="settings_hidden">Cartelle nascoste</string>
-    <string name="settings_hidden_desc">Si nasconde una cartella tenendola premuta nell\'elenco. Queste non compaiono più, ma sul telefono sono intatte.</string>
     <string name="settings_hidden_show">Mostra</string>
 
     <!-- ── Cercare fra le immagini del telefono ── -->
@@ -526,8 +514,6 @@
     <string name="facts_duration">Durata</string>
     <string name="facts_colour_grey">Scala di grigio</string>
     <string name="facts_colour_indexed">Colore indicizzato</string>
-    <string name="facts_colour_rgb">RGB</string>
-    <string name="facts_colour_rgba">RGBA</string>
     <string name="facts_colour_bits">%1$s %2$d bit</string>
     <string name="facts_colour_channel">%1$d bit/canale</string>
     <string name="facts_colour_alpha">con trasparenza</string>
@@ -660,7 +646,6 @@
 
     <string name="settings_group_look">Aspetto</string>
     <string name="settings_group_viewer">Visualizzatore</string>
-    <string name="settings_group_input">Comandi e indicatori</string>
     <string name="settings_group_files">Gestione dei file</string>
     <string name="settings_group_browse">File e cartelle</string>
     <string name="settings_group_start">Avvio</string>
@@ -683,11 +668,6 @@
     <string name="settings_thumbs_gen_title">Generazione delle miniature</string>
     <string name="settings_thumbs_gen_done">Miniature generate correttamente.</string>
     <string name="settings_hidden_none">Nessuna cartella nascosta</string>
-    <plurals name="settings_hidden_count">
-        <item quantity="one">%1$d cartella</item>
-        <item quantity="other">%1$d cartelle</item>
-        <item quantity="many">%1$d cartelle</item>
-    </plurals>
     <plurals name="settings_facts_count">
         <item quantity="one">%1$d campo visualizzato</item>
         <item quantity="other">%1$d campi visualizzati</item>

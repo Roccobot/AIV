@@ -27,71 +27,39 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.dp
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 /**
- * La finestra che chiede **il nome** di quello che si sta salvando.
+ * La finestra che chiede il nome di quello che si salva in Download, ispirata a 'Rinomina'. La
+ * aprono l'impostazione accesa e il tocco lungo su 'Scarica', che vale per quella volta sola.
  *
- * ⚠️⚠️ **NASCE NELLA `1.77` CON LA TAPPA DEL SALVATAGGIO IN DOWNLOAD, e la sua specifica è
- * dell'utente**: *una finestra col solo nome, ispirata a 'Rinomina', precompilata col nome senza
- * estensione*. Le due vie che la aprono sono l'impostazione accesa e il **tocco lungo** su
- * 'Scarica', che vale per quella volta sola.
+ * ⚠️ **Il campo contiene il solo nome**: l'estensione si vede accanto come un'etichetta spenta,
+ * perché senza il suffisso giusto la galleria non sa che file è (la stessa ragione per cui
+ * `ImageActions.fileName` lo aggiunge quando manca). La cambia il comando 'Estensione', con la
+ * stessa griglia di sicurezza di 'Rinomina'; il formato si cambia con 'Esporta/Converti'.
  *
- * ⚠️⚠️ **IL CAMPO PORTA IL SOLO NOME**: quello che si batte qui è la parte davanti al punto, e
- * l'estensione si vede accanto al campo come un'etichetta spenta. Non è una prudenza: senza il
- * suffisso giusto la galleria non sa che cosa tiene in mano, ed è la stessa ragione per cui
- * `ImageActions.fileName` lo aggiunge quando manca.
- * ⚠️⚠️ **MA DALLA `1.78` L'ESTENSIONE SI PUÒ CAMBIARE, DIETRO LA SUA GRIGLIA DI SICUREZZA**
- * (riscontro del giro della `1.77`, voce `scarica-download`: *deve esserci lo stesso pulsante
- * 'Estensione' (con identico funzionamento) della funzione 'Rinomina'*). Non contraddice il
- * blocco qui sopra: dal campo il suffisso resta fuori, e a cambiarlo è un comando a sé che
- * esiste solo se l'impostazione è accesa. Chi vuole cambiare il **formato** ha
- * 'Esporta/Converti', che è un'altra cosa e lo dice il pannellino stesso.
+ * Sotto il campo tre comandi solo-testo, disegnati da [Quiet] come in 'Rinomina' (richiesta
+ * dell'utente). 'Destinazione' ed 'Estensione' sono sulla riga del titolo, in quest'ordine e
+ * allineati a destra; se siano scritti o disegnati lo decide [TitleRow].
  *
- * ⚠️⚠️ **I COMANDI SOTTO IL CAMPO SONO TRE E SONO SOLO-TESTO, ED È LA SUA RICHIESTA ALLA
- * LETTERA**: *tutti con lo stile solo-testo, senza tasto/pillola già usato in 'Rinomina'*.
- * Quindi anche 'Data', che fino alla `1.77` era un gettone tonale, e il pezzo che li disegna è
- * [Quiet], lo stesso di 'Rinomina': copiarne la forma qui sarebbe il primo posto in cui
- * divergere.
- * ⚠️⚠️ **MA 'Estensione' NON È PIÙ FRA LORO, DALLA `1.80`: STA SULLA RIGA DEL TITOLO**
- * (riscontro del giro della `1.79`, voce `scarica-comandi`: *mi ero espresso male ... 'Estensione'
- * deve apparire sotto forma di icona a destra, allineato alla linea di base del titolo*). Con lei
- * c'è **'Destinazione'**, l'altro comando, e l'ordine è il suo: *prima 'Percorso' e poi
- * 'Estensione' ultima a destra*. Le due compaiono una per volta o insieme, e da sole stanno
- * comunque a destra, perché è la fila che si allinea al bordo e non ogni comando per conto suo.
- * ⚠️⚠️ **UNO SOLO È UNA PASTIGLIA COL TESTO, DUE SONO DUE ICONE, DALLA `1.82`** (riscontro del
- * giro della `1.81`, campo libero punto C: *chiaramente non possono coesistere due pulsanti
- * testuali in 'Scarica' ... in quel caso si usano le icone, prima 'Destinazione' e poi
- * 'Estensione', allineate a destra. Quando solo una delle due è attiva, si torna al pulsante
- * testuale*). La `1.81` le teneva testuali facendo cedere il titolo, cioè mandandolo a capo due
- * volte, e il ripiego delle icone era già autorizzato in quel giro.
- * ⚠️ **La forma la decide il CONTO dei comandi in scena, non le due condizioni**: scritte due
- * volte, il giorno che una cambia si otterrebbe una pastiglia accanto a un'icona.
- *
- * ⚠️⚠️ **È UNA MODALE VERA, E LE DUE RIGHE VANNO INSIEME** (`Modifier.lowered(null)` e
- * `properties = loweredWindow(null)`): esiste per raccogliere un input scritto, che è il solo
- * caso in cui l'app non si chiude toccando fuori. Il criterio e il difetto che l'ha fatto
- * scrivere due volte vivono in `Rules.md`, § '👆 Che cosa fa il tocco FUORI da una
+ * ⚠️⚠️ **È una modale vera, e le due righe vanno insieme** (`Modifier.lowered(null)` e
+ * `properties = loweredWindow(null)`): vedi `Rules.md`, § '👆 Che cosa fa il tocco FUORI da una
  * finestra'.
  *
  * @param full il nome intero che il file avrebbe, suffisso compreso.
- * @param hold se la finestra è stata aperta col **tocco lungo**, che vale per quella volta sola:
- *   allora i due comandi della riga del titolo ci sono tutti e due, a impostazioni spente
- *   (campo libero del giro della `1.79`, punto D). ⚠️ **Non ha un valore di serie**, perché è
- *   una delle due vie con cui questa finestra si apre e chi la apre lo sa.
+ * @param hold se la finestra è stata aperta col tocco lungo: allora i due comandi della riga del
+ *   titolo ci sono tutti e due, anche a impostazioni spente. Non ha un valore di serie, perché chi
+ *   apre la finestra sa da quale via.
  * @param folder il nome della cartella in cui il file finirà, da mostrare sotto il campo, oppure
- *   `null` per quella di serie. ⚠️ **Serve perché il percorso adesso si RICORDA**: senza una riga
- *   che lo dice, una cartella scelta un mese fa sarebbe una destinazione invisibile.
- * @param onPickFolder il gesto di 'Destinazione': apre il selettore di **cartella** e non salva
- *   niente. ⚠️ **`null` vuol dire che il comando non c'è**, cioè l'impostazione è spenta oppure la
- *   finestra non è stata aperta col tocco lungo: la scelta la fa chi chiama, perché è lui ad
- *   avere le impostazioni in mano.
- * @param onUseDownloads scorda la cartella scelta e torna a Download. ⚠️ **`null` quando non c'è
- *   niente da scordare**, cioè quando [folder] è già quella di serie.
- * @param onSave riceve il nome senza suffisso **e** il suffisso scelto, col punto: a rimetterli
- *   insieme ci pensa chi salva, perché è lui a sapere che cosa dichiarare al `MediaStore`.
+ *   `null` per quella di serie. Serve perché il percorso si ricorda: senza una riga che lo dice,
+ *   una cartella scelta tempo fa sarebbe una destinazione invisibile.
+ * @param onPickFolder il gesto di 'Destinazione': apre il selettore di cartella e non salva
+ *   niente. `null` vuol dire che il comando non c'è: lo decide chi chiama, che ha le impostazioni.
+ * @param onUseDownloads scorda la cartella scelta e torna a Download; `null` quando [folder] è già
+ *   quella di serie.
+ * @param onSave riceve il nome senza suffisso e il suffisso scelto, col punto: li riunisce chi
+ *   salva, che sa che cosa dichiarare al `MediaStore`.
  */
 @Composable
 fun SaveNameDialog(
@@ -105,47 +73,31 @@ fun SaveNameDialog(
 ) {
     val (base, had) = remember(full) { ImageActions.splitName(full) }
     /*
-     * ⚠️⚠️ **IL CURSORE PARTE IN FONDO, e non è il valore di serie** (è la stessa correzione
-     * chiesta per 'Rinomina' nel giro della `1.59`): con la selezione a zero il cursore cade
-     * davanti alla prima lettera, quindi chi vuole aggiungere qualcosa in coda deve prima
-     * spostarsi. Qui il gesto tipico è appunto aggiungere, non riscrivere da zero.
-     * ⚠️ **`rememberSaveable` e non `remember`**: girando il telefono con la finestra aperta si
-     * perderebbe quello che si è battuto, ed è esattamente il lavoro che una modale protegge.
-     * ⚠️⚠️ **E VUOLE `TextFieldValue.Saver`, O VA IN ERRORE APPENA SI APRE**: un `TextFieldValue`
-     * in un `Bundle` non ci entra, e senza il suo salvatore `rememberSaveable` **non** avvisa
-     * per iscritto, lancia. ⚠️ **Non è un difetto teorico**: la prima stesura non ce l'aveva, ha
-     * compilato senza una parola e il banco di prova l'ha presa alla prima corsa
-     * (`IllegalArgumentException: cannot be saved using the current SaveableStateRegistry`).
+     * Il cursore parte in fondo, come in 'Rinomina': qui il gesto tipico è aggiungere in coda.
+     * `rememberSaveable`, perché girando il telefono si perderebbe quello che si è scritto.
+     * ⚠️⚠️ **Vuole `TextFieldValue.Saver`, o va in errore appena si apre**: un `TextFieldValue`
+     * non entra in un `Bundle`, e senza il suo salvatore `rememberSaveable` lancia
+     * `IllegalArgumentException` (il compilatore non lo vede, il banco di prova sì).
      */
     var typed by rememberSaveable(full, stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(base, TextRange(base.length)))
     }
     /*
-     * ⚠️⚠️ **IL SUFFISSO È UNO STATO DALLA `1.78`, e prima era una costante**: adesso il comando
-     * 'Estensione' lo cambia, quindi quello che si vede accanto al campo e quello che finisce nel
-     * nome salvato devono essere **la stessa cosa**. Tenerne uno fisso e passare l'altro avrebbe
-     * dato una finestra che promette un nome e ne scrive un altro.
-     * ⚠️ **Vuoto vuol dire 'nessuna estensione'**, che è il caso di un file che non ne aveva e di
-     * chi svuota il pannellino: là l'etichetta accanto al campo sparisce, invece di mostrare un
-     * punto solo.
+     * ⚠️ **Il suffisso è uno stato**, perché quello che si vede accanto al campo e quello che
+     * finisce nel nome salvato siano la stessa cosa anche dopo 'Estensione'.
+     * Vuoto vuol dire nessuna estensione (un file che non ne aveva, o il pannellino svuotato):
+     * allora l'etichetta accanto al campo sparisce.
      */
     var suffisso by rememberSaveable(full) { mutableStateOf(had) }
     val gate = extensionGate(
         where = ExtWhere.DOWNLOAD,
         /*
-         * ⚠️⚠️ **IL TOCCO LUNGO SCAVALCA TUTTE E DUE LE OPZIONI, DALLA `1.83`, E ADESSO LA
-         * REGOLA È UNA SOLA** (riscontro del giro della `1.82`, voce `save-quando` non approvata:
-         * *qualunque sia lo stato di 'Consenti la rinomina al salvataggio', la pressione lunga su
-         * 'Scarica' rende sempre disponibili sia 'Destinazione' che 'Estensione'*). Il tocco
-         * lungo è la **versione con tutto**, e le due opzioni valgono per il tocco normale.
-         * ⚠️⚠️ **LE DUE CONDIZIONI NON SONO PIÙ DIVERSE, ed erano il difetto**: la `1.82` faceva
-         * dipendere 'Destinazione' dal gesto **e** dall'opzione, ed 'Estensione' dalla sola
-         * opzione, cioè due regole per due comandi che vivono sulla stessa riga. Chi apriva la
-         * finestra col tocco lungo ne trovava uno solo, senza poter sapere perché.
+         * ⚠️ **Il tocco lungo scavalca tutte e due le opzioni** (riscontro dell'utente, voce
+         * `save-quando`): rende disponibili sia 'Destinazione' sia 'Estensione', con la stessa
+         * regola per i due comandi della stessa riga; le opzioni valgono per il tocco normale.
          */
         force = hold,
-        // ⚠️ Il pannellino lavora **senza** il punto, come in 'Rinomina', e il punto lo rimette
-        // questa riga: è la stessa convenzione, quindi le due finestre si comportano uguale.
+        // Il pannellino lavora senza il punto, come in 'Rinomina', e il punto lo rimette questa riga.
         initial = { suffisso.removePrefix(".") },
         onPick = { suffisso = if (it.isBlank()) "" else ".$it" }
     )
@@ -158,25 +110,14 @@ fun SaveNameDialog(
         modifier = Modifier.lowered(null),
         properties = loweredWindow(null),
         /*
-         * ⚠️⚠️ **IL TITOLO È SUO E NON RIUSA `menu_save`, e il difetto l'ha trovato il banco**:
-         * con il nome del comando in cima e 'Salva' sul tasto, in inglese la finestra dice
-         * **Save** due volte, e con lei tedesco, francese e spagnolo, dove i due verbi
-         * coincidono. In italiano non si vedeva ('Scarica' e 'Salva'), che è il modo tipico in
-         * cui un difetto di testo passa: la lingua in cui si scrive è quella in cui non si
-         * vede. Adesso il titolo dice **che cosa si chiede** e il tasto **che cosa fa**.
-         */
-        /*
-         * ⚠️⚠️ **I DUE COMANDI STANNO SULLA RIGA DEL TITOLO, E L'ORDINE È IL SUO** (riscontro
-         * del giro della `1.79`, voce `scarica-comandi`: *le icone potrebbero essere presenti
-         * una per volta (in tal caso l'unica va allineata a destra) o insieme (in tal caso,
-         * prima 'Percorso' e poi 'Estensione' ultima a destra)*).
-         * ⚠️ **A destra ci va la FILA e non ogni icona per conto suo**, e così il caso 'una
-         * sola' viene da sé: `SpaceBetween` spinge la fila al bordo, quindi l'unica icona in
-         * scena è già allineata a destra senza che nessuno la sposti.
-         * ⚠️⚠️ **QUI SI DICE QUALI COMANDI CI SONO E IN CHE ORDINE, E BASTA**: se siano scritti o
-         * disegnati lo decide [TitleRow] dalla misura, che dalla `1.86` è la sua risposta a
-         * `d-pill-soglia`. Il conto che la `1.82` faceva qui vive là, dove c'è anche la
-         * larghezza.
+         * ⚠️ **Il titolo è suo e non riusa `menu_save`**: col nome del comando in cima e 'Salva'
+         * sul tasto, in inglese, tedesco, francese e spagnolo la finestra direbbe lo stesso verbo
+         * due volte. Il titolo dice che cosa si chiede, il tasto che cosa fa.
+         *
+         * I due comandi della riga del titolo, nell'ordine scelto dall'utente: prima
+         * 'Destinazione', poi 'Estensione'. A destra va la fila, quindi anche un comando solo è
+         * allineato a destra. Qui si dice quali comandi ci sono e in che ordine; se siano scritti
+         * o disegnati lo decide [TitleRow] dalla misura (risposta `d-pill-soglia`).
          */
         title = {
             val dest = stringResource(R.string.save_name_dest)
@@ -199,10 +140,8 @@ fun SaveNameDialog(
                     modifier = Modifier.fillMaxWidth().focusRequester(focus),
                     singleLine = true,
                     /*
-                     * ⚠️ **Il suffisso è un'etichetta in coda al campo e non un testo dentro**:
-                     * dentro sarebbe cancellabile, e questa finestra promette il contrario.
-                     * Spento di colore perché non è un comando: dice soltanto come finirà il
-                     * nome.
+                     * Il suffisso è un'etichetta in coda al campo: dentro sarebbe cancellabile.
+                     * Spento di colore perché non è un comando.
                      */
                     suffix = if (suffisso.isEmpty()) null else {
                         {
@@ -219,24 +158,15 @@ fun SaveNameDialog(
                     )
                 )
                 /*
-                 * ⚠️⚠️ **LA FILA È LA STESSA DI 'Rinomina', E L'ORDINE ANCHE**: prima i due che
-                 * agiscono sulla selezione, poi quello che scrive. Le due finestre portano gli
-                 * stessi comandi, quindi chi impara una posizione la ritrova nell'altra.
-                 * ⚠️⚠️ **E DALLA `1.80` SONO TRE E NON QUATTRO, perché 'Estensione' è salita
-                 * sulla riga del titolo** (vedi la nota là sopra): quella non lavorava sul campo
-                 * come le altre, apriva un'altra finestra, ed è la ragione per cui in questa
-                 * fila stava in testa invece che in coda.
-                 * ⚠️ **`FlowRow` e non `Row`**: tre comandi in una finestra larga 280dp non ci
-                 * stanno in ogni lingua, e in tedesco 'Alles auswählen' da solo è mezza riga.
-                 * Andando a capo restano leggibili invece di stringersi.
-                 * ⚠️ **`Arrangement.End` senza spaziatura**: l'aria fra i comandi la mette il
-                 * riempimento di [Quiet], e sommarci una spaziatura li allontanerebbe di tre
-                 * volte tanto, mandando a capo una fila che ci sta.
-                 * ⚠️⚠️ **IL TOCCO LUNGO DELLA DATA È LA SUA SPECIFICA**: *inserisce `YYYYMMDD`
-                 * al cursore, e col tocco lungo sostituisce tutto il nome*. Il tocco breve
-                 * aggiunge, il lungo rifà: sono le due cose che si vogliono davvero fare con una
-                 * data in un nome di file, e nessuna delle due si ottiene dall'altra senza
-                 * cancellare a mano.
+                 * La fila e l'ordine sono quelli di 'Rinomina': prima i due comandi che agiscono
+                 * sulla selezione, poi quello che scrive.
+                 * ⚠️ **`FlowRow`**: tre comandi in una finestra larga 280dp non entrano in ogni
+                 * lingua (in tedesco 'Alles auswählen' da solo è mezza riga), e andando a capo
+                 * restano leggibili. `Arrangement.End` senza spaziatura: l'aria fra i comandi la
+                 * mette il riempimento di [Quiet], e una spaziatura in più manderebbe a capo una
+                 * fila che ci sta.
+                 * 'Data' (specifica dell'utente): il tocco breve inserisce `YYYYMMDD` al cursore,
+                 * il tocco lungo sostituisce tutto il nome.
                  */
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),
@@ -265,27 +195,13 @@ fun SaveNameDialog(
                     )
                 }
                 /*
-                 * ⚠️⚠️ **LA CARTELLA SI SCRIVE PERCHÉ ADESSO SI RICORDA, DALLA `1.81`**
-                 * (riscontro del giro della `1.80`, campo libero punto E: *Io voglio che sia
-                 * memorizzato il percorso in modo che il file sia salvato lì alla fine, ma solo
-                 * alla pressione di 'Salva'*). Una destinazione scelta una volta e poi
-                 * invisibile è peggio di nessuna destinazione: chi salva non sa dove sta
-                 * mandando il file.
-                 * ⚠️ **C'è solo quando è stata scelta**: con la cartella di serie la riga non
-                 * comparirebbe a dire 'Download', che è quello che l'app fa da sempre e che
-                 * nessuno ha bisogno di leggere ogni volta.
-                 */
-                /*
-                 * ⚠️⚠️ **E DALLA `1.82` PORTA LA VIA DEL RITORNO, PERCHÉ IL SELETTORE NON LA
-                 * DÀ** (riscontro del giro della `1.81`, voce `save-percorso`: *se cambio
-                 * cartella di download, non posso più tornare a storage/emulated/0/Download. Il
-                 * file picker mi dice che 'per tutelare la mia privacy' non posso scegliere
-                 * quella cartella*). Non è una comodità: senza questa riga una cartella scelta
-                 * una volta era **definitiva**, perché la sola via per cambiarla passava da un
-                 * selettore che quella cartella si rifiuta di mostrare.
-                 * ⚠️ **Il ritorno non passa dal selettore ed è la ragione per cui funziona**:
-                 * scordare l'albero scelto riporta alla strada di serie, che è
-                 * `MediaStore.Downloads` e non un percorso da scegliere.
+                 * La cartella si scrive perché si ricorda: chi salva deve sapere dove va il file.
+                 * C'è solo quando è stata scelta; con quella di serie la riga non compare.
+                 *
+                 * ⚠️⚠️ **La riga ha la via del ritorno a Download, perché il selettore non la
+                 * dà**: per la privacy rifiuta di mostrare quella cartella, quindi senza questo
+                 * comando una cartella scelta sarebbe definitiva. Il ritorno scorda l'albero
+                 * scelto e riporta a `MediaStore.Downloads`, senza passare dal selettore.
                  */
                 if (folder != null) {
                     Row(
@@ -326,13 +242,8 @@ fun SaveNameDialog(
 /**
  * Il testo con la data di oggi infilata dov'è il cursore.
  *
- * ⚠️ **Sostituisce la selezione, se c'è**: è quello che fa qualunque campo di testo quando si
- * scrive con del testo selezionato, e comportarsi diversamente sorprenderebbe.
- * ⚠️ **Il cursore resta DOPO la data**, che è il posto da cui si continua a scrivere.
- * ⚠️⚠️ **NON È PIÙ PRIVATA DALLA `1.78`, e la ragione è la sua richiesta**: *voglio che
- * 'Rinomina' abbia 'Data', che inserisce YYYYMMDD **esattamente come implementato** in
- * 'Scarica'*. 'Esattamente come' regge solo se il gesto lo fa la stessa funzione; due copie del
- * conto sul cursore sarebbero due comportamenti che si somigliano.
+ * Sostituisce la selezione, se c'è, come qualunque campo di testo, e lascia il cursore dopo la
+ * data. La usa anche 'Rinomina', perché 'Data' si comporti uguale nelle due finestre.
  */
 internal fun withDate(value: TextFieldValue): TextFieldValue {
     val oggi = today()
@@ -343,13 +254,11 @@ internal fun withDate(value: TextFieldValue): TextFieldValue {
 }
 
 /**
- * La data di oggi come `YYYYMMDD`, che è la forma che ha chiesto lui.
+ * La data di oggi come `YYYYMMDD`, la forma chiesta dall'utente.
  *
- * ⚠️ **Senza separatori di proposito**: in un nome di file un punto aprirebbe un finto suffisso e
- * una barra non si può scrivere affatto. In più questa forma si ordina da sé in alfabetico, che è
- * la ragione per cui la usa la fotocamera di ogni telefono.
- * ⚠️ **`java.time` si può usare da qui**: l'app dichiara `minSdk 28` e quelle classi sono nel
- * sistema dalla 26.
+ * Senza separatori: in un nome di file un punto aprirebbe un finto suffisso e una barra non si
+ * può scrivere. Questa forma si ordina da sé in ordine alfabetico. `java.time` è nel sistema dalla
+ * API 26, e l'app dichiara `minSdk 28`.
  */
 internal fun today(): String =
     LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))

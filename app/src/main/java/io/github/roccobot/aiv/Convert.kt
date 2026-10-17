@@ -2,7 +2,6 @@ package io.github.roccobot.aiv
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.StringRes
@@ -13,37 +12,28 @@ import kotlinx.coroutines.withContext
 /**
  * Salvare l'immagine che si sta guardando in un altro formato.
  *
- * ⚠️⚠️ **QUELLO CHE ANDROID SA SCRIVERE È UN ELENCO CHIUSO DI QUATTRO VOCI, ed è misurato**:
- * `Bitmap.CompressFormat` nell'API 37 offre `JPEG`, `PNG`, `WEBP` (deprecata dalla 30),
- * `WEBP_LOSSLESS` e `WEBP_LOSSY`, e nient'altro. Niente GIF, niente AVIF, niente TIFF, niente
- * BMP **in scrittura**. Chi cerca uno di quelli deve passare da un servizio di fuori, ed è la
- * ragione per cui il dialogo ha due metà invece di una.
- * ⚠️ **`WEBP` senza suffisso non entra fra le scelte**: fa la stessa cosa di una delle altre
- * due a seconda della qualità, e offrire tre voci per due comportamenti vuol dire chiedere
- * all'utente di indovinare quale sta scegliendo.
+ * ⚠️ **Android scrive solo quello che `Bitmap.CompressFormat` elenca** (API 37): `JPEG`, `PNG`,
+ * `WEBP` (deprecata dalla 30), `WEBP_LOSSLESS` e `WEBP_LOSSY`. Per GIF, AVIF, TIFF e BMP si passa
+ * da un servizio esterno, ed è la ragione delle due metà del dialogo.
+ * `WEBP` senza suffisso non è fra le scelte: fa quello che fa una delle altre due, secondo la
+ * qualità.
  *
- * ⚠️⚠️ **SI RIDECODIFICA DAL FILE, e non si riusa il bitmap sullo schermo**: quello che il
- * visualizzatore ha in mano può essere **ridotto** (vedi `LoadedImage.sampled`), perché per
- * mostrarlo non serve di più. Convertire quella copia darebbe un file più piccolo del vero
- * senza che nessuno l'abbia chiesto, ed è il difetto peggiore possibile in una funzione che
- * l'utente usa proprio per **conservare** un'immagine.
+ * ⚠️ **Si ridecodifica dal file**: il bitmap del visualizzatore può essere ridotto
+ * (`LoadedImage.sampled`), e convertirlo darebbe un file più piccolo del vero in una funzione
+ * che serve a conservare un'immagine.
  */
 object Convert {
 
     /**
      * I formati che Android sa scrivere, con quello che serve per scriverli.
      *
-     * ⚠️ **`quality` è l'unico parametro che l'API accetta**, e sul senza perdita non conta
-     * niente: la voce lo dichiara con [lossy] invece di lasciare in scena un cursore che non
-     * fa nulla.
+     * `quality` è il solo parametro che l'API accetta, e sul senza perdita non conta: la voce lo
+     * dichiara con [lossy], e il cursore non compare.
      *
-     * ⚠️⚠️ **IL FORMATO NON È PIÙ UN CAMPO DELLA VOCE, DALLA `2.99`, E FINO ALLA `2.98` L'APP
-     * CADEVA SU ANDROID 9 E 10 APRENDO QUESTA FINESTRA** (segnalazione dell'utente, 2026-09-28:
-     * *offre due formati WebP che esistono solo da Android 11, mentre l'app si installa da
-     * Android 9*). Un campo si legge quando l'elenco si costruisce, cioè alla prima voce toccata, e
-     * `WEBP_LOSSY` e `WEBP_LOSSLESS` sotto Android 11 non esistono: leggerli fa fallire
-     * l'inizializzazione dell'elenco intero, JPEG compreso. Adesso lo dice [format], che guarda la
-     * versione prima di nominarli. È lo stesso difetto che la `2.98` ha trovato in `AvifCache`.
+     * ⚠️ **Il formato non è un campo della voce, è [format]**: un campo si legge quando l'elenco
+     * si costruisce, e sotto Android 11 `WEBP_LOSSY` e `WEBP_LOSSLESS` non esistono, quindi
+     * leggerli farebbe fallire l'elenco intero, JPEG compreso, e l'app si chiuderebbe aprendo la
+     * finestra. [format] guarda la versione prima di nominarli.
      */
     enum class Target(
         val extension: String,
@@ -59,9 +49,9 @@ object Convert {
         /**
          * Il formato con cui Android scrive questa voce.
          *
-         * ⚠️ **Sotto Android 11 le due WebP sono la stessa costante, `WEBP`**, che sceglie con la
-         * qualità: sotto 100 comprime con perdita, a 100 senza (vedi [qualityFor]). È la scelta di
-         * `ImageEdit`, di `FolderCover` e di `AvifCache`.
+         * Sotto Android 11 le due WebP sono la stessa costante, `WEBP`, che sceglie con la
+         * qualità: sotto 100 comprime con perdita, a 100 senza ([qualityFor]). Come in
+         * `ImageEdit`, `FolderCover` e `AvifCache`.
          */
         val format: Bitmap.CompressFormat
             get() = when (this) {
@@ -82,31 +72,25 @@ object Convert {
         /**
          * La qualità da passare a `compress`, da quella che la finestra ha in mano.
          *
-         * ⚠️ **Il senza perdita sotto Android 11 vuole 100**: con `WEBP` è la qualità a dire se si
-         * perde, e il cursore sul senza perdita non c'è, quindi il valore che la finestra passa
-         * non ha niente a che vedere con questa voce.
+         * ⚠️ **Il senza perdita vuole 100**: sotto Android 11, con `WEBP`, è la qualità a dire se
+         * si perde, e sul senza perdita il valore della finestra non vale (il cursore non c'è).
          */
         fun qualityFor(quality: Int): Int = if (this == WEBP_LOSSLESS) 100 else quality.coerceIn(1, 100)
 
         /**
          * Se il telefono sa scrivere questa voce.
          *
-         * ⚠️⚠️ **LA WEBP SENZA PERDITA NON C'È SU ANDROID 9**: là `WEBP` a qualità 100 comprime
-         * ancora con perdita, e il senza perdita a quella qualità nasce con Android 10 (lo dichiara
-         * la documentazione di `CompressFormat.WEBP`, dalla versione Q). Offrirla vorrebbe dire
-         * scrivere un file che dice di non perdere niente e perde. ⚠️ **Il banco la misura su
-         * Android 9 e 10 veri** (`ConvertiTest`), che è anche il solo posto in cui si vede il
-         * difetto della `2.98`.
+         * ⚠️ **La WebP senza perdita non c'è su Android 9**: là `WEBP` a qualità 100 comprime ancora
+         * con perdita (documentazione di `CompressFormat.WEBP`: senza perdita dalla versione Q), e
+         * il file perderebbe quello che dice di conservare. Presidiato da `ConvertiTest`, su
+         * Android 9 e 10.
          */
         val offered: Boolean
             get() = this != WEBP_LOSSLESS || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
 
         /**
-         * ⚠️⚠️ **IL JPEG NON HA LA TRASPARENZA, e va detto PRIMA e non dopo**: convertendo
-         * una PNG o una WebP con le parti trasparenti, quelle diventano un colore pieno, e
-         * chi se ne accorge lo fa guardando il file salvato, cioè quando è tardi.
-         * ⚠️ **Quel colore è BIANCO e non nero dalla 1.16** (scelta dell'utente, 2026-09-01):
-         * vedi [flatten] per il come e per il perché il nero non era una scelta di nessuno.
+         * Il JPEG non ha la trasparenza, e il dialogo lo dice prima della conversione: le parti
+         * trasparenti diventano bianche ([flatten]).
          */
         val keepsAlpha: Boolean get() = this != JPEG
     }
@@ -114,11 +98,8 @@ object Convert {
     /**
      * Di quanto si rimpicciolisce, in centesimi.
      *
-     * ⚠️ **Percentuali e non lati massimi**: una percentuale si legge senza sapere quanto
-     * misura l'originale, e il dialogo mostra comunque i pixel che ne escono. Un 'lato lungo
-     * 1920' costringerebbe a fare il conto a mente per capire se sta riducendo o ingrandendo.
-     * ⚠️ **Non si ingrandisce**: inventare pixel che nel file non ci sono non è una
-     * conversione, e nessuna delle voci va sopra il 100.
+     * Percentuali: si leggono senza sapere quanto misura l'originale, e il dialogo mostra
+     * comunque i pixel risultanti. Nessuna voce supera 100: una conversione non inventa pixel.
      */
     enum class Size(val percent: Int) {
         FULL(100), THREE_QUARTERS(75), HALF(50), QUARTER(25);
@@ -129,9 +110,8 @@ object Convert {
     /**
      * Il nome proposto per il file convertito.
      *
-     * ⚠️ **Cambia l'estensione e lascia il resto**: chi converte vuole ritrovare lo stesso
-     * nome, e un suffisso aggiunto ('-convertito') allontanerebbe le due versioni
-     * nell'ordinamento della cartella, che è dove le si confronta.
+     * Cambia solo l'estensione: le due versioni restano vicine nell'ordinamento della cartella,
+     * dove le si confronta.
      */
     fun nameFor(original: String?, target: Target): String {
         val base = (original ?: "immagine").substringBeforeLast('.', original ?: "immagine")
@@ -141,9 +121,8 @@ object Convert {
     /**
      * Come [nameFor], ma per un fotogramma solo di un'immagine animata.
      *
-     * ⚠️ **Il numero è riempito di zeri a quattro cifre**, così i fotogrammi di una stessa
-     * GIF si ordinano da soli nella cartella: `foto-0009` prima di `foto-0010`, che scritti
-     * senza riempimento starebbero al contrario.
+     * Il numero ha quattro cifre con gli zeri davanti, così i fotogrammi di una GIF si ordinano
+     * da soli nella cartella (`foto-0009` prima di `foto-0010`).
      */
     fun frameName(original: String?, frame: Int, target: Target): String {
         val base = (original ?: "immagine").substringBeforeLast('.', original ?: "immagine")
@@ -156,11 +135,10 @@ object Convert {
      * @param fallback il bitmap già in mano al visualizzatore, usato solo se il file non si
      *   riesce a rileggere per intero.
      *
-     * ⚠️ **`NonCancellable` come ogni altra scrittura su file**: a metà, una cancellazione
-     * lascerebbe un file troncato che sembra un'immagine e non lo è.
-     * ⚠️ **La scala si applica DOPO la decodifica e non con un `inSampleSize`**: quello
-     * scende solo per potenze di due, quindi il 75% e il 25% non li saprebbe fare, e per il
-     * 50% darebbe un risultato più duro di una riduzione con filtro.
+     * `NonCancellable`, come ogni scrittura su file: una cancellazione a metà lascerebbe un file
+     * troncato che sembra un'immagine.
+     * La scala si applica dopo la decodifica: `inSampleSize` scende solo per potenze di due, e
+     * al 50% darebbe un risultato più duro di una riduzione con filtro.
      */
     suspend fun write(
         context: Context,
@@ -174,10 +152,8 @@ object Convert {
         val whole = source?.let { full(context, it) } ?: fallback ?: return@withContext false
         var scaled: Bitmap? = null
         var flat: Bitmap? = null
-        // ⚠️⚠️ **Senza memoria per ridurre o appiattire, la conversione non riesce, dalla
-        // `6.26`** (rilievo B15 della revisione della 6.25): prima la riduzione al 50% scriveva
-        // il file a misura piena, e l'appiattimento lo scriveva con la trasparenza nera, tutti e
-        // due con l'avviso 'salvato'.
+        // ⚠️ **Senza memoria per ridurre o appiattire, la conversione fallisce** (rilievo B15):
+        // un file a misura piena, o con la trasparenza nera, uscirebbe con l'avviso 'salvato'.
         try {
             scaled = if (size == Size.FULL) whole else Bitmap.createScaledBitmap(
                 whole, size.applyTo(whole.width), size.applyTo(whole.height), true
@@ -200,24 +176,17 @@ object Convert {
     /**
      * L'immagine su fondo **bianco**, per i formati che la trasparenza non la sanno tenere.
      *
-     * ⚠️⚠️ **IL NERO NON ERA UNA SCELTA DI NESSUNO, ed è la ragione per cui questa funzione
-     * esiste**: `compress` in JPEG butta via il canale alfa e basta, quindi un pixel
-     * trasparente resta con i suoi valori di colore, che in un PNG sono quasi sempre zero,
-     * cioè nero. Non è il JPEG a decidere il colore: è la sorte. Disegnando prima su una tela
-     * piena, il colore lo decidiamo noi.
-     * ⚠️ **Bianco perché è il fondo su cui l'immagine verrà quasi certamente guardata** (una
-     * pagina, un documento, una chat chiara), e perché di un disegno con lo sfondo tolto è la
-     * resa che somiglia di più all'originale. Il nero riempiva di inchiostro proprio le parti
-     * che qualcuno aveva cancellato apposta. Scelta dell'utente, 2026-09-01.
-     * ⚠️ **Si salta quando non serve**: senza canale alfa la copia sarebbe una tela in più
-     * grande come l'immagine, per disegnarci sopra la stessa cosa.
+     * ⚠️ **Esiste perché `compress` in JPEG scarta il canale alfa e basta**: un pixel trasparente
+     * tiene i suoi valori di colore, che in un PNG sono quasi sempre zero, cioè nero. Disegnando
+     * prima su una tela piena, il colore lo decide l'app.
+     * Bianco (scelta dell'utente, 1.16): è il fondo su cui l'immagine sarà quasi sempre guardata,
+     * e di un disegno con lo sfondo tolto è la resa più vicina all'originale.
+     * Senza canale alfa si restituisce la sorgente, senza una tela in più.
+     * La usa anche il salvataggio in JPEG degli editor (`ImageEdit`).
+     * ⚠️ **Un errore di memoria passa al chiamante** (rilievo B15): restituire l'immagine con la
+     * trasparenza farebbe scrivere al JPEG proprio il nero che questa funzione toglie. La
+     * chiamano solo le scritture, che lo raccolgono.
      */
-    // ⚠️ **Non più privata dalla `1.34`**: la usa anche l'editor interno, che scriveva
-    // JPEG senza appiattire e faceva diventare nera la trasparenza. Una seconda copia là
-    // sarebbe stata la stessa scelta in due posti.
-    // ⚠️⚠️ **Un errore di memoria passa, dalla `6.26`** (rilievo B15 della revisione della 6.25):
-    // la rete tornava l'immagine con la trasparenza, e il JPEG la scriveva nera, cioè proprio il
-    // difetto che questa funzione toglie. La chiamano solo le scritture, che lo raccolgono.
     internal fun flatten(source: Bitmap): Bitmap {
         if (!source.hasAlpha()) return source
         val out = Bitmap.createBitmap(source.width, source.height, Bitmap.Config.ARGB_8888)
@@ -231,17 +200,10 @@ object Convert {
     /**
      * L'immagine alla sua risoluzione vera, e `null` se non ci si riesce.
      *
-     * ⚠️⚠️ **SOFTWARE E MAI HARDWARE**: un bitmap con configurazione `HARDWARE` non si può
-     * comprimere né ridimensionare, quindi il valore di serie di `ImageDecoder` renderebbe
-     * questa funzione inutile proprio quando riesce.
-     * ⚠️ **Un fallimento qui non è un errore da mostrare**: su un'immagine enorme la memoria
-     * può non bastare, e allora si converte quello che il visualizzatore ha già, che è
-     * ridotto ma esiste. Il dialogo lo dice quando la sorgente è ridotta.
-     *
-     * ⚠️ **Il ripiego in fondo guadagna la risoluzione VERA su AVIF e SVG**: senza, un AVIF
-     * si convertiva sempre dal bitmap del visualizzatore, che può essere campionato, mentre
-     * qui `ImageDecoder` fallisce e non per mancanza di memoria. Non era un errore visibile,
-     * era qualità persa in silenzio.
+     * Passa da `ImageSource.pixels`, che ha anche i ripieghi per AVIF e SVG: lì `ImageDecoder`
+     * fallisce, e senza ripiego si convertirebbe il bitmap ridotto del visualizzatore.
+     * Un fallimento qui non è un errore da mostrare: su un'immagine enorme la memoria può non
+     * bastare, e allora si converte la copia del visualizzatore, ridotta. Il dialogo lo dice.
      */
     private fun full(context: Context, uri: Uri): Bitmap? =
         ImageSource.pixels(context, uri, 0)
@@ -249,14 +211,10 @@ object Convert {
     /**
      * I servizi di fuori, per tutto quello che Android non sa scrivere.
      *
-     * ⚠️⚠️ **SI APRE IL SITO E BASTA: non gli si può PASSARE il file, e prometterlo sarebbe
-     * una bugia**. Un servizio web riceve un'immagine solo con un caricamento fatto dalla
-     * pagina, e Android non ha nessun modo di consegnargliela da fuori: il parametro `url` che
-     * alcuni accettano vuole un indirizzo pubblico, che un file sul telefono non ha. Quindi il
-     * dialogo apre il sito, e l'immagine la si sceglie di là.
-     * ⚠️ **Tre e non venti**: un elenco lungo sposta sull'utente la scelta che questa voce
-     * dovrebbe risparmiargli. Questi tre coprono i casi veri, e la ragione di ognuno è scritta
-     * accanto.
+     * ⚠️ **Si apre solo il sito, senza il file**: un servizio web riceve un'immagine solo da un
+     * caricamento fatto nella pagina, e il parametro `url` che alcuni accettano vuole un
+     * indirizzo pubblico, che un file sul telefono non ha. L'immagine si sceglie di là.
+     * Tre servizi, ognuno con la sua ragione: un elenco lungo sposterebbe la scelta sull'utente.
      */
     enum class Service(val url: String, @param:StringRes val label: Int, @param:StringRes val why: Int) {
         /** Il servizio nominato dall'utente: converte da e verso quasi tutto, GIF comprese. */

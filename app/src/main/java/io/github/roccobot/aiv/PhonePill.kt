@@ -19,8 +19,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -69,71 +67,64 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 
 /*
- * The pill in place of the FAB on a phone held upright, and how every pill is filled.
+ * La pillola al posto del FAB sul telefono in verticale, e il modo in cui ogni pillola si riempie.
  *
  * Author: Rocco Casadei, a.k.a. Roccobot
  *
- * ⚠️⚠️ Since 4.00 (the user's request of 2026-10-05, answers A1-D1 the same night): a setting
- * in 'Pulsanti e indicatori' with two rows of chips. The first says what stands in for the FAB
- * ([PhonePill]): nothing (the FAB), a round key that stretches into the pill ([PhonePill.SLIDE]),
- * or the pill always open ([PhonePill.EXTENDED]). The second says what the pill is made of
- * ([PillFill]), and it fills the pills of the wide screens too.
- * ⚠️ The pill lies at the bottom and is anchored to the preferred side, where the FAB was: the
- * corner key is the one under the thumb, and both modes keep it there.
- * ⚠️ A pill key has no label by definition: a long press shows it in a tooltip, and nothing else
- * (answer B1). The long press of 'Mostra nascoste' therefore does not exist in a pill.
+ * Un'impostazione di 'Pulsanti e indicatori' con due file di gettoni (risposte A1-D1
+ * dell'utente, 4.00). La prima dice che cosa prende il posto del FAB ([PhonePill]): niente (il
+ * FAB), un tasto tondo che si allunga nella pillola ([PhonePill.SLIDE]) o la pillola sempre
+ * aperta ([PhonePill.EXTENDED]). La seconda dice di che cosa è fatta la pillola ([PillFill]), e
+ * riempie anche le pillole degli schermi larghi.
+ * La pillola è in basso, ancorata al lato preferito dove era il FAB: il tasto d'angolo è quello
+ * sotto il pollice, e le due modalità lo tengono lì.
+ * ⚠️ Un tasto della pillola non ha etichetta: il tocco lungo la mostra in un suggerimento, e
+ * nient'altro (risposta B1). Quindi il tocco lungo di 'Mostra nascoste' in una pillola non esiste.
  */
 
 /**
- * What the pill is and what it is made of, as this device applies it.
+ * Che cos'è la pillola e di che cosa è fatta, come la applica questo apparecchio.
  *
- * ⚠️ **The two values are the ones in force, not the stored ones**: [pillMode] turns the mode off
- * on a tablet and [pillFillIn] takes the glass away below Android 12. The screens read this and
- * never the settings, so they cannot disagree with each other.
+ * ⚠️ **I valori sono quelli in vigore, non quelli salvati**: [pillMode] spegne la modalità su un
+ * tablet e [pillFillIn] toglie il vetro sotto Android 12. Le schermate leggono questo e mai le
+ * impostazioni, quindi non possono dissentire fra loro.
  */
 @Immutable
 data class PillLook(
     val mode: PhonePill = PhonePill.OFF,
     val fill: PillFill = PillFill.SOLID,
     /**
-     * Whether [mode] is drawn as the bottom menu ([MainControl.BOTTOM]) instead of a pill: then
-     * [PhonePill.SLIDE] is the menu that slides in from below and [PhonePill.EXTENDED] the fixed one.
+     * Se [mode] si disegna come Menu basso ([MainControl.BOTTOM]) e non come pillola: allora
+     * [PhonePill.SLIDE] è il menu che sale dal basso e [PhonePill.EXTENDED] quello fisso.
      */
     val bar: Boolean = false,
-    /** Whether the main control is the corner menu ([MainControl.CORNER]): always [PhonePill.SLIDE]. */
+    /** Se il controllo principale è il menu 'Start' ([MainControl.CORNER]): sempre [PhonePill.SLIDE]. */
     val corner: Boolean = false,
-    /** How the translucent look is tuned. */
+    /** La regolazione dell'aspetto traslucido. */
     val glass: GlassTune = GlassTune(),
     /**
-     * Whether the corner menu rests as a single round key ([cornerRound] `true`) or as the vertical
-     * pill of two keys. Only the corner menu reads it. See [Settings.cornerRound].
+     * Se il menu 'Start' a riposo è un tasto tondo solo ([cornerRound] `true`) o la pillola
+     * verticale di due tasti. Lo legge solo il menu 'Start'. Vedi [Settings.cornerRound].
      */
     val cornerRound: Boolean = true
 )
 
 /**
- * How the translucent look is tuned: the sliders and the two colours that appear with it.
+ * La regolazione dell'aspetto traslucido: i cursori e i due colori che compaiono con lui
+ * (richiesta dell'utente, nota N1 del giro della 4.15).
  *
- * ⚠️⚠️ **SINCE 4.20, HIS REQUEST** (note N1 on the 4.15 round: *se all'attivazione dell'effetto
- * traslucido si attivassero dei controlli tipo Luminosità, Colore, Raggio (della sfocatura),
- * Intensità (della sfocatura)? ... poi si possono disattivare spegnendo un feature flag*).
- * ⚠️⚠️ **SINCE 4.25 THE FACTORY VALUES ARE HIS** (note D on the 4.20 round: *Raggio 16dp, Intensità
- * 300%, Colore 20%, Luminosità -35 (chiaro) / +35 (scuro)*, and 'Scostamento' 35 in his answer
- * C2), and the glass is tied to the theme: [shift] darkens on the light theme and lightens on the
- * dark one, and each theme has its own colour (answer B3). Until 4.20 they were the DF's glass
- * (13dp, 160%, 100%, a signed 'Luminosità' at zero).
- * ⚠️ **Since 4.37 'Opacità' is 40 and not 20** (note B on the 4.36 round, with a screenshot of the
- * sliders: *Raggio 16dp, Intensità 300%, Opacità 40%, Scostamento 35%, colori predefiniti*); the
- * other three were already his. A phone that moved the slider keeps its value.
+ * ⚠️ **I valori di fabbrica sono dell'utente** (note D del giro della 4.20 e B del giro della
+ * 4.36, risposta C2): raggio 16dp, intensità 300%, opacità 40%, scostamento 35%. Il vetro è legato
+ * al tema: [shift] scurisce sul tema chiaro e schiarisce su quello scuro, e ogni tema ha il suo
+ * colore (risposta B3). Un telefono che ha mosso un cursore tiene il suo valore.
  *
- * @property radius the blur's radius, in dp.
- * @property intensity how vivid the colours behind get, in percent: 100 leaves them as they are.
- * @property tint how much of the colour the glass carries ('Opacità'), in percent of the theme's
- *   own ink.
- * @property shift how far the blurred picture moves away from the page ('Scostamento'), in percent:
- *   black on the light theme, white on the dark one.
- * @property lightColour the glass's colour on the light theme, as ARGB, or `null` for the accent in
- *   force; [darkColour] the same on the dark theme.
+ * @property radius il raggio della sfocatura, in dp.
+ * @property intensity quanto si ravvivano i colori dietro, in percentuale: 100 li lascia come sono.
+ * @property tint quanto colore ha il vetro ('Opacità'), in percentuale dell'inchiostro del tema.
+ * @property shift quanto l'immagine sfocata si allontana dalla pagina ('Scostamento'), in
+ *   percentuale: nero sul tema chiaro, bianco su quello scuro.
+ * @property lightColour il colore del vetro sul tema chiaro, in ARGB, o `null` per l'accento in
+ *   vigore; [darkColour] lo stesso sul tema scuro.
  */
 @Immutable
 data class GlassTune(
@@ -144,10 +135,10 @@ data class GlassTune(
     val lightColour: Int? = null,
     val darkColour: Int? = null
 ) {
-    /** The colour chosen for the theme in force, or `null` for the accent. */
+    /** Il colore scelto per il tema in vigore, o `null` per l'accento. */
     fun colourFor(light: Boolean): Int? = if (light) lightColour else darkColour
 
-    /** This tune with the colour of one theme replaced: `null` goes back to the accent. */
+    /** Questa regolazione col colore di un tema sostituito: `null` torna all'accento. */
     fun withColour(light: Boolean, colour: Int?): GlassTune =
         if (light) copy(lightColour = colour) else copy(darkColour = colour)
 
@@ -164,73 +155,72 @@ data class GlassTune(
 }
 
 /**
- * Whether the four sliders of [GlassTune] are shown: the 'feature flag' of his note N1.
+ * Se i quattro cursori di [GlassTune] si mostrano: l'interruttore chiesto nella nota N1.
  *
- * ⚠️ **Turning it off hides the sliders and keeps their values**: the style he reached stays the
- * one in force, and the factory values only matter to a phone that never moved them.
+ * Spento, nasconde i cursori e tiene i loro valori: lo stile raggiunto resta in vigore.
  */
 const val GLASS_TUNING = true
 
 /**
- * The pill as the activity sets it on stage, next to the other looks.
+ * La pillola come l'attività la mette in scena, accanto agli altri aspetti.
  *
- * ⚠️ **Read by windows that do not receive the settings** (the menus' veil reads [PillLook.fill]),
- * which is the reason it is a `CompositionLocal`, like `LocalAivDepth`.
+ * È un `CompositionLocal`, come `LocalAivDepth`, perché la leggono finestre che non ricevono le
+ * impostazioni (il velo dei menu legge [PillLook.fill]).
  */
 val LocalPillLook = staticCompositionLocalOf { PillLook() }
 
-/** Whether this phone can draw the frosted glass: a `RenderEffect` needs Android 12. */
+/** Se questo telefono sa disegnare il vetro smerigliato: un `RenderEffect` vuole Android 12. */
 fun glassAvailable(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
-/** The fill in force: the glass falls back to the factory fill where it cannot be drawn. */
+/** Il riempimento in vigore: dove il vetro non si può disegnare, torna a quello di fabbrica. */
 fun pillFillIn(fill: PillFill): PillFill =
     if (fill == PillFill.GLASS && !glassAvailable()) PillFill.SOLID else fill
 
 /**
- * The mode in force: the chosen pill on a phone whose main control is the pill or the bottom menu,
- * the FAB elsewhere. Whether it is drawn as the bottom menu says [barIn].
+ * La modalità in vigore: la pillola scelta su un telefono il cui controllo principale è la
+ * pillola o il Menu basso, il FAB altrove. Se si disegna come Menu basso lo dice [barIn].
  *
- * ⚠️ **The smallest width and not the current one**: a phone held sideways is still a phone, and
- * the wide screens have their own pill; this only decides whether the item exists at all.
+ * ⚠️ **La larghezza minima e non quella corrente**: un telefono in orizzontale resta un telefono,
+ * e gli schermi larghi hanno la loro pillola; qui si decide solo se la voce esiste.
  */
 fun pillMode(control: MainControl, mode: PhonePill, smallestWidthDp: Int): PhonePill = when {
     control == MainControl.FAB || !pillOffered(smallestWidthDp) -> PhonePill.OFF
-    // ⚠️ The corner menu has no fixed form: it always folds into its pill.
+    // ⚠️ Il menu 'Start' non ha una forma fissa: si chiude sempre nella sua pillola.
     control == MainControl.CORNER -> PhonePill.SLIDE
     else -> mode
 }
 
-/** Whether the main control in force is the corner menu: only on a phone, like [pillMode]. */
+/** Se il controllo principale in vigore è il menu 'Start': solo su un telefono, come [pillMode]. */
 fun cornerIn(control: MainControl, smallestWidthDp: Int): Boolean =
     control == MainControl.CORNER && pillOffered(smallestWidthDp)
 
-/** Whether the main control in force is the bottom menu: only on a phone, like [pillMode]. */
+/** Se il controllo principale in vigore è il Menu basso: solo su un telefono, come [pillMode]. */
 fun barIn(control: MainControl, smallestWidthDp: Int): Boolean =
     control == MainControl.BOTTOM && pillOffered(smallestWidthDp)
 
-/** Whether this device is a phone, which is where the setting exists at all. */
+/** Se questo apparecchio è un telefono, l'unico posto in cui l'impostazione esiste. */
 fun pillOffered(smallestWidthDp: Int): Boolean = smallestWidthDp < Adaptive.PHONE_MAX
 
 /**
- * What lies behind a pill, recorded so that the glass can blur it.
+ * Quello che c'è dietro una pillola, registrato perché il vetro lo possa sfocare.
  *
- * ⚠️⚠️ **A SIBLING OF THE PILL AND NEVER ITS PARENT**: the pill draws this layer, so a source
- * that contained the pill would draw itself inside itself. Each screen marks the content that
- * scrolls under the pill ([backdropSource]) and hands the same object to the pill.
- * ⚠️ **Only where the glass is in force** ([rememberBackdrop] answers `null` otherwise): recording
- * costs one more pass over the content's display list, and nobody else needs it.
+ * ⚠️⚠️ **Fratello della pillola, mai suo genitore**: la pillola disegna questo livello, e una
+ * sorgente che la contenesse disegnerebbe sé stessa dentro sé stessa. Ogni schermata segna il
+ * contenuto che scorre sotto la pillola ([backdropSource]) e passa lo stesso oggetto alla pillola.
+ * Solo dove il vetro è in vigore ([rememberBackdrop] risponde `null` altrimenti): registrare costa
+ * un passaggio in più sull'elenco di disegno del contenuto.
  */
 class Backdrop internal constructor(internal val layer: GraphicsLayer) {
     /**
-     * Where the recorded content starts, in the root's coordinates.
+     * Dove comincia il contenuto registrato, in coordinate della radice.
      *
-     * ⚠️ **A state, so the glass is drawn again when the content moves**: the pill reads it while
-     * drawing, and a plain field would leave the blurred picture where it was.
+     * ⚠️ È uno stato perché il vetro si ridisegni quando il contenuto si sposta: la pillola lo
+     * legge mentre disegna, e un campo semplice lascerebbe l'immagine sfocata dov'era.
      */
     internal var origin by mutableStateOf(Offset.Zero)
 }
 
-/** The recording of what lies behind the pill, or `null` where the glass is not in force. */
+/** La registrazione di quello che c'è dietro la pillola, o `null` dove il vetro non è in vigore. */
 @Composable
 fun rememberBackdrop(): Backdrop? {
     val layer = rememberGraphicsLayer()
@@ -238,7 +228,7 @@ fun rememberBackdrop(): Backdrop? {
     return remember(layer, glass) { if (glass) Backdrop(layer) else null }
 }
 
-/** Marks the content a pill may sit on: it is drawn as before, and recorded for the glass. */
+/** Segna il contenuto su cui una pillola può posarsi: si disegna come prima, e si registra per il vetro. */
 fun Modifier.backdropSource(backdrop: Backdrop?): Modifier =
     if (backdrop == null) this else this
         .onGloballyPositioned { backdrop.origin = it.positionInRoot() }
@@ -248,53 +238,44 @@ fun Modifier.backdropSource(backdrop: Backdrop?): Modifier =
         }
 
 /**
- * How much the glass blurs behind the menus' veil: the glass's factory radius.
- *
- * ⚠️ **His 16dp since 4.25** (note D on the 4.20 round). Until 4.20 it was the DF pill's
- * `blur(8px)` turned into a radius, 13: Android turns a radius into a standard deviation as
- * `0.57735 * r + 0.5`, so 8 of the CSS deviation wanted 13 of radius.
- * ⚠️ **The factory value and not the slider's**: the veil is the menus' and is drawn by windows
- * that do not read the tune.
+ * Quanto sfoca il vetro dietro il velo dei menu: il raggio di fabbrica del vetro (16dp, nota D
+ * dell'utente sul giro della 4.20). Non quello del cursore: il velo è dei menu, e lo disegnano
+ * finestre che non leggono la regolazione.
  */
 internal val GLASS_BLUR = GlassTune.RADIUS.dp
 
 
 /**
- * How much accent the glass carries.
- *
- * ⚠️⚠️ **SINCE 4.01, LESS TRANSPARENT THAN THE DF** (the user's answer, 2026-10-05, after the
- * variants page: *accento dell'altro tema. In più, disegnalo un po' meno trasparente*). In 4.00
- * they were the DF's `--pill-fill`, 70% and 25%, and on the dark theme the colour nearly vanished;
- * the variant he picked (A2) had 70% and 55%, and 'a bit less transparent' took both up.
+ * Quanto accento ha il vetro: un po' meno trasparente della variante A2 scelta dall'utente, come
+ * ha chiesto, perché sul tema scuro il colore quasi spariva.
  */
 private const val GLASS_INK_LIGHT = 0.80f
 private const val GLASS_INK_DARK = 0.65f
 
-/** The accent's opacity in [PillFill.TRANSLUCENT]: 80%, the user's number. */
+/** L'opacità dell'accento in [PillFill.TRANSLUCENT]: 80%, il numero dell'utente. */
 private const val TRANSLUCENT_INK = 0.80f
 
 /**
- * Fills the pill's surface: the accent, the accent at 80%, or frosted glass.
+ * Riempie la superficie della pillola: l'accento, l'accento all'80%, o il vetro smerigliato.
  *
- * ⚠️ **It is a modifier and not a `Surface` colour** because the glass draws something a colour
- * cannot: what lies behind, blurred. The three cases go through here so that the FAB-like key of
- * [PhonePill.SLIDE], the pill and the pills of the wide screens are filled in one way.
- * ⚠️ **Without a [backdrop] the glass is the accent over what the window shows behind it**, which
- * is the case of the wide home, where the pill sits on an empty background.
+ * ⚠️ **È un modificatore e non un colore di `Surface`** perché il vetro disegna quello che un
+ * colore non può: quello che c'è dietro, sfocato. I tre casi passano di qui perché il tasto tondo
+ * di [PhonePill.SLIDE], la pillola e le pillole degli schermi larghi si riempiano in un modo solo.
+ * Senza un [backdrop] il vetro è l'accento su quello che la finestra mostra dietro, come nella
+ * schermata iniziale larga, dove la pillola è su un fondo vuoto.
  */
 @Composable
 fun Modifier.pillFill(backdrop: Backdrop?): Modifier =
     buttonFill(backdrop, pillAccent(), RoundedCornerShape(50))
 
 /**
- * Fills a main button's surface in the fill in force: [colour] as it is, at 80%, or frosted glass
- * tinted with it.
+ * Riempie la superficie di un pulsante principale col riempimento in vigore: [colour] com'è,
+ * all'80%, o vetro smerigliato tinto con lui.
  *
- * ⚠️⚠️ **SINCE 4.10 THE FAB GOES THROUGH HERE TOO** (the user's note E on the 4.04 round: *'Aspetto
- * dei pulsanti principali' ... vale anche per il FAB*), with its own colour and its own shape: the
- * pills and the FAB are filled in one way, and only these two values tell them apart.
- * ⚠️ **The glass keeps the pill's two inks**, [GLASS_INK_LIGHT] and [GLASS_INK_DARK], applied to
- * [colour]'s own alpha, so a FAB fading to the other accent while pressed stays glass all along.
+ * Ci passa anche il FAB (nota E dell'utente sul giro della 4.04), col suo colore e la sua forma:
+ * pillole e FAB si riempiono in un modo solo, e solo questi due valori li distinguono.
+ * Il vetro tiene i due inchiostri della pillola, [GLASS_INK_LIGHT] e [GLASS_INK_DARK], applicati
+ * all'alfa di [colour], così un FAB che sfuma nell'altro accento mentre è premuto resta vetro.
  */
 @Composable
 fun Modifier.buttonFill(backdrop: Backdrop?, colour: Color, shape: Shape): Modifier {
@@ -313,26 +294,25 @@ fun Modifier.buttonFill(backdrop: Backdrop?, colour: Color, shape: Shape): Modif
         PillFill.GLASS -> {
             val tune = LocalPillLook.current.glass
             val ink = (if (light) GLASS_INK_LIGHT else GLASS_INK_DARK) * tune.tint / 100f
-            // ⚠️ A colour of his replaces [colour] and keeps its alpha, so the FAB's press still
-            // shows (answer B3: *due colori memorizzabili*).
+            // ⚠️ Un colore scelto dall'utente sostituisce [colour] e ne tiene l'alfa, così la
+            // pressione del FAB si vede ancora (risposta B3).
             val base = tune.colourFor(light)?.let { Color(it).copy(alpha = colour.alpha) } ?: colour
             val tint = base.copy(alpha = (base.alpha * ink).coerceIn(0f, 1f))
             val radiusPx = with(LocalDensity.current) { tune.radius.dp.toPx() }
             val saturation = tune.intensity / 100f
             /*
-             * ⚠️ **The effect is built once per pair of sliders, since 6.28** (finding F38 of the
-             * 6.25 review): it was built inside the drawing, which runs at every frame in which
-             * the content under the glass moves, so a scroll built one per frame (ten places, ten
-             * effects, measured in `VetroTest`). The recording still follows the content.
+             * ⚠️ **L'effetto si costruisce una volta per coppia di cursori**, fuori dal disegno:
+             * il disegno gira a ogni fotogramma in cui il contenuto sotto il vetro si muove, e uno
+             * scorrimento ne costruirebbe uno per fotogramma. Presidiato da `VetroTest`. La
+             * registrazione segue comunque il contenuto.
              */
             val effect = remember(radiusPx, saturation) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) glassEffect(radiusPx, saturation) else null
             }
             /*
-             * ⚠️⚠️ **'SCOSTAMENTO' HAS NO SIGN, SINCE 4.25, AND IT IS HIS CHOICE** (answer C2): it
-             * moves the glass away from the page, so it darkens on the light theme and lightens on
-             * the dark one. In 4.20 the slider was signed, and the same value looked opposite on
-             * the two themes.
+             * ⚠️ **'Scostamento' non ha segno** (risposta C2): allontana il vetro dalla pagina,
+             * quindi scurisce sul tema chiaro e schiarisce su quello scuro. Con un segno, lo
+             * stesso valore apparirebbe opposto sui due temi.
              */
             val wash = (if (light) Color.Black else Color.White).copy(alpha = tune.shift / 100f)
             val ground = MaterialTheme.colorScheme.background
@@ -351,10 +331,10 @@ fun Modifier.buttonFill(backdrop: Backdrop?, colour: Color, shape: Shape): Modif
                     }
                     if (backdrop != null && effect != null) {
                         /*
-                         * ⚠️ **The recording is wider than the pill by twice the radius**, and
-                         * drawn back shifted by the same amount: the blur reads the neighbours of
-                         * every pixel, and at the pill's edge those would be transparent, which
-                         * draws a dark rim the DF's glass does not have.
+                         * ⚠️ **La registrazione è più larga della pillola di due raggi**, e si
+                         * ridisegna spostata di altrettanto: la sfocatura legge i vicini di ogni
+                         * pixel, e al bordo della pillola sarebbero trasparenti, cioè un bordo
+                         * scuro.
                          */
                         val edge = (radiusPx * 2).roundToInt()
                         blurred.renderEffect = effect
@@ -367,14 +347,11 @@ fun Modifier.buttonFill(backdrop: Backdrop?, colour: Color, shape: Shape): Modif
                             }
                         }
                         /*
-                         * ⚠️⚠️ **THE PAGE'S GROUND GOES UNDER THE BLURRED COPY, SINCE 4.30, AND IT
-                         * IS MEASURED ON HIS SCREENSHOTS** (note E on the 4.25 round: *non sfoca gli
-                         * elementi di UI creati dall'app stessa: testi e bordi delle miniature
-                         * rimangono sempre nitidi sotto il 'vetro'*). The recorded content has no
-                         * ground of its own (the page's colour is the theme's `Surface`, outside
-                         * it), so text and edges drawn on nothing blurred into a faint halo, and the
-                         * sharp originals showed through it. The pictures are opaque, which is why
-                         * they looked blurred and the rest did not.
+                         * ⚠️⚠️ **Il fondo della pagina va sotto la copia sfocata**: il contenuto
+                         * registrato non ha un fondo suo (il colore della pagina è la `Surface`
+                         * del tema, fuori), quindi testi e bordi disegnati sul niente
+                         * diventerebbero un alone tenue, e gli originali nitidi si vedrebbero
+                         * attraverso. Le immagini sono opache, e per questo si sfocano comunque.
                          */
                         clipPath(path) {
                             drawRect(ground)
@@ -389,11 +366,11 @@ fun Modifier.buttonFill(backdrop: Backdrop?, colour: Color, shape: Shape): Modif
     }
 }
 
-/** The blur plus the saturation, in that order, as the DF's `backdrop-filter` writes them. */
+/** La sfocatura e poi la saturazione, in quest'ordine, come le scrive il `backdrop-filter` del DF. */
 @RequiresApi(Build.VERSION_CODES.S)
 private fun glassEffect(radius: Float, saturation: Float): androidx.compose.ui.graphics.RenderEffect {
     DrawWork.glass++
-    // ⚠️ A radius of zero is no blur at all, and `createBlurEffect` refuses it.
+    // ⚠️ Un raggio zero non sfoca, e `createBlurEffect` lo rifiuta.
     val colour = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(saturation) })
     return if (radius <= 0f) {
         RenderEffect.createColorFilterEffect(colour).asComposeRenderEffect()
@@ -406,34 +383,28 @@ private fun glassEffect(radius: Float, saturation: Float): androidx.compose.ui.g
 }
 
 /**
- * The pill's colour: the accent of the OTHER theme, in every fill.
- *
- * ⚠️⚠️ **SINCE 4.01, THE USER'S CHOICE** (*accento dell'altro tema*, variants A2 and C1): it is the
- * pair the FAB already wears (`aivLauncher`), the teal on the dark theme and the petrol on the
- * light one, which stand out more from the page than the theme's own accent did. In 4.00 the pill
- * wore the theme's accent.
- * ⚠️ **The theme is the app's and not the system's** ([LocalAivLight]), for the reason written
- * on the FAB's colours.
+ * Il colore della pillola: l'accento dell'altro tema, in ogni riempimento (scelta dell'utente,
+ * varianti A2 e C1). È la coppia del FAB (`aivLauncher`), che si stacca dalla pagina più
+ * dell'accento del tema. Il tema è quello dell'app e non del sistema ([LocalAivLight]), per la
+ * ragione scritta sui colori del FAB.
  */
 @Composable
 fun pillAccent(): Color = aivAccent(!LocalAivLight.current)
 
 /**
- * The ink of the pill's glyphs: the ink that goes with [pillAccent], in every fill, unless the glass
- * wears a colour of his ([ownGlassInk]).
+ * L'inchiostro dei glifi della pillola: quello che va con [pillAccent], in ogni riempimento,
+ * salvo un vetro col colore scelto dall'utente ([ownGlassInk]).
  */
 @Composable
 fun pillInk(): Color = ownGlassInk() ?: aivOnAccent(!LocalAivLight.current)
 
 /**
- * The ink of the glyphs on a glass that wears a colour of his, or `null` where it does not.
+ * L'inchiostro dei glifi su un vetro col colore scelto dall'utente, o `null` dove non c'è.
  *
- * ⚠️⚠️ **SINCE 4.34, HIS ANSWER A1** (to `colore-icone-vetro`, on `4.30-04`: *l'app sceglie da sé
- * chiaro o scuro, in base al contrasto col colore che hai scelto per il vetro*): until 4.33 the
- * glyphs kept the accent's ink, which on a light colour of his could vanish.
- * ⚠️ **The two inks are the FAB's on the glass** ([FAB_GLASS_INK_LIGHT], [FAB_GLASS_INK_DARK]), his
- * two values: the choice is between them, by the contrast with the colour as he chose it, before
- * the glass dilutes it over what lies behind.
+ * ⚠️ **L'app sceglie da sé chiaro o scuro** (risposta A1 a `colore-icone-vetro`): l'inchiostro
+ * dell'accento, su un colore chiaro, sparirebbe. I due inchiostri sono quelli del FAB sul vetro
+ * ([FAB_GLASS_INK_LIGHT], [FAB_GLASS_INK_DARK]), e vince quello col contrasto più alto sul colore
+ * scelto, prima che il vetro lo diluisca su quello che c'è dietro.
  */
 @Composable
 internal fun ownGlassInk(): Color? {
@@ -443,7 +414,7 @@ internal fun ownGlassInk(): Color? {
     return inkOn(Color(own))
 }
 
-/** Of the glass's two inks, the one with more contrast on [colour]. */
+/** Dei due inchiostri del vetro, quello con più contrasto su [colour]. */
 internal fun inkOn(colour: Color): Color {
     val ground = colour.copy(alpha = 1f).luminance()
     fun contrast(ink: Color): Float {
@@ -454,45 +425,39 @@ internal fun inkOn(colour: Color): Color {
 }
 
 /**
- * How long the pill takes to open or fold: at most 160 ms, the user's ceiling.
+ * Quanto la pillola impiega ad aprirsi o chiudersi: al massimo 160 ms, il tetto dell'utente.
  *
- * ⚠️ **It starts very fast and slows down organically** (*un'animazione che parte velocissima,
- * rallenta organicamente*): the curve is the exponential ease-out, which covers most of the way
- * in the first third and spends the rest arriving.
+ * Parte velocissima e rallenta (richiesta dell'utente): la curva è l'ease-out esponenziale, che
+ * percorre quasi tutta la strada nel primo terzo.
  */
 private const val PILL_OPEN_MS = 160
 
-/** The exponential ease-out: `1 - 2^(-10x)`, pinned to 1 at the end. */
+/** L'ease-out esponenziale: `1 - 2^(-10x)`, fissato a 1 alla fine. */
 internal val PILL_EASE = Easing { x -> if (x >= 1f) 1f else 1f - 2f.pow(-10f * x) }
 
 /**
- * How far the open sliding pill's two end keys keep from its ends, when the row is full.
- *
- * ⚠️ **Since 4.34, his note** (note A on the 4.33 round: *vanno spostate di qualche dp verso
- * l'interno e le altre icone spaziate di conseguenza*): 'qualche dp' is his, the number a first
- * reading of it.
+ * La distanza dei due tasti alle estremità della pillola a scomparsa aperta dai suoi capi, a fila
+ * piena: 'qualche dp' nella nota A dell'utente sul giro della 4.33, e il numero ne è una lettura.
  */
 private val SLIDE_INSET = 6.dp
 
-/** How much ink the × keeps: *semitrasparente*, the user's word. */
+/** Quanto inchiostro tiene la ×: semitrasparente, la parola dell'utente. */
 private const val CLOSE_INK = 0.6f
 
-/** How much the symbol that leaves shrinks, and the one that arrives grows: the FAB's 0.35. */
-private const val SWAP_ZOOM = 0.35f
-
 /**
- * The pill of a phone held upright, in the mode the setting asks for.
+ * La pillola del telefono in verticale, nella modalità che l'impostazione chiede.
  *
- * ⚠️ **The caller places it where the FAB would be** (side, insets, margins): the corner key sits
- * exactly where the FAB sat, which is the point of the two modes.
+ * ⚠️ **Chi chiama la mette dove sarebbe il FAB** (lato, rientri, margini): il tasto d'angolo cade
+ * esattamente dove era il FAB.
  *
- * @param entries the FAB's menu, as the wide pill reads it.
- * @param arm the jump, or `null` where the screen has none.
- * @param nested the screen's nested scroll, which the jump goes through like a finger.
- * @param fabLabel what the round key does now, for screen readers ([PhonePill.SLIDE]).
- * @param holdLabel what its long press does, and [onHold] the gesture itself; `null` where the
- *   FAB has none. Only the round key has it (answer C1): with the pill open there is no FAB.
- * @param fabGlyph what the round key shows at rest: the app's mark, or the chevron while armed.
+ * @param entries il menu del FAB, come lo legge la pillola larga.
+ * @param arm il salto, o `null` dove la schermata non ne ha.
+ * @param nested lo scorrimento annidato della schermata, da cui il salto passa come un dito.
+ * @param fabLabel che cosa fa ora il tasto tondo, per i lettori di schermo ([PhonePill.SLIDE]).
+ * @param holdLabel che cosa fa il suo tocco lungo, e [onHold] il gesto; `null` dove il FAB non ne
+ *   ha. Ce l'ha solo il tasto tondo (risposta C1): a pillola aperta il FAB non c'è.
+ * @param fabGlyph che cosa mostra il tasto tondo a riposo: il segno dell'app, o la freccia quando
+ *   il salto è armato.
  */
 @Composable
 fun PhonePillBar(
@@ -505,22 +470,23 @@ fun PhonePillBar(
     backdrop: Backdrop?,
     modifier: Modifier = Modifier,
     /**
-     * Where the corner key sits, inside [modifier]: the insets and the margins the FAB had.
+     * Dove va il tasto d'angolo, dentro [modifier]: i rientri e i margini che aveva il FAB.
      *
-     * ⚠️ **Apart from [modifier] since 4.15**: the bottom menu spans the whole width down to the
-     * glass, and only its folded pill keeps the FAB's corner.
+     * È separato da [modifier] perché il Menu basso occupa tutta la larghezza fino al vetro, e
+     * solo la sua pillola chiusa tiene l'angolo del FAB.
      */
     corner: Modifier = Modifier,
-    /** The FAB's glyph without the jump's chevron, for the bottom menu's folded pill. */
+    /** Il glifo del FAB senza la freccia del salto, per la pillola chiusa del Menu basso. */
     mark: @Composable (String?) -> Unit = {},
     /**
-     * What the round key does at rest, without the jump: the bottom menu's folded pill says its own
-     * jump ('in fondo', always), and [fabLabel] follows the FAB's chevron instead.
+     * Che cosa fa il tasto tondo a riposo, senza il salto: la pillola chiusa del Menu basso dice il
+     * suo salto ('in fondo', sempre), mentre [fabLabel] segue la freccia del FAB.
      */
     restLabel: String? = null,
     /**
-     * The corner menu's cells, in the right-handed reading order, where they differ from [entries]:
-     * the home's 3x3 keeps all three views and 'Mostra nascoste' in place (decisions C1 and C2).
+     * Le celle del menu 'Start', nell'ordine di lettura per la mano destra, dove differiscono da
+     * [entries]: il 3x3 della schermata iniziale tiene al loro posto le tre viste e 'Mostra
+     * nascoste' (decisioni C1 e C2).
      */
     cornerEntries: List<PillEntry>? = null,
     fabGlyph: @Composable (String?) -> Unit
@@ -533,7 +499,7 @@ fun PhonePillBar(
     if (look.corner) {
         CompositionLocalProvider(LocalContentColor provides pillInk()) {
             CornerMenu(
-                // ⚠️ In reading order for the right hand: the corner menu mirrors each row itself.
+                // ⚠️ Nell'ordine di lettura per la mano destra: il menu 'Start' specchia da sé ogni riga.
                 entries = cornerEntries ?: entries,
                 arm = arm,
                 fabLabel = restLabel ?: fabLabel,
@@ -545,8 +511,8 @@ fun PhonePillBar(
                 modifier = modifier,
                 onJump = { toward -> scope.launch { arm?.leapToward(toward, nested) } },
                 mark = mark,
-                // ⚠️ The round rest is the sliding pill's round key since 6.03: its label, jump and
-                // glyph are the FAB's, as there.
+                // ⚠️ A riposo il tondo è il tasto tondo della pillola a scomparsa: etichetta, salto
+                // e glifo sono quelli del FAB, come là.
                 roundLabel = fabLabel,
                 onLeap = { scope.launch { arm?.leap(nested) } },
                 fabGlyph = fabGlyph
@@ -592,34 +558,29 @@ fun PhonePillBar(
 }
 
 /**
- * The entries in the order a left-handed pill reads them: the mirror of the right-handed one.
- *
- * ⚠️⚠️ **SINCE 4.15, THE USER'S ORDER** (*quando il lato preferito è sinistra, l'ordine deve
- * cambiare: sarà (da sinistra a destra) Impostazioni, Cestino, Apri un indirizzo, Cerca, Mostra
- * nascoste, Altra vista 1, Altra vista 2*): the key under the thumb is 'Impostazioni' on both sides.
- * ⚠️ **Since 4.20 the two views are mirrored too** (his comment on `4.15-04`: *volevo specchiati
- * anche quei due*): in 4.15 they kept their order, read from his list. Until 4.10 a left-handed
- * pill kept the right-handed order, with the round key moved to the left.
+ * Le voci nell'ordine in cui le legge una pillola per la mano sinistra: lo specchio di quella per
+ * la destra, viste comprese (ordine dell'utente, voce `4.15-04`). Il tasto sotto il pollice è
+ * 'Impostazioni' da tutti e due i lati.
  */
 internal fun mirrored(entries: List<PillEntry>): List<PillEntry> = entries.asReversed()
 
 /**
- * The size of a key when the pill has to fit [count] of them in [room].
+ * La misura di un tasto quando la pillola deve farne entrare [count] in [room].
  *
- * ⚠️ **Never larger than [PILL_KEY]**, and smaller only on a narrow phone with many entries: the
- * home has up to nine, and nine keys of 44 do not fit on a 360-wide screen.
+ * Mai più grande di [PILL_KEY], e più piccola solo su un telefono stretto con molte voci: nove
+ * tasti da 44 non entrano in uno schermo largo 360.
  */
 private fun keyFor(count: Int, room: Dp): Dp = min(PILL_KEY, room / count.coerceAtLeast(1))
 
 /**
- * [PhonePill.SLIDE]: a round key that stretches into the pill and folds back on its ×.
+ * [PhonePill.SLIDE]: un tasto tondo che si allunga nella pillola e si richiude sulla sua ×.
  *
- * ⚠️⚠️ **THE ROUND KEY KEEPS THE FAB'S TWO GESTURES** (answer C1): while armed the tap jumps,
- * otherwise it opens the pill; the long press does what the FAB's did. Open, the corner key is
- * the × and its long press shows its label, like every other key.
- * ⚠️ **Back folds the pill**, as it would close the FAB's menu: an open pill is a menu.
- * ⚠️ **Opening is a remembered state that survives a rotation**, and a tap on an entry folds the
- * pill before acting, as a menu row closes its menu.
+ * ⚠️⚠️ **Il tasto tondo tiene i due gesti del FAB** (risposta C1): con il salto armato il tocco
+ * salta, altrimenti apre la pillola; il tocco lungo fa quello del FAB. Aperta, il tasto d'angolo è
+ * la × e il suo tocco lungo ne mostra l'etichetta, come ogni altro tasto.
+ * Indietro chiude la pillola, come chiuderebbe il menu del FAB. L'apertura è uno stato che
+ * sopravvive alla rotazione, e un tocco su una voce chiude la pillola prima di agire, come una
+ * riga di menu chiude il suo menu.
  */
 @Composable
 private fun SlidePill(
@@ -644,22 +605,14 @@ private fun SlidePill(
     )
     val count = entries.size + 1
     /*
-     * ⚠️⚠️ **THE ROUND KEY IS ALWAYS 44DP, SINCE 4.30, AND IT IS HIS NOTE** (B on the 4.25 round: *in
-     * modalità pillola a scomparsa, addirittura cambia dimensione ... La dimensione corretta è
-     * quella del tondo della pillola a scomparsa*): until 4.25 the whole pill used [keyFor], and in
-     * the home eight keys on a narrow phone made every key, the round one too, a little smaller
-     * than in a folder. Now only the open keys shrink, the round key and the pill's height do not.
-     */
-    /*
-     * ⚠️⚠️ **OPEN WITH MANY ENTRIES IT SPANS THE ROW, SINCE 4.25, AND IT IS HIS CHOICE** (note A on
-     * the 4.20 round, and A2 after the preview): eight keys of 44dp left the open pill short of
-     * both the thumbnails' edge and its own margin. As in the extended pill ([PILL_FULL]) the cells
-     * widen and the keys do not.
-     * ⚠️ **The corner cell grows from the key to the cell while opening**, so at rest the round key
-     * is exactly where it was.
-     * ⚠️⚠️ **AND SINCE 4.34 THE ROW KEEPS [SLIDE_INSET] FROM BOTH ENDS** (note A on the 4.33 round:
-     * *modalità lista (a un estremo) e × di chiusura (all'altro) sono troppo vicini ai margini*):
-     * the two end keys move in, and the cells share what is left.
+     * ⚠️⚠️ **Il tasto tondo è sempre di [PILL_KEY]** (nota B dell'utente sul giro della 4.25):
+     * con molte voci su un telefono stretto si rimpiccioliscono solo i tasti della pillola aperta,
+     * non il tondo né l'altezza della pillola.
+     *
+     * Aperta con molte voci occupa tutta la fila (scelta A2 dell'utente): come nella pillola
+     * estesa ([PILL_FULL]) si allargano le celle e non i tasti. La cella d'angolo cresce dal tasto
+     * alla cella mentre si apre, così a riposo il tasto tondo è esattamente dov'era. La fila tiene
+     * [SLIDE_INSET] dai due capi, e le celle si dividono il resto.
      */
     val wide = count >= PILL_FULL
     val inset = if (wide) SLIDE_INSET else 0.dp
@@ -669,10 +622,9 @@ private fun SlidePill(
     val q = arm?.shown ?: 0f
     val armed = arm?.armed == true
     /*
-     * ⚠️⚠️ **THE JUMP TAKES THE TWO KEYS NEAREST THE CORNER, × INCLUDED, SINCE 4.35** (item `4.34-04`:
-     * *sono letteralmente i primi due tasti (incluso ×) che si devono trasformare in top/bottom*): the
-     * × turns into `↓` and the key beside it into `↑`. In 4.34 they were the two keys beside the ×.
-     * The key beside the ×, in reading order: on the right it is the last one.
+     * ⚠️ **Il salto prende i due tasti più vicini all'angolo, × compresa** (voce `4.34-04`): la ×
+     * diventa `↓` e il tasto accanto `↑`. Il tasto accanto alla ×, in ordine di lettura: a
+     * destra è l'ultimo.
      */
     val outer = if (atEnd) entries.size - 1 else 0
     val jumping = open && armed
@@ -680,7 +632,7 @@ private fun SlidePill(
     val bottom = stringResource(R.string.jump_bottom)
     val closeLabel = stringResource(R.string.pick_close)
     val corner = PillEntry(
-        icon = Icons.Default.Close,
+        icon = Glyphs.Material.Close,
         label = when {
             jumping -> bottom
             open -> closeLabel
@@ -701,38 +653,38 @@ private fun SlidePill(
             PillKey(
                 entry = corner,
                 size = PILL_KEY,
-                // ⚠️ Closed, the round key is the FAB: its long press is the FAB's and not a
-                // tooltip. Open, it is a key of the pill like the others.
+                // ⚠️ Chiusa, il tasto tondo è il FAB: il suo tocco lungo è quello del FAB e non un
+                // suggerimento. Aperta, è un tasto della pillola come gli altri.
                 holdLabel = if (open) null else holdLabel,
                 glyph = {
                     Box(contentAlignment = Alignment.Center) {
                         Box(
                             modifier = Modifier.graphicsLayer {
                                 alpha = 1f - p
-                                // ⚠️ Without a buffer: see [MARK_FADE].
+                                // ⚠️ Senza un buffer: vedi [MARK_FADE].
                                 compositingStrategy = MARK_FADE
-                                val s = 1f - SWAP_ZOOM * p
+                                val s = 1f - GLIFO_ZOOM * p
                                 scaleX = s
                                 scaleY = s
                             }
                         ) {
-                            // ⚠️ The round key is drawn here and not by [TapHoldFab]: without this
-                            // the mark kept the square FAB's size and centre (4.02-03, not approved).
+                            // ⚠️ Il tasto tondo si disegna qui e non con [TapHoldFab]: senza, il
+                            // segno terrebbe misura e centro del FAB quadrato.
                             CompositionLocalProvider(LocalRoundKey provides true) { fabGlyph(null) }
                         }
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier.graphicsLayer {
                                 alpha = p
-                                // ⚠️ Without a buffer: see [MARK_FADE].
+                                // ⚠️ Senza un buffer: vedi [MARK_FADE].
                                 compositingStrategy = MARK_FADE
-                                val s = 1f - SWAP_ZOOM * (1f - p)
+                                val s = 1f - GLIFO_ZOOM * (1f - p)
                                 scaleX = s
                                 scaleY = s
                             }
                         ) {
-                            // Open, the × crossfades into `↓` with the jump, as the keys of
-                            // [JumpKey] do (item `4.34-04`).
+                            // Aperta, la × sfuma in `↓` col salto, come i tasti di [JumpKey]
+                            // (voce `4.34-04`).
                             val j = if (open) q else 0f
                             Box(
                                 modifier = Modifier.graphicsLayer {
@@ -741,7 +693,7 @@ private fun SlidePill(
                                     scaleX = s
                                     scaleY = s
                                 }
-                            ) { Icon(Icons.Default.Close, contentDescription = null) }
+                            ) { Icon(Glyphs.Material.Close, contentDescription = null) }
                             if (j > 0f) {
                                 Box(
                                     modifier = Modifier.graphicsLayer {
@@ -760,10 +712,10 @@ private fun SlidePill(
     }
     Box(
         /*
-         * ⚠️ **The row leans on the preferred side, and it is measured**: each cell rounds its width
-         * to the pixel, so eight cells can come out a few pixels short of the pill, and leaning on
-         * the start left the × that much off the edge (3px on the bench, at density 1). On this side
-         * the corner key is exact, and the shortfall goes to the far end.
+         * ⚠️ **La fila si appoggia al lato preferito**: ogni cella arrotonda la sua larghezza al
+         * pixel, quindi otto celle possono risultare qualche pixel più corte della pillola, e
+         * appoggiata all'inizio la × resterebbe staccata dal bordo (3 px misurati sul banco, a
+         * densità 1). Così il tasto d'angolo è esatto, e la differenza va all'altro capo.
          */
         contentAlignment = if (atEnd) Alignment.CenterEnd else Alignment.CenterStart,
         modifier = Modifier
@@ -772,18 +724,14 @@ private fun SlidePill(
             .pillFill(backdrop)
     ) {
         /*
-         * ⚠️⚠️ **`wrapContentWidth` SENZA LIMITE E NON `requiredWidth`, ED È MISURATO**: una fila più
-         * larga del suo riquadro, scritta con `requiredWidth`, si centra sul riquadro, cioè il
-         * tasto d'angolo finiva mezza pillola fuori dallo schermo e il tocco non lo trovava (lo
-         * ha visto il banco). Così la fila si allinea al lato preferito, e il tasto tondo resta
-         * dov'era il FAB.
-         */
-        /*
-         * ⚠️⚠️ **CENTRED IN HEIGHT, SINCE 4.36** (his note of 2026-10-06, with a screenshot: *l'unica
-         * icona centrata verticalmente sulla pillola è la × ... tutte le altre appaiono molto più in
-         * alto*): a `Row` puts its children at the top unless told otherwise, and with eight entries
-         * on a narrow phone [keyFor] makes the open keys smaller than the pill, while the × keeps
-         * [PILL_KEY]. So every key but the × sat at the top of the pill. `PillRowTest` measures it.
+         * ⚠️⚠️ **`wrapContentWidth` senza limite e non `requiredWidth`**: una fila più larga del
+         * suo riquadro, con `requiredWidth`, si centra sul riquadro, e il tasto d'angolo finirebbe
+         * mezza pillola fuori dallo schermo, dove il tocco non lo trova. Così la fila si allinea
+         * al lato preferito, e il tasto tondo resta dov'era il FAB.
+         *
+         * ⚠️ **Centrata in altezza**: una `Row` mette i figli in alto, e con molte voci su un
+         * telefono stretto [keyFor] rende i tasti aperti più piccoli della pillola, mentre la ×
+         * tiene [PILL_KEY]. Presidiato da `PillRowTest`.
          */
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -796,14 +744,12 @@ private fun SlidePill(
         ) {
             if (!atEnd) cornerKey()
             entries.forEachIndexed { i, entry ->
-                // ⚠️ A key hidden behind the round one is not a command yet.
+                // ⚠️ Un tasto nascosto dietro quello tondo non è ancora un comando.
                 val usable = entry.copy(enabled = entry.enabled && open, onTap = { open = false; entry.onTap() })
                 /*
-                 * ⚠️⚠️ **SINCE 4.34 THE OPEN PILL TURNS INTO THE JUMP WHILE SCROLLING** (note B on
-                 * the 4.33 round: *devono diventare top/bottom mentre si scorre, e tornare alle loro
-                 * funzioni una volta finito di scorrere, come accade nelle altre modalità*); until
-                 * 4.33 it had no jump at all. Since 4.35 the key beside the × is `↑`, and the × is
-                 * `↓` (see [outer]).
+                 * La pillola aperta diventa il salto mentre si scorre, come le altre modalità (nota
+                 * B dell'utente sul giro della 4.33): il tasto accanto alla × è `↑`, e la × è `↓`
+                 * (vedi [outer]).
                  */
                 val jump = if (arm != null && i == outer) -1 else 0
                 Box(
@@ -823,16 +769,16 @@ private fun SlidePill(
 }
 
 /**
- * [PhonePill.EXTENDED]: the pill always open, which folds to the two jump keys while scrolling.
+ * [PhonePill.EXTENDED]: la pillola sempre aperta, che si chiude sui due tasti del salto mentre si
+ * scorre.
  *
- * ⚠️⚠️ **THE FOLD FOLLOWS THE JUMP'S OWN STATE** (answer C2: *con le stesse tempistiche e lo
- * stesso meccanismo*): the keys that leave shrink with [JumpArm.shown], the pixel the finger moves
- * is the pixel the pill folds, and it opens again when the chevron would go back to the mark. The
- * two keys at the corner turn into `↑` (inside) and `↓` (in the corner) with the chevron's own
- * crossfade, at the same time as the pill (*avvengono contemporaneamente*).
- * ⚠️ **Both directions at once**, unlike the FAB's single chevron: the pill has two keys to give.
- * ⚠️ **A tap jumps only while armed**: halfway through the fold the keys are still the entries,
- * and they do what they show.
+ * ⚠️⚠️ **La chiusura segue lo stato del salto** (risposta C2): i tasti che se ne vanno si
+ * rimpiccioliscono con [JumpArm.shown], il pixel che il dito muove è il pixel che la pillola
+ * chiude, e si riapre quando la freccia tornerebbe al segno. I due tasti d'angolo diventano `↑`
+ * (dentro) e `↓` (nell'angolo) con la stessa dissolvenza della freccia, insieme alla pillola.
+ * Le due direzioni insieme, a differenza della freccia unica del FAB: la pillola ha due tasti.
+ * ⚠️ **Il tocco salta solo a salto armato**: a metà chiusura i tasti sono ancora le voci, e fanno
+ * quello che mostrano.
  */
 @Composable
 private fun ExtendedPill(
@@ -848,28 +794,23 @@ private fun ExtendedPill(
     val count = entries.size
     val key = keyFor(count, room)
     /*
-     * ⚠️⚠️ **WITH THE MOST ENTRIES THE PILL SPANS THE WHOLE ROW, SINCE 4.15, AND IT IS HIS RULE**
-     * (*se si raggiungono le 7 icone (il massimo), la pillola raggiunge a sinistra la stessa
-     * distanza che la separa dal bordo a destra, aumentando leggermente la spaziatura in modo che
-     * l'icona 'Cerca' sia esattamente al centro*): [room] is already the row between the two
-     * margins, so seven equal cells put the fourth, 'Cerca', on the screen's centre line.
-     * ⚠️ **Since 4.25 the open sliding pill spans the row too** (his choice A2), with its × among
-     * the eight cells: in 4.15 it was *solo nella pillola estesa*.
-     * ⚠️ **The cells widen, the keys do not**: the touch target and the round ripple stay the
-     * key's, and the extra width is spacing.
-     * ⚠️⚠️ **From 6.02 the home can have eight** (his choice A1 of 2026-10-14): the Feed is a third
-     * view, so with a hidden folder the entries pass seven. [keyFor] shrinks the keys a little, and
-     * 'Cerca' is the fourth of eight, off the centre line by half a cell.
+     * ⚠️⚠️ **Da [PILL_FULL] voci la pillola occupa tutta la fila** (regola dell'utente): [room] è
+     * già la fila fra i due margini, quindi sette celle uguali mettono la quarta, 'Cerca', sulla
+     * linea di mezzo dello schermo. Si allargano le celle e non i tasti: bersaglio del tocco e
+     * increspatura restano quelli del tasto, e la larghezza in più è spaziatura.
+     * Con il Feed come terza vista la schermata iniziale può avere otto voci (scelta A1 dell'utente,
+     * 6.02): [keyFor] rimpicciolisce un poco i tasti, e 'Cerca' è la quarta di otto, spostata di
+     * mezza cella dalla linea di mezzo.
      */
     val cell = if (count >= PILL_FULL) room / count else key
-    // ⚠️ The two keys at the corner, in reading order: on the right they are the last two.
+    // ⚠️ I due tasti d'angolo, in ordine di lettura: a destra sono gli ultimi due.
     val inner = if (atEnd) count - 2 else 1
     val outer = if (atEnd) count - 1 else 0
     val folds = count >= 2
     val top = stringResource(R.string.jump_top)
     val bottom = stringResource(R.string.jump_bottom)
-    // ⚠️ Centred in height like the sliding pill's row (see [SlidePill]): here every key has the
-    // same size, so they agree among themselves, but a key of another size would sit at the top.
+    // ⚠️ Centrata in altezza come la fila della pillola a scomparsa (vedi [SlidePill]): qui i
+    // tasti hanno tutti la stessa misura, ma uno di un'altra misura finirebbe in alto.
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.pillFill(backdrop)) {
         entries.forEachIndexed { i, entry ->
             val jump = when {
@@ -898,17 +839,16 @@ private fun ExtendedPill(
     }
 }
 
-/** From how many entries the extended pill spans the whole row: seven, the most there are. */
+/** Da quante voci una pillola occupa tutta la fila: sette. */
 internal const val PILL_FULL = 7
 
 /**
- * A key that turns into a jump while the screen scrolls: [entry] at rest, `↑` ([jump] `-1`) or
- * `↓` ([jump] `1`) while [armed], with the chevron's own crossfade driven by [q].
+ * Un tasto che diventa un salto mentre la schermata scorre: [entry] a riposo, `↑` ([jump] `-1`) o
+ * `↓` ([jump] `1`) quando [armed], con la stessa dissolvenza della freccia guidata da [q].
  *
- * ⚠️ **Written once since 4.15**: the extended pill, the bottom menu and its folded pill all turn
- * two of their keys into the jump, and with the same mechanism (*con il solito meccanismo*).
- * ⚠️ **A tap jumps only while armed**: halfway through, the key is still the entry, and it does
- * what it shows.
+ * Scritto una volta sola: la pillola estesa, il Menu basso e la sua pillola chiusa trasformano
+ * due tasti nel salto con lo stesso meccanismo. ⚠️ Il tocco salta solo a salto armato: a metà
+ * strada il tasto è ancora la voce, e fa quello che mostra.
  */
 @Composable
 internal fun JumpKey(
@@ -937,7 +877,7 @@ internal fun JumpKey(
                 Box(
                     modifier = Modifier.graphicsLayer {
                         alpha = (1f - q).pow(JUMP_FULL)
-                        // ⚠️ Without a buffer: see [MARK_FADE].
+                        // ⚠️ Senza un buffer: vedi [MARK_FADE].
                         compositingStrategy = MARK_FADE
                         val s = 1f - JUMP_ZOOM * q
                         scaleX = s

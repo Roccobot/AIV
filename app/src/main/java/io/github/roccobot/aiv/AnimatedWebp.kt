@@ -11,36 +11,24 @@ import android.graphics.Rect
 /**
  * Le WebP animate, lette dal contenitore e ricomposte qui.
  *
- * ⚠️⚠️ **NON C'È NIENTE DA CHIEDERE AD ANDROID, ed è un negativo VERIFICATO**: con `javap`
- * su `android.jar` (API 37) `ImageDecoder` non ha **nessun** metodo che contenga 'frame' o
- * 'animat', e `ImageDecoder.ImageInfo` espone soltanto `getColorSpace`, `getMimeType`,
- * `getSize` e `isAnimated`. Il sistema sa dire **se** un file è animato e sa riprodurlo con
- * `AnimatedImageDrawable`, ma non sa dire quanti fotogrammi ha, quanto durano, né darne uno
- * a scelta. Per le quattro cose che servono ad AIV serviva un'altra strada.
+ * ⚠️ **Android non dà i fotogrammi**: `ImageDecoder` sa dire se un file è animato e
+ * `AnimatedImageDrawable` lo riproduce, ma nessuna API dice quanti fotogrammi ha, quanto durano,
+ * né ne dà uno a scelta (verificato con `javap` su `android.jar`, API 37).
  *
- * ⚠️⚠️ **LA STRADA, E IL SUO TRUCCO**: una WebP animata è un contenitore RIFF, e ogni
- * fotogramma sta in un chunk `ANMF` che contiene posizione, misura, ritardo, i due metodi di
- * composizione, e infine i **dati compressi veri**, che sono un blocco `VP8 ` o `VP8L`, cioè
- * il contenuto di una WebP FERMA. Quindi si legge il contenitore a mano (contare, ritardi,
- * ripetizioni: sono numeri scritti in chiaro), e per i pixel si prende il blocco compresso di
- * un fotogramma e gli si **antepone un'intestazione WebP minima di 12 byte**: quello che ne
- * esce è un file WebP normale, che `BitmapFactory` decodifica come qualunque altro. La
- * decodifica vera resta al sistema, che ha `libwebp`; noi facciamo solo la busta.
- * ⚠️⚠️ **L'ALGORITMO DI COMPOSIZIONE È VERIFICATO CONTRO UN DECODIFICATORE DI RIFERIMENTO,
- * e non solo scritto sulla specifica**: [compose] e [decode] sono stati ritradotti riga per
- * riga in Python e fatti girare su due WebP animate fabbricate apposta, una opaca e una con
- * trasparenza, di dieci fotogrammi ciascuna, di cui **19 su 20 parziali** (toppe piccole su
- * una tela di 320x240) e quasi tutte con `dispose to background` più fusione alfa. Il
- * confronto con quello che ne tira fuori il decodificatore di riferimento dà **scarto
- * massimo 0** su ogni pixel di ogni fotogramma: non 'somiglia', è identico.
- * ⚠️ **Quello che resta fuori dalla prova**, ed è l'unica cosa da guardare sul telefono:
- * la prova è girata sul `libwebp` di un PC, qui a decodificare è quello di Android. La
- * logica di composizione però è la stessa, e quella non dipende dal decodificatore.
+ * Una WebP animata è un contenitore RIFF: ogni fotogramma è in un chunk `ANMF` con posizione,
+ * misura, ritardo, i due metodi di composizione e i dati compressi, un blocco `VP8 ` o `VP8L`,
+ * cioè il contenuto di una WebP ferma. Il contenitore si legge a mano (conti, ritardi,
+ * ripetizioni sono numeri in chiaro); per i pixel si antepone al blocco compresso
+ * un'intestazione WebP minima, e `BitmapFactory` decodifica il risultato come un file
+ * qualunque. La decodifica resta al sistema, che ha `libwebp`.
+ * La composizione ([compose], [decode]) è stata confrontata con un decodificatore di riferimento
+ * su due WebP animate di prova, una opaca e una trasparente, quasi tutte toppe parziali con
+ * `dispose to background` e fusione alfa: scarto massimo 0 su ogni pixel. La prova è girata sul
+ * `libwebp` di un PC, non su quello di Android.
  *
- * ⚠️⚠️ **IL COSTO DELLA SCELTA, dichiarato**: zero dipendenze e zero librerie native, ma la
- * composizione dei fotogrammi la scriviamo noi (i due metodi qui sotto), mentre per le GIF la
- * scrive il decodificatore di Glide. Se un giorno le WebP si vedessero male dove le GIF si
- * vedono bene, il sospetto va cercato qui e non altrove.
+ * ⚠️ **Il costo della scelta**: nessuna dipendenza, ma la composizione dei fotogrammi è scritta
+ * qui, mentre per le GIF la fa il decodificatore di Glide. Se le WebP si vedono male dove le GIF
+ * si vedono bene, il sospetto va cercato qui.
  */
 class AnimatedWebp private constructor(
     private val bytes: ByteArray,
@@ -81,13 +69,11 @@ class AnimatedWebp private constructor(
     /**
      * La tela su cui i fotogrammi si posano uno sopra l'altro.
      *
-     * ⚠️ **Una sola, riusata, e non è quella che si consegna** ([outputs]): allocarne una per
-     * fotogramma vorrebbe dire una tela grande quanto l'immagine venti volte al secondo. Vedi la
-     * stessa scelta in `AnimatedGif.Pool`.
-     * ⚠️ **E allocata alla PRIMA richiesta, non all'apertura**: chi apre il file può
-     * scoprire subito dopo che i fotogrammi sono uno solo e richiudere (vedi
-     * `Animations.open`), e con una tela allocata nel costruttore avrebbe pagato
-     * larghezza per altezza per quattro byte per niente.
+     * Una sola, riusata, e diversa da quelle che si consegnano ([outputs]): una per fotogramma
+     * vorrebbe dire una tela grande quanto l'immagine venti volte al secondo (stessa scelta di
+     * `AnimatedGif.Pool`).
+     * È allocata alla prima richiesta: chi apre il file può scoprire che il fotogramma è uno solo
+     * e richiuderlo (`Animations.open`) senza aver pagato la tela.
      */
     private var canvasBitmap: Bitmap? = null
 
@@ -97,20 +83,17 @@ class AnimatedWebp private constructor(
     /**
      * Le due tele che si consegnano a turno, e quale delle due è in mostra.
      *
-     * ⚠️⚠️ **DUE TELE D'USCITA, DALLA `6.28`** (rilievo C14 della revisione della 6.25): fino ad
-     * allora si consegnava la tela della pila stessa, e il fotogramma dopo la riscriveva su
-     * `Dispatchers.Default` mentre il disegno poteva starla leggendo, durante una pizzicata che
-     * ridisegna a ogni quadro. La pila si compone su [canvasBitmap], che nessuno vede, e si copia
-     * nella tela che non è in mostra (misurato in `TeleWebpTest`).
+     * ⚠️ **La pila non si consegna mai** (rilievo C14): il fotogramma dopo la riscrive su
+     * `Dispatchers.Default` mentre il disegno può leggerla, per esempio durante una pizzicata.
+     * La pila si compone su [canvasBitmap], che nessuno vede, e si copia nella tela che non è in
+     * mostra (presidiato da `TeleWebpTest`).
      */
     private val outputs = arrayOfNulls<Bitmap>(2)
     private var shown = -1
 
     /**
-     * La tela riusata in cui si decodifica una toppa, grande quanto l'immagine.
-     *
-     * ⚠️ **Dalla `6.28`** (rilievo C14): fino ad allora ogni toppa era una tela nuova, decodificata
-     * e poi riciclata, cioè un'allocazione per fotogramma che il serbatoio della GIF evita.
+     * La tela riusata in cui si decodifica una toppa, grande quanto l'immagine: evita
+     * un'allocazione per fotogramma, come il serbatoio della GIF (rilievo C14).
      */
     private var patch: Bitmap? = null
 
@@ -139,10 +122,8 @@ class AnimatedWebp private constructor(
     }
 
     /**
-     * ⚠️ **Qui basta spostare l'indice**, al contrario della GIF: [compose] confronta quello
-     * che la tela mostra con quello che le si chiede, e se il salto va all'indietro ripulisce
-     * e rifà la pila da capo. La correzione della scia riguardava il lettore GIF, dove
-     * spostarsi e comporre sono due cose separate; questo lettore la tela ce l'ha in mano.
+     * Qui basta spostare l'indice, al contrario della GIF: [compose] confronta il fotogramma
+     * che la tela mostra con quello chiesto, e all'indietro ripulisce e rifà la pila da capo.
      */
     override fun seek(target: Int) {
         if (frames.isEmpty()) return
@@ -150,8 +131,8 @@ class AnimatedWebp private constructor(
     }
 
     /**
-     * ⚠️ **Le due tele d'uscita NON si riciclano**: una può essere ancora in mano al disegno, e
-     * riciclarla là vorrebbe dire andare in errore. Se ne occupa il raccoglitore.
+     * ⚠️ **Le due tele d'uscita non si riciclano**: una può essere ancora in mano al disegno,
+     * che andrebbe in errore. Le libera il raccoglitore.
      */
     override fun close() {
         canvasBitmap?.takeIf { !it.isRecycled }?.recycle()
@@ -165,12 +146,10 @@ class AnimatedWebp private constructor(
     /**
      * Porta la tela dal fotogramma che mostra a quello chiesto.
      *
-     * ⚠️⚠️ **IN AVANTI SI PROSEGUE, ALL'INDIETRO SI RICOMINCIA, e non è una pigrizia**: un
-     * fotogramma è una toppa disegnata sopra quello di prima, quindi il fotogramma N esiste
-     * solo come risultato di tutti i precedenti. Andare avanti di uno costa un fotogramma;
-     * tornare indietro di uno costa **N**, perché bisogna rifare la pila da capo. È una
-     * proprietà del formato, non di questo codice, e per questo la cura (una cache dei
-     * fotogrammi già composti) va messa sopra questa classe e non dentro.
+     * In avanti si prosegue, all'indietro si ricomincia: un fotogramma è una toppa sopra quello di
+     * prima, quindi il fotogramma N esiste solo come risultato dei precedenti, e tornare indietro
+     * di uno costa N. È una proprietà del formato: una cache dei fotogrammi composti andrebbe
+     * sopra questa classe.
      */
     private fun compose(tela: Bitmap) {
         val canvas = Canvas(tela)
@@ -180,9 +159,8 @@ class AnimatedWebp private constructor(
             from = 0
         }
         for (i in from..index) {
-            // ⚠️ Il disposal è del fotogramma PRECEDENTE e si applica PRIMA di disegnare
-            // questo: è l'ordine della specifica, e invertirlo cancellerebbe la toppa
-            // appena posata invece di quella vecchia.
+            // ⚠️ Il disposal è del fotogramma precedente e si applica prima di disegnare questo,
+            // come dice la specifica: invertiti, cancellerebbero la toppa appena posata.
             frames.getOrNull(i - 1)?.takeIf { it.clearBefore }?.let { old ->
                 canvas.drawRect(
                     Rect(old.x, old.y, old.x + old.w, old.y + old.h),
@@ -192,8 +170,8 @@ class AnimatedWebp private constructor(
             val frame = frames[i]
             val piece = decode(frame) ?: continue
             if (frame.replace) {
-                // Sostituisce invece di fondersi: prima si vuota il riquadro, se no la
-                // trasparenza del fotogramma nuovo lascerebbe vedere quello di sotto.
+                // Sostituzione: prima si vuota il riquadro, se no la trasparenza del fotogramma
+                // nuovo lascerebbe vedere quello di sotto.
                 canvas.drawRect(
                     Rect(frame.x, frame.y, frame.x + frame.w, frame.y + frame.h),
                     CLEAR
@@ -208,15 +186,11 @@ class AnimatedWebp private constructor(
     /**
      * I pixel di un fotogramma, decodificati dal sistema.
      *
-     * ⚠️⚠️ **QUI STA L'INTESTAZIONE MINIMA, ed è tutto il trucco**: davanti al blocco
-     * compresso si scrivono 12 byte, `RIFF` più la lunghezza più `WEBP`, e il risultato è
-     * un file WebP valido.
-     * ⚠️⚠️ **TRANNE QUANDO IL FOTOGRAMMA HA UN CANALE ALFA A PARTE**: in quel caso i dati
-     * cominciano con un blocco `ALPH`, e un file con `ALPH` **deve** dichiararlo in un chunk
-     * `VP8X`, o il decodificatore lo rifiuta. Allora l'intestazione minima non basta e se ne
-     * scrive una con il `VP8X` davanti. Senza questo ramo, tutte le WebP animate con
-     * trasparenza vera si vedrebbero come fotogrammi mancanti, che è il difetto peggiore
-     * possibile qui: silenzioso e solo su certi file.
+     * Davanti al blocco compresso si scrivono 12 byte, `RIFF`, la lunghezza e `WEBP`, e il
+     * risultato è un file WebP valido.
+     * ⚠️ **Tranne quando il fotogramma ha un canale alfa a parte**: i dati cominciano con un
+     * blocco `ALPH`, che va dichiarato in un chunk `VP8X`, o il decodificatore rifiuta il file.
+     * Senza questo ramo le WebP animate con trasparenza perderebbero fotogrammi, in silenzio.
      */
     private fun decode(frame: Frame): Bitmap? = runCatching {
         val body = bytes.copyOfRange(frame.at, frame.at + frame.size)
@@ -227,8 +201,8 @@ class AnimatedWebp private constructor(
             inMutable = true
             inBitmap = riuso
         }
-        // ⚠️ Se il sistema rifiuta la tela riusata (una configurazione diversa), si decodifica in
-        // una tela nuova: un'allocazione in più, non un fotogramma mancante.
+        // Se il sistema rifiuta la tela riusata (una configurazione diversa), si decodifica in
+        // una tela nuova: un'allocazione in più, e il fotogramma c'è.
         runCatching { BitmapFactory.decodeByteArray(out, 0, out.size, opzioni) }.getOrNull()
             ?: BitmapFactory.decodeByteArray(out, 0, out.size).also { DrawWork.canvases++ }
     }.getOrNull()
@@ -275,10 +249,9 @@ class AnimatedWebp private constructor(
         /**
          * Legge il contenitore e ne ricava l'elenco dei fotogrammi.
          *
-         * ⚠️ **I chunk RIFF sono allineati a due byte**: dopo un corpo di lunghezza dispari
-         * c'è un byte di riempimento che non fa parte di nessun chunk. Dimenticarlo fa
-         * perdere il passo dal primo fotogramma di misura dispari in poi, e da lì in avanti
-         * si legge spazzatura.
+         * ⚠️ **I chunk RIFF sono allineati a due byte**: dopo un corpo di lunghezza dispari c'è
+         * un byte di riempimento. Senza saltarlo la lettura perde il passo dal primo fotogramma
+         * di misura dispari in poi.
          */
         fun open(bytes: ByteArray): Animated? = runCatching {
             if (bytes.size < 21) return null
@@ -299,15 +272,14 @@ class AnimatedWebp private constructor(
                         width = readLe24(bytes, body + 4) + 1
                         height = readLe24(bytes, body + 7) + 1
                     }
-                    // ⚠️ Nel chunk ANIM i primi 4 byte sono il colore di sfondo, che qui non
-                    // serve: la tela nasce trasparente e ci pensa il visualizzatore a dire
-                    // che cosa c'è dietro.
+                    // Nel chunk ANIM i primi 4 byte sono il colore di sfondo, che qui non serve:
+                    // la tela nasce trasparente, e lo sfondo lo decide il visualizzatore.
                     "ANIM" -> if (size >= 6) loops = readLe16(bytes, body + 4)
                     "ANMF" -> if (size >= 16) {
                         val flags = bytes[body + 15].toInt()
                         frames.add(
                             Frame(
-                                // ⚠️ Posizione in unità di DUE pixel, per specifica.
+                                // La specifica scrive la posizione in unità di due pixel.
                                 x = readLe24(bytes, body) * 2,
                                 y = readLe24(bytes, body + 3) * 2,
                                 w = readLe24(bytes, body + 6) + 1,
