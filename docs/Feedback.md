@@ -230,7 +230,7 @@ Vale per AIV GitHub e per AIV Play. Nell'editor completo applica `Fluidifica`, p
 
 Vale per AIV GitHub e per AIV Play. Nell'editor completo ingrandisci un'immagine. Un tocco secco o un tocco lungo per il confronto non fanno lampeggiare il pezzo nitido; un doppio tocco lo carica una volta sola, a corsa finita.
 
-## 30. L'anteprima dell'editor a 1.600 pixel
+## 30. L'anteprima dell'editor alla misura della specifica
 
 Vale per AIV GitHub e per AIV Play. Apri nell'editor completo una foto fra 1.600 e 3.200 pixel di lato (per esempio 3.000 per 2.000): a immagine intera la resa è la stessa di prima, e ingrandendo arriva il pezzo nitido.
 
@@ -418,7 +418,7 @@ Tasto: Cancella selezione
 
 Suggerimento: Dipingi su un piccolo difetto, poi tocca Applica. Usa due dita per ingrandire o spostare.
 
-Mentre lavora: Correzione in corso…
+Mentre lavora: `Correzione in corso…`
 
 Se non riesce: Impossibile correggere questa area. Prova una selezione più piccola.
 
