@@ -428,6 +428,7 @@
     <string name="tree_hidden">disembunyikan</string>
     <string name="tree_unopenable">Tidak ada aplikasi di ponsel ini yang bisa membukanya</string>
     <string name="clip_pause">Jeda</string>
+    <string name="clip_show_controls">Tampilkan kontrol</string>
     <string name="settings_images_only">Telusuri gambar saja</string>
     <string name="settings_images_only_desc">Di penampil, gesekan melewati video dan hanya menelusuri gambar. Video tetap bisa dibuka dengan satu ketukan dari tampilan biasa.</string>
     <string name="settings_clip_autoplay">Putar video secara langsung</string>

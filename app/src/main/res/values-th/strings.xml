@@ -428,6 +428,7 @@
     <string name="tree_hidden">ซ่อนอยู่</string>
     <string name="tree_unopenable">ไม่มีแอปในโทรศัพท์นี้ที่เปิดไฟล์นี้ได้</string>
     <string name="clip_pause">หยุดชั่วคราว</string>
+    <string name="clip_show_controls">แสดงตัวควบคุม</string>
     <string name="settings_images_only">เปิดดูเฉพาะรูปภาพ</string>
     <string name="settings_images_only_desc">ในโปรแกรมดูภาพ การปัดจะข้ามวิดีโอและเปิดดูเฉพาะภาพ ยังเปิดวิดีโอได้ด้วยการแตะจากมุมมองปกติ</string>
     <string name="settings_clip_autoplay">เล่นวิดีโอทันที</string>

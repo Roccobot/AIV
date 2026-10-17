@@ -508,6 +508,7 @@
     <string name="tree_hidden">مخفي</string>
     <string name="tree_unopenable">لا يوجد تطبيق على هذا الهاتف يستطيع فتحه</string>
     <string name="clip_pause">إيقاف مؤقت</string>
+    <string name="clip_show_controls">إظهار عناصر التحكم</string>
     <string name="settings_images_only">تصفح الصور فقط</string>
     <string name="settings_images_only_desc">في العارض، يتخطّى السحب مقاطع الفيديو ويتصفّح الصور وحدها. ويمكن فتح مقطع الفيديو بلمسة من العرض العادي.</string>
     <string name="settings_clip_autoplay">تشغيل الفيديو مباشرةً</string>

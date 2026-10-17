@@ -229,4 +229,5 @@
     <string name="settings_group_browse">Ficheiros e pastas</string>
     <string name="folders_rail_search">Procurar nas pastas</string>
     <string name="folders_rail_search_in">Procurar em %1$s</string>
+    <string name="clip_show_controls">Mostrar controlos</string>
 </resources>

@@ -865,6 +865,7 @@ private fun coloursText(colours: Colours?): String? {
             Colours.Model.INDEXED -> R.string.facts_colour_indexed
             Colours.Model.RGB -> R.string.facts_colour_rgb
             Colours.Model.RGBA -> R.string.facts_colour_rgba
+            Colours.Model.CMYK -> R.string.facts_colour_cmyk
         }
     )
     val first = colours.bitsPerPixel?.let { stringResource(R.string.facts_colour_bits, name, it) }

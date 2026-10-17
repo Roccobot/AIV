@@ -11,8 +11,7 @@ import org.junit.Test
  *
  * ⚠️⚠️ **NASCE DAL RILIEVO B27**: un JPEG a quattro componenti (CMYK o YCCK, il formato dei file
  * pronti per la stampa) si dichiarava RGB a 24 bit, proprio sui file che un grafico apre più
- * spesso. Senza una voce del modello per il CMYK, la risposta giusta è nessuna: una risposta
- * inventata è peggio di nessuna, come per l'HEIC.
+ * spesso. Fino alla 6.30 la risposta era nessuna; dalla 6.31 il modello ha la voce CMYK.
  * ⚠️⚠️ **E SCRIVENDOLA SI È VISTO CHE NESSUN JPEG AVEVA LA RIGA**: la lettura del SOF partiva dopo
  * i primi 1.024 byte, già consumati per riconoscere il formato, cioè a metà di un segmento, e
  * rispondeva sempre 'non lo so'. Prima della correzione erano rossi i tre casi a uno e a tre
@@ -49,9 +48,21 @@ class MetodoColoreTest {
         assertEquals("Un JPEG a un componente non si dichiara grigio", Colours.Model.GREY, letto?.model)
     }
 
+    /**
+     * ⚠️ **Dalla 6.31 il CMYK ha la sua riga** (scelta B1 dell'utente, `d-cmyk`): fino alla 6.30
+     * la risposta era nessuna, e questa prova chiedeva `null`. Diventa rossa rimettendo 'RGB' sui
+     * quattro componenti, o togliendo la voce.
+     */
     @Test
-    fun `un JPEG in CMYK non si dichiara RGB`() {
-        assertNull("Un JPEG a quattro componenti si dichiara un metodo colore", coloursOf(ByteArrayInputStream(jpeg(4))))
+    fun `un JPEG in CMYK si dichiara CMYK a 32 bit`() {
+        val letto = coloursOf(ByteArrayInputStream(jpeg(4)))
+        assertEquals("Un JPEG a quattro componenti non si dichiara CMYK", Colours.Model.CMYK, letto?.model)
+        assertEquals("Un JPEG a quattro componenti non ha 32 bit", 32, letto?.bitsPerPixel)
+    }
+
+    @Test
+    fun `un JPEG con un numero di componenti fuori formato resta senza risposta`() {
+        assertNull("Un JPEG a due componenti si dichiara un metodo colore", coloursOf(ByteArrayInputStream(jpeg(2))))
     }
 
     /**

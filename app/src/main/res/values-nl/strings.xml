@@ -444,6 +444,7 @@
     <string name="tree_hidden">verborgen</string>
     <string name="tree_unopenable">Geen app op deze telefoon kan het openen</string>
     <string name="clip_pause">Pauzeren</string>
+    <string name="clip_show_controls">Bediening tonen</string>
     <string name="settings_images_only">Alleen door foto\'s bladeren</string>
     <string name="settings_images_only_desc">In de viewer slaat het vegen de video\'s over en bladert het alleen door afbeeldingen. Vanuit de normale weergave opent een video nog steeds met één tik.</string>
     <string name="settings_clip_autoplay">Video\'s direct afspelen</string>

@@ -444,6 +444,7 @@
     <string name="tree_hidden">gizli</string>
     <string name="tree_unopenable">Bu telefonda bunu açabilecek bir uygulama yok</string>
     <string name="clip_pause">Duraklat</string>
+    <string name="clip_show_controls">Kontrolleri göster</string>
     <string name="settings_images_only">Yalnızca resimleri gezin</string>
     <string name="settings_images_only_desc">Görüntüleyicide kaydırma videoları atlar ve yalnızca görüntüleri gezinir. Video, normal görünümden bir dokunuşla yine açılır.</string>
     <string name="settings_clip_autoplay">Videoları hemen oynat</string>

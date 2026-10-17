@@ -428,6 +428,7 @@
     <string name="tree_hidden">đã ẩn</string>
     <string name="tree_unopenable">Không có ứng dụng nào trên điện thoại này mở được tệp này</string>
     <string name="clip_pause">Tạm dừng</string>
+    <string name="clip_show_controls">Hiện điều khiển</string>
     <string name="settings_images_only">Chỉ lướt qua ảnh</string>
     <string name="settings_images_only_desc">Trong trình xem, việc vuốt bỏ qua video và chỉ lướt qua ảnh. Vẫn có thể mở video bằng một lần chạm từ chế độ xem thường.</string>
     <string name="settings_clip_autoplay">Phát video ngay</string>

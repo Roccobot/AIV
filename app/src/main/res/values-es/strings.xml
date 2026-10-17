@@ -460,6 +460,7 @@
     <string name="tree_hidden">oculta</string>
     <string name="tree_unopenable">Ninguna aplicación de este teléfono sabe abrirlo</string>
     <string name="clip_pause">Pausar</string>
+    <string name="clip_show_controls">Mostrar controles</string>
     <string name="settings_images_only">Pasar solo las imágenes</string>
     <string name="settings_images_only_desc">En el visor, el deslizamiento salta los vídeos y solo pasa las imágenes. Se puede abrir un vídeo con un toque desde la vista normal.</string>
     <string name="settings_clip_autoplay">Reproducir los vídeos directamente</string>

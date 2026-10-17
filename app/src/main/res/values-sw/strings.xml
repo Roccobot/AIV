@@ -444,6 +444,7 @@
     <string name="tree_hidden">imefichwa</string>
     <string name="tree_unopenable">Hakuna programu kwenye simu hii inayoweza kuifungua</string>
     <string name="clip_pause">Sitisha</string>
+    <string name="clip_show_controls">Onyesha vidhibiti</string>
     <string name="settings_images_only">Pitia picha pekee</string>
     <string name="settings_images_only_desc">Katika kitazamaji, kutelezesha huruka video na kupitia picha pekee. Video bado inaweza kufunguliwa kwa mguso mmoja kutoka mwonekano wa kawaida.</string>
     <string name="settings_clip_autoplay">Cheza video mara moja</string>

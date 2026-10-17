@@ -460,6 +460,7 @@
     <string name="tree_hidden">oculta</string>
     <string name="tree_unopenable">Nenhum app deste celular sabe abrir isso</string>
     <string name="clip_pause">Pausar</string>
+    <string name="clip_show_controls">Mostrar controles</string>
     <string name="settings_images_only">Folhear só as imagens</string>
     <string name="settings_images_only_desc">No visualizador, o deslize salta os vídeos e folheia apenas as imagens. Um vídeo pode ser aberto com um toque a partir da visualização normal.</string>
     <string name="settings_clip_autoplay">Reproduzir os vídeos de imediato</string>

@@ -460,6 +460,7 @@
     <string name="tree_hidden">masqué</string>
     <string name="tree_unopenable">Aucune application de ce téléphone ne sait l\'ouvrir</string>
     <string name="clip_pause">Mettre en pause</string>
+    <string name="clip_show_controls">Afficher les commandes</string>
     <string name="settings_images_only">Ne feuilleter que les images</string>
     <string name="settings_images_only_desc">Dans la visionneuse, le balayage ignore les vidéos et ne feuillette que les images. Une vidéo s\'ouvre toujours d\'une touche depuis la vue normale.</string>
     <string name="settings_clip_autoplay">Lire les vidéos directement</string>

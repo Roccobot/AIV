@@ -428,6 +428,7 @@
     <string name="tree_hidden">已隱藏</string>
     <string name="tree_unopenable">這支手機上沒有能開啟它的應用程式</string>
     <string name="clip_pause">暫停</string>
+    <string name="clip_show_controls">顯示控制項</string>
     <string name="settings_images_only">只翻閱圖片</string>
     <string name="settings_images_only_desc">在檢視器中滑動會略過影片，只翻閱影像。在一般檢視中輕觸仍可開啟影片。</string>
     <string name="settings_clip_autoplay">直接播放影片</string>

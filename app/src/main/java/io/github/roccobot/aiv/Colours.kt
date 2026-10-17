@@ -30,7 +30,7 @@ class Colours(
     val transparent: Boolean
 ) {
     enum class Model(val channels: Int) {
-        GREY(1), GREY_ALPHA(2), RGB(3), RGBA(4), INDEXED(1)
+        GREY(1), GREY_ALPHA(2), RGB(3), RGBA(4), INDEXED(1), CMYK(4)
     }
 
     /**
@@ -257,10 +257,11 @@ private fun gifTransparent(head: ByteArray, valid: Int, input: InputStream): Boo
  * Il JPEG non ha trasparenza né tavolozza: resta da sapere se ha un componente (grigio) o tre
  * (colore), e con quanti bit. Lo dice il SOF, che si cerca di segmento in segmento come in
  * [encodingOf].
- * ⚠️ **Quattro componenti (CMYK o YCCK, i file pronti per la stampa) non hanno una risposta**:
- * [Colours.Model] non ha una voce per il CMYK, e dirli RGB a 24 bit sarebbe una risposta
- * inventata, peggio di nessuna, come per l'HEIC. Lo stesso per un numero di componenti che il
- * formato non prevede.
+ * ⚠️ **Quattro componenti sono CMYK, anche quando il file li codifica come YCCK**: sono i file
+ * pronti per la stampa, e YCCK è solo il modo in cui il JPEG comprime gli stessi quattro
+ * inchiostri. Fino alla 6.30 non avevano una risposta, per non dirli RGB; dalla 6.31 hanno la
+ * loro riga (scelta B1 dell'utente, domanda `d-cmyk`). Un numero di componenti che il formato non
+ * prevede resta senza risposta.
  */
 private fun jpegColours(input: InputStream): Colours? {
     val two = ByteArray(2)
@@ -285,6 +286,7 @@ private fun jpegColours(input: InputStream): Colours? {
         val model = when (components) {
             1 -> Colours.Model.GREY
             3 -> Colours.Model.RGB
+            4 -> Colours.Model.CMYK
             else -> return null
         }
         return Colours(model, bits, null, false)

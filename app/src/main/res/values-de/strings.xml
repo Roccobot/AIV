@@ -444,6 +444,7 @@
     <string name="tree_hidden">ausgeblendet</string>
     <string name="tree_unopenable">Keine App auf diesem Telefon kann es öffnen</string>
     <string name="clip_pause">Pause</string>
+    <string name="clip_show_controls">Steuerelemente einblenden</string>
     <string name="settings_images_only">Nur Bilder durchblättern</string>
     <string name="settings_images_only_desc">Im Betrachter überspringt das Wischen die Videos und blättert nur Bilder durch. Aus der normalen Ansicht lässt sich ein Video weiterhin mit einer Berührung öffnen.</string>
     <string name="settings_clip_autoplay">Videos sofort abspielen</string>
