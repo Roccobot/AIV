@@ -9,7 +9,7 @@ intera e nessuna rilettura del codice lo poteva vedere.
 Le prove vivono in `feedback-interactive-check.py`; questo è il nome che la guida e il workflow del
 DF lanciano. Dalla `6.30` (rilievo H29 della revisione Setaccio) è soltanto il passaggio: la metà
 che controllava il formato di prima del DF (`var SEZIONI` e simili) non serviva più a nessun
-documento di AIV, e quello di Aomidori ha una copia sua.
+documento di AIV, e dal 2026-10-17 (`Gemella`) è uscita anche dalla copia di Aomidori.
 
 Uso:
     python3 tools/feedback-check.py <documento.html>
