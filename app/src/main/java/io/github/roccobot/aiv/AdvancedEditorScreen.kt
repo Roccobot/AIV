@@ -734,306 +734,169 @@ fun AdvancedEditorScreen(
             )
             }
 
+            /*
+             * Il palco è uno solo per le due disposizioni: cambia soltanto la misura, che il
+             * chiamante dà col suo `weight`, alto nella riga degli strumenti a lato e largo nella
+             * colonna del telefono. Due copie divergevano senza che nessuna prova lo vedesse.
+             */
+            @Composable
+            fun Stage(size: Modifier) {
+                Box(
+                    modifier = size
+                        .background(stageBack())
+                        .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+                        .padding(horizontal = STAGE_SIDE, vertical = STAGE_PAD),
+                    contentAlignment = Alignment.Center
+                ) {
+                    val picture = origin
+                    if (picture == null) {
+                        CircularProgressIndicator()
+                    } else {
+                        LookStage(
+                            picture = picture,
+                            full = full,
+                            /*
+                             * ⚠️⚠️ **Il confronto toglie un gruppo di campi e non tutti** (richiesta
+                             * dell'utente): nei due moduli che dicono dove va un pixel mostra
+                             * l'originale intero; negli altri tiene posa, taglio, geometria e vista, e
+                             * confronta il colore dentro l'inquadratura di adesso (vedi [Look.place]).
+                             * ⚠️ Nel Ritaglio il dito serve alle squadrette e il confronto non parte:
+                             * quel ramo oggi si vede solo nella Geometria, a strumento 'Angoli' spento.
+                             */
+                            look = when {
+                                !comparing -> peek?.invoke(look) ?: look
+                                MODULES[gaze.module].extra.places -> Look.NONE
+                                else -> look.place
+                            },
+                            onCompare = { comparing = it },
+                            /*
+                             * ⚠️⚠️ **Il mirato vale solo nel modulo che lo sa usare, e si guarda qui**:
+                             * passando a un altro modulo resterebbe armato, e il palco smetterebbe di
+                             * rispondere a pinza e doppio tocco senza che si veda il tasto per spegnerlo.
+                             */
+                            aiming = { gaze.aiming && MODULES[gaze.module].extra == Extra.BANDS },
+                            onAimStart = { aimStart(it) },
+                            onAimEnd = { push() },
+                            /*
+                             * ⚠️ **Il ritaglio si accende dalla stessa tabella**, per la stessa ragione:
+                             * le squadrette sono sul palco, e in un altro modulo prenderebbero il dito.
+                             */
+                            cutting = look.crop.takeIf { MODULES[gaze.module].extra == Extra.CROP },
+                            // ⚠️ Dentro la porzione applicata: vedi [frameAspect].
+                            keep = cropShape(gaze).value(
+                                cropLay(gaze), frameAspect(look, posedAspect(origin, look.spin))
+                            ),
+                            onCut = { look = look.copy(crop = it) },
+                            onCutEnd = { push() },
+                            /*
+                             * ⚠️ **Lo strumento 'Angoli' si arma come il colore mirato**: stesso tasto e
+                             * stesso stato, e quale gesto sia lo dice la tabella dei moduli. In un altro
+                             * modulo il valore torna nullo, e le maniglie se ne vanno col tasto.
+                             */
+                            corners = look.geo.corners.takeIf {
+                                gaze.aiming && MODULES[gaze.module].extra == Extra.CORNERS
+                            },
+                            onCorners = { look = look.copy(geo = look.geo.copy(corners = it)) },
+                            onCornersEnd = { push() },
+                            liquifying = {
+                                gaze.liquifying && MODULES[gaze.module].extra == Extra.CORNERS
+                            },
+                            rebuild = { gaze.rebuilding },
+                            brushRadius = { gaze.brushRadius },
+                            brushSizing = { gaze.brushSizing && gaze.liquifying },
+                            brushStrength = { gaze.brushStrength },
+                            onLiquify = { look = look.copy(geo = look.geo.copy(liquify = it)) },
+                            onLiquifyEnd = { push() },
+                            healing = { gaze.healing && !busy && MODULES[gaze.module].extra == Extra.HEALING },
+                            selection = gaze.selection.takeIf { MODULES[gaze.module].extra == Extra.HEALING },
+                            healingRadius = { gaze.healingRadius },
+                            healingSizing = { gaze.healingSizing },
+                            leveling = { gaze.leveling && MODULES[gaze.module].extra == Extra.CORNERS },
+                            drawPen = {
+                                gaze.penMark().takeIf { !busy && MODULES[gaze.module].extra == Extra.DRAW }
+                            },
+                            onDraw = { look = look.copy(drawing = it) },
+                            onDrawEnd = { drawn() },
+                            inkSizing = { gaze.inkSizing && MODULES[gaze.module].extra == Extra.DRAW },
+                            onViewLong = { if (gaze.viewLong != it) gaze.viewLong = it },
+                            drawPicked = { gaze.picked },
+                            onDrawPick = { i -> pick(i) },
+                            drawTurning = { gaze.turning },
+                            onDrawTurn = { gaze.turning = !gaze.turning },
+                            onDrawText = { at -> askText(at) },
+                            onDrawWords = { i -> gaze.askWords(look.drawing, i) },
+                            onDrawPill = { i -> askPill(i) },
+                            onDrawHold = { holdDraw() },
+                            onHealPaint = { polygon ->
+                                if (!gaze.healingBusy) {
+                                    if (gaze.selection.polygons.size < Healing.MAX_POLYGONS) {
+                                        gaze.selection = gaze.selection.add(polygon)
+                                        gaze.healingFailed = false
+                                    } else gaze.healingFailed = true
+                                }
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    // Il promemoria della selezione è sopra il palco, così dipingere non ne cambia le misure.
+                    if (!gaze.selection.idle) {
+                        Text(
+                            stringResource(R.string.look_heal_pending),
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .clickable {
+                                    // ⚠️ Toccandolo si va a 'Correggi/Rimuovi' (voce `3.24-05`).
+                                    val i = MODULES.indexOfFirst { it.extra == Extra.HEALING }
+                                    if (i >= 0) {
+                                        gaze.module = i
+                                        gaze.healing = true
+                                    }
+                                }
+                                .background(
+                                    MaterialTheme.colorScheme.surfaceContainer,
+                                    RoundedCornerShape(8.dp)
+                                )
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    /*
+                     * ⚠️ **L'avviso 'area troppo grande' è sopra la scheda, non dentro** (nota
+                     * dell'utente sul giro della 3.24): stesso disegno del promemoria della
+                     * selezione, appoggiato al bordo basso del palco.
+                     */
+                    if (gaze.healingFailed) {
+                        Text(
+                            stringResource(R.string.look_heal_failed),
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(horizontal = 12.dp, vertical = 8.dp)
+                                .background(
+                                    MaterialTheme.colorScheme.surfaceContainer,
+                                    RoundedCornerShape(8.dp)
+                                )
+                                .clickable { gaze.healingFailed = false }
+                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+            }
+
             if (beside) {
                 Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
                     if (panelOnStart) {
                         Sheet()
                     }
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-                    .background(stageBack())
-                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
-                    .padding(horizontal = STAGE_SIDE, vertical = STAGE_PAD),
-                contentAlignment = Alignment.Center
-            ) {
-                val picture = origin
-                if (picture == null) {
-                    CircularProgressIndicator()
-                } else {
-                    LookStage(
-                        picture = picture,
-                        full = full,
-                        /*
-                         * ⚠️⚠️ **Il confronto toglie un gruppo di campi e non tutti** (richiesta
-                         * dell'utente): nei due moduli che dicono dove va un pixel mostra
-                         * l'originale intero; negli altri tiene posa, taglio, geometria e vista, e
-                         * confronta il colore dentro l'inquadratura di adesso (vedi [Look.place]).
-                         * ⚠️ Nel Ritaglio il dito serve alle squadrette e il confronto non parte:
-                         * quel ramo oggi si vede solo nella Geometria, a strumento 'Angoli' spento.
-                         */
-                        look = when {
-                            !comparing -> peek?.invoke(look) ?: look
-                            MODULES[gaze.module].extra.places -> Look.NONE
-                            else -> look.place
-                        },
-                        onCompare = { comparing = it },
-                        /*
-                         * ⚠️⚠️ **Il mirato vale solo nel modulo che lo sa usare, e si guarda qui**:
-                         * passando a un altro modulo resterebbe armato, e il palco smetterebbe di
-                         * rispondere a pinza e doppio tocco senza che si veda il tasto per spegnerlo.
-                         */
-                        aiming = { gaze.aiming && MODULES[gaze.module].extra == Extra.BANDS },
-                        onAimStart = { aimStart(it) },
-                        onAimEnd = { push() },
-                        /*
-                         * ⚠️ **Il ritaglio si accende dalla stessa tabella**, per la stessa ragione:
-                         * le squadrette sono sul palco, e in un altro modulo prenderebbero il dito.
-                         */
-                        cutting = look.crop.takeIf { MODULES[gaze.module].extra == Extra.CROP },
-                        // ⚠️ Dentro la porzione applicata: vedi [frameAspect].
-                        keep = cropShape(gaze).value(
-                            cropLay(gaze), frameAspect(look, posedAspect(origin, look.spin))
-                        ),
-                        onCut = { look = look.copy(crop = it) },
-                        onCutEnd = { push() },
-                        /*
-                         * ⚠️ **Lo strumento 'Angoli' si arma come il colore mirato**: stesso tasto e
-                         * stesso stato, e quale gesto sia lo dice la tabella dei moduli. In un altro
-                         * modulo il valore torna nullo, e le maniglie se ne vanno col tasto.
-                         */
-                        corners = look.geo.corners.takeIf {
-                            gaze.aiming && MODULES[gaze.module].extra == Extra.CORNERS
-                        },
-                        onCorners = { look = look.copy(geo = look.geo.copy(corners = it)) },
-                        onCornersEnd = { push() },
-                        liquifying = {
-                            gaze.liquifying && MODULES[gaze.module].extra == Extra.CORNERS
-                        },
-                        rebuild = { gaze.rebuilding },
-                        brushRadius = { gaze.brushRadius },
-                        brushSizing = { gaze.brushSizing && gaze.liquifying },
-                        brushStrength = { gaze.brushStrength },
-                        onLiquify = { look = look.copy(geo = look.geo.copy(liquify = it)) },
-                        onLiquifyEnd = { push() },
-                        healing = { gaze.healing && !busy && MODULES[gaze.module].extra == Extra.HEALING },
-                        selection = gaze.selection.takeIf { MODULES[gaze.module].extra == Extra.HEALING },
-                        healingRadius = { gaze.healingRadius },
-                        healingSizing = { gaze.healingSizing },
-                        leveling = { gaze.leveling && MODULES[gaze.module].extra == Extra.CORNERS },
-                        drawPen = {
-                            gaze.penMark().takeIf { !busy && MODULES[gaze.module].extra == Extra.DRAW }
-                        },
-                        onDraw = { look = look.copy(drawing = it) },
-                        onDrawEnd = { drawn() },
-                        inkSizing = { gaze.inkSizing && MODULES[gaze.module].extra == Extra.DRAW },
-                        onViewLong = { if (gaze.viewLong != it) gaze.viewLong = it },
-                        drawPicked = { gaze.picked },
-                        onDrawPick = { i -> pick(i) },
-                        drawTurning = { gaze.turning },
-                        onDrawTurn = { gaze.turning = !gaze.turning },
-                        onDrawText = { at -> askText(at) },
-                        onDrawWords = { i -> gaze.askWords(look.drawing, i) },
-                        onDrawPill = { i -> askPill(i) },
-                        onDrawHold = { holdDraw() },
-                        onHealPaint = { polygon ->
-                            if (!gaze.healingBusy) {
-                                if (gaze.selection.polygons.size < Healing.MAX_POLYGONS) {
-                                    gaze.selection = gaze.selection.add(polygon)
-                                    gaze.healingFailed = false
-                                } else gaze.healingFailed = true
-                            }
-                        },
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-                // Il promemoria della selezione è sopra il palco, così dipingere non ne cambia le misure.
-                if (!gaze.selection.idle) {
-                    Text(
-                        stringResource(R.string.look_heal_pending),
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .clickable {
-                                // ⚠️ Toccandolo si va a 'Correggi/Rimuovi' (voce `3.24-05`).
-                                val i = MODULES.indexOfFirst { it.extra == Extra.HEALING }
-                                if (i >= 0) {
-                                    gaze.module = i
-                                    gaze.healing = true
-                                }
-                            }
-                            .background(
-                                MaterialTheme.colorScheme.surfaceContainer,
-                                RoundedCornerShape(8.dp)
-                            )
-                            .padding(horizontal = 8.dp, vertical = 4.dp),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-                /*
-                 * ⚠️ **L'avviso 'area troppo grande' è sopra la scheda, non dentro** (nota
-                 * dell'utente sul giro della 3.24): stesso disegno del promemoria della
-                 * selezione, appoggiato al bordo basso del palco.
-                 */
-                if (gaze.healingFailed) {
-                    Text(
-                        stringResource(R.string.look_heal_failed),
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(horizontal = 12.dp, vertical = 8.dp)
-                            .background(
-                                MaterialTheme.colorScheme.surfaceContainer,
-                                RoundedCornerShape(8.dp)
-                            )
-                            .clickable { gaze.healingFailed = false }
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            }
-
+                    Stage(Modifier.weight(1f).fillMaxHeight())
                     if (!panelOnStart) {
                         Sheet()
                     }
                 }
             } else {
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .background(stageBack())
-                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
-                    .padding(horizontal = STAGE_SIDE, vertical = STAGE_PAD),
-                contentAlignment = Alignment.Center
-            ) {
-                val picture = origin
-                if (picture == null) {
-                    CircularProgressIndicator()
-                } else {
-                    LookStage(
-                        picture = picture,
-                        full = full,
-                        /*
-                         * ⚠️⚠️ **Il confronto toglie un gruppo di campi e non tutti** (richiesta
-                         * dell'utente): nei due moduli che dicono dove va un pixel mostra
-                         * l'originale intero; negli altri tiene posa, taglio, geometria e vista, e
-                         * confronta il colore dentro l'inquadratura di adesso (vedi [Look.place]).
-                         * ⚠️ Nel Ritaglio il dito serve alle squadrette e il confronto non parte:
-                         * quel ramo oggi si vede solo nella Geometria, a strumento 'Angoli' spento.
-                         */
-                        look = when {
-                            !comparing -> peek?.invoke(look) ?: look
-                            MODULES[gaze.module].extra.places -> Look.NONE
-                            else -> look.place
-                        },
-                        onCompare = { comparing = it },
-                        /*
-                         * ⚠️⚠️ **Il mirato vale solo nel modulo che lo sa usare, e si guarda qui**:
-                         * passando a un altro modulo resterebbe armato, e il palco smetterebbe di
-                         * rispondere a pinza e doppio tocco senza che si veda il tasto per spegnerlo.
-                         */
-                        aiming = { gaze.aiming && MODULES[gaze.module].extra == Extra.BANDS },
-                        onAimStart = { aimStart(it) },
-                        onAimEnd = { push() },
-                        /*
-                         * ⚠️ **Il ritaglio si accende dalla stessa tabella**, per la stessa ragione:
-                         * le squadrette sono sul palco, e in un altro modulo prenderebbero il dito.
-                         */
-                        cutting = look.crop.takeIf { MODULES[gaze.module].extra == Extra.CROP },
-                        // ⚠️ Dentro la porzione applicata: vedi [frameAspect].
-                        keep = cropShape(gaze).value(
-                            cropLay(gaze), frameAspect(look, posedAspect(origin, look.spin))
-                        ),
-                        onCut = { look = look.copy(crop = it) },
-                        onCutEnd = { push() },
-                        /*
-                         * ⚠️ **Lo strumento 'Angoli' si arma come il colore mirato**: stesso tasto e
-                         * stesso stato, e quale gesto sia lo dice la tabella dei moduli. In un altro
-                         * modulo il valore torna nullo, e le maniglie se ne vanno col tasto.
-                         */
-                        corners = look.geo.corners.takeIf {
-                            gaze.aiming && MODULES[gaze.module].extra == Extra.CORNERS
-                        },
-                        onCorners = { look = look.copy(geo = look.geo.copy(corners = it)) },
-                        onCornersEnd = { push() },
-                        liquifying = {
-                            gaze.liquifying && MODULES[gaze.module].extra == Extra.CORNERS
-                        },
-                        rebuild = { gaze.rebuilding },
-                        brushRadius = { gaze.brushRadius },
-                        brushSizing = { gaze.brushSizing && gaze.liquifying },
-                        brushStrength = { gaze.brushStrength },
-                        onLiquify = { look = look.copy(geo = look.geo.copy(liquify = it)) },
-                        onLiquifyEnd = { push() },
-                        healing = { gaze.healing && !busy && MODULES[gaze.module].extra == Extra.HEALING },
-                        selection = gaze.selection.takeIf { MODULES[gaze.module].extra == Extra.HEALING },
-                        healingRadius = { gaze.healingRadius },
-                        healingSizing = { gaze.healingSizing },
-                        leveling = { gaze.leveling && MODULES[gaze.module].extra == Extra.CORNERS },
-                        drawPen = {
-                            gaze.penMark().takeIf { !busy && MODULES[gaze.module].extra == Extra.DRAW }
-                        },
-                        onDraw = { look = look.copy(drawing = it) },
-                        onDrawEnd = { drawn() },
-                        inkSizing = { gaze.inkSizing && MODULES[gaze.module].extra == Extra.DRAW },
-                        onViewLong = { if (gaze.viewLong != it) gaze.viewLong = it },
-                        drawPicked = { gaze.picked },
-                        onDrawPick = { i -> pick(i) },
-                        drawTurning = { gaze.turning },
-                        onDrawTurn = { gaze.turning = !gaze.turning },
-                        onDrawText = { at -> askText(at) },
-                        onDrawWords = { i -> gaze.askWords(look.drawing, i) },
-                        onDrawPill = { i -> askPill(i) },
-                        onDrawHold = { holdDraw() },
-                        onHealPaint = { polygon ->
-                            if (!gaze.healingBusy) {
-                                if (gaze.selection.polygons.size < Healing.MAX_POLYGONS) {
-                                    gaze.selection = gaze.selection.add(polygon)
-                                    gaze.healingFailed = false
-                                } else gaze.healingFailed = true
-                            }
-                        },
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-                // Il promemoria della selezione è sopra il palco, così dipingere non ne cambia le misure.
-                if (!gaze.selection.idle) {
-                    Text(
-                        stringResource(R.string.look_heal_pending),
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .clickable {
-                                // ⚠️ Toccandolo si va a 'Correggi/Rimuovi' (voce `3.24-05`).
-                                val i = MODULES.indexOfFirst { it.extra == Extra.HEALING }
-                                if (i >= 0) {
-                                    gaze.module = i
-                                    gaze.healing = true
-                                }
-                            }
-                            .background(
-                                MaterialTheme.colorScheme.surfaceContainer,
-                                RoundedCornerShape(8.dp)
-                            )
-                            .padding(horizontal = 8.dp, vertical = 4.dp),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-                /*
-                 * ⚠️ **L'avviso 'area troppo grande' è sopra la scheda, non dentro** (nota
-                 * dell'utente sul giro della 3.24): stesso disegno del promemoria della
-                 * selezione, appoggiato al bordo basso del palco.
-                 */
-                if (gaze.healingFailed) {
-                    Text(
-                        stringResource(R.string.look_heal_failed),
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(horizontal = 12.dp, vertical = 8.dp)
-                            .background(
-                                MaterialTheme.colorScheme.surfaceContainer,
-                                RoundedCornerShape(8.dp)
-                            )
-                            .clickable { gaze.healingFailed = false }
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            }
-
+                Stage(Modifier.weight(1f).fillMaxWidth())
                 Sheet()
             }
         }
