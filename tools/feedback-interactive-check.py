@@ -193,6 +193,72 @@ def check_altro_reaches_last_attachment(path):
     print('Altro: la rotella porta all\'ultimo allegato senza muovere la pagina, verificato a tre misure.')
 
 
+# Each word of a block with the line it ends on: a non-breaking space joins two words into one.
+LINE_ENDS = r'''() => {
+    const out = [];
+    for (const block of document.querySelectorAll('main p, main h3, main li, main button.choice')) {
+        const words = [];
+        const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+        for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+            const re = /[^ \t\n]+/g;
+            let match;
+            while ((match = re.exec(node.data))) {
+                const range = document.createRange();
+                range.setStart(node, match.index);
+                range.setEnd(node, match.index + match[0].length);
+                const rects = [...range.getClientRects()].filter(rect => rect.width > 0);
+                if (rects.length) words.push({text: match[0], top: Math.round(rects[rects.length - 1].top)});
+            }
+        }
+        const lines = [];
+        for (const word of words) {
+            const last = lines[lines.length - 1];
+            if (last && Math.abs(last.top - word.top) < 3) last.words.push(word.text);
+            else lines.push({top: word.top, words: [word.text]});
+        }
+        lines.slice(0, -1).forEach((line, index) => {
+            const end = line.words[line.words.length - 1].split(' ').pop();
+            const next = lines[index + 1].words[0];
+            if (/^[\p{L}]{1,2}$/u.test(end)) out.push(block.textContent.slice(0, 50) + ' | riga ' + (index + 1) + ' finisce con "' + end + '"');
+            if (/^\d+$/.test(end) && /^(pt|px|ms|s|min|h|%|KB|MB|GB|mm|cm|m|km|kg|g)\b/.test(next)) {
+                out.push(block.textContent.slice(0, 50) + ' | riga ' + (index + 1) + ' finisce con "' + end + '", e la sua unità va a capo');
+            }
+        });
+    }
+    return out;
+}'''
+
+
+def check_line_ends(path):
+    """The page's real lines, with its fonts, at a phone's width and a desktop's: no line ends with
+    a word of one or two letters, nor with a number whose unit went to the next line (Legatura, the
+    user's note on Aomidori's round 2.01, the same here). In Chromium, the engine of the document
+    on the phone; Aomidori's twin measures in WebKit."""
+    from playwright.sync_api import sync_playwright
+    browser_path = chromium()
+    if not browser_path:
+        raise AssertionError('Chromium non disponibile: righe del DF non verificate.')
+    handler = functools.partial(Quiet, directory=str(Path(path).resolve().parent))
+    server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    url = f'http://127.0.0.1:{server.server_port}/{Path(path).name}'
+    problems = []
+    try:
+        with sync_playwright() as pw:
+            engine = pw.chromium.launch(executable_path=browser_path, args=['--no-sandbox'])
+            for width in [390, 1280]:
+                page = engine.new_page(viewport={'width': width, 'height': 900})
+                page.goto(url)
+                page.evaluate('document.fonts.ready')
+                problems += [f'{width}px: {line}' for line in page.evaluate(LINE_ENDS)]
+                page.close()
+            engine.close()
+    finally:
+        server.shutdown()
+    assert not problems, 'Righe che finiscono con una parola corta o un numero senza unità:\n' + '\n'.join(problems)
+    print('Righe: nessuna parola di una o due lettere né numero senza la sua unità a fine riga, a 390 e 1280px.')
+
+
 def check_back_button(path):
     """Back closes Altro's panel and stays on the page, and leaving asks first (the user's request,
     2026-10-16: on Android the Back of the phone left the document). On a phone, with real touches,
@@ -290,7 +356,9 @@ def check_declared_round(path):
         # 6.29 (H13): the tests have their level of heading, for screen readers only.
         assert '<h2 id="tests-title" class="sr-only">Prove del giro 0.01</h2>' in built, 'Manca il titolo delle prove.'
         assert 'releases/download/v0.01/' in built, 'Il tasto di download non punta al giro dichiarato.'
-        sentence = re.sub(r'<[^>]+>', '', re.search(r'<section class="card archive">.*?</section>', built, re.S)[0])
+        # Read with plain spaces: since Legatura (2026-10-17) the short words are tied with
+        # non-breaking ones, which the line check measures.
+        sentence = re.sub(r'<[^>]+>', '', re.search(r'<section class="card archive">.*?</section>', built, re.S)[0]).replace(' ', ' ')
         assert ('Giro 0.01: La prova di sintesi (0.01-01). Richiesta del 2026-10-16. Riscontro: il tuo A1. '
                 'Esito: fatto nella 0.01.') in sentence, sentence
         assert '<code>0.01-01</code>' in built, 'L\'identificatore non è scritto come codice.'
@@ -583,6 +651,7 @@ def check(path):
     check_attachment_buttons(path)
     check_altro_reaches_last_attachment(path)
     check_back_button(path)
+    check_line_ends(path)
     if not data['items']:
         check_without_tests(path)
         return
