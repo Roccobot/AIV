@@ -793,18 +793,24 @@ fun ViewerScreen(
      * destra.
      */
     val panelOnStart = settings.hand == Hand.RIGHT
-    Row(modifier = modifier.fillMaxSize()) {
-        if (sideAvailable && sideOpen && panelOnStart) {
-            AivPalette(light = lightGreys) {
-                ViewerFactsSide(
-                    uri = source,
-                    fields = settings.factRows,
-                    width = Adaptive.sideWidth(widthDp),
-                    onClose = { sideOpen = false },
-                    onRename = { renamed -> job = FileJob.Rename(listOf(renamed)) }
-                )
-            }
+
+    // Il pannello è uno solo per i due lati: un argomento nuovo si aggiunge in un posto.
+    @Composable
+    fun Side() {
+        if (!sideAvailable || !sideOpen) return
+        AivPalette(light = lightGreys) {
+            ViewerFactsSide(
+                uri = source,
+                fields = settings.factRows,
+                width = Adaptive.sideWidth(widthDp),
+                onClose = { sideOpen = false },
+                onRename = { renamed -> job = FileJob.Rename(listOf(renamed)) }
+            )
         }
+    }
+
+    Row(modifier = modifier.fillMaxSize()) {
+        if (panelOnStart) Side()
     Box(
         modifier = Modifier
             .weight(1f)
@@ -1032,17 +1038,7 @@ fun ViewerScreen(
             ) { ancora() }
         }
     }
-        if (sideAvailable && sideOpen && !panelOnStart) {
-            AivPalette(light = lightGreys) {
-                ViewerFactsSide(
-                    uri = source,
-                    fields = settings.factRows,
-                    width = Adaptive.sideWidth(widthDp),
-                    onClose = { sideOpen = false },
-                    onRename = { renamed -> job = FileJob.Rename(listOf(renamed)) }
-                )
-            }
-        }
+        if (!panelOnStart) Side()
     }
 
     // Le finestre sono fuori dal riquadro dell'immagine e dal menu: devono sopravvivere
