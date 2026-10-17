@@ -1,7 +1,6 @@
 package io.github.roccobot.aiv
 
 import android.content.Context
-import android.graphics.Color
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
