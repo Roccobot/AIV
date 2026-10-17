@@ -324,6 +324,15 @@ data class Mark(
             val dy = p.y - c.y
             return Offset(dx * cos + dy * sin, -dx * sin + dy * cos)
         }
+
+        /**
+         * Le otto maniglie negli assi del riquadro, nell'ordine di [handles]: i quattro angoli, poi
+         * il centro di ogni lato. Vive qui una volta sola perché [reshaped] legge lo stesso ordine.
+         */
+        fun eight() = listOf(
+            -hw to -hh, hw to -hh, hw to hh, -hw to hh,
+            0f to -hh, hw to 0f, 0f to hh, -hw to 0f
+        )
     }
 
     private fun frame(w: Float, h: Float): Frame {
@@ -357,10 +366,7 @@ data class Mark(
         val fw = w.toFloat()
         val fh = h.toFloat()
         val f = frame(fw, fh)
-        return listOf(
-            -f.hw to -f.hh, f.hw to -f.hh, f.hw to f.hh, -f.hw to f.hh,
-            0f to -f.hh, f.hw to 0f, 0f to f.hh, -f.hw to 0f
-        ).map { (x, y) -> f.out(x, y).let { Offset(it.x / fw, it.y / fh) } }
+        return f.eight().map { (x, y) -> f.out(x, y).let { Offset(it.x / fw, it.y / fh) } }
     }
 
     /**
@@ -410,10 +416,7 @@ data class Mark(
              * la sua direzione. Un testo stirato su un asse sarebbe un carattere deformato. La
              * larghezza di a capo cresce con lui, e le righe restano le stesse.
              */
-            val h0 = listOf(
-                -f.hw to -f.hh, f.hw to -f.hh, f.hw to f.hh, -f.hw to f.hh,
-                0f to -f.hh, f.hw to 0f, 0f to f.hh, -f.hw to 0f
-            ).getOrNull(handle) ?: return this
+            val h0 = f.eight().getOrNull(handle) ?: return this
             val d = h0.first * h0.first + h0.second * h0.second
             if (d < 1f) return this
             val scale = (p.x * h0.first + p.y * h0.second) / d
