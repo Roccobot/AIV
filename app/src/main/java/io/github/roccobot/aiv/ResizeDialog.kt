@@ -441,7 +441,7 @@ private fun ModeRow(shown: Resize.Mode, onPick: (Resize.Mode) -> Unit) {
                     val nome = stringResource(modeName(modo))
                     // La percentuale si scrive col segno (voce `resize-finestra`), e il suo nome
                     // `resize_share` resta nella descrizione per il lettore di schermo.
-                    val scritto = if (modo == Resize.Mode.SHARE) PCT else nome
+                    val scritto = if (modo == Resize.Mode.SHARE) PERCENT else nome
                     val cella = with(density) {
                         righello.measure(
                             AnnotatedString(scritto),
@@ -595,8 +595,11 @@ private const val BY = '×'
 /** L'unità dei due campi, che non si traduce in nessuna lingua. */
 private const val PX = "px"
 
-/** Il gettone della percentuale: il segno e non la parola. */
-private const val PCT = "%"
+/**
+ * Il segno della percentuale, qui e nelle impostazioni della filigrana: il segno e non la parola,
+ * e non si traduce in nessuna lingua, come '16:9' fra i formati del Ritaglio.
+ */
+internal const val PERCENT = "%"
 
 /**
  * Quanto il segno fra i due campi scende, per cadere sulle cifre e non sul campo: la distanza

@@ -94,8 +94,7 @@ object SvgClean {
              * byte compressi come testo. Si riconosce dai due byte di firma e non
              * dall'estensione: esistono `.svg` gzippati e `.svgz` in chiaro.
              */
-            val zippato = grezzo.size >= 2 &&
-                grezzo[0] == 0x1F.toByte() && grezzo[1] == 0x8B.toByte()
+            val zippato = Signatures.gzip(grezzo)
             val testo = runCatching {
                 if (zippato) {
                     GZIPInputStream(ByteArrayInputStream(grezzo)).use { it.readBytes() }

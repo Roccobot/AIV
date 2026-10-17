@@ -777,7 +777,7 @@ private fun declaresAlpha(context: Context, uri: AndroidUri): Boolean {
     if (testa.size < 32) return true
 
     // ── PNG: il tipo di colore è al byte 25, e la palette può avere un `tRNS` ──
-    if (testa.size >= 26 && PNG_MAGIC.indices.all { testa[it] == PNG_MAGIC[it] }) {
+    if (testa.size >= 26 && Signatures.png(testa)) {
         return when (testa[25].toInt()) {
             // 4 = grigio più alfa, 6 = RGBA: l'alfa è nel formato stesso.
             4, 6 -> true
@@ -882,10 +882,6 @@ internal fun declines(context: Context, uri: AndroidUri): Boolean {
 
 /** Quanto si legge in testa a un file per sapere se dichiara l'alfa. Vedi [declaresAlpha]. */
 private const val SNIFF = 4096
-
-private val PNG_MAGIC = byteArrayOf(
-    0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A
-)
 
 /** Come si sa se un formato può avere l'alfa: sempre, o solo se il file lo dichiara. */
 private enum class Alpha { SEMPRE, SE_DICHIARATA }

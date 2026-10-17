@@ -125,8 +125,7 @@ object Svg {
      * compresso non contiene `<svg`, e [looksLike] risponderebbe no. Due byte e non
      * l'estensione, perché un decodificatore riceve i byte e non il nome (come `Avif.looksLike`).
      */
-    private fun gzipped(head: ByteArray): Boolean =
-        head.size >= 2 && head[0] == GZIP_1 && head[1] == GZIP_2
+    private fun gzipped(head: ByteArray): Boolean = Signatures.gzip(head)
 
     /**
      * I primi [SNIFF] byte di un `.svgz`, scompattati.
@@ -149,10 +148,6 @@ object Svg {
     } catch (t: Throwable) {
         null
     }
-
-    /** I due byte della firma gzip, scritti per valore: `1f 8b`. */
-    private const val GZIP_1: Byte = 0x1f
-    private const val GZIP_2: Byte = 0x8b.toByte()
 
     /** Come [render], per chi ha già i byte in mano. */
     fun render(bytes: ByteArray, box: Int, cap: Long = FREE): Rendered? =

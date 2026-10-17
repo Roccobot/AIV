@@ -470,3 +470,23 @@ object ImageSource {
         uri.lastPathSegment
     }
 }
+
+/**
+ * Le firme dei formati che l'app riconosce dai primi byte, scritte una volta sola: miniature,
+ * filigrana, colori e SVG leggono le stesse, e ognuno dei riconoscimenti non cresce per conto suo.
+ */
+internal object Signatures {
+    /** Gli otto byte con cui comincia ogni PNG. */
+    private val PNG = byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A)
+
+    /** Se [head] comincia con la firma del PNG. */
+    fun png(head: ByteArray): Boolean =
+        head.size >= PNG.size && PNG.indices.all { head[it] == PNG[it] }
+
+    /**
+     * Se [head] comincia con la firma gzip, `1f 8b`, cioè un `.svgz`: i byte e non l'estensione,
+     * perché esistono `.svg` compressi e `.svgz` in chiaro, e un decodificatore riceve i byte.
+     */
+    fun gzip(head: ByteArray): Boolean =
+        head.size >= 2 && head[0] == 0x1f.toByte() && head[1] == 0x8b.toByte()
+}

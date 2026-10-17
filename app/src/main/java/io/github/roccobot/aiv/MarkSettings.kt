@@ -347,7 +347,7 @@ private fun MarkNumber(
                         visualTransformation = VisualTransformation.None,
                         interactionSource = tocco,
                         isError = fuori,
-                        suffix = { Text(PER_CENT) },
+                        suffix = { Text(PERCENT) },
                         contentPadding = OutlinedTextFieldDefaults.contentPadding(
                             top = NUM_FIELD_PAD,
                             bottom = NUM_FIELD_PAD
@@ -965,9 +965,3 @@ private val NUM_FIELD_PAD = 10.dp
 /** Quante cifre si accettano: le corse arrivano a cento, e il taglio è la rete. */
 private const val NUM_DIGITS = 3
 
-/**
- * Il segno che accompagna i tre numeri.
- *
- * Non si traduce, come '16:9' fra i formati del Ritaglio: è un simbolo.
- */
-private const val PER_CENT = "%"

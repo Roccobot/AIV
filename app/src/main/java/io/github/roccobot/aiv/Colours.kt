@@ -56,7 +56,7 @@ fun coloursOf(input: InputStream): Colours? = runCatching {
     val head = ByteArray(HEAD)
     val got = input.readFully(head, HEAD)
     when {
-        got >= 8 && head.startsWith(PNG_SIGNATURE) -> pngColours(head, got, input)
+        got >= 8 && Signatures.png(head) -> pngColours(head, got, input)
         got >= 13 && head.startsWith(GIF_SIGNATURE) -> gifColours(head)
         // Il SOF si cerca dall'inizio: la testa è già letta, quindi si rimette davanti al seguito.
         got >= 4 && head[0] == 0xFF.toByte() && head[1] == 0xD8.toByte() ->
@@ -493,9 +493,6 @@ private const val WEBP_BITS = 8
  */
 private const val MAX_FRAMES = 10_000
 
-private val PNG_SIGNATURE = byteArrayOf(
-    0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A
-)
 private val GIF_SIGNATURE = "GIF8".toByteArray(Charsets.US_ASCII)
 private val RIFF_SIGNATURE = "RIFF".toByteArray(Charsets.US_ASCII)
 

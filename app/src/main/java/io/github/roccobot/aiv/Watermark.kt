@@ -132,11 +132,6 @@ object Watermark {
     /** Dove vive la copia, dentro `filesDir`. */
     private const val DIR = "watermark"
 
-    /** La firma di un PNG: gli otto byte con cui comincia ogni file. */
-    private val PNG_HEAD = byteArrayOf(
-        0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A
-    )
-
     /** Quanti byte bastano a riconoscere un tipo: la firma del PNG, o il `<svg` di un documento. */
     private const val SNIFF = 1024
 
@@ -216,7 +211,7 @@ object Watermark {
 
     /** Che cosa sono questi byte, o `null` se non è nessuno dei due tipi ammessi. */
     private fun kindOf(bytes: ByteArray): Kind? {
-        if (bytes.size >= PNG_HEAD.size && PNG_HEAD.indices.all { bytes[it] == PNG_HEAD[it] }) {
+        if (Signatures.png(bytes)) {
             return Kind.PNG
         }
         val head = String(bytes, 0, minOf(SNIFF, bytes.size), Charsets.ISO_8859_1)
