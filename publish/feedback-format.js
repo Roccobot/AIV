@@ -347,6 +347,9 @@
     inline(md, editor.box);
     editor.lastMarkdown = md;
     editor.range = null;
+    // An undo or a change from outside drops the caret a style key was about to leave.
+    clearTimeout(editor.settling?.timer);
+    editor.settling = null;
   }
   // One step back (-1) or forward (+1): the text of that step, and the selection around it.
   function travel(editor, step) {
@@ -582,15 +585,32 @@
       choose(caret);
     }
   }
-  /* A style key on a selection leaves the caret after it, ready for plain text (his request of
-     2026-10-16). Bold and italic are the browser's typing state, so what the caret carries is
-     switched off there. The browser types into the element before the caret, a code or a bold, so a
-     caret in a code leaves it like the key at a caret does, and the gap goes out of the bold and
-     italic around it, or the letters moved into it would still be in them. A link needs nothing:
-     typing after one goes outside it. */
+  /* A style key on a selection keeps it for half a second, time for a second style on the same
+     text, and then leaves the caret after it with the style the text had there before the first
+     key (his requests of 2026-10-16 and 2026-10-17): code on plain text gives plain text back,
+     italic on bold gives bold alone. A caret moved or a letter typed in that time cancels it. Bold
+     and italic are the browser's typing state, set there to the starting style. The browser types
+     into the element before the caret, a code or a bold, so a caret left in a code it did not
+     start in leaves it like the key at a caret does, and the gap goes out of the bold and italic
+     it did not start in, or the letters moved into it would still be in them. A link needs
+     nothing: typing after one goes outside it. */
+  const SETTLE_MS = 500;
   const TYPING_STYLES = ["B", "STRONG", "I", "EM"];
-  function leaveStyles(gap) {
-    for (let parent = gap.parentElement; TYPING_STYLES.includes(parent?.nodeName); parent = gap.parentElement) {
+  // Read as markdown() reads it: the nearest element that says something about it wins.
+  function stylesAt(editor, point) {
+    const element = point.nodeType === Node.ELEMENT_NODE ? point : point.parentElement;
+    const said = test => {
+      for (let up = element; up && up !== editor.box; up = up.parentElement) {
+        const value = test(up);
+        if (value !== undefined) return value;
+      }
+      return false;
+    };
+    return {bold: said(weightOf), italic: said(slantOf), code: Boolean(codeAt(editor, point))};
+  }
+  function leaveStyles(gap, origin) {
+    const kept = name => name === "B" || name === "STRONG" ? origin.bold : origin.italic;
+    for (let parent = gap.parentElement; TYPING_STYLES.includes(parent?.nodeName) && !kept(parent.nodeName); parent = gap.parentElement) {
       const tail = document.createRange();
       tail.setStartAfter(gap);
       tail.setEndAfter(parent.lastChild);
@@ -608,16 +628,22 @@
     choose(caret);
   }
   function settle(editor) {
+    const pending = editor.settling;
+    editor.settling = null;
+    const now = selectionOf(editor);
+    if (document.activeElement !== editor.box || !now || now.start !== pending.chosen.start || now.end !== pending.chosen.end) return;
     const selected = window.getSelection();
-    if (!selected.rangeCount) return;
     selected.collapseToEnd();
     const caret = selected.getRangeAt(0);
     const code = codeAt(editor, caret.startContainer);
-    if (code) {
+    if (code && !pending.origin.code) {
       leaveCode(editor, code, caret);
-      leaveStyles(editor.plain.gap);
+      leaveStyles(editor.plain.gap, pending.origin);
     }
-    for (const command of ["bold", "italic"]) if (browserState(command)) browserEdit(command);
+    for (const command of ["bold", "italic"]) {
+      if (browserState(command) !== pending.origin[command]) browserEdit(command);
+    }
+    showPressed(editor, window.getSelection().getRangeAt(0));
   }
   function showPressed(editor, range) {
     for (const kind of ["bold", "italic"]) {
@@ -689,8 +715,14 @@
     if (editor.area.disabled) return;
     editor.box.focus({preventScroll: true});
     const range = selection(editor);
-    // Asked before the style changes the range: only a selection gives the caret after it.
+    // Asked before the style changes the range: only a selection gives the caret after it, and
+    // the starting style is the one of the first key in a row.
     const selecting = !range.collapsed;
+    const now = selectionOf(editor), held = editor.settling;
+    const same = held && now && now.start === held.chosen.start && now.end === held.chosen.end;
+    const origin = selecting ? (same ? held.origin : stylesAt(editor, range.endContainer)) : null;
+    clearTimeout(held?.timer);
+    editor.settling = null;
     editor.before = selectionOf(editor);
     if (kind === "link") {
       const selected = range.toString();
@@ -745,8 +777,8 @@
         }
       }
     } else browserEdit(kind === "bold" ? "bold" : "italic");
-    if (selecting) settle(editor);
     sync(editor, "format");
+    if (selecting) editor.settling = {origin, chosen: selectionOf(editor), timer: setTimeout(() => settle(editor), SETTLE_MS)};
     if (window.getSelection().rangeCount) showPressed(editor, window.getSelection().getRangeAt(0));
   }
   for (const [index, area] of Array.from(document.querySelectorAll("textarea:not([readonly])")).entries()) {
@@ -788,7 +820,7 @@
     }
     actions.append(toolbar);
     wrapper.append(area, box, actions);
-    const editor = {area, box, range: null, lastMarkdown: null, history: fresh(area.value), before: null, plain: null};
+    const editor = {area, box, range: null, lastMarkdown: null, history: fresh(area.value), before: null, plain: null, settling: null};
     editors.push(editor);
     for (const [kind, title, key] of [["bold", "Grassetto", "B"], ["italic", "Corsivo", "I"], ["code", "Codice", "M"], ["link", "Link", "K"]]) {
       const button = node("button");

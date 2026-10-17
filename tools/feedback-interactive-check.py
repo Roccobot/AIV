@@ -794,16 +794,11 @@ def check(path):
             field.press('Meta+b')
             expect(stored).to_have_value('prima **abc** dopo')
             expect(field.locator('b,strong')).to_have_text('abc')
-            # A style key leaves the caret after the selection (his request of 2026-10-16), so the
-            # next key goes on the word with the word selected again.
-            select(field,6,9)
             field.press('Meta+i')
             expect(stored).to_have_value('prima ***abc*** dopo')
             expect(field.locator('i,em')).to_have_text('abc')
-            select(field,6,9)
             field.press('Meta+i')
             expect(stored).to_have_value('prima **abc** dopo')
-            select(field,6,9)
             field.press('Meta+b')
             expect(stored).to_have_value('prima abc dopo')
             fill_plain(field, 'abc')
@@ -815,7 +810,6 @@ def check(path):
             select(field,0,3)
             field.press('Control+b')
             expect(stored).to_have_value('**abc**')
-            select(field,0,3)
             field.press('Control+b')
             expect(stored).to_have_value('abc')
             select(field,0,3)
@@ -858,10 +852,8 @@ def check(path):
             select(notes_field,0,4)
             formatting.locator('.extra [data-format="bold"]').click()
             expect(formatting.locator('#notes')).to_have_value('**note**')
-            select(notes_field,0,4)
             formatting.locator('.extra [data-format="bold"]').click()
             expect(formatting.locator('#notes')).to_have_value('note')
-            select(notes_field,0,4)
             formatting.locator('.extra [data-format="italic"]').click()
             expect(formatting.locator('#notes')).to_have_value('*note*')
             formatting.locator('#floating-save').click()
@@ -1015,14 +1007,12 @@ def check(path):
             select(field,10,13)
             field.press('Meta+m')
             expect(stored).to_have_value('prima `abc `def` ghi` dopo')
-            assert formatting.evaluate('getSelection().isCollapsed'), 'Tolto il codice, il cursore resta dopo la parola (2026-10-16).'
+            assert formatting.evaluate('getSelection().toString()') == 'def', 'La parola tolta dal codice resta selezionata.'
             field.press('Meta+z')
             expect(stored).to_have_value('prima `abc def ghi` dopo')
             fill_plain(field, 'x abc')
             select(field,2,5)
             field.press('Meta+m')
-            # A caret the user puts at the end of the code, away from the one the key left.
-            select(field,0,0)
             select(field,5,5)
             expect(card.locator('[data-format="code"]')).to_have_attribute('aria-pressed', 'true')
             field.press('Meta+m')
@@ -1040,70 +1030,67 @@ def check(path):
             fill_plain(field, 'x abc')
             select(field,2,5)
             field.press('Meta+m')
-            select(field,0,0)
             select(field,5,5)
             field.press('Meta+m')
             field.press('Meta+m')
             field.press_sequentially('q')
             expect(stored).to_have_value('x `abcq`')
-            # The key again right after a selection gives the code back too: the caret the first
-            # one left is already the one that waits for plain text.
-            fill_plain(field, 'x abc')
-            select(field,2,5)
-            field.press('Meta+m')
-            field.press('Meta+m')
-            field.press_sequentially('q')
-            expect(stored).to_have_value('x `abcq`')
-            # A style key on a selection leaves the caret after it, ready for plain text (his
-            # request of 2026-10-16): the typed letter comes out plain after bold, italic, code and
-            # a link, after the key that takes a style off, and after a style on a style. Chromium
-            # types into the bold or the code before the caret, which is what the check measures.
+            # A style key on a selection keeps it for half a second, time for a second style, and
+            # then leaves the caret after it with the style the text had there before the first key
+            # (his requests of 2026-10-16 and 2026-10-17). Chromium types into the bold or the code
+            # before the caret, which is what the check measures.
+            def settled():
+                formatting.wait_for_timeout(700)
             for key, mark in [('Meta+b', '**'), ('Meta+i', '*'), ('Meta+m', '`')]:
                 fill_plain(field, 'prima abc dopo')
                 select(field,6,9)
                 field.press(key)
-                assert formatting.evaluate('getSelection().isCollapsed'), 'Dopo ' + key + ' il cursore sta dopo la selezione.'
+                assert formatting.evaluate('getSelection().toString()') == 'abc', 'Per mezzo secondo la selezione resta.'
+                settled()
+                assert formatting.evaluate('getSelection().isCollapsed'), 'Dopo ' + key + ' il cursore va dopo la selezione.'
                 field.press_sequentially('Z')
                 expect(stored).to_have_value('prima ' + mark + 'abc' + mark + 'Z dopo')
             fill_plain(field, 'prima abc dopo')
             select(field,6,9)
             formatting.once('dialog',lambda dialog:dialog.accept(destination))
             field.press('Meta+k')
+            settled()
             field.press_sequentially('Z')
             expect(stored).to_have_value('prima [abc]('+destination+')Z dopo')
             fill_plain(field, 'prima abc dopo')
             select(field,6,9)
             card.locator('[data-format="bold"]').click()
+            settled()
             field.press_sequentially('Z')
             expect(stored).to_have_value('prima **abc**Z dopo')
-            fill_plain(field, 'prima abc dopo')
-            select(field,2,12)
-            field.press('Meta+b')
-            select(field,6,9)
-            field.press('Meta+b')
-            field.press_sequentially('Z')
-            expect(stored).to_have_value('pr**ima** abcZ **do**po')
+            # Two styles in a row on the same selection, and the caret back to plain text.
             fill_plain(field, 'prima abc dopo')
             select(field,6,9)
-            field.press('Meta+m')
-            select(field,6,9)
             field.press('Meta+b')
+            field.press('Meta+i')
+            settled()
             field.press_sequentially('Z')
-            expect(stored).to_have_value('prima **`abc`**Z dopo')
+            expect(stored).to_have_value('prima ***abc***Z dopo')
+            # The starting style comes back: italic or code on bold leaves bold alone.
+            for key, styled in [('Meta+i', '***abc***'), ('Meta+m', '**`abc`**')]:
+                fill_plain(field, 'prima abc dopo')
+                select(field,6,9)
+                field.press('Meta+b')
+                settled()
+                select(field,6,9)
+                field.press(key)
+                settled()
+                field.press_sequentially('Z')
+                expect(stored).to_have_value('prima ' + styled + '**Z** dopo')
+            # A letter typed in the half second replaces the selection, and the caret stays where
+            # the typing left it.
             fill_plain(field, 'prima abc dopo')
-            select(field,2,12)
-            field.press('Meta+m')
             select(field,6,9)
             field.press('Meta+b')
-            field.press_sequentially('Z')
-            expect(stored).to_have_value('pr`ima abc`Z` do`po')
-            fill_plain(field, 'prima abc dopo')
-            select(field,2,12)
-            field.press('Meta+b')
-            select(field,6,9)
-            field.press('Meta+m')
-            field.press_sequentially('Z')
-            expect(stored).to_have_value('pr**ima** **`abc`**Z **do**po')
+            field.press_sequentially('Q')
+            settled()
+            field.press_sequentially('R')
+            expect(stored).to_have_value('prima **QR** dopo')
             # A caret without a selection keeps the old way: the style is the typing state.
             fill_plain(field, 'abc')
             select(field,3,3)
