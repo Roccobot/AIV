@@ -261,7 +261,7 @@ if '--approve-labels' in sys.argv:
             raise SystemExit(f'Etichetta {key}: la chiave non esiste nei file di values-it')
         approved[key] = current[key]
         print(f'approvata {key}: {current[key]}')
-    APPROVED.write_text(json.dumps(dict(sorted(approved.items())), ensure_ascii=False, indent=1) + '\n')
+    APPROVED.write_text(json.dumps(dict(sorted(approved.items())), ensure_ascii=False, indent=1) + '\n', encoding='utf-8')
     sys.exit(0)
 if '--source' not in sys.argv:
     approved = json.loads(APPROVED.read_text(encoding='utf-8'))

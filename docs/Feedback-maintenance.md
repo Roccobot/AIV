@@ -588,6 +588,9 @@ conservazione illimitata né considerare un dump SQL una copia degli allegati St
    `tools/feedback-page.html.in` ha i suoi `&nbsp;` scritti a mano, perché il modello non passa
    dal generatore. Nel foglio di stile, `text-wrap: pretty` su tutta la pagina.
 
+   Dalla 6.29 i tre comandi sono anche il cancello del flusso `feedback-cloud.yml`, che non
+   pubblica una pagina diversa dalle fonti o che non supera il controllo.
+
    Con un giro senza prove aperte il controllo verifica che la pagina parta senza errori e
    senza schede, poi genera una copia temporanea con una prova di sintesi (lo stesso
    generatore, con `--source` e `--output`) e la esercita per intero: la copia non tocca
