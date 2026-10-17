@@ -192,8 +192,8 @@ object ImageActions {
                 connectTimeout = 8_000
                 readTimeout = 8_000
                 instanceFollowRedirects = true
-                setRequestProperty("Accept", "image/avif,image/webp,image/apng,image/*,*/*;q=0.8")
-                setRequestProperty("User-Agent", "Mozilla/5.0 (Android) AIV")
+                setRequestProperty("Accept", WEB_ACCEPT)
+                setRequestProperty("User-Agent", WEB_AGENT)
             }
             try {
                 val type = connection.contentType?.substringBefore(';')?.trim()?.lowercase()
@@ -269,7 +269,7 @@ object ImageActions {
                         connectTimeout = 20_000
                         readTimeout = 60_000
                         instanceFollowRedirects = true
-                        setRequestProperty("User-Agent", "Mozilla/5.0 (Android) AIV")
+                        setRequestProperty("User-Agent", WEB_AGENT)
                         connection = this
                     }.inputStream
                     else -> context.contentResolver.openInputStream(uri)

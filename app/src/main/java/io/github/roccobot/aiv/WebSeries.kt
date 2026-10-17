@@ -5,7 +5,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
-import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -358,7 +357,7 @@ object WebSeries {
             connection = open(uri).apply { setRequestProperty("Accept", "text/html,*/*;q=0.8") }
             if (connection.responseCode !in 200..299) return null
             val room = ByteArray(PAGE_CAP)
-            val read = connection.inputStream.use { fill(it, room) }
+            val read = connection.inputStream.use { it.readFully(room, room.size) }
             if (read <= 0) null else String(room, 0, read, Charsets.UTF_8)
         } catch (e: Exception) {
             null
@@ -414,24 +413,13 @@ object WebSeries {
                 return false
             }
             val head = ByteArray(SNIFF)
-            val read = connection.inputStream.use { fill(it, head) }
+            val read = connection.inputStream.use { it.readFully(head, head.size) }
             signed(head, read)
         } catch (e: Exception) {
             false
         } finally {
             connection?.disconnect()
         }
-    }
-
-    /** Riempie quanto può, perché un flusso di rete dà quello che ha sotto mano. */
-    private fun fill(stream: InputStream, into: ByteArray): Int {
-        var done = 0
-        while (done < into.size) {
-            val step = stream.read(into, done, into.size - done)
-            if (step <= 0) break
-            done += step
-        }
-        return done
     }
 
     /**
@@ -464,8 +452,8 @@ object WebSeries {
             connectTimeout = PROBE_MS
             readTimeout = PROBE_MS
             instanceFollowRedirects = true
-            setRequestProperty("Accept", ACCEPT)
-            setRequestProperty("User-Agent", AGENT)
+            setRequestProperty("Accept", WEB_ACCEPT)
+            setRequestProperty("User-Agent", WEB_AGENT)
         }
 
     private val SCHEMES = setOf("http", "https")
@@ -493,6 +481,4 @@ object WebSeries {
     private const val PROBE_MS = 8_000
     private const val SNIFF = 64
     private const val PAGE_CAP = 512 * 1024
-    private const val ACCEPT = "image/avif,image/webp,image/apng,image/*,*/*;q=0.8"
-    private const val AGENT = "Mozilla/5.0 (Android) AIV"
 }

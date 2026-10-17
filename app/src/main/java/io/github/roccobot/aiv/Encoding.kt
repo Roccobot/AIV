@@ -159,8 +159,9 @@ private fun pngEncoding(input: InputStream): Encoding? {
  * ⚠️ **`read` può tornare meno byte di quelli chiesti senza che lo stream sia finito**: su uno
  * stream di rete o di un `ContentResolver` capita davvero, e un parser che si fida della prima
  * lettura sbaglierebbe l'intestazione una volta ogni tanto.
- * Questa e [skipFully] sono `internal` perché le usa anche [coloursOf]: una seconda copia
- * rischierebbe di perdere il ciclo.
+ * Questa e [skipFully] sono `internal` perché le usano anche [coloursOf], le miniature, il
+ * visualizzatore, le serie web e le animazioni: una seconda copia rischierebbe di perdere il
+ * ciclo, ed è successo tre volte.
  */
 internal fun InputStream.readFully(into: ByteArray, count: Int): Int {
     var got = 0

@@ -273,22 +273,6 @@ private const val OUTSIDE_PAUSE_MS = 700L
 private const val PEEK_MS = 60_000L
 
 /**
- * Riempie [into] fin dove arriva il flusso, e risponde quanti byte ci ha messo.
- *
- * ⚠️ **Un `read` può restituire meno di quanto chiesto**: un confronto su un `read` nudo
- * vedrebbe diversi due file identici letti a pezzi di misura diversa.
- */
-private fun java.io.InputStream.fill(into: ByteArray): Int {
-    var done = 0
-    while (done < into.size) {
-        val step = read(into, done, into.size - done)
-        if (step < 0) break
-        done += step
-    }
-    return done
-}
-
-/**
  * L'immagine decodificata vive nel ViewModel e non nella composizione: una rotazione non deve
  * rimandare il telefono in rete o a decodificare, che su un file grande è una pausa visibile.
  */
@@ -1601,8 +1585,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                     var same = true
                     var going = true
                     while (going && same) {
-                        val read = a.fill(left)
-                        if (b.fill(right) != read) {
+                        val read = a.readFully(left, left.size)
+                        if (b.readFully(right, right.size) != read) {
                             same = false
                         } else {
                             for (i in 0 until read) {
@@ -2892,47 +2876,7 @@ private fun Stage(
                 FoldersTabletSplit(
                     panelOnStart = settings.hand == Hand.RIGHT,
                     rail = {
-                        FolderRail(
-                            buckets = model.buckets,
-                            selected = null,
-                            selectedName = null,
-                            selection = settings.folderSelection,
-                            peeking = model.peeking,
-                            colour = settings.folderColour,
-                            tints = model.folderTints,
-                            onPick = { model.folderPicked(it, false) },
-                            onHide = { bucket ->
-                                bucket.path?.let {
-                                    model.updateSettings(
-                                        settings.copy(
-                                            hiddenFolders = settings.hiddenFolders + portablePath(it)
-                                        )
-                                    )
-                                }
-                            },
-                            onUnhide = { voci ->
-                                model.updateSettings(
-                                    settings.withFolders(settings.folderSelection.remove(voci))
-                                )
-                            },
-                            onSelectionChange = {
-                                model.updateSettings(settings.withFolders(it))
-                            },
-                            onRead = { model.readBuckets(it) },
-                            onSearch = { model.openSearch() },
-                            onBin = { model.openBin() },
-                            onSettings = { model.openSettings() },
-                            width = Adaptive.sideWidth(widthDp),
-                            liftPx = model.folderRailLift,
-                            onLift = { model.folderRailLift = it },
-                            listIndex = model.folderRailIndex,
-                            listOffset = model.folderRailOffset,
-                            onListScroll = { i, o ->
-                                model.folderRailIndex = i
-                                model.folderRailOffset = o
-                            },
-                            chrome = shape != Adaptive.Shape.TALL,
-                        )
+                        TabletRail(model, settings, widthDp, chrome = shape != Adaptive.Shape.TALL)
                     },
                     detail = {
                         Box(modifier = Modifier.fillMaxSize()) {
@@ -3154,48 +3098,10 @@ private fun Stage(
                 dualGrid -> FoldersTabletSplit(
                     panelOnStart = settings.hand == Hand.RIGHT,
                     rail = {
-                        FolderRail(
-                            buckets = model.buckets,
-                            selected = screen.bucket,
-                            selectedName = screen.name,
-                            selection = settings.folderSelection,
-                            peeking = model.peeking,
-                            colour = settings.folderColour,
-                            tints = model.folderTints,
-                            onPick = { model.folderPicked(it, false) },
-                            onHide = { bucket ->
-                                bucket.path?.let {
-                                    model.updateSettings(
-                                        settings.copy(
-                                            hiddenFolders = settings.hiddenFolders + portablePath(it)
-                                        )
-                                    )
-                                }
-                            },
-                            onUnhide = { voci ->
-                                model.updateSettings(
-                                    settings.withFolders(settings.folderSelection.remove(voci))
-                                )
-                            },
-                            onSelectionChange = {
-                                model.updateSettings(settings.withFolders(it))
-                            },
-                            onRead = { model.readBuckets(it) },
-                            onSearch = {
-                                model.openSearch(screen.bucket, screen.name)
-                            },
-                            onBin = { model.openBin() },
-                            onSettings = { model.openSettings() },
-                            width = Adaptive.sideWidth(widthDp),
-                            liftPx = model.folderRailLift,
-                            onLift = { model.folderRailLift = it },
-                            listIndex = model.folderRailIndex,
-                            listOffset = model.folderRailOffset,
-                            onListScroll = { i, o ->
-                                model.folderRailIndex = i
-                                model.folderRailOffset = o
-                            },
-                            chrome = shape != Adaptive.Shape.TALL,
+                        TabletRail(
+                            model, settings, widthDp, chrome = shape != Adaptive.Shape.TALL,
+                            selected = screen.bucket, selectedName = screen.name,
+                            onSearch = { model.openSearch(screen.bucket, screen.name) }
                         )
                     },
                     detail = { FolderGrid(shape, null) }
@@ -3270,48 +3176,10 @@ private fun Stage(
                 FoldersTabletSplit(
                     panelOnStart = settings.hand == Hand.RIGHT,
                     rail = {
-                        FolderRail(
-                            buckets = model.buckets,
-                            selected = screen.bucket,
-                            selectedName = screen.name,
-                            selection = settings.folderSelection,
-                            peeking = model.peeking,
-                            colour = settings.folderColour,
-                            tints = model.folderTints,
-                            onPick = { model.folderPicked(it, false) },
-                            onHide = { bucket ->
-                                bucket.path?.let {
-                                    model.updateSettings(
-                                        settings.copy(
-                                            hiddenFolders = settings.hiddenFolders + portablePath(it)
-                                        )
-                                    )
-                                }
-                            },
-                            onUnhide = { voci ->
-                                model.updateSettings(
-                                    settings.withFolders(settings.folderSelection.remove(voci))
-                                )
-                            },
-                            onSelectionChange = {
-                                model.updateSettings(settings.withFolders(it))
-                            },
-                            onRead = { model.readBuckets(it) },
-                            onSearch = {
-                                model.openSearch(screen.bucket, screen.name)
-                            },
-                            onBin = { model.openBin() },
-                            onSettings = { model.openSettings() },
-                            width = Adaptive.sideWidth(widthDp),
-                            liftPx = model.folderRailLift,
-                            onLift = { model.folderRailLift = it },
-                            listIndex = model.folderRailIndex,
-                            listOffset = model.folderRailOffset,
-                            onListScroll = { i, o ->
-                                model.folderRailIndex = i
-                                model.folderRailOffset = o
-                            },
-                            chrome = shape != Adaptive.Shape.TALL,
+                        TabletRail(
+                            model, settings, widthDp, chrome = shape != Adaptive.Shape.TALL,
+                            selected = screen.bucket, selectedName = screen.name,
+                            onSearch = { model.openSearch(screen.bucket, screen.name) }
                         )
                     },
                     detail = { SearchGrid(shape, null) }
@@ -3533,5 +3401,57 @@ private fun railListFor(
             model.folderRailOffset = o
         },
         modifier = modifier
+    )
+}
+
+/**
+ * La colonna delle cartelle del tablet in verticale, con le stesse scritture di [railListFor]:
+ * la schermata iniziale, la griglia della cartella e la ricerca la chiedevano in tre copie uguali,
+ * e cambiano solo la cartella scelta e dove porta 'Cerca'.
+ */
+@Composable
+private fun TabletRail(
+    model: ViewerViewModel,
+    settings: Settings,
+    widthDp: Int,
+    chrome: Boolean,
+    selected: Long? = null,
+    selectedName: String? = null,
+    onSearch: () -> Unit = { model.openSearch() }
+) {
+    FolderRail(
+        buckets = model.buckets,
+        selected = selected,
+        selectedName = selectedName,
+        selection = settings.folderSelection,
+        peeking = model.peeking,
+        colour = settings.folderColour,
+        tints = model.folderTints,
+        onPick = { model.folderPicked(it, false) },
+        onHide = { bucket ->
+            bucket.path?.let {
+                model.updateSettings(
+                    settings.copy(hiddenFolders = settings.hiddenFolders + portablePath(it))
+                )
+            }
+        },
+        onUnhide = { voci ->
+            model.updateSettings(settings.withFolders(settings.folderSelection.remove(voci)))
+        },
+        onSelectionChange = { model.updateSettings(settings.withFolders(it)) },
+        onRead = { model.readBuckets(it) },
+        onSearch = onSearch,
+        onBin = { model.openBin() },
+        onSettings = { model.openSettings() },
+        width = Adaptive.sideWidth(widthDp),
+        liftPx = model.folderRailLift,
+        onLift = { model.folderRailLift = it },
+        listIndex = model.folderRailIndex,
+        listOffset = model.folderRailOffset,
+        onListScroll = { i, o ->
+            model.folderRailIndex = i
+            model.folderRailOffset = o
+        },
+        chrome = chrome,
     )
 }

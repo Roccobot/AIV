@@ -130,8 +130,8 @@ object ImageSource {
             instanceFollowRedirects = true
             // Alcune CDN rispondono 403 a una richiesta senza queste intestazioni, e una pagina
             // d'errore chiamata .jpg non si decodifica: meglio presentarsi come un browser.
-            setRequestProperty("Accept", "image/avif,image/webp,image/apng,image/*,*/*;q=0.8")
-            setRequestProperty("User-Agent", "Mozilla/5.0 (Android) AIV")
+            setRequestProperty("Accept", WEB_ACCEPT)
+            setRequestProperty("User-Agent", WEB_AGENT)
             // Una copia scaduta si rivalida: se il server dice che è la stessa, risponde `304`
             // senza corpo e si riapre quella. Vedi la nota su [RemoteCache].
             cached?.etag?.let { setRequestProperty("If-None-Match", it) }
@@ -490,3 +490,11 @@ internal object Signatures {
     fun gzip(head: ByteArray): Boolean =
         head.size >= 2 && head[0] == 0x1f.toByte() && head[1] == 0x8b.toByte()
 }
+
+/*
+ * Le intestazioni con cui l'app chiede un'immagine al web, una volta sola per il caricatore, le
+ * serie web e le azioni sull'immagine: un server che risponde in base a loro darebbe a ognuno un
+ * file diverso, e il difetto sarebbe invisibile.
+ */
+internal const val WEB_ACCEPT = "image/avif,image/webp,image/apng,image/*,*/*;q=0.8"
+internal const val WEB_AGENT = "Mozilla/5.0 (Android) AIV"

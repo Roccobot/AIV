@@ -149,18 +149,13 @@ object Animations {
      * ⚠️ **I primi byte decidono prima che si legga il resto**: il visualizzatore fa questa domanda
      * per ogni pagina, filmati compresi, e un MKV di 250 MB letto tutto in memoria chiudeva l'app.
      * Un file che non è né GIF né WebP costa [SNIFF] byte, e uno oltre [MAX_BYTES] si scarta appena
-     * il flusso lo supera; presidiato da `AnimazioniGrandiTest`. La testa si legge a mano perché
-     * `readNBytes` esiste solo da Android 13, e un `read` può restituire meno byte di quelli
-     * chiesti.
+     * il flusso lo supera; presidiato da `AnimazioniGrandiTest`. La testa si legge con
+     * [readFully] perché `readNBytes` esiste solo da Android 13, e un `read` può restituire meno
+     * byte di quelli chiesti.
      */
     internal fun candidate(stream: InputStream): ByteArray? {
         val head = ByteArray(SNIFF)
-        var got = 0
-        while (got < SNIFF) {
-            val n = stream.read(head, got, SNIFF - got)
-            if (n < 0) break
-            got += n
-        }
+        val got = stream.readFully(head, SNIFF)
         if (kindOf(head.copyOf(got)) == Kind.NONE) return null
         val out = ByteArrayOutputStream().apply { write(head, 0, got) }
         val buffer = ByteArray(BUFFER)
