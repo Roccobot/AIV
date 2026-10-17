@@ -277,7 +277,9 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
       6.29 il tasto mostra `⚠` senza selettore e scrive ancora `⚠️`, e all'apertura parte una
       parte sola, 63 KB, e la schermata del tasto è uguale al byte (misure del 2026-10-16, H22 della
       revisione Setaccio). Un simbolo nuovo nell'interfaccia si scrive senza `U+fe0f`, e la prova
-      interattiva controlla che le parti scaricate siano quelle che il testo chiede.
+      interattiva controlla che le parti scaricate siano quelle che il testo chiede: con un `⚠️`
+      scritto nel testo del giro, come nella 2.10 di Aomidori, il browser ne scarica solo alcune fra
+      quelle del selettore, e la prova lo accetta (2026-10-17, `Gemella`).
   Su viewport stretti (≤ 720px) i controlli stanno nell'angolo in basso a destra,
   dentro la cornice del testo, così la barra di selezione di sistema (Taglia/Copia/Incolla),
   che compare sopra il cursore, non li copre. Su desktop restano in riga sopra il campo.

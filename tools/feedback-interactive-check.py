@@ -421,9 +421,15 @@ def check_emoji_pieces(path):
             assert '️' not in row, 'Un tasto sopra Altro mostra U+FE0F.'
             # The drawn text: textContent would add the page's data, which is never drawn.
             shown = {ord(character) for character in page.evaluate('document.body.innerText')}
-            expected = {piece for piece, spans in ranges.items()
-                        if any(low <= code <= high for code in shown for low, high in spans)}
-            assert pieces == expected, f'Pezzi scaricati {sorted(pieces)}, attesi {sorted(expected)}.'
+            def asked(codes):
+                return {piece for piece, spans in ranges.items()
+                        if any(low <= code <= high for code in codes for low, high in spans)}
+            # ⚠️ U+FE0F written in the round's own text (a `⚠️` in a test of Aomidori's 2.10)
+            # makes the browser fetch some of the eight pieces it falls in, not all of them
+            # (2026-10-17, Gemella): the pieces fetched lie between those of the other characters
+            # and those of every character. Without U+FE0F the two bounds are the same.
+            needed, allowed = asked(shown - {0xFE0F}), asked(shown)
+            assert needed <= pieces <= allowed, f'Pezzi scaricati {sorted(pieces)}, attesi da {sorted(needed)} a {sorted(allowed)}.'
             engine.close()
     finally:
         server.shutdown()
@@ -758,8 +764,11 @@ def check_navigation_with_answers(navigation, data):
     from playwright.sync_api import expect
     navigation.evaluate('''() => {
         const previous = document.querySelector('#tests .test:last-child').getBoundingClientRect();
-        // The next in-flow primary card; .extra is a side column on desktop.
-        const nextNode = document.querySelector('.feedback-primary .archive');
+        // The next in-flow primary card, whichever block comes after the tests (the
+        // questions, the labels or the archive, which a round may not have); .extra is a
+        // side column on desktop.
+        let nextNode = document.querySelector('.feedback-primary .tests').nextElementSibling;
+        while (nextNode && !nextNode.getBoundingClientRect().height) nextNode = nextNode.nextElementSibling;
         const next = nextNode.getBoundingClientRect();
         const offset = document.querySelector('.dashboard').getBoundingClientRect().height + 12;
         window.scrollTo(0, window.scrollY + (previous.bottom + next.top)/2 - offset);
@@ -1049,10 +1058,10 @@ def check_style_undo_and_code(formatting):
     field.press('Meta+m')
     expect(stored).to_have_value('x **`abc`** y')
     select(field,0,7)
-    field.press('Control+c')
+    field.press('ControlOrMeta+c')
     fill_plain(notes_field, '')
     notes_field.click()
-    notes_field.press('Control+v')
+    notes_field.press('ControlOrMeta+v')
     expect(formatting.locator('#notes')).to_have_value('x **`abc`** y')
     expect(notes_field.locator('strong code')).to_have_text('abc')
     notes_field.press('Meta+z')

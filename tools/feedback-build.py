@@ -61,7 +61,7 @@ def tie_after(body, text, i, out):
     """After a bold, an italic or a link whose last word is short (`note A e **B** (`), the space
     that follows belongs to the next run, where bind() cannot see the word: it is tied here."""
     if LAST_SHORT_WORD.search(body) and text.startswith(" ", i):
-        out.append(" ")
+        out.append("\u00a0")
         return i + 1
     return i
 
