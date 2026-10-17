@@ -440,90 +440,62 @@ fun EditorScreen(
         )
         }
 
+        /*
+         * Il palco è uno solo per le due disposizioni, come la scheda qui sopra: cambia soltanto
+         * la misura, che il chiamante dà col suo `weight`.
+         */
+        @Composable
+        fun Stage(size: Modifier) {
+            BoxWithConstraints(
+                modifier = size
+                    /*
+                     * ⚠️ **Il grigio va prima dei due rientri**: dipinge la fascia intera fra testata
+                     * e scheda, mentre l'immagine resta dentro i rientri. Dopo, resterebbe una cornice
+                     * del colore della pagina. Il colore è spiegato su [stageBack].
+                     */
+                    .background(stageBack())
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+                    .padding(horizontal = STAGE_SIDE, vertical = STAGE_PAD),
+                contentAlignment = Alignment.Center
+            ) {
+                val picture = shown
+                if (picture == null) {
+                    CircularProgressIndicator()
+                } else {
+                    val room = Size(constraints.maxWidth.toFloat(), constraints.maxHeight.toFloat())
+                    val frame = remember(picture, room) { fitted(picture, room) }
+                    val density = LocalDensity.current
+                    CropStage(
+                        picture = picture,
+                        frame = frame,
+                        crop = crop,
+                        grip = with(density) { GRIP.toPx() },
+                        least = with(density) { LEAST_SIDE.toPx() },
+                        arm = with(density) { HANDLE_ARM.toPx() },
+                        thick = with(density) { HANDLE_THICK.toPx() },
+                        halo = with(density) { GRIP_HALO.toPx() },
+                        lensEdge = with(density) { LENS_EDGE.toPx() },
+                        loupe = with(density) { LOUPE_SIDE.toPx() },
+                        edge = with(density) { LOUPE_EDGE.toPx() },
+                        onCrop = { crop = it },
+                        keep = shape.value(lay, aspect)
+                    )
+                }
+            }
+        }
+
         if (beside) {
             Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 if (panelOnStart) {
                     Sheet()
                 }
-        BoxWithConstraints(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()
-                /*
-                 * ⚠️ **Il grigio va prima dei due rientri**: dipinge la fascia intera fra testata
-                 * e scheda, mentre l'immagine resta dentro i rientri. Dopo, resterebbe una cornice
-                 * del colore della pagina. Il colore è spiegato su [stageBack].
-                 */
-                .background(stageBack())
-                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
-                .padding(horizontal = STAGE_SIDE, vertical = STAGE_PAD),
-            contentAlignment = Alignment.Center
-        ) {
-            val picture = shown
-            if (picture == null) {
-                CircularProgressIndicator()
-            } else {
-                val room = Size(constraints.maxWidth.toFloat(), constraints.maxHeight.toFloat())
-                val frame = remember(picture, room) { fitted(picture, room) }
-                val density = LocalDensity.current
-                CropStage(
-                    picture = picture,
-                    frame = frame,
-                    crop = crop,
-                    grip = with(density) { GRIP.toPx() },
-                    least = with(density) { LEAST_SIDE.toPx() },
-                    arm = with(density) { HANDLE_ARM.toPx() },
-                    thick = with(density) { HANDLE_THICK.toPx() },
-                    halo = with(density) { GRIP_HALO.toPx() },
-                    lensEdge = with(density) { LENS_EDGE.toPx() },
-                    loupe = with(density) { LOUPE_SIDE.toPx() },
-                    edge = with(density) { LOUPE_EDGE.toPx() },
-                    onCrop = { crop = it },
-                    keep = shape.value(lay, aspect)
-                )
-            }
-        }
-
+                Stage(Modifier.weight(1f).fillMaxHeight())
                 if (!panelOnStart) {
                     Sheet()
                 }
             }
         } else {
-        BoxWithConstraints(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                // Il grigio va prima dei due rientri, come nel ramo affiancato qui sopra.
-                .background(stageBack())
-                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
-                .padding(horizontal = STAGE_SIDE, vertical = STAGE_PAD),
-            contentAlignment = Alignment.Center
-        ) {
-            val picture = shown
-            if (picture == null) {
-                CircularProgressIndicator()
-            } else {
-                val room = Size(constraints.maxWidth.toFloat(), constraints.maxHeight.toFloat())
-                val frame = remember(picture, room) { fitted(picture, room) }
-                val density = LocalDensity.current
-                CropStage(
-                    picture = picture,
-                    frame = frame,
-                    crop = crop,
-                    grip = with(density) { GRIP.toPx() },
-                    least = with(density) { LEAST_SIDE.toPx() },
-                    arm = with(density) { HANDLE_ARM.toPx() },
-                    thick = with(density) { HANDLE_THICK.toPx() },
-                    halo = with(density) { GRIP_HALO.toPx() },
-                    lensEdge = with(density) { LENS_EDGE.toPx() },
-                    loupe = with(density) { LOUPE_SIDE.toPx() },
-                    edge = with(density) { LOUPE_EDGE.toPx() },
-                    onCrop = { crop = it },
-                    keep = shape.value(lay, aspect)
-                )
-            }
-        }
-
+            Stage(Modifier.weight(1f).fillMaxWidth())
             Sheet()
         }
     }
